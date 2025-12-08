@@ -3,6 +3,7 @@ import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/core/widgets/app_buttons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({super.key});
@@ -209,9 +210,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         curve: Curves.easeInOut,
       );
     } else {
-      // Navigate to next screen (e.g., Login or Dashboard)
-      // For MVP prototype, we might just stay here or go to a dummy dashboard
-      // context.go('/dashboard');
+      context.go('/register');
     }
   }
 

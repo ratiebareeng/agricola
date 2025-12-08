@@ -1,4 +1,7 @@
 import 'package:agricola/core/theme/app_theme.dart';
+import 'package:agricola/features/auth/screens/registration_screen.dart';
+import 'package:agricola/features/auth/screens/sign_in_screen.dart';
+import 'package:agricola/features/auth/screens/sign_up_screen.dart';
 import 'package:agricola/features/onboarding/screens/onboarding_screen.dart';
 import 'package:agricola/features/onboarding/screens/welcome_screen.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +19,18 @@ final _router = GoRouter(
     GoRoute(
       path: '/onboarding',
       builder: (context, state) => const OnboardingScreen(),
+    ),
+    GoRoute(
+      path: '/register',
+      builder: (context, state) => const RegistrationScreen(),
+    ),
+    GoRoute(
+      path: '/sign-up',
+      builder: (context, state) => const SignUpScreen(),
+    ),
+    GoRoute(
+      path: '/sign-in',
+      builder: (context, state) => const SignInScreen(),
     ),
   ],
 );

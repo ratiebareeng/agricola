@@ -82,6 +82,57 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
     AppLanguage.english: 'Get Started',
     AppLanguage.setswana: 'Simolola',
   },
+  // Registration
+  'create_account': {
+    AppLanguage.english: 'Create Account',
+    AppLanguage.setswana: 'Ithomele Akhaonto',
+  },
+  'select_account_type': {
+    AppLanguage.english: 'Select Account Type',
+    AppLanguage.setswana: 'Tlhopha Mofuta wa Akhaonto',
+  },
+  'farmer': {AppLanguage.english: 'Farmer', AppLanguage.setswana: 'Molemi'},
+  'farmer_desc': {
+    AppLanguage.english: 'I grow crops or raise livestock',
+    AppLanguage.setswana: 'Ke lema dijalo kgotsa ke rua leruo',
+  },
+  'agri_merchant': {
+    AppLanguage.english: 'AgriMerchant',
+    AppLanguage.setswana: 'Morekisi wa Temo',
+  },
+  'agri_merchant_desc': {
+    AppLanguage.english: 'I sell agricultural supplies or buy produce',
+    AppLanguage.setswana: 'Ke rekisa dithoto tsa temo kgotsa ke reka thobo',
+  },
+  // Auth
+  'sign_up': {AppLanguage.english: 'Sign Up', AppLanguage.setswana: 'Ikwadise'},
+  'sign_in': {AppLanguage.english: 'Sign In', AppLanguage.setswana: 'Tsena'},
+  'email': {AppLanguage.english: 'Email', AppLanguage.setswana: 'Imeile'},
+  'password': {
+    AppLanguage.english: 'Password',
+    AppLanguage.setswana: 'Phasewete',
+  },
+  'confirm_password': {
+    AppLanguage.english: 'Confirm Password',
+    AppLanguage.setswana: 'Netefatsa Phasewete',
+  },
+  'or_continue_with': {
+    AppLanguage.english: 'Or continue with',
+    AppLanguage.setswana: 'Kgotsa tswelela ka',
+  },
+  'already_have_account': {
+    AppLanguage.english: 'Already have an account?',
+    AppLanguage.setswana: 'A o setse o na le akhaonto?',
+  },
+  'dont_have_account': {
+    AppLanguage.english: 'Don\'t have an account?',
+    AppLanguage.setswana: 'Ga o na akhaonto?',
+  },
+  'google': {AppLanguage.english: 'Google', AppLanguage.setswana: 'Google'},
+  'facebook': {
+    AppLanguage.english: 'Facebook',
+    AppLanguage.setswana: 'Facebook',
+  },
 };
 
 String t(String key, AppLanguage lang) {
