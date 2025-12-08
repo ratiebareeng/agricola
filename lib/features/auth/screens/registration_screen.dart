@@ -117,7 +117,7 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
 
   void _onContinue() {
     if (_selectedUserType != null) {
-      context.push('/sign-up');
+      context.push('/sign-up?type=${_selectedUserType!.name}');
     }
   }
 }

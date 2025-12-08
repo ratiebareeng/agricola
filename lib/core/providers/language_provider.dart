@@ -133,6 +133,114 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
     AppLanguage.english: 'Facebook',
     AppLanguage.setswana: 'Facebook',
   },
+  // Profile Setup
+  'step': {AppLanguage.english: 'Step', AppLanguage.setswana: 'Kgato'},
+  'of': {AppLanguage.english: 'of', AppLanguage.setswana: 'ya'},
+  'finish': {AppLanguage.english: 'Finish', AppLanguage.setswana: 'Fetsa'},
+  'upload_photo': {
+    AppLanguage.english: 'Upload Photo',
+    AppLanguage.setswana: 'Tsenya Setshwantsho',
+  },
+  'where_is_farm': {
+    AppLanguage.english: 'Where is your farm?',
+    AppLanguage.setswana: 'Polasi ya gago e kae?',
+  },
+  'what_do_you_grow': {
+    AppLanguage.english: 'What do you grow?',
+    AppLanguage.setswana: 'O lema eng?',
+  },
+  'how_big_is_farm': {
+    AppLanguage.english: 'How big is your farm?',
+    AppLanguage.setswana: 'Polasi ya gago e kana kang?',
+  },
+  'add_photo': {
+    AppLanguage.english: 'Add a photo',
+    AppLanguage.setswana: 'Tsenya setshwantsho',
+  },
+  'business_details': {
+    AppLanguage.english: 'Business Details',
+    AppLanguage.setswana: 'Dintlha tsa Kgwebo',
+  },
+  'where_are_you_located': {
+    AppLanguage.english: 'Where are you located?',
+    AppLanguage.setswana: 'O bonwa kae?',
+  },
+  'what_do_you_buy': {
+    AppLanguage.english: 'What do you buy?',
+    AppLanguage.setswana: 'O reka eng?',
+  },
+  'business_name': {
+    AppLanguage.english: 'Business Name',
+    AppLanguage.setswana: 'Leina la Kgwebo',
+  },
+  'village_area': {
+    AppLanguage.english: 'Village / Area',
+    AppLanguage.setswana: 'Motse / Kgaolo',
+  },
+  'location': {
+    AppLanguage.english: 'Location',
+    AppLanguage.setswana: 'Lefelo',
+  },
+  // Crops
+  'Maize': {AppLanguage.english: 'Maize', AppLanguage.setswana: 'Mmidi'},
+  'Sorghum': {AppLanguage.english: 'Sorghum', AppLanguage.setswana: 'Mabele'},
+  'Beans': {AppLanguage.english: 'Beans', AppLanguage.setswana: 'Dinawa'},
+  'Watermelon': {
+    AppLanguage.english: 'Watermelon',
+    AppLanguage.setswana: 'Legapu',
+  },
+  'Spinach': {
+    AppLanguage.english: 'Spinach',
+    AppLanguage.setswana: 'Espinatšhe',
+  },
+  'Tomatoes': {
+    AppLanguage.english: 'Tomatoes',
+    AppLanguage.setswana: 'Tamati',
+  },
+  'Onions': {AppLanguage.english: 'Onions', AppLanguage.setswana: 'Eie'},
+  'Cabbage': {
+    AppLanguage.english: 'Cabbage',
+    AppLanguage.setswana: 'Khabetšhe',
+  },
+  // Products
+  'Grains': {AppLanguage.english: 'Grains', AppLanguage.setswana: 'Dithoro'},
+  'Vegetables': {
+    AppLanguage.english: 'Vegetables',
+    AppLanguage.setswana: 'Merogo',
+  },
+  'Fruits': {AppLanguage.english: 'Fruits', AppLanguage.setswana: 'Maungo'},
+  'Livestock': {
+    AppLanguage.english: 'Livestock',
+    AppLanguage.setswana: 'Leruo',
+  },
+  'Dairy': {AppLanguage.english: 'Dairy', AppLanguage.setswana: 'Mashi'},
+  'Poultry': {AppLanguage.english: 'Poultry', AppLanguage.setswana: 'Dikoko'},
+  // Farm Sizes
+  '< 1 Hectare': {
+    AppLanguage.english: '< 1 Hectare',
+    AppLanguage.setswana: '< 1 Hectare',
+  },
+  '1-5 Hectares': {
+    AppLanguage.english: '1-5 Hectares',
+    AppLanguage.setswana: '1-5 Hectares',
+  },
+  '5-10 Hectares': {
+    AppLanguage.english: '5-10 Hectares',
+    AppLanguage.setswana: '5-10 Hectares',
+  },
+  '10+ Hectares': {
+    AppLanguage.english: '10+ Hectares',
+    AppLanguage.setswana: '10+ Hectares',
+  },
+  // Home
+  'home_title': {
+    AppLanguage.english: 'Agricola Home',
+    AppLanguage.setswana: 'Agricola Gae',
+  },
+  'welcome_message': {
+    AppLanguage.english: 'Welcome to Agricola!',
+    AppLanguage.setswana: 'Amogelesega kwa Agricola!',
+  },
 };
 
 String t(String key, AppLanguage lang) {

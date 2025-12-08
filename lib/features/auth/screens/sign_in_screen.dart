@@ -105,7 +105,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                       child: AppSecondaryButton(
                         label: t('google', currentLang),
                         icon: Icons.g_mobiledata,
-                        onTap: () {},
+                        onTap: () => context.go('/home'),
                       ),
                     ),
                     const SizedBox(width: 16),
@@ -113,7 +113,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                       child: AppSecondaryButton(
                         label: t('facebook', currentLang),
                         icon: Icons.facebook,
-                        onTap: () {},
+                        onTap: () => context.go('/home'),
                       ),
                     ),
                   ],
@@ -171,10 +171,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
           _isLoading = false;
         });
         // Navigate to dashboard
-        // context.go('/dashboard');
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Sign In Successful (Prototype)')),
-        );
+        context.go('/home');
       }
     }
   }

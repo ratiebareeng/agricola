@@ -7,7 +7,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 class SignUpScreen extends ConsumerStatefulWidget {
-  const SignUpScreen({super.key});
+  final String? userType;
+  const SignUpScreen({super.key, this.userType});
 
   @override
   ConsumerState<SignUpScreen> createState() => _SignUpScreenState();
@@ -122,7 +123,9 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                       child: AppSecondaryButton(
                         label: t('google', currentLang),
                         icon: Icons.g_mobiledata, // Placeholder
-                        onTap: () {},
+                        onTap: () => context.go(
+                          '/profile-setup?type=${widget.userType ?? "farmer"}',
+                        ),
                       ),
                     ),
                     const SizedBox(width: 16),
@@ -130,7 +133,9 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                       child: AppSecondaryButton(
                         label: t('facebook', currentLang),
                         icon: Icons.facebook,
-                        onTap: () {},
+                        onTap: () => context.go(
+                          '/profile-setup?type=${widget.userType ?? "farmer"}',
+                        ),
                       ),
                     ),
                   ],
@@ -188,11 +193,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
         setState(() {
           _isLoading = false;
         });
-        // Navigate to dashboard or verification
-        // context.go('/dashboard');
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Sign Up Successful (Prototype)')),
-        );
+        // Navigate to profile setup
+        context.go('/profile-setup?type=${widget.userType ?? "farmer"}');
       }
     }
   }
