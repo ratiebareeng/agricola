@@ -1,5 +1,6 @@
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
+import 'package:agricola/core/widgets/app_buttons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -13,136 +14,149 @@ class WelcomeScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppColors.white,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Spacer(flex: 2),
-              // Logo Placeholder
-              Container(
-                width: 120,
-                height: 120,
-                decoration: BoxDecoration(
-                  color: AppColors.green.withOpacity(0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.agriculture,
-                  size: 64,
-                  color: AppColors.green,
-                ),
+      body: Stack(
+        children: [
+          // Background Decoration
+          Positioned(
+            top: -100,
+            right: -100,
+            child: Container(
+              width: 300,
+              height: 300,
+              decoration: BoxDecoration(
+                color: AppColors.green.withOpacity(0.05),
+                shape: BoxShape.circle,
               ),
-              const SizedBox(height: 24),
-              // App Name
-              Text(
-                t('app_title', currentLang),
-                style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                  color: AppColors.green,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 16),
-              // Tagline
-              Text(
-                t('tagline', currentLang),
-                textAlign: TextAlign.center,
-                style: Theme.of(
-                  context,
-                ).textTheme.bodyLarge?.copyWith(color: AppColors.earthBrown),
-              ),
-              const Spacer(flex: 3),
-              // Language Selection Header
-              Text(
-                t('select_language', currentLang),
-                style: Theme.of(context).textTheme.headlineMedium,
-              ),
-              const SizedBox(height: 24),
-              // English Button
-              _LanguageButton(
-                label: 'English',
-                isSelected: currentLang == AppLanguage.english,
-                onTap: () {
-                  ref
-                      .read(languageProvider.notifier)
-                      .setLanguage(AppLanguage.english);
-                  // Add a small delay or just navigate directly if preferred,
-                  // but usually user selects then clicks continue or it auto-navigates.
-                  // Design brief says "Selecting language saves preference and proceeds to onboarding"
-                  // We can add a small delay to show selection state or just go.
-                  Future.delayed(const Duration(milliseconds: 300), () {
-                    context.go('/onboarding');
-                  });
-                },
-              ),
-              const SizedBox(height: 16),
-              // Setswana Button
-              _LanguageButton(
-                label: 'Setswana',
-                isSelected: currentLang == AppLanguage.setswana,
-                onTap: () {
-                  ref
-                      .read(languageProvider.notifier)
-                      .setLanguage(AppLanguage.setswana);
-                  Future.delayed(const Duration(milliseconds: 300), () {
-                    context.go('/onboarding');
-                  });
-                },
-              ),
-              const Spacer(flex: 1),
-            ],
+            ),
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _LanguageButton extends StatelessWidget {
-  final String label;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  const _LanguageButton({
-    required this.label,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 20),
-        decoration: BoxDecoration(
-          color: isSelected ? AppColors.green : AppColors.white,
-          border: Border.all(
-            color: isSelected ? AppColors.green : AppColors.mediumGray,
-            width: 2,
+          Positioned(
+            bottom: -50,
+            left: -50,
+            child: Container(
+              width: 200,
+              height: 200,
+              decoration: BoxDecoration(
+                color: AppColors.earthBrown.withOpacity(0.05),
+                shape: BoxShape.circle,
+              ),
+            ),
           ),
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: isSelected
-              ? [
-                  BoxShadow(
-                    color: AppColors.green.withOpacity(0.3),
-                    blurRadius: 8,
-                    offset: const Offset(0, 4),
+
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Spacer(flex: 2),
+                  // Logo & Branding
+                  Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: AppColors.white,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.green.withOpacity(0.15),
+                          blurRadius: 20,
+                          offset: const Offset(0, 10),
+                        ),
+                      ],
+                    ),
+                    child: const Icon(
+                      Icons.agriculture_rounded,
+                      size: 80,
+                      color: AppColors.green,
+                    ),
                   ),
-                ]
-              : null,
-        ),
-        child: Text(
-          label,
-          textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            color: isSelected ? AppColors.white : AppColors.darkGray,
-            fontWeight: FontWeight.bold,
+                  const SizedBox(height: 32),
+
+                  Text(
+                    t('app_title', currentLang),
+                    style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                      color: AppColors.green,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    t('tagline', currentLang),
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: AppColors.earthBrown,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+
+                  const Spacer(flex: 3),
+
+                  // Language Selection
+                  Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: AppColors.white,
+                      borderRadius: BorderRadius.circular(24),
+                      border: Border.all(color: AppColors.lightGray),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 15,
+                          offset: const Offset(0, 5),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      children: [
+                        Text(
+                          t('select_language', currentLang),
+                          style: Theme.of(context).textTheme.titleLarge
+                              ?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.darkGray,
+                              ),
+                        ),
+                        const SizedBox(height: 24),
+                        AppSecondaryButton(
+                          label: 'English',
+                          icon: Icons.language,
+                          onTap: () {
+                            ref
+                                .read(languageProvider.notifier)
+                                .setLanguage(AppLanguage.english);
+                            Future.delayed(
+                              const Duration(milliseconds: 300),
+                              () {
+                                context.go('/onboarding');
+                              },
+                            );
+                          },
+                        ),
+                        const SizedBox(height: 16),
+                        AppSecondaryButton(
+                          label: 'Setswana',
+                          icon: Icons.translate,
+                          onTap: () {
+                            ref
+                                .read(languageProvider.notifier)
+                                .setLanguage(AppLanguage.setswana);
+                            Future.delayed(
+                              const Duration(milliseconds: 300),
+                              () {
+                                context.go('/onboarding');
+                              },
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Spacer(flex: 1),
+                ],
+              ),
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
