@@ -177,10 +177,7 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
     AppLanguage.english: 'Village / Area',
     AppLanguage.setswana: 'Motse / Kgaolo',
   },
-  'location': {
-    AppLanguage.english: 'Location',
-    AppLanguage.setswana: 'Lefelo',
-  },
+  'location': {AppLanguage.english: 'Location', AppLanguage.setswana: 'Lefelo'},
   // Crops
   'Maize': {AppLanguage.english: 'Maize', AppLanguage.setswana: 'Mmidi'},
   'Sorghum': {AppLanguage.english: 'Sorghum', AppLanguage.setswana: 'Mabele'},
@@ -193,10 +190,7 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
     AppLanguage.english: 'Spinach',
     AppLanguage.setswana: 'Espinatšhe',
   },
-  'Tomatoes': {
-    AppLanguage.english: 'Tomatoes',
-    AppLanguage.setswana: 'Tamati',
-  },
+  'Tomatoes': {AppLanguage.english: 'Tomatoes', AppLanguage.setswana: 'Tamati'},
   'Onions': {AppLanguage.english: 'Onions', AppLanguage.setswana: 'Eie'},
   'Cabbage': {
     AppLanguage.english: 'Cabbage',
@@ -233,14 +227,62 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
     AppLanguage.setswana: '10+ Hectares',
   },
   // Home
-  'home_title': {
-    AppLanguage.english: 'Agricola Home',
-    AppLanguage.setswana: 'Agricola Gae',
-  },
+  'home_title': {AppLanguage.english: 'Home', AppLanguage.setswana: 'Gae'},
   'welcome_message': {
-    AppLanguage.english: 'Welcome to Agricola!',
-    AppLanguage.setswana: 'Amogelesega kwa Agricola!',
+    AppLanguage.english: 'Welcome back, Farmer!',
+    AppLanguage.setswana: 'O amogelesegile, Molemi!',
   },
+  // Dashboard
+  'dashboard': {
+    AppLanguage.english: 'Dashboard',
+    AppLanguage.setswana: 'Tshobokanyo',
+  },
+  'crops': {AppLanguage.english: 'Crops', AppLanguage.setswana: 'Dijalo'},
+  'inventory': {
+    AppLanguage.english: 'Inventory',
+    AppLanguage.setswana: 'Dithoto',
+  },
+  'loss_calculator': {
+    AppLanguage.english: 'Loss Calc',
+    AppLanguage.setswana: 'Ditshenyegelo',
+  },
+  'settings': {
+    AppLanguage.english: 'Settings',
+    AppLanguage.setswana: 'Di-setting',
+  },
+  'total_fields': {
+    AppLanguage.english: 'Total Fields',
+    AppLanguage.setswana: 'Masimo Otlhe',
+  },
+  'upcoming_harvests': {
+    AppLanguage.english: 'Upcoming Harvests',
+    AppLanguage.setswana: 'Thobo e e Tlang',
+  },
+  'inventory_value': {
+    AppLanguage.english: 'Inventory Value',
+    AppLanguage.setswana: 'Tlhwatlhwa ya Dithoto',
+  },
+  'estimated_losses': {
+    AppLanguage.english: 'Est. Losses',
+    AppLanguage.setswana: 'Ditshenyegelo',
+  },
+  'my_crops': {
+    AppLanguage.english: 'My Crops',
+    AppLanguage.setswana: 'Dijalo tsa Me',
+  },
+  'add_new_crop': {
+    AppLanguage.english: 'Add New Crop',
+    AppLanguage.setswana: 'Tsenya Sejalo',
+  },
+  'recent_activity': {
+    AppLanguage.english: 'Recent Activity',
+    AppLanguage.setswana: 'Ditiro tsa Bosheng',
+  },
+  'view_all': {
+    AppLanguage.english: 'View All',
+    AppLanguage.setswana: 'Bona Tsotlhe',
+  },
+  'profile': {AppLanguage.english: 'Profile', AppLanguage.setswana: 'Omang'},
 };
 
 String t(String key, AppLanguage lang) {
