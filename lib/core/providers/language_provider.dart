@@ -395,6 +395,94 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
     AppLanguage.english: 'Auto-calculate based on crop',
     AppLanguage.setswana: 'Bala ka go iketla go ya ka sejalo',
   },
+  // Crop Details Screen
+  'growing': {AppLanguage.english: 'Growing', AppLanguage.setswana: 'E a Gola'},
+  'ready': {AppLanguage.english: 'Ready', AppLanguage.setswana: 'E Siametse'},
+  'harvested': {
+    AppLanguage.english: 'Harvested',
+    AppLanguage.setswana: 'E Thobilwe',
+  },
+  'days_since_planting': {
+    AppLanguage.english: 'Days Since Planting',
+    AppLanguage.setswana: 'Malatsi go Tswa go Jalwa',
+  },
+  'days_until_harvest': {
+    AppLanguage.english: 'Days Until Harvest',
+    AppLanguage.setswana: 'Malatsi go Fitlha Thobo',
+  },
+  'current_stage': {
+    AppLanguage.english: 'Current Stage',
+    AppLanguage.setswana: 'Kgato ya Jaana',
+  },
+  'weather': {AppLanguage.english: 'Weather', AppLanguage.setswana: 'Boso'},
+  'temperature': {
+    AppLanguage.english: 'Temperature',
+    AppLanguage.setswana: 'Mogote',
+  },
+  'humidity': {
+    AppLanguage.english: 'Humidity',
+    AppLanguage.setswana: 'Mongobo',
+  },
+  'rainfall': {AppLanguage.english: 'Rainfall', AppLanguage.setswana: 'Pula'},
+  'edit': {AppLanguage.english: 'Edit', AppLanguage.setswana: 'Baakanya'},
+  'delete': {AppLanguage.english: 'Delete', AppLanguage.setswana: 'Phimola'},
+  'record_harvest': {
+    AppLanguage.english: 'Record Harvest',
+    AppLanguage.setswana: 'Kwala Thobo',
+  },
+  'harvest_history': {
+    AppLanguage.english: 'Harvest History',
+    AppLanguage.setswana: 'Hisitori ya Thobo',
+  },
+  'no_harvest_history': {
+    AppLanguage.english: 'No previous harvests recorded',
+    AppLanguage.setswana: 'Ga go na dithobo tsa pele',
+  },
+  'planted_on': {
+    AppLanguage.english: 'Planted on',
+    AppLanguage.setswana: 'E jalilwe ka',
+  },
+  'harvest_expected': {
+    AppLanguage.english: 'Harvest expected',
+    AppLanguage.setswana: 'Thobo e lebeletswe',
+  },
+  'germination': {
+    AppLanguage.english: 'Germination',
+    AppLanguage.setswana: 'Go Mela',
+  },
+  'vegetative': {
+    AppLanguage.english: 'Vegetative',
+    AppLanguage.setswana: 'Go Gola',
+  },
+  'flowering': {
+    AppLanguage.english: 'Flowering',
+    AppLanguage.setswana: 'Go Thunya',
+  },
+  'ripening': {
+    AppLanguage.english: 'Ripening',
+    AppLanguage.setswana: 'Go Beba',
+  },
+  'harvest_ready': {
+    AppLanguage.english: 'Harvest Ready',
+    AppLanguage.setswana: 'Thobo e Siametse',
+  },
+  'confirm_delete': {
+    AppLanguage.english: 'Confirm Delete',
+    AppLanguage.setswana: 'Tlhomamisa go Phimola',
+  },
+  'delete_crop_message': {
+    AppLanguage.english: 'Are you sure you want to delete this crop?',
+    AppLanguage.setswana:
+        'A o tlhomamisegile gore o batla go phimola sejalo se?',
+  },
+  'harvested_on': {
+    AppLanguage.english: 'Harvested on',
+    AppLanguage.setswana: 'E thobilwe ka',
+  },
+  'actual_yield': {
+    AppLanguage.english: 'Actual Yield',
+    AppLanguage.setswana: 'Thobo ya Nnete',
+  },
 };
 
 String t(String key, AppLanguage lang) {

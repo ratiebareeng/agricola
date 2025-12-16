@@ -1,5 +1,7 @@
 import 'package:agricola/core/providers/language_provider.dart';
+import 'package:agricola/features/crops/models/crop_model.dart';
 import 'package:agricola/features/crops/screens/add_edit_crop_screen.dart';
+import 'package:agricola/features/crops/screens/crop_details_screen.dart';
 import 'package:agricola/features/home/widgets/crop_card.dart';
 import 'package:agricola/features/home/widgets/stat_card.dart';
 import 'package:flutter/material.dart';
@@ -174,13 +176,36 @@ class FarmerDashboardScreen extends ConsumerWidget {
               const SizedBox(height: 16),
 
               // Crops List
-              const CropCard(
-                name: 'Maize Field A',
-                stage: 'Vegetative',
-                plantedDate: 'Oct 15, 2023',
-                progress: 0.4,
-                imageUrl:
-                    'https://images.unsplash.com/photo-1551754655-cd27e38d2076?q=80&w=2070&auto=format&fit=crop',
+              GestureDetector(
+                onTap: () {
+                  final sampleCrop = CropModel(
+                    id: '1',
+                    cropType: 'maize',
+                    fieldName: 'Maize Field A',
+                    fieldSize: 2.5,
+                    fieldSizeUnit: 'hectares',
+                    plantingDate: DateTime(2023, 10, 15),
+                    expectedHarvestDate: DateTime(2024, 2, 12),
+                    estimatedYield: 450,
+                    yieldUnit: 'kg',
+                    storageMethod: 'improved_storage',
+                    notes: 'Good soil quality, using hybrid seeds',
+                  );
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => CropDetailsScreen(crop: sampleCrop),
+                    ),
+                  );
+                },
+                child: const CropCard(
+                  name: 'Maize Field A',
+                  stage: 'Vegetative',
+                  plantedDate: 'Oct 15, 2023',
+                  progress: 0.4,
+                  imageUrl:
+                      'https://images.unsplash.com/photo-1551754655-cd27e38d2076?q=80&w=2070&auto=format&fit=crop',
+                ),
               ),
               const CropCard(
                 name: 'Sorghum Plot',
