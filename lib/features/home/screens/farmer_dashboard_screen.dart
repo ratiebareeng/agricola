@@ -1,4 +1,5 @@
 import 'package:agricola/core/providers/language_provider.dart';
+import 'package:agricola/features/crops/screens/add_edit_crop_screen.dart';
 import 'package:agricola/features/home/widgets/crop_card.dart';
 import 'package:agricola/features/home/widgets/stat_card.dart';
 import 'package:flutter/material.dart';
@@ -149,7 +150,14 @@ class FarmerDashboardScreen extends ConsumerWidget {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const AddEditCropScreen(),
+                      ),
+                    );
+                  },
                   icon: const Icon(Icons.add),
                   label: Text(t('add_new_crop', currentLang)),
                   style: ElevatedButton.styleFrom(

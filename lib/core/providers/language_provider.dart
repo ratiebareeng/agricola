@@ -283,6 +283,118 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
     AppLanguage.setswana: 'Bona Tsotlhe',
   },
   'profile': {AppLanguage.english: 'Profile', AppLanguage.setswana: 'Omang'},
+  // Crop Form
+  'add_crop': {
+    AppLanguage.english: 'Add Crop',
+    AppLanguage.setswana: 'Tsenya Sejalo',
+  },
+  'edit_crop': {
+    AppLanguage.english: 'Edit Crop',
+    AppLanguage.setswana: 'Baakanya Sejalo',
+  },
+  'crop_details': {
+    AppLanguage.english: 'Crop Details',
+    AppLanguage.setswana: 'Dintlha tsa Sejalo',
+  },
+  'field_info': {
+    AppLanguage.english: 'Field Information',
+    AppLanguage.setswana: 'Tshedimosetso ya Tshimo',
+  },
+  'yield_storage': {
+    AppLanguage.english: 'Yield & Storage',
+    AppLanguage.setswana: 'Thobo le Poloko',
+  },
+  'crop_type': {
+    AppLanguage.english: 'Crop Type',
+    AppLanguage.setswana: 'Mofuta wa Sejalo',
+  },
+  'field_name': {
+    AppLanguage.english: 'Field Name',
+    AppLanguage.setswana: 'Leina la Tshimo',
+  },
+  'field_size': {
+    AppLanguage.english: 'Field Size',
+    AppLanguage.setswana: 'Bogolo jwa Tshimo',
+  },
+  'planting_date': {
+    AppLanguage.english: 'Planting Date',
+    AppLanguage.setswana: 'Letlha la go Jala',
+  },
+  'expected_harvest_date': {
+    AppLanguage.english: 'Expected Harvest Date',
+    AppLanguage.setswana: 'Letlha la Thobo',
+  },
+  'estimated_yield': {
+    AppLanguage.english: 'Estimated Yield',
+    AppLanguage.setswana: 'Thobo e e Lebeletsiweng',
+  },
+  'storage_method': {
+    AppLanguage.english: 'Storage Method',
+    AppLanguage.setswana: 'Mokgwa wa Poloko',
+  },
+  'notes': {AppLanguage.english: 'Notes', AppLanguage.setswana: 'Ditshupiso'},
+  'save': {AppLanguage.english: 'Save', AppLanguage.setswana: 'Boloka'},
+  'cancel': {AppLanguage.english: 'Cancel', AppLanguage.setswana: 'Khansela'},
+  'next': {AppLanguage.english: 'Next', AppLanguage.setswana: 'Go Latelang'},
+  'back': {AppLanguage.english: 'Back', AppLanguage.setswana: 'Morago'},
+  // Crop Types
+  'maize': {AppLanguage.english: 'Maize', AppLanguage.setswana: 'Mmidi'},
+  'sorghum': {AppLanguage.english: 'Sorghum', AppLanguage.setswana: 'Mabele'},
+  'beans': {AppLanguage.english: 'Beans', AppLanguage.setswana: 'Dinawa'},
+  'cowpeas': {AppLanguage.english: 'Cowpeas', AppLanguage.setswana: 'Letlhodi'},
+  'melons': {AppLanguage.english: 'Melons', AppLanguage.setswana: 'Marotse'},
+  'other': {AppLanguage.english: 'Other', AppLanguage.setswana: 'Tse Dingwe'},
+  // Units
+  'hectares': {
+    AppLanguage.english: 'Hectares',
+    AppLanguage.setswana: 'Di-Hectare',
+  },
+  'acres': {AppLanguage.english: 'Acres', AppLanguage.setswana: 'Di-Acre'},
+  'kg': {AppLanguage.english: 'Kilograms', AppLanguage.setswana: 'Dikilogram'},
+  'bags': {AppLanguage.english: 'Bags', AppLanguage.setswana: 'Mekotla'},
+  'tons': {AppLanguage.english: 'Tons', AppLanguage.setswana: 'Ditone'},
+  // Storage Methods
+  'traditional_granary': {
+    AppLanguage.english: 'Traditional Granary',
+    AppLanguage.setswana: 'Selala sa Setso',
+  },
+  'improved_storage': {
+    AppLanguage.english: 'Improved Storage',
+    AppLanguage.setswana: 'Poloko e e Tokafetseng',
+  },
+  'bags_in_room': {
+    AppLanguage.english: 'Bags in Room',
+    AppLanguage.setswana: 'Mekotla mo Kamoreng',
+  },
+  'open_air': {
+    AppLanguage.english: 'Open Air',
+    AppLanguage.setswana: 'Kwa Ntle',
+  },
+  'warehouse': {
+    AppLanguage.english: 'Warehouse',
+    AppLanguage.setswana: 'Warehouse',
+  },
+  // Helper text
+  'optional': {
+    AppLanguage.english: 'Optional',
+    AppLanguage.setswana: 'Ga e a Tlhokega',
+  },
+  'required': {
+    AppLanguage.english: 'Required',
+    AppLanguage.setswana: 'E a Tlhokega',
+  },
+  'select_crop_type': {
+    AppLanguage.english: 'Select the type of crop',
+    AppLanguage.setswana: 'Tlhopha mofuta wa sejalo',
+  },
+  'enter_field_name': {
+    AppLanguage.english: 'E.g., Field A, North Plot',
+    AppLanguage.setswana: 'Mohlala: Tshimo A, Kgaolo ya Bokone',
+  },
+  'auto_calculate_harvest': {
+    AppLanguage.english: 'Auto-calculate based on crop',
+    AppLanguage.setswana: 'Bala ka go iketla go ya ka sejalo',
+  },
 };
 
 String t(String key, AppLanguage lang) {
