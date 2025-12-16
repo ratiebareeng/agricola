@@ -1,5 +1,6 @@
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/features/home/screens/farmer_dashboard_screen.dart';
+import 'package:agricola/features/inventory/screens/farmer_inventory_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -14,9 +15,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   static const List<Widget> _widgetOptions = <Widget>[
     FarmerDashboardScreen(),
     Center(child: Text('Crops View (Coming Soon)')),
-    Center(child: Text('Inventory View (Coming Soon)')),
+    FarmerInventoryScreen(),
     Center(child: Text('Loss Calculator (Coming Soon)')),
-    Center(child: Text('Profile (Coming Soon)')),
+    Center(child: Text('Settings (Coming Soon)')),
   ];
 
   int _selectedIndex = 0;

@@ -560,6 +560,93 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
     AppLanguage.english: 'Other',
     AppLanguage.setswana: 'Tse Dingwe',
   },
+  // Inventory
+  'inventory_view': {
+    AppLanguage.english: 'Inventory',
+    AppLanguage.setswana: 'Dithoto',
+  },
+  'total_value': {
+    AppLanguage.english: 'Total Value',
+    AppLanguage.setswana: 'Tlhwatlhwa Yotlhe',
+  },
+  'items_needing_attention': {
+    AppLanguage.english: 'Need Attention',
+    AppLanguage.setswana: 'Di Tlhoka Tlhokomelo',
+  },
+  'filter_by': {
+    AppLanguage.english: 'Filter by',
+    AppLanguage.setswana: 'Kgetha ka',
+  },
+  'all_crops': {
+    AppLanguage.english: 'All Crops',
+    AppLanguage.setswana: 'Dijalo Tsotlhe',
+  },
+  'all_locations': {
+    AppLanguage.english: 'All Locations',
+    AppLanguage.setswana: 'Mafelo Otlhe',
+  },
+  'sort_by_date': {
+    AppLanguage.english: 'Sort by Date',
+    AppLanguage.setswana: 'Rulaganya ka Letlha',
+  },
+  'stored_on': {
+    AppLanguage.english: 'Stored on',
+    AppLanguage.setswana: 'E bolokilwe ka',
+  },
+  'condition': {
+    AppLanguage.english: 'Condition',
+    AppLanguage.setswana: 'Maemo',
+  },
+  'excellent': {
+    AppLanguage.english: 'Excellent',
+    AppLanguage.setswana: 'Botoka Thata',
+  },
+  'needs_attention': {
+    AppLanguage.english: 'Needs Attention',
+    AppLanguage.setswana: 'E Tlhoka Tlhokomelo',
+  },
+  'critical': {
+    AppLanguage.english: 'Critical',
+    AppLanguage.setswana: 'Botlhokwa',
+  },
+  'update_quantity': {
+    AppLanguage.english: 'Update Quantity',
+    AppLanguage.setswana: 'Baakanya Selekanyo',
+  },
+  'record_loss': {
+    AppLanguage.english: 'Record Loss',
+    AppLanguage.setswana: 'Kwala Tshenyegelo',
+  },
+  'record_sale': {
+    AppLanguage.english: 'Record Sale',
+    AppLanguage.setswana: 'Kwala Thekiso',
+  },
+  'no_inventory': {
+    AppLanguage.english: 'No inventory items yet',
+    AppLanguage.setswana: 'Ga go dithoto tsa jaana',
+  },
+  'add_inventory': {
+    AppLanguage.english: 'Add your first harvest to start tracking',
+    AppLanguage.setswana: 'Tsenya thobo ya gago ya ntlha go simolola go latela',
+  },
+  'quantity': {
+    AppLanguage.english: 'Quantity',
+    AppLanguage.setswana: 'Selekanyo',
+  },
+  'location': {AppLanguage.english: 'Location', AppLanguage.setswana: 'Lefelo'},
+  'days_in_storage': {
+    AppLanguage.english: 'days in storage',
+    AppLanguage.setswana: 'malatsi mo polokong',
+  },
+  'filters': {AppLanguage.english: 'Filters', AppLanguage.setswana: 'Dikgetho'},
+  'apply_filters': {
+    AppLanguage.english: 'Apply Filters',
+    AppLanguage.setswana: 'Dirisa Dikgetho',
+  },
+  'clear_filters': {
+    AppLanguage.english: 'Clear',
+    AppLanguage.setswana: 'Phimola',
+  },
 };
 
 String t(String key, AppLanguage lang) {
