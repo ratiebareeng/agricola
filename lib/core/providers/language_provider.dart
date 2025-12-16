@@ -483,6 +483,83 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
     AppLanguage.english: 'Actual Yield',
     AppLanguage.setswana: 'Thobo ya Nnete',
   },
+  // Harvest Recording
+  'harvest_date': {
+    AppLanguage.english: 'Harvest Date',
+    AppLanguage.setswana: 'Letlha la Thobo',
+  },
+  'quality_assessment': {
+    AppLanguage.english: 'Quality Assessment',
+    AppLanguage.setswana: 'Tekolo ya Boleng',
+  },
+  'good': {AppLanguage.english: 'Good', AppLanguage.setswana: 'Botoka'},
+  'fair': {AppLanguage.english: 'Fair', AppLanguage.setswana: 'Magareng'},
+  'poor': {AppLanguage.english: 'Poor', AppLanguage.setswana: 'Bobe'},
+  'immediate_losses': {
+    AppLanguage.english: 'Immediate Losses',
+    AppLanguage.setswana: 'Ditshenyegelo tsa Bonako',
+  },
+  'loss_amount': {
+    AppLanguage.english: 'Loss Amount',
+    AppLanguage.setswana: 'Seelo sa Tshenyegelo',
+  },
+  'loss_reason': {
+    AppLanguage.english: 'Loss Reason',
+    AppLanguage.setswana: 'Lebaka la Tshenyegelo',
+  },
+  'storage_location': {
+    AppLanguage.english: 'Storage Location',
+    AppLanguage.setswana: 'Lefelo la Poloko',
+  },
+  'save_to_inventory': {
+    AppLanguage.english: 'Save to Inventory',
+    AppLanguage.setswana: 'Boloka mo Dithoto',
+  },
+  'expected_vs_actual': {
+    AppLanguage.english: 'Expected vs Actual',
+    AppLanguage.setswana: 'E e Lebeletsiweng vs ya Nnete',
+  },
+  'expected': {
+    AppLanguage.english: 'Expected',
+    AppLanguage.setswana: 'E Lebeletswe',
+  },
+  'actual': {AppLanguage.english: 'Actual', AppLanguage.setswana: 'Ya Nnete'},
+  'difference': {
+    AppLanguage.english: 'Difference',
+    AppLanguage.setswana: 'Pharologano',
+  },
+  'select_quality': {
+    AppLanguage.english: 'Select quality of harvest',
+    AppLanguage.setswana: 'Tlhopha boleng jwa thobo',
+  },
+  'enter_loss_amount': {
+    AppLanguage.english: 'Enter amount lost',
+    AppLanguage.setswana: 'Tsenya seelo se se senyegileng',
+  },
+  'enter_loss_reason': {
+    AppLanguage.english: 'E.g., Pests, Spoilage, Weather damage',
+    AppLanguage.setswana: 'Mohlala: Dikgokgo, Go Senyega, Boso',
+  },
+  'pest_damage': {
+    AppLanguage.english: 'Pest Damage',
+    AppLanguage.setswana: 'Tshenyego ya Dikgokgo',
+  },
+  'spoilage': {
+    AppLanguage.english: 'Spoilage',
+    AppLanguage.setswana: 'Go Senyega',
+  },
+  'weather_damage': {
+    AppLanguage.english: 'Weather Damage',
+    AppLanguage.setswana: 'Tshenyego ya Boso',
+  },
+  'handling_damage': {
+    AppLanguage.english: 'Handling Damage',
+    AppLanguage.setswana: 'Tshenyego ya Tsamaiso',
+  },
+  'other_loss': {
+    AppLanguage.english: 'Other',
+    AppLanguage.setswana: 'Tse Dingwe',
+  },
 };
 
 String t(String key, AppLanguage lang) {

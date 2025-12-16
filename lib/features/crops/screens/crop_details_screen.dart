@@ -1,6 +1,7 @@
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/features/crops/models/crop_model.dart';
 import 'package:agricola/features/crops/screens/add_edit_crop_screen.dart';
+import 'package:agricola/features/crops/screens/record_harvest_screen.dart';
 import 'package:agricola/features/crops/widgets/harvest_history_card.dart';
 import 'package:agricola/features/crops/widgets/info_card.dart';
 import 'package:agricola/features/crops/widgets/timeline_view.dart';
@@ -341,7 +342,12 @@ class CropDetailsScreen extends ConsumerWidget {
         ),
         child: ElevatedButton.icon(
           onPressed: () {
-            // TODO: Navigate to harvest recording screen
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => RecordHarvestScreen(crop: crop),
+              ),
+            );
           },
           icon: const Icon(Icons.agriculture),
           label: Text(t('record_harvest', currentLang)),
