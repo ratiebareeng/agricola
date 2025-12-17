@@ -388,7 +388,113 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
     AppLanguage.english: 'View All',
     AppLanguage.setswana: 'Bona Tsotlhe',
   },
-  'profile': {AppLanguage.english: 'Profile', AppLanguage.setswana: 'Omang'},
+  'profile': {AppLanguage.english: 'Profile', AppLanguage.setswana: 'Profaele'},
+  // Profile Screen
+  'profile_information': {
+    AppLanguage.english: 'Profile Information',
+    AppLanguage.setswana: 'Profaele',
+  },
+  'edit': {AppLanguage.english: 'Edit', AppLanguage.setswana: 'Baakanya'},
+  'phone': {AppLanguage.english: 'Phone', AppLanguage.setswana: 'Mogala'},
+  'farm_details': {
+    AppLanguage.english: 'Farm Details',
+    AppLanguage.setswana: 'Dintlha tsa Polase',
+  },
+  'primary_crops': {
+    AppLanguage.english: 'Primary Crops',
+    AppLanguage.setswana: 'Dijalo tsa Ntlha',
+  },
+  'quick_actions': {
+    AppLanguage.english: 'Quick Actions',
+    AppLanguage.setswana: 'Ditiro tse di Bonolo',
+  },
+  'view_reports': {
+    AppLanguage.english: 'View Reports',
+    AppLanguage.setswana: 'Bona Dipegelo',
+  },
+  'view_reports_desc': {
+    AppLanguage.english: 'See your farming statistics',
+    AppLanguage.setswana: 'Bona dipalopalo tsa temo',
+  },
+  'activity_history': {
+    AppLanguage.english: 'Activity History',
+    AppLanguage.setswana: 'Hisitori ya Ditiro',
+  },
+  'activity_history_desc': {
+    AppLanguage.english: 'Track all your activities',
+    AppLanguage.setswana: 'Latela ditiro tsotlhe tsa gago',
+  },
+  'export_data': {
+    AppLanguage.english: 'Export Data',
+    AppLanguage.setswana: 'Romela Data',
+  },
+  'export_data_desc': {
+    AppLanguage.english: 'Download your records',
+    AppLanguage.setswana: 'Kopolola direkoto tsa gago',
+  },
+  'change_password': {
+    AppLanguage.english: 'Change Password',
+    AppLanguage.setswana: 'Fetola Phasewete',
+  },
+  'change_pin': {
+    AppLanguage.english: 'Change PIN',
+    AppLanguage.setswana: 'Fetola PIN',
+  },
+  'notifications': {
+    AppLanguage.english: 'Notifications',
+    AppLanguage.setswana: 'Dikitsiso',
+  },
+  'help_support': {
+    AppLanguage.english: 'Help & Support',
+    AppLanguage.setswana: 'Thuso le Tshegetso',
+  },
+  'about': {AppLanguage.english: 'About', AppLanguage.setswana: 'Ka ga Rona'},
+  'logout': {AppLanguage.english: 'Logout', AppLanguage.setswana: 'Tswa'},
+  'logout_confirmation': {
+    AppLanguage.english: 'Are you sure you want to logout?',
+    AppLanguage.setswana: 'A o tlhomamisa gore o batla go tswa?',
+  },
+  'select_language': {
+    AppLanguage.english: 'Select Language',
+    AppLanguage.setswana: 'Tlhopha Puo',
+  },
+  // Merchant Profile
+  'business_stats': {
+    AppLanguage.english: 'Business Statistics',
+    AppLanguage.setswana: 'Dipalopalo tsa Kgwebo',
+  },
+  'total_purchases': {
+    AppLanguage.english: 'Total Purchases',
+    AppLanguage.setswana: 'Direko Tsotlhe',
+  },
+  'suppliers': {
+    AppLanguage.english: 'Suppliers',
+    AppLanguage.setswana: 'Barekisi',
+  },
+  'this_month': {
+    AppLanguage.english: 'This Month',
+    AppLanguage.setswana: 'Kgwedi Eno',
+  },
+  'products_bought': {
+    AppLanguage.english: 'Products Bought',
+    AppLanguage.setswana: 'Dithoto tse di Rekwang',
+  },
+  'purchase_history': {
+    AppLanguage.english: 'Purchase History',
+    AppLanguage.setswana: 'Hisitori ya Direko',
+  },
+  'purchase_history_desc': {
+    AppLanguage.english: 'View all your purchases',
+    AppLanguage.setswana: 'Bona direko tsotlhe tsa gago',
+  },
+  'manage_suppliers': {
+    AppLanguage.english: 'Manage Suppliers',
+    AppLanguage.setswana: 'Laola Barekisi',
+  },
+  'manage_suppliers_desc': {
+    AppLanguage.english: 'Track your supplier network',
+    AppLanguage.setswana: 'Latela barekisi ba gago',
+  },
   // Crop Form
   'add_crop': {
     AppLanguage.english: 'Add Crop',

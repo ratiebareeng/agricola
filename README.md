@@ -4,30 +4,30 @@ A modern farm management application built with Flutter, designed specifically f
 
 ## 🌾 Features Implemented
 
-### ✅ 1. Onboarding & Welcome
+### DONE: 1. Onboarding & Welcome
 - Multi-language support (English & Setswana)
 - Beautiful onboarding screens with local context
 - Smooth animations and transitions
 
-### ✅ 2. User Registration & Authentication
+### DONE: 2. User Registration & Authentication
 - Email/password authentication
 - Social login options (Google, Facebook)
 - User type selection (Farmer/AgriMerchant)
 - Clean, modern UI
 
-### ✅ 3. Farmer Dashboard
+### DONE: 3. Farmer Dashboard
 - Quick stats overview (fields, harvests, inventory, losses)
 - Recent activity feed
 - Crop management quick access
 - Bilingual interface
 
-### ✅ 4. Crop Management
+### DONE: 4. Crop Management
 - Add/Edit crops with detailed information
 - Track planting to harvest cycle
 - Record harvests with quality ratings
 - Visual crop cards with status indicators
 
-### ✅ 5. Profile Setup Wizard ⭐ NEW
+### DONE: 5. Profile Setup Wizard
 Complete multi-step wizard for farmer profile completion:
 
 #### Step 1: Location Selection
@@ -50,6 +50,27 @@ Complete multi-step wizard for farmer profile completion:
 - Circular avatar preview
 - Optional step
 - Optimized uploads (1024x1024, 85% quality)
+
+### DONE: 6. Profile Management ⭐ NEW
+Beautiful profile screens for both farmers and merchants:
+
+#### Farmer Profile
+- Expandable header with gradient background
+- Profile photo upload with camera overlay
+- Profile information (email, phone, location)
+- Farm details (size, primary crops)
+- Quick actions (reports, history, export)
+- Settings menu with language toggle
+- Logout functionality
+
+#### Merchant Profile
+- Business-focused header with logo
+- Business statistics dashboard (4 key metrics)
+- Business details (name, products, location)
+- Supplier management quick access
+- Purchase history overview
+- Same settings and quick actions
+- Professional merchant-specific UI
 
 ## 📱 Tech Stack
 
@@ -74,11 +95,16 @@ lib/
 │   ├── home/              # Dashboard & home screens
 │   ├── crops/             # Crop management
 │   ├── inventory/         # Inventory tracking
-│   └── profile_setup/     # Profile setup wizard ⭐
-│       ├── models/
-│       ├── providers/
-│       ├── screens/
-│       └── widgets/
+│   ├── profile_setup/     # Profile setup wizard
+│   │   ├── models/
+│   │   ├── providers/
+│   │   ├── screens/
+│   │   └── widgets/
+│   └── profile/           # Profile management ⭐ NEW
+│       └── screens/
+│           ├── profile_screen.dart
+│           ├── farmer_profile_screen.dart
+│           └── merchant_profile_screen.dart
 └── main.dart
 ```
 
