@@ -1,9 +1,12 @@
+import 'dart:io';
+
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/core/widgets/app_text_field.dart';
 import 'package:agricola/features/profile_setup/providers/profile_setup_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 
 class StepContent extends ConsumerWidget {
   final int step;
@@ -34,37 +37,78 @@ class StepContent extends ConsumerWidget {
   }
 
   Widget _buildCropsStep(WidgetRef ref) {
-    final crops = [
-      'Maize',
-      'Sorghum',
-      'Beans',
-      'Watermelon',
-      'Spinach',
-      'Tomatoes',
-      'Onions',
-      'Cabbage',
-    ];
+    final cropCategories = {
+      'Grains': ['Maize', 'Sorghum', 'Millet', 'Wheat'],
+      'Legumes': ['Beans', 'Cowpeas', 'Groundnuts'],
+      'Vegetables': [
+        'Tomatoes',
+        'Onions',
+        'Cabbage',
+        'Spinach',
+        'Carrots',
+        'Peppers',
+      ],
+      'Fruits': ['Watermelon', 'Butternut', 'Pumpkin'],
+    };
+
     final state = ref.watch(profileSetupProvider);
     final notifier = ref.read(profileSetupProvider.notifier);
     final currentLang = ref.watch(languageProvider);
 
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: crops.map((crop) {
-        final isSelected = state.selectedCrops.contains(crop);
-        return FilterChip(
-          label: Text(t(crop, currentLang)),
-          selected: isSelected,
-          onSelected: (_) => notifier.toggleCrop(crop),
-          selectedColor: AppColors.green.withOpacity(0.2),
-          checkmarkColor: AppColors.green,
-          labelStyle: TextStyle(
-            color: isSelected ? AppColors.green : Colors.black87,
-            fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          t('select_multiple', currentLang),
+          style: TextStyle(
+            fontSize: 14,
+            color: Colors.grey[600],
+            fontWeight: FontWeight.w500,
           ),
-        );
-      }).toList(),
+        ),
+        const SizedBox(height: 16),
+        ...cropCategories.entries.map((category) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 16, bottom: 8),
+                child: Text(
+                  category.key,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+              ),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: category.value.map((crop) {
+                  final isSelected = state.selectedCrops.contains(crop);
+                  return FilterChip(
+                    label: Text(t(crop, currentLang)),
+                    selected: isSelected,
+                    onSelected: (_) => notifier.toggleCrop(crop),
+                    selectedColor: AppColors.green.withOpacity(0.2),
+                    checkmarkColor: AppColors.green,
+                    labelStyle: TextStyle(
+                      color: isSelected ? AppColors.green : Colors.black87,
+                      fontWeight: isSelected
+                          ? FontWeight.w600
+                          : FontWeight.normal,
+                    ),
+                    side: BorderSide(
+                      color: isSelected ? AppColors.green : Colors.grey[300]!,
+                    ),
+                  );
+                }).toList(),
+              ),
+            ],
+          );
+        }),
+      ],
     );
   }
 
@@ -142,25 +186,84 @@ class StepContent extends ConsumerWidget {
     final notifier = ref.read(profileSetupProvider.notifier);
     final currentLang = ref.watch(languageProvider);
 
-    return Column(
-      children: [
-        if (isFarmer) ...[
-          AppTextField(
-            label: t('village_area', currentLang),
-            hint: 'e.g. Serowe',
-            initialValue: state.village,
-            onChanged: (value) => notifier.updateVillage(value),
+    if (isFarmer) {
+      final villages = [
+        'Gaborone',
+        'Francistown',
+        'Maun',
+        'Serowe',
+        'Molepolole',
+        'Kanye',
+        'Mochudi',
+        'Mahalapye',
+        'Palapye',
+        'Tlokweng',
+        'Ramotswa',
+        'Mogoditshane',
+        'Gabane',
+        'Lobatse',
+        'Thamaga',
+        'Letlhakane',
+        'Tonota',
+        'Moshupa',
+        'Jwaneng',
+        'Ghanzi',
+        'Other',
+      ];
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            t('select_village', currentLang),
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey[600],
+              fontWeight: FontWeight.w500,
+            ),
           ),
-        ] else ...[
-          AppTextField(
-            label: t('location', currentLang),
-            hint: 'e.g. Gaborone Main Mall',
-            initialValue: state.location,
-            onChanged: (value) => notifier.updateLocation(value),
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey[300]!),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<String>(
+                value: state.village.isEmpty ? null : state.village,
+                hint: Text(t('select_village', currentLang)),
+                isExpanded: true,
+                items: villages.map((village) {
+                  return DropdownMenuItem(value: village, child: Text(village));
+                }).toList(),
+                onChanged: (value) {
+                  if (value != null) {
+                    notifier.updateVillage(value);
+                  }
+                },
+              ),
+            ),
           ),
+          if (state.village == 'Other') ...[
+            const SizedBox(height: 16),
+            AppTextField(
+              label: t('specify_location', currentLang),
+              hint: 'Enter your village/area',
+              initialValue: state.customVillage,
+              onChanged: (value) => notifier.updateCustomVillage(value),
+            ),
+          ],
         ],
-      ],
-    );
+      );
+    } else {
+      return AppTextField(
+        label: t('location', currentLang),
+        hint: 'e.g. Gaborone Main Mall',
+        initialValue: state.location,
+        onChanged: (value) => notifier.updateLocation(value),
+      );
+    }
   }
 
   Widget _buildMerchantStep(BuildContext context, WidgetRef ref) {
@@ -179,25 +282,67 @@ class StepContent extends ConsumerWidget {
   }
 
   Widget _buildPhotoStep(WidgetRef ref) {
+    final state = ref.watch(profileSetupProvider);
+    final notifier = ref.read(profileSetupProvider.notifier);
     final currentLang = ref.watch(languageProvider);
+
     return Center(
       child: Column(
         children: [
-          Container(
-            height: 200,
-            width: 200,
-            decoration: BoxDecoration(
-              color: Colors.grey[100],
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.grey[300]!),
+          GestureDetector(
+            onTap: () => _pickImage(ref),
+            child: Stack(
+              children: [
+                Container(
+                  height: 200,
+                  width: 200,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[100],
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.grey[300]!, width: 2),
+                    image: state.photoPath != null
+                        ? DecorationImage(
+                            image: FileImage(File(state.photoPath!)),
+                            fit: BoxFit.cover,
+                          )
+                        : null,
+                  ),
+                  child: state.photoPath == null
+                      ? const Icon(Icons.person, size: 80, color: Colors.grey)
+                      : null,
+                ),
+                Positioned(
+                  bottom: 0,
+                  right: 0,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: AppColors.green,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 3),
+                    ),
+                    child: const Padding(
+                      padding: EdgeInsets.all(12.0),
+                      child: Icon(
+                        Icons.camera_alt,
+                        color: Colors.white,
+                        size: 24,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
-            child: const Icon(Icons.camera_alt, size: 64, color: Colors.grey),
           ),
           const SizedBox(height: 24),
+          Text(
+            state.photoPath == null
+                ? t('tap_to_add_photo', currentLang)
+                : t('tap_to_change_photo', currentLang),
+            style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+          ),
+          const SizedBox(height: 16),
           TextButton.icon(
-            onPressed: () {
-              // Pick image logic
-            },
+            onPressed: () => _pickImage(ref),
             icon: const Icon(Icons.upload),
             label: Text(t('upload_photo', currentLang)),
           ),
@@ -237,5 +382,21 @@ class StepContent extends ConsumerWidget {
         );
       }).toList(),
     );
+  }
+
+  Future<void> _pickImage(WidgetRef ref) async {
+    final picker = ImagePicker();
+    final notifier = ref.read(profileSetupProvider.notifier);
+
+    final XFile? image = await picker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 1024,
+      maxHeight: 1024,
+      imageQuality: 85,
+    );
+
+    if (image != null) {
+      notifier.setPhoto(image.path);
+    }
   }
 }

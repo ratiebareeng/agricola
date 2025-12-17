@@ -49,6 +49,9 @@ class ProfileSetupNotifier extends StateNotifier<ProfileSetupState> {
   void updateBusinessName(String value) =>
       state = state.copyWith(businessName: value);
 
+  void updateCustomVillage(String value) =>
+      state = state.copyWith(customVillage: value);
+
   void updateFarmSize(String value) => state = state.copyWith(farmSize: value);
 
   void updateLocation(String value) => state = state.copyWith(location: value);
@@ -63,6 +66,7 @@ class ProfileSetupState {
 
   // Farmer Fields
   final String village;
+  final String customVillage;
   final List<String> selectedCrops;
   final String farmSize;
 
@@ -79,6 +83,7 @@ class ProfileSetupState {
     this.totalSteps = 4,
     this.userType = UserType.farmer,
     this.village = '',
+    this.customVillage = '',
     this.selectedCrops = const [],
     this.farmSize = '',
     this.businessName = '',
@@ -92,6 +97,7 @@ class ProfileSetupState {
     int? totalSteps,
     UserType? userType,
     String? village,
+    String? customVillage,
     List<String>? selectedCrops,
     String? farmSize,
     String? businessName,
@@ -104,6 +110,7 @@ class ProfileSetupState {
       totalSteps: totalSteps ?? this.totalSteps,
       userType: userType ?? this.userType,
       village: village ?? this.village,
+      customVillage: customVillage ?? this.customVillage,
       selectedCrops: selectedCrops ?? this.selectedCrops,
       farmSize: farmSize ?? this.farmSize,
       businessName: businessName ?? this.businessName,

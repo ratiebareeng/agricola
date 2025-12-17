@@ -108,14 +108,15 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
                 label: state.currentStep == state.totalSteps - 1
                     ? t('finish', currentLang)
                     : t('continue', currentLang),
-                onTap: () {
-                  if (state.currentStep == state.totalSteps - 1) {
-                    // Finish logic
-                    context.go('/home');
-                  } else {
-                    notifier.nextStep();
-                  }
-                },
+                onTap: _canContinue(state)
+                    ? () {
+                        if (state.currentStep == state.totalSteps - 1) {
+                          context.go('/home');
+                        } else {
+                          notifier.nextStep();
+                        }
+                      }
+                    : null,
               ),
             ),
           ],
@@ -135,6 +136,40 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
         ref.read(profileSetupProvider.notifier).setUserType(type);
       }
     });
+  }
+
+  bool _canContinue(ProfileSetupState state) {
+    if (state.userType == UserType.farmer) {
+      switch (state.currentStep) {
+        case 0:
+          if (state.village.isEmpty) return false;
+          if (state.village == 'Other' && state.customVillage.isEmpty) {
+            return false;
+          }
+          return true;
+        case 1:
+          return state.selectedCrops.isNotEmpty;
+        case 2:
+          return state.farmSize.isNotEmpty;
+        case 3:
+          return true;
+        default:
+          return false;
+      }
+    } else {
+      switch (state.currentStep) {
+        case 0:
+          return state.businessName.isNotEmpty;
+        case 1:
+          return state.location.isNotEmpty;
+        case 2:
+          return state.selectedProducts.isNotEmpty;
+        case 3:
+          return true;
+        default:
+          return false;
+      }
+    }
   }
 
   String _getStepTitle(int step, UserType userType, AppLanguage lang) {

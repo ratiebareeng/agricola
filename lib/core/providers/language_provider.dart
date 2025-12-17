@@ -178,6 +178,41 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
     AppLanguage.setswana: 'Motse / Kgaolo',
   },
   'location': {AppLanguage.english: 'Location', AppLanguage.setswana: 'Lefelo'},
+  'select_village': {
+    AppLanguage.english: 'Select your village',
+    AppLanguage.setswana: 'Tlhopha motse wa gago',
+  },
+  'specify_location': {
+    AppLanguage.english: 'Specify location',
+    AppLanguage.setswana: 'Tlhalosa lefelo',
+  },
+  'select_multiple': {
+    AppLanguage.english: 'Select all that apply',
+    AppLanguage.setswana: 'Tlhopha tsotlhe tse di siameng',
+  },
+  'tap_to_add_photo': {
+    AppLanguage.english: 'Tap to add profile photo',
+    AppLanguage.setswana: 'Tobetsa go tsenya setshwantsho',
+  },
+  'tap_to_change_photo': {
+    AppLanguage.english: 'Tap to change photo',
+    AppLanguage.setswana: 'Tobetsa go fetola setshwantsho',
+  },
+  'select_at_least_one_crop': {
+    AppLanguage.english: 'Select at least one crop you grow',
+    AppLanguage.setswana:
+        'Tlhopha bonyenyane sejalo se le sengwe se o se lemang',
+  },
+  'select_farm_size_hint': {
+    AppLanguage.english: 'This helps us provide better recommendations',
+    AppLanguage.setswana: 'Seno se re thusa go go fa dikatlholo tse di botoka',
+  },
+  'photo_optional_hint': {
+    AppLanguage.english:
+        'Adding a photo is optional, but it personalizes your profile',
+    AppLanguage.setswana:
+        'Go tsenya setshwantsho ga se tlamego, mme se dira gore profaele ya gago e itlhophele',
+  },
   // Crops
   'Maize': {AppLanguage.english: 'Maize', AppLanguage.setswana: 'Mmidi'},
   'Sorghum': {AppLanguage.english: 'Sorghum', AppLanguage.setswana: 'Mabele'},
@@ -196,6 +231,29 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
     AppLanguage.english: 'Cabbage',
     AppLanguage.setswana: 'Khabetšhe',
   },
+  'Millet': {
+    AppLanguage.english: 'Millet',
+    AppLanguage.setswana: 'Mabele a mannye',
+  },
+  'Wheat': {AppLanguage.english: 'Wheat', AppLanguage.setswana: 'Korong'},
+  'Cowpeas': {AppLanguage.english: 'Cowpeas', AppLanguage.setswana: 'Letlhodi'},
+  'Groundnuts': {
+    AppLanguage.english: 'Groundnuts',
+    AppLanguage.setswana: 'Ditloo',
+  },
+  'Carrots': {
+    AppLanguage.english: 'Carrots',
+    AppLanguage.setswana: 'Dikerotse',
+  },
+  'Peppers': {
+    AppLanguage.english: 'Peppers',
+    AppLanguage.setswana: 'Dipelepele',
+  },
+  'Butternut': {
+    AppLanguage.english: 'Butternut',
+    AppLanguage.setswana: 'Batanate',
+  },
+  'Pumpkin': {AppLanguage.english: 'Pumpkin', AppLanguage.setswana: 'Mophuthi'},
   // Products
   'Grains': {AppLanguage.english: 'Grains', AppLanguage.setswana: 'Dithoro'},
   'Vegetables': {
@@ -269,6 +327,54 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
   'my_crops': {
     AppLanguage.english: 'My Crops',
     AppLanguage.setswana: 'Dijalo tsa Me',
+  },
+  'your_profile': {
+    AppLanguage.english: 'Your Profile',
+    AppLanguage.setswana: 'Profaele ya Gago',
+  },
+  'farm_size': {
+    AppLanguage.english: 'Farm Size',
+    AppLanguage.setswana: 'Bogolo jwa Polasi',
+  },
+  'profile_complete': {
+    AppLanguage.english: 'Profile Complete!',
+    AppLanguage.setswana: 'Profaele e Fedile!',
+  },
+  'ready_to_start': {
+    AppLanguage.english: 'You\'re all set to start managing your farm',
+    AppLanguage.setswana: 'O siametse go simolola go laola polasi ya gago',
+  },
+  'go_to_dashboard': {
+    AppLanguage.english: 'Go to Dashboard',
+    AppLanguage.setswana: 'Eya kwa Dashbod',
+  },
+  'whats_next': {
+    AppLanguage.english: 'What\'s Next?',
+    AppLanguage.setswana: 'Go Tlang?',
+  },
+  'track_crops': {
+    AppLanguage.english: 'Track Your Crops',
+    AppLanguage.setswana: 'Lebela Dijalo tsa Gago',
+  },
+  'track_crops_desc': {
+    AppLanguage.english: 'Monitor planting to harvest',
+    AppLanguage.setswana: 'Lebela go tswa go go jala go ya kwa thobo',
+  },
+  'manage_inventory': {
+    AppLanguage.english: 'Manage Inventory',
+    AppLanguage.setswana: 'Laola Dithoto',
+  },
+  'manage_inventory_desc': {
+    AppLanguage.english: 'Keep track of your produce',
+    AppLanguage.setswana: 'Boloka rekoto ya thobo ya gago',
+  },
+  'view_analytics': {
+    AppLanguage.english: 'View Analytics',
+    AppLanguage.setswana: 'Bona Dipalopalo',
+  },
+  'view_analytics_desc': {
+    AppLanguage.english: 'Get insights on your farm',
+    AppLanguage.setswana: 'Bona tlhaloganyo ya polasi ya gago',
   },
   'add_new_crop': {
     AppLanguage.english: 'Add New Crop',
