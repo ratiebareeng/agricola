@@ -22,7 +22,7 @@ class AppPrimaryButton extends StatelessWidget {
       style: ElevatedButton.styleFrom(
         backgroundColor: AppColors.green,
         foregroundColor: AppColors.white,
-        disabledBackgroundColor: AppColors.green.withOpacity(0.5),
+        disabledBackgroundColor: AppColors.green.withAlpha(50),
         elevation: 0,
         minimumSize: const Size(double.infinity, 56),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),

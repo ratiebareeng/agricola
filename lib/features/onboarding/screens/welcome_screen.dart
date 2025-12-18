@@ -24,7 +24,7 @@ class WelcomeScreen extends ConsumerWidget {
               width: 300,
               height: 300,
               decoration: BoxDecoration(
-                color: AppColors.green.withOpacity(0.05),
+                color: AppColors.green.withAlpha(25),
                 shape: BoxShape.circle,
               ),
             ),
@@ -36,7 +36,7 @@ class WelcomeScreen extends ConsumerWidget {
               width: 200,
               height: 200,
               decoration: BoxDecoration(
-                color: AppColors.earthBrown.withOpacity(0.05),
+                color: AppColors.earthBrown.withAlpha(25),
                 shape: BoxShape.circle,
               ),
             ),
@@ -57,7 +57,7 @@ class WelcomeScreen extends ConsumerWidget {
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.green.withOpacity(0.15),
+                          color: AppColors.green.withAlpha(105),
                           blurRadius: 20,
                           offset: const Offset(0, 10),
                         ),
@@ -100,7 +100,7 @@ class WelcomeScreen extends ConsumerWidget {
                       border: Border.all(color: AppColors.lightGray),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
+                          color: Colors.black.withAlpha(25),
                           blurRadius: 15,
                           offset: const Offset(0, 5),
                         ),
@@ -127,6 +127,7 @@ class WelcomeScreen extends ConsumerWidget {
                             Future.delayed(
                               const Duration(milliseconds: 300),
                               () {
+                                if (!context.mounted) return;
                                 context.go('/onboarding');
                               },
                             );
@@ -143,6 +144,7 @@ class WelcomeScreen extends ConsumerWidget {
                             Future.delayed(
                               const Duration(milliseconds: 300),
                               () {
+                                if (!context.mounted) return;
                                 context.go('/onboarding');
                               },
                             );

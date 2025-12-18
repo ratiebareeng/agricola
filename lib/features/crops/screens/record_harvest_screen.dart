@@ -75,7 +75,7 @@ class _RecordHarvestScreenState extends ConsumerState<RecordHarvestScreen> {
                             width: 48,
                             height: 48,
                             decoration: BoxDecoration(
-                              color: Colors.green.withOpacity(0.1),
+                              color: Colors.green.withAlpha(10),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: const Icon(Icons.grass, color: Colors.green),
@@ -250,13 +250,13 @@ class _RecordHarvestScreenState extends ConsumerState<RecordHarvestScreen> {
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
                           color: difference >= 0
-                              ? Colors.green.withOpacity(0.1)
-                              : Colors.orange.withOpacity(0.1),
+                              ? Colors.green.withAlpha(10)
+                              : Colors.orange.withAlpha(10),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
                             color: difference >= 0
-                                ? Colors.green.withOpacity(0.3)
-                                : Colors.orange.withOpacity(0.3),
+                                ? Colors.green.withAlpha(30)
+                                : Colors.orange.withAlpha(30),
                           ),
                         ),
                         child: Column(
@@ -557,7 +557,7 @@ class _RecordHarvestScreenState extends ConsumerState<RecordHarvestScreen> {
                 color: Colors.white,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withAlpha(25),
                     blurRadius: 10,
                     offset: const Offset(0, -4),
                   ),

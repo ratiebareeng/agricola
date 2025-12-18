@@ -50,7 +50,7 @@ class AppTextField extends StatelessWidget {
           decoration: InputDecoration(
             hintText: hint,
             hintStyle: TextStyle(
-              color: AppColors.mediumGray.withOpacity(0.7),
+              color: AppColors.mediumGray.withAlpha(70),
               fontSize: 16,
             ),
             contentPadding: const EdgeInsets.symmetric(
@@ -58,16 +58,14 @@ class AppTextField extends StatelessWidget {
               vertical: 16,
             ),
             filled: true,
-            fillColor: AppColors.lightGray.withOpacity(0.3),
+            fillColor: AppColors.lightGray.withAlpha(30),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide.none,
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(
-                color: AppColors.lightGray.withOpacity(0.5),
-              ),
+              borderSide: BorderSide(color: AppColors.lightGray.withAlpha(50)),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),

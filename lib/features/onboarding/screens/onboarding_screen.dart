@@ -39,7 +39,7 @@ class OnboardingSlideWidget extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(32),
             decoration: BoxDecoration(
-              color: AppColors.green.withOpacity(0.1),
+              color: AppColors.green.withAlpha(10),
               shape: BoxShape.circle,
             ),
             child: Icon(slide.icon, size: 80, color: AppColors.green),

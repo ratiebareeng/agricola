@@ -43,7 +43,7 @@ class HarvestHistoryCard extends StatelessWidget {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: Colors.green.withOpacity(0.1),
+              color: Colors.green.withAlpha(10),
               borderRadius: BorderRadius.circular(12),
             ),
             child: const Icon(Icons.agriculture, color: Colors.green),
@@ -72,7 +72,7 @@ class HarvestHistoryCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: qualityColor.withOpacity(0.1),
+              color: qualityColor.withAlpha(10),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(

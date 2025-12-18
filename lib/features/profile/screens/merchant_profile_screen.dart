@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
+import 'package:agricola/core/widgets/language_select_content.dart';
 import 'package:agricola/features/profile_setup/providers/profile_setup_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -29,7 +30,7 @@ class MerchantProfileScreen extends ConsumerWidget {
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
-                    colors: [AppColors.green, AppColors.green.withOpacity(0.8)],
+                    colors: [AppColors.green, AppColors.green.withAlpha(80)],
                   ),
                 ),
                 child: Column(
@@ -54,7 +55,7 @@ class MerchantProfileScreen extends ConsumerWidget {
                                       fit: BoxFit.cover,
                                     )
                                   : null,
-                              color: Colors.white.withOpacity(0.3),
+                              color: Colors.white.withAlpha(30),
                             ),
                             child: profileState.photoPath == null
                                 ? const Icon(
@@ -104,7 +105,7 @@ class MerchantProfileScreen extends ConsumerWidget {
                     Text(
                       t('agri_merchant', currentLang),
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.9),
+                        color: Colors.white.withAlpha(90),
                         fontSize: 14,
                       ),
                     ),
@@ -165,7 +166,7 @@ class MerchantProfileScreen extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: AppColors.green.withOpacity(0.1),
+                color: AppColors.green.withAlpha(10),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(icon, color: AppColors.green, size: 24),
@@ -208,7 +209,7 @@ class MerchantProfileScreen extends ConsumerWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withAlpha(25),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -317,9 +318,9 @@ class MerchantProfileScreen extends ConsumerWidget {
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: AppColors.green.withOpacity(0.1),
+                  color: AppColors.green.withAlpha(10),
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: AppColors.green.withOpacity(0.3)),
+                  border: Border.all(color: AppColors.green.withAlpha(30)),
                 ),
                 child: Text(
                   product,
@@ -346,7 +347,7 @@ class MerchantProfileScreen extends ConsumerWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withAlpha(25),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -406,7 +407,7 @@ class MerchantProfileScreen extends ConsumerWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withAlpha(25),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -479,7 +480,7 @@ class MerchantProfileScreen extends ConsumerWidget {
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.05),
+                color: Colors.black.withAlpha(25),
                 blurRadius: 10,
                 offset: const Offset(0, 2),
               ),
@@ -590,9 +591,9 @@ class MerchantProfileScreen extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withAlpha(10),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.2)),
+        border: Border.all(color: color.withAlpha(20)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -624,7 +625,7 @@ class MerchantProfileScreen extends ConsumerWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withAlpha(25),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -710,32 +711,9 @@ class MerchantProfileScreen extends ConsumerWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: Text(t('select_language', currentLang)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            RadioListTile<AppLanguage>(
-              title: const Text('English'),
-              value: AppLanguage.english,
-              groupValue: currentLang,
-              onChanged: (value) {
-                if (value != null) {
-                  notifier.setLanguage(value);
-                  Navigator.pop(context);
-                }
-              },
-            ),
-            RadioListTile<AppLanguage>(
-              title: const Text('Setswana'),
-              value: AppLanguage.setswana,
-              groupValue: currentLang,
-              onChanged: (value) {
-                if (value != null) {
-                  notifier.setLanguage(value);
-                  Navigator.pop(context);
-                }
-              },
-            ),
-          ],
+        content: LanguageSelectContent(
+          currentLang: currentLang,
+          notifier: notifier,
         ),
       ),
     );

@@ -65,9 +65,9 @@ class ValidationHintCard extends ConsumerWidget {
       padding: const EdgeInsets.all(12),
       margin: const EdgeInsets.only(top: 8),
       decoration: BoxDecoration(
-        color: displayColor!.withOpacity(0.1),
+        color: displayColor!.withAlpha(10),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: displayColor.withOpacity(0.3)),
+        border: Border.all(color: displayColor.withAlpha(30)),
       ),
       child: Row(
         children: [

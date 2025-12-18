@@ -91,7 +91,7 @@ class StepContent extends ConsumerWidget {
                     label: Text(t(crop, currentLang)),
                     selected: isSelected,
                     onSelected: (_) => notifier.toggleCrop(crop),
-                    selectedColor: AppColors.green.withOpacity(0.2),
+                    selectedColor: AppColors.green.withAlpha(20),
                     checkmarkColor: AppColors.green,
                     labelStyle: TextStyle(
                       color: isSelected ? AppColors.green : Colors.black87,
@@ -154,7 +154,7 @@ class StepContent extends ConsumerWidget {
                 ),
                 borderRadius: BorderRadius.circular(12),
                 color: isSelected
-                    ? AppColors.green.withOpacity(0.05)
+                    ? AppColors.green.withAlpha(25)
                     : Colors.white,
               ),
               child: Row(
@@ -283,7 +283,6 @@ class StepContent extends ConsumerWidget {
 
   Widget _buildPhotoStep(WidgetRef ref) {
     final state = ref.watch(profileSetupProvider);
-    final notifier = ref.read(profileSetupProvider.notifier);
     final currentLang = ref.watch(languageProvider);
 
     return Center(
@@ -373,7 +372,7 @@ class StepContent extends ConsumerWidget {
           label: Text(t(product, currentLang)),
           selected: isSelected,
           onSelected: (_) => notifier.toggleProduct(product),
-          selectedColor: AppColors.green.withOpacity(0.2),
+          selectedColor: AppColors.green.withAlpha(20),
           checkmarkColor: AppColors.green,
           labelStyle: TextStyle(
             color: isSelected ? AppColors.green : Colors.black87,

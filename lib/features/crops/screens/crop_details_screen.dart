@@ -103,7 +103,7 @@ class CropDetailsScreen extends ConsumerWidget {
                           vertical: 8,
                         ),
                         decoration: BoxDecoration(
-                          color: _getStatusColor(status).withOpacity(0.1),
+                          color: _getStatusColor(status).withAlpha(10),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
@@ -179,9 +179,9 @@ class CropDetailsScreen extends ConsumerWidget {
                     width: double.infinity,
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.blue.withOpacity(0.1),
+                      color: Colors.blue.withAlpha(10),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.blue.withOpacity(0.3)),
+                      border: Border.all(color: Colors.blue.withAlpha(30)),
                     ),
                     child: Row(
                       children: [
@@ -334,7 +334,7 @@ class CropDetailsScreen extends ConsumerWidget {
           color: Colors.white,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withAlpha(25),
               blurRadius: 10,
               offset: const Offset(0, -4),
             ),

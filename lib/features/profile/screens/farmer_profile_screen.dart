@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
+import 'package:agricola/core/widgets/language_select_content.dart';
 import 'package:agricola/features/profile_setup/providers/profile_setup_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -29,7 +30,7 @@ class FarmerProfileScreen extends ConsumerWidget {
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
-                    colors: [AppColors.green, AppColors.green.withOpacity(0.8)],
+                    colors: [AppColors.green, AppColors.green.withAlpha(80)],
                   ),
                 ),
                 child: Column(
@@ -54,7 +55,7 @@ class FarmerProfileScreen extends ConsumerWidget {
                                       fit: BoxFit.cover,
                                     )
                                   : null,
-                              color: Colors.white.withOpacity(0.3),
+                              color: Colors.white.withAlpha(30),
                             ),
                             child: profileState.photoPath == null
                                 ? const Icon(
@@ -102,7 +103,7 @@ class FarmerProfileScreen extends ConsumerWidget {
                     Text(
                       t('farmer', currentLang),
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.9),
+                        color: Colors.white.withAlpha(90),
                         fontSize: 14,
                       ),
                     ),
@@ -161,7 +162,7 @@ class FarmerProfileScreen extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: AppColors.green.withOpacity(0.1),
+                color: AppColors.green.withAlpha(10),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(icon, color: AppColors.green, size: 24),
@@ -231,9 +232,9 @@ class FarmerProfileScreen extends ConsumerWidget {
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: AppColors.green.withOpacity(0.1),
+                  color: AppColors.green.withAlpha(10),
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: AppColors.green.withOpacity(0.3)),
+                  border: Border.all(color: AppColors.green.withAlpha(30)),
                 ),
                 child: Text(
                   crop,
@@ -261,7 +262,7 @@ class FarmerProfileScreen extends ConsumerWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withAlpha(25),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -343,7 +344,7 @@ class FarmerProfileScreen extends ConsumerWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withAlpha(25),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -407,7 +408,7 @@ class FarmerProfileScreen extends ConsumerWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withAlpha(25),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -472,7 +473,7 @@ class FarmerProfileScreen extends ConsumerWidget {
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.05),
+                color: Colors.black.withAlpha(25),
                 blurRadius: 10,
                 offset: const Offset(0, 2),
               ),
@@ -598,32 +599,9 @@ class FarmerProfileScreen extends ConsumerWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: Text(t('select_language', currentLang)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            RadioListTile<AppLanguage>(
-              title: const Text('English'),
-              value: AppLanguage.english,
-              groupValue: currentLang,
-              onChanged: (value) {
-                if (value != null) {
-                  notifier.setLanguage(value);
-                  Navigator.pop(context);
-                }
-              },
-            ),
-            RadioListTile<AppLanguage>(
-              title: const Text('Setswana'),
-              value: AppLanguage.setswana,
-              groupValue: currentLang,
-              onChanged: (value) {
-                if (value != null) {
-                  notifier.setLanguage(value);
-                  Navigator.pop(context);
-                }
-              },
-            ),
-          ],
+        content: LanguageSelectContent(
+          currentLang: currentLang,
+          notifier: notifier,
         ),
       ),
     );

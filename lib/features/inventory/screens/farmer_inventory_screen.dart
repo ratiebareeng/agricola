@@ -35,9 +35,9 @@ class _ActionButton extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: buttonColor.withOpacity(0.1),
+          color: buttonColor.withAlpha(10),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: buttonColor.withOpacity(0.3)),
+          border: Border.all(color: buttonColor.withAlpha(30)),
         ),
         child: Row(
           children: [
@@ -175,7 +175,7 @@ class _FarmerInventoryScreenState extends ConsumerState<FarmerInventoryScreen> {
                         child: Container(
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: Colors.green.withOpacity(0.1),
+                            color: Colors.green.withAlpha(10),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Column(
@@ -216,7 +216,7 @@ class _FarmerInventoryScreenState extends ConsumerState<FarmerInventoryScreen> {
                         child: Container(
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: Colors.orange.withOpacity(0.1),
+                            color: Colors.orange.withAlpha(10),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Column(

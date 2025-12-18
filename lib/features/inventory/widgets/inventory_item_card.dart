@@ -36,13 +36,10 @@ class InventoryItemCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: conditionColor.withOpacity(0.3),
-            width: 1.5,
-          ),
+          border: Border.all(color: conditionColor.withAlpha(30), width: 1.5),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withAlpha(25),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -57,7 +54,7 @@ class InventoryItemCard extends StatelessWidget {
                   width: 56,
                   height: 56,
                   decoration: BoxDecoration(
-                    color: conditionColor.withOpacity(0.1),
+                    color: conditionColor.withAlpha(10),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(
@@ -97,7 +94,7 @@ class InventoryItemCard extends StatelessWidget {
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: conditionColor.withOpacity(0.1),
+                    color: conditionColor.withAlpha(10),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Row(

@@ -25,9 +25,7 @@ class SelectionCard extends StatelessWidget {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: isSelected
-              ? AppColors.green.withOpacity(0.05)
-              : AppColors.white,
+          color: isSelected ? AppColors.green.withAlpha(25) : AppColors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isSelected ? AppColors.green : AppColors.lightGray,
@@ -36,7 +34,7 @@ class SelectionCard extends StatelessWidget {
           boxShadow: [
             if (isSelected)
               BoxShadow(
-                color: AppColors.green.withOpacity(0.1),
+                color: AppColors.green.withAlpha(10),
                 blurRadius: 8,
                 offset: const Offset(0, 4),
               ),
@@ -48,8 +46,8 @@ class SelectionCard extends StatelessWidget {
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: isSelected
-                    ? AppColors.green.withOpacity(0.1)
-                    : AppColors.lightGray.withOpacity(0.3),
+                    ? AppColors.green.withAlpha(10)
+                    : AppColors.lightGray.withAlpha(30),
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -77,7 +75,7 @@ class SelectionCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 14,
                       color: isSelected
-                          ? AppColors.darkGray.withOpacity(0.8)
+                          ? AppColors.darkGray.withAlpha(80)
                           : AppColors.mediumGray,
                     ),
                   ),
@@ -85,11 +83,7 @@ class SelectionCard extends StatelessWidget {
               ),
             ),
             if (isSelected)
-              const Icon(
-                Icons.check_circle,
-                color: AppColors.green,
-                size: 24,
-              ),
+              const Icon(Icons.check_circle, color: AppColors.green, size: 24),
           ],
         ),
       ),

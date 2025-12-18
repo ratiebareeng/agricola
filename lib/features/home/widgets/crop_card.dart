@@ -26,7 +26,7 @@ class CropCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withAlpha(25),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -68,7 +68,7 @@ class CropCard extends StatelessWidget {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.green.withOpacity(0.1),
+                        color: Colors.green.withAlpha(10),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
@@ -85,10 +85,7 @@ class CropCard extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text(
                   'Planted: $plantedDate',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[600],
-                  ),
+                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                 ),
                 const SizedBox(height: 12),
                 ClipRRect(
@@ -96,7 +93,9 @@ class CropCard extends StatelessWidget {
                   child: LinearProgressIndicator(
                     value: progress,
                     backgroundColor: Colors.grey[200],
-                    valueColor: const AlwaysStoppedAnimation<Color>(Colors.green),
+                    valueColor: const AlwaysStoppedAnimation<Color>(
+                      Colors.green,
+                    ),
                     minHeight: 6,
                   ),
                 ),

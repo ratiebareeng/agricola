@@ -27,7 +27,7 @@ class ProfileSetupCompleteScreen extends ConsumerWidget {
                       height: 120,
                       width: 120,
                       decoration: BoxDecoration(
-                        color: AppColors.green.withOpacity(0.1),
+                        color: AppColors.green.withAlpha(10),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
@@ -127,7 +127,7 @@ class ProfileSetupCompleteScreen extends ConsumerWidget {
                   height: 48,
                   width: 48,
                   decoration: BoxDecoration(
-                    color: AppColors.green.withOpacity(0.1),
+                    color: AppColors.green.withAlpha(10),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(

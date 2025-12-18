@@ -75,9 +75,6 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
     AppLanguage.setswana:
         'E bereka sentle le fa go sena inthanete. Tshedimosetso ya gago e bolokesegile.',
   },
-  'next': {AppLanguage.english: 'Next', AppLanguage.setswana: 'E latelang'},
-  'back': {AppLanguage.english: 'Back', AppLanguage.setswana: 'Morago'},
-  'skip': {AppLanguage.english: 'Skip', AppLanguage.setswana: 'Feta'},
   'get_started': {
     AppLanguage.english: 'Get Started',
     AppLanguage.setswana: 'Simolola',
@@ -394,7 +391,6 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
     AppLanguage.english: 'Profile Information',
     AppLanguage.setswana: 'Profaele',
   },
-  'edit': {AppLanguage.english: 'Edit', AppLanguage.setswana: 'Baakanya'},
   'phone': {AppLanguage.english: 'Phone', AppLanguage.setswana: 'Mogala'},
   'farm_details': {
     AppLanguage.english: 'Farm Details',
@@ -453,10 +449,6 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
   'logout_confirmation': {
     AppLanguage.english: 'Are you sure you want to logout?',
     AppLanguage.setswana: 'A o tlhomamisa gore o batla go tswa?',
-  },
-  'select_language': {
-    AppLanguage.english: 'Select Language',
-    AppLanguage.setswana: 'Tlhopha Puo',
   },
   // Merchant Profile
   'business_stats': {
@@ -549,6 +541,9 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
   'cancel': {AppLanguage.english: 'Cancel', AppLanguage.setswana: 'Khansela'},
   'next': {AppLanguage.english: 'Next', AppLanguage.setswana: 'Go Latelang'},
   'back': {AppLanguage.english: 'Back', AppLanguage.setswana: 'Morago'},
+  'skip': {AppLanguage.english: 'Skip', AppLanguage.setswana: 'Feta'},
+  'edit': {AppLanguage.english: 'Edit', AppLanguage.setswana: 'Baakanya'},
+  'delete': {AppLanguage.english: 'Delete', AppLanguage.setswana: 'Phimola'},
   // Crop Types
   'maize': {AppLanguage.english: 'Maize', AppLanguage.setswana: 'Mmidi'},
   'sorghum': {AppLanguage.english: 'Sorghum', AppLanguage.setswana: 'Mabele'},
@@ -636,8 +631,6 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
     AppLanguage.setswana: 'Mongobo',
   },
   'rainfall': {AppLanguage.english: 'Rainfall', AppLanguage.setswana: 'Pula'},
-  'edit': {AppLanguage.english: 'Edit', AppLanguage.setswana: 'Baakanya'},
-  'delete': {AppLanguage.english: 'Delete', AppLanguage.setswana: 'Phimola'},
   'record_harvest': {
     AppLanguage.english: 'Record Harvest',
     AppLanguage.setswana: 'Kwala Thobo',
@@ -845,7 +838,6 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
     AppLanguage.english: 'Quantity',
     AppLanguage.setswana: 'Selekanyo',
   },
-  'location': {AppLanguage.english: 'Location', AppLanguage.setswana: 'Lefelo'},
   'days_in_storage': {
     AppLanguage.english: 'days in storage',
     AppLanguage.setswana: 'malatsi mo polokong',
