@@ -77,6 +77,31 @@ Beautiful profile screens for both farmers and merchants:
 - Same settings and quick actions
 - Professional merchant-specific UI
 
+### DONE: 7. Marketplace ⭐ NEW
+Smart marketplace with user-specific search functionality:
+
+#### Features
+- **User-type aware search**:
+  - Farmers search for supplies (seeds, tools, fertiliser)
+  - Merchants search for produce (grains, vegetables, fruits)
+- **Smart priority algorithm**:
+  - Prioritizes harvested/ready-to-harvest items
+  - Future: filters for pre-ordering crops
+- **Rich listing cards**:
+  - Product details with pricing
+  - Location and seller information
+  - Status badges (harvested, ready soon, growing)
+  - Category tags and quantity info
+- **Real-time search** with instant results
+- **Empty state** with helpful messaging
+- **Bilingual** throughout (English & Setswana)
+
+#### Search Intelligence
+- Results filtered by user type automatically
+- Harvested items shown first
+- Search through title, description, and category
+- 10 mock listings for testing (mix of produce and supplies)
+
 ## 📱 Tech Stack
 
 - **Framework**: Flutter 3.x
@@ -100,6 +125,10 @@ lib/
 │   ├── home/              # Dashboard & home screens
 │   ├── crops/             # Crop management
 │   ├── inventory/         # Inventory tracking
+│   ├── marketplace/       # ⭐ NEW - Marketplace with search
+│   │   ├── models/
+│   │   ├── providers/
+│   │   └── screens/
 │   ├── profile_setup/     # Profile setup wizard
 │   │   ├── models/
 │   │   ├── providers/
@@ -121,7 +150,8 @@ Comprehensive documentation available in `/docs`:
 - [`profile_setup_examples.md`](docs/profile_setup_examples.md) - Code examples
 - [`profile_setup_visual_guide.md`](docs/profile_setup_visual_guide.md) - UI mockups
 - [`PROFILE_SETUP_SUMMARY.md`](docs/PROFILE_SETUP_SUMMARY.md) - Implementation summary
-- [`MERCHANT_REGISTRY_UPDATE.md`](docs/MERCHANT_REGISTRY_UPDATE.md) - ⭐ Merchant split implementation
+- [`MERCHANT_REGISTRY_UPDATE.md`](docs/MERCHANT_REGISTRY_UPDATE.md) - Merchant split implementation
+- [`MARKETPLACE_FEATURE.md`](docs/MARKETPLACE_FEATURE.md) - ⭐ Marketplace with smart search
 
 ## 🚀 Getting Started
 

@@ -342,10 +342,7 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
     AppLanguage.english: 'Pesticides',
     AppLanguage.setswana: 'Dibolayadi-twatsi',
   },
-  'Tools': {
-    AppLanguage.english: 'Tools',
-    AppLanguage.setswana: 'Didiriswa',
-  },
+  'Tools': {AppLanguage.english: 'Tools', AppLanguage.setswana: 'Didiriswa'},
   'Machinery': {
     AppLanguage.english: 'Machinery',
     AppLanguage.setswana: 'Metšhine',
@@ -406,6 +403,90 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
   'settings': {
     AppLanguage.english: 'Settings',
     AppLanguage.setswana: 'Di-setting',
+  },
+  'marketplace': {
+    AppLanguage.english: 'Marketplace',
+    AppLanguage.setswana: 'Mmaraka',
+  },
+  'search_supplies': {
+    AppLanguage.english: 'Search for seeds, tools, supplies...',
+    AppLanguage.setswana: 'Batla dipeu, didiriswa, dithoto...',
+  },
+  'search_produce': {
+    AppLanguage.english: 'Search for produce, grains, vegetables...',
+    AppLanguage.setswana: 'Batla thobo, dithoro, merogo...',
+  },
+  'farmer_marketplace_hint': {
+    AppLanguage.english: 'Browse agricultural supplies from trusted sellers',
+    AppLanguage.setswana:
+        'Batla dithoto tsa temo go tswa go barekisi ba ba ikanametseng',
+  },
+  'merchant_marketplace_hint': {
+    AppLanguage.english: 'Find fresh produce from local farmers',
+    AppLanguage.setswana: 'Bona thobo e e foreše go tswa go balemi ba gae',
+  },
+  'vendor_marketplace_hint': {
+    AppLanguage.english: 'Discover farm produce for your business',
+    AppLanguage.setswana: 'Bona thobo ya polasi ya kgwebo ya gago',
+  },
+  'no_results': {
+    AppLanguage.english: 'No Results Found',
+    AppLanguage.setswana: 'Ga go na Dipholo',
+  },
+  'try_different_search': {
+    AppLanguage.english: 'Try adjusting your search terms',
+    AppLanguage.setswana: 'Leka go fetola mafoko a patlo',
+  },
+  'harvested': {
+    AppLanguage.english: 'Harvested',
+    AppLanguage.setswana: 'E Kobilwe',
+  },
+  'ready_soon': {
+    AppLanguage.english: 'Ready Soon',
+    AppLanguage.setswana: 'E Tlile',
+  },
+  'growing': {AppLanguage.english: 'Growing', AppLanguage.setswana: 'E Gola'},
+  'planted': {
+    AppLanguage.english: 'Planted',
+    AppLanguage.setswana: 'E Jalilwe',
+  },
+  'harvest': {AppLanguage.english: 'Harvest', AppLanguage.setswana: 'Thobo'},
+  'price': {AppLanguage.english: 'Price', AppLanguage.setswana: 'Tlhwatlhwa'},
+  'available': {
+    AppLanguage.english: 'Available',
+    AppLanguage.setswana: 'E Teng',
+  },
+  'description': {
+    AppLanguage.english: 'Description',
+    AppLanguage.setswana: 'Tlhaloso',
+  },
+  'seller_information': {
+    AppLanguage.english: 'Seller Information',
+    AppLanguage.setswana: 'Tshedimosetso ya Morekisi',
+  },
+  'supplier': {
+    AppLanguage.english: 'Supplier',
+    AppLanguage.setswana: 'Morekisi',
+  },
+  'call_seller': {
+    AppLanguage.english: 'Call Seller',
+    AppLanguage.setswana: 'Letsa Morekisi',
+  },
+  'email_seller': {
+    AppLanguage.english: 'Email Seller',
+    AppLanguage.setswana: 'Romela Imeile',
+  },
+  'contact_seller': {
+    AppLanguage.english: 'Contact Seller',
+    AppLanguage.setswana: 'Ikgolaganye le Morekisi',
+  },
+  'phone_copied': {
+    AppLanguage.english: 'Phone number copied to clipboard',
+    AppLanguage.setswana: 'Nomoro ya mogala e kopiilwe',
+  },
+  'email_copied': {
+    AppLanguage.english: 'Email copied to clipboard',
+    AppLanguage.setswana: 'Imeile e kopiilwe',
   },
   'total_fields': {
     AppLanguage.english: 'Total Fields',

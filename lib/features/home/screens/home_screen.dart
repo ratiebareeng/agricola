@@ -2,6 +2,7 @@ import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/features/crops/screens/crops_screen.dart';
 import 'package:agricola/features/home/screens/farmer_dashboard_screen.dart';
 import 'package:agricola/features/inventory/screens/farmer_inventory_screen.dart';
+import 'package:agricola/features/marketplace/screens/marketplace_screen.dart';
 import 'package:agricola/features/profile/screens/profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -16,6 +17,7 @@ class HomeScreen extends ConsumerStatefulWidget {
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   static const List<Widget> _widgetOptions = <Widget>[
     FarmerDashboardScreen(),
+    MarketplaceScreen(),
     CropsScreen(),
     FarmerInventoryScreen(),
     ProfileScreen(),
@@ -45,6 +47,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               icon: const Icon(Icons.dashboard_outlined),
               activeIcon: const Icon(Icons.dashboard),
               label: t('dashboard', currentLang),
+            ),
+            BottomNavigationBarItem(
+              icon: const Icon(Icons.store_outlined),
+              activeIcon: const Icon(Icons.store),
+              label: t('marketplace', currentLang),
             ),
             BottomNavigationBarItem(
               icon: const Icon(Icons.grass_outlined),
