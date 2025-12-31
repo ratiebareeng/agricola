@@ -386,11 +386,24 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
     AppLanguage.english: 'Welcome back, Farmer!',
     AppLanguage.setswana: 'O amogelesegile, Molemi!',
   },
+  'welcome_back_merchant': {
+    AppLanguage.english: 'Welcome back, Merchant!',
+    AppLanguage.setswana: 'O amogelesegile, Morekisi!',
+  },
+  'welcome_back_vendor': {
+    AppLanguage.english: 'Welcome back, Vendor!',
+    AppLanguage.setswana: 'O amogelesegile, Morekisi!',
+  },
   // Dashboard
   'dashboard': {
     AppLanguage.english: 'Dashboard',
     AppLanguage.setswana: 'Tshobokanyo',
   },
+  'products': {
+    AppLanguage.english: 'Products',
+    AppLanguage.setswana: 'Dithoto',
+  },
+  'produce': {AppLanguage.english: 'Produce', AppLanguage.setswana: 'Thobo'},
   'crops': {AppLanguage.english: 'Crops', AppLanguage.setswana: 'Dijalo'},
   'inventory': {
     AppLanguage.english: 'Inventory',
@@ -641,6 +654,46 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
   'total_purchases': {
     AppLanguage.english: 'Total Purchases',
     AppLanguage.setswana: 'Direko Tsotlhe',
+  },
+  'total_products': {
+    AppLanguage.english: 'Total Products',
+    AppLanguage.setswana: 'Dithoto Tsotlhe',
+  },
+  'monthly_revenue': {
+    AppLanguage.english: 'Monthly Revenue',
+    AppLanguage.setswana: 'Lotseno lwa Kgwedi',
+  },
+  'active_orders': {
+    AppLanguage.english: 'Active Orders',
+    AppLanguage.setswana: 'Ditaelo tse di Dirang',
+  },
+  'low_stock_items': {
+    AppLanguage.english: 'Low Stock Items',
+    AppLanguage.setswana: 'Dithoto tse di Fokotsegile',
+  },
+  'total_suppliers': {
+    AppLanguage.english: 'Total Suppliers',
+    AppLanguage.setswana: 'Barekisi Botlhe',
+  },
+  'monthly_purchases': {
+    AppLanguage.english: 'Monthly Purchases',
+    AppLanguage.setswana: 'Direko tsa Kgwedi',
+  },
+  'pending_orders': {
+    AppLanguage.english: 'Pending Orders',
+    AppLanguage.setswana: 'Ditaelo tse di Emetsweng',
+  },
+  'available_produce': {
+    AppLanguage.english: 'Available Produce',
+    AppLanguage.setswana: 'Thobo e e Teng',
+  },
+  'store_inventory': {
+    AppLanguage.english: 'Store Inventory',
+    AppLanguage.setswana: 'Dithoto tsa Lebenkele',
+  },
+  'produce_inventory': {
+    AppLanguage.english: 'Produce Inventory',
+    AppLanguage.setswana: 'Thobo ya Lebenkele',
   },
   'suppliers': {
     AppLanguage.english: 'Suppliers',
@@ -918,12 +971,7 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
     AppLanguage.setswana: 'Bala ka go iketla go ya ka sejalo',
   },
   // Crop Details Screen
-  'growing': {AppLanguage.english: 'Growing', AppLanguage.setswana: 'E a Gola'},
   'ready': {AppLanguage.english: 'Ready', AppLanguage.setswana: 'E Siametse'},
-  'harvested': {
-    AppLanguage.english: 'Harvested',
-    AppLanguage.setswana: 'E Thobilwe',
-  },
   'days_since_planting': {
     AppLanguage.english: 'Days Since Planting',
     AppLanguage.setswana: 'Malatsi go Tswa go Jalwa',

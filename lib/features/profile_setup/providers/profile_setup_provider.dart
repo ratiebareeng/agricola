@@ -1,14 +1,53 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 final profileSetupProvider =
     StateNotifierProvider<ProfileSetupNotifier, ProfileSetupState>((ref) {
-      return ProfileSetupNotifier();
+      return ProfileSetupNotifier()..loadProfile();
     });
 
 enum MerchantType { agriShop, supermarketVendor }
 
 class ProfileSetupNotifier extends StateNotifier<ProfileSetupState> {
+  bool _isNewProfileSetup = false;
+
   ProfileSetupNotifier() : super(ProfileSetupState());
+
+  Future<void> loadProfile() async {
+    if (_isNewProfileSetup) return;
+
+    final prefs = await SharedPreferences.getInstance();
+    final userTypeString = prefs.getString('userType');
+    final merchantTypeString = prefs.getString('merchantType');
+
+    if (userTypeString != null) {
+      final userType = UserType.values.firstWhere(
+        (e) => e.name == userTypeString,
+        orElse: () => UserType.farmer,
+      );
+
+      MerchantType? merchantType;
+      if (merchantTypeString != null) {
+        merchantType = MerchantType.values.firstWhere(
+          (e) => e.name == merchantTypeString,
+          orElse: () => MerchantType.agriShop,
+        );
+      }
+
+      state = state.copyWith(
+        userType: userType,
+        merchantType: merchantType,
+        village: prefs.getString('village') ?? '',
+        customVillage: prefs.getString('customVillage') ?? '',
+        selectedCrops: prefs.getStringList('selectedCrops') ?? [],
+        farmSize: prefs.getString('farmSize') ?? '',
+        businessName: prefs.getString('businessName') ?? '',
+        location: prefs.getString('location') ?? '',
+        selectedProducts: prefs.getStringList('selectedProducts') ?? [],
+        photoPath: prefs.getString('photoPath'),
+      );
+    }
+  }
 
   void nextStep() {
     if (state.currentStep < state.totalSteps - 1) {
@@ -22,14 +61,55 @@ class ProfileSetupNotifier extends StateNotifier<ProfileSetupState> {
     }
   }
 
-  void setMerchantType(MerchantType type) {
-    state = state.copyWith(merchantType: type);
+  Future<void> saveProfile() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('userType', state.userType.name);
+    if (state.merchantType != null) {
+      await prefs.setString('merchantType', state.merchantType!.name);
+    }
+    await prefs.setString('village', state.village);
+    await prefs.setString('customVillage', state.customVillage);
+    await prefs.setStringList('selectedCrops', state.selectedCrops);
+    await prefs.setString('farmSize', state.farmSize);
+    await prefs.setString('businessName', state.businessName);
+    await prefs.setString('location', state.location);
+    await prefs.setStringList('selectedProducts', state.selectedProducts);
+    if (state.photoPath != null) {
+      await prefs.setString('photoPath', state.photoPath!);
+    }
   }
 
-  void setPhoto(String path) => state = state.copyWith(photoPath: path);
+  void setMerchantType(MerchantType type) {
+    state = state.copyWith(merchantType: type);
+    saveProfile();
+  }
+
+  void setPhoto(String path) {
+    state = state.copyWith(photoPath: path);
+    saveProfile();
+  }
 
   void setUserType(UserType type) {
     state = state.copyWith(userType: type);
+    saveProfile();
+  }
+
+  void startNewProfileSetup(UserType type, MerchantType? merchantType) {
+    _isNewProfileSetup = true;
+    state = state.copyWith(
+      userType: type,
+      merchantType: merchantType,
+      currentStep: 0,
+      village: '',
+      customVillage: '',
+      selectedCrops: [],
+      farmSize: '',
+      businessName: '',
+      location: '',
+      selectedProducts: [],
+      photoPath: null,
+    );
+    saveProfile();
   }
 
   void toggleCrop(String crop) {
@@ -40,6 +120,7 @@ class ProfileSetupNotifier extends StateNotifier<ProfileSetupState> {
       crops.add(crop);
     }
     state = state.copyWith(selectedCrops: crops);
+    saveProfile();
   }
 
   void toggleProduct(String product) {
@@ -50,19 +131,33 @@ class ProfileSetupNotifier extends StateNotifier<ProfileSetupState> {
       products.add(product);
     }
     state = state.copyWith(selectedProducts: products);
+    saveProfile();
   }
 
-  void updateBusinessName(String value) =>
-      state = state.copyWith(businessName: value);
+  void updateBusinessName(String value) {
+    state = state.copyWith(businessName: value);
+    saveProfile();
+  }
 
-  void updateCustomVillage(String value) =>
-      state = state.copyWith(customVillage: value);
+  void updateCustomVillage(String value) {
+    state = state.copyWith(customVillage: value);
+    saveProfile();
+  }
 
-  void updateFarmSize(String value) => state = state.copyWith(farmSize: value);
+  void updateFarmSize(String value) {
+    state = state.copyWith(farmSize: value);
+    saveProfile();
+  }
 
-  void updateLocation(String value) => state = state.copyWith(location: value);
+  void updateLocation(String value) {
+    state = state.copyWith(location: value);
+    saveProfile();
+  }
 
-  void updateVillage(String value) => state = state.copyWith(village: value);
+  void updateVillage(String value) {
+    state = state.copyWith(village: value);
+    saveProfile();
+  }
 }
 
 class ProfileSetupState {
