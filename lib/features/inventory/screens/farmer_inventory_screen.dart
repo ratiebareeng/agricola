@@ -1,5 +1,6 @@
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/features/inventory/models/inventory_model.dart';
+import 'package:agricola/features/inventory/screens/inventory_detail_screen.dart';
 import 'package:agricola/features/inventory/widgets/inventory_item_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -348,8 +349,15 @@ class _FarmerInventoryScreenState extends ConsumerState<FarmerInventoryScreen> {
                           storageLocation: item.storageLocation,
                           condition: item.condition,
                           language: currentLang,
-                          onTap: () =>
-                              _showItemActions(context, currentLang, item),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    InventoryDetailScreen(item: item),
+                              ),
+                            );
+                          },
                         );
                       },
                     ),
