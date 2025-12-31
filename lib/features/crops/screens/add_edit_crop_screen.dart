@@ -49,7 +49,7 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
     'cash_crops': ['cotton', 'tobacco', 'coffee', 'tea', 'sugarcane'],
   };
 
-  final List<String> _sizeUnits = ['hectares', 'acres'];
+  final List<String> _sizeUnits = ['hectares', 'Metres (m\u00B2)'];
   final List<String> _yieldUnits = ['kg', 'bags', 'tons'];
   final List<String> _storageMethods = [
     'traditional_granary',
@@ -615,11 +615,17 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
             ),
             const SizedBox(width: 12),
             Expanded(
+              flex: 2,
               child: DropdownButtonFormField<String>(
                 initialValue: _selectedSizeUnit,
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: Colors.white,
+                  isDense: true,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 16,
+                  ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide(color: Colors.grey[300]!),
@@ -639,7 +645,10 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
                 items: _sizeUnits.map((unit) {
                   return DropdownMenuItem(
                     value: unit,
-                    child: Text(t(unit, lang)),
+                    child: Text(
+                      t(unit, lang),
+                      style: const TextStyle(fontSize: 14),
+                    ),
                   );
                 }).toList(),
                 onChanged: (value) {
@@ -817,10 +826,12 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
                   }
                   return null;
                 },
+                onChanged: (_) => setState(() {}),
               ),
             ),
             const SizedBox(width: 12),
             Expanded(
+              flex: 2,
               child: DropdownButtonFormField<String>(
                 initialValue: _selectedYieldUnit,
                 decoration: InputDecoration(
@@ -855,6 +866,79 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
             ),
           ],
         ),
+        if (_estimatedYieldController.text.isNotEmpty &&
+            double.tryParse(_estimatedYieldController.text) != null) ...[
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.orange.withAlpha(26),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.orange.withAlpha(51)),
+            ),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.warning_amber,
+                      color: Colors.orange,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      t('post_harvest_loss', lang),
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.orange,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      t('estimated_loss_15', lang),
+                      style: TextStyle(fontSize: 13, color: Colors.grey[700]),
+                    ),
+                    Text(
+                      '${(double.parse(_estimatedYieldController.text) * 0.15).toStringAsFixed(1)} ${t(_selectedYieldUnit, lang)}',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.orange,
+                      ),
+                    ),
+                  ],
+                ),
+                const Divider(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      t('expected_after_loss', lang),
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      '${(double.parse(_estimatedYieldController.text) * 0.85).toStringAsFixed(1)} ${t(_selectedYieldUnit, lang)}',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF2D6A4F),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
         const SizedBox(height: 24),
         Row(
           children: [

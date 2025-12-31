@@ -576,6 +576,18 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
     AppLanguage.english: 'Enter crop name',
     AppLanguage.setswana: 'Kwala leina la sejalo',
   },
+  'post_harvest_loss': {
+    AppLanguage.english: 'Post-Harvest Loss (Est.)',
+    AppLanguage.setswana: 'Taelo ya Morago ga Kotulo',
+  },
+  'estimated_loss_15': {
+    AppLanguage.english: 'Estimated loss (15%)',
+    AppLanguage.setswana: 'Taelo e e lebelerwang (15%)',
+  },
+  'expected_after_loss': {
+    AppLanguage.english: 'Expected after loss',
+    AppLanguage.setswana: 'E e lebelerweng morago ga taelo',
+  },
   'field_name': {
     AppLanguage.english: 'Field Name',
     AppLanguage.setswana: 'Leina la Tshimo',
@@ -720,7 +732,7 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
     AppLanguage.english: 'Hectares',
     AppLanguage.setswana: 'Di-Hectare',
   },
-  'acres': {AppLanguage.english: 'Acres', AppLanguage.setswana: 'Di-Acre'},
+  'metres': {AppLanguage.english: 'Metres', AppLanguage.setswana: 'Dimithara'},
   'kg': {AppLanguage.english: 'Kilograms', AppLanguage.setswana: 'Dikilogram'},
   'bags': {AppLanguage.english: 'Bags', AppLanguage.setswana: 'Mekotla'},
   'tons': {AppLanguage.english: 'Tons', AppLanguage.setswana: 'Ditone'},
