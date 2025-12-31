@@ -93,6 +93,22 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
     AppLanguage.english: 'I grow crops or raise livestock',
     AppLanguage.setswana: 'Ke lema dijalo kgotsa ke rua leruo',
   },
+  'agri_shop': {
+    AppLanguage.english: 'Agri Shop',
+    AppLanguage.setswana: 'Lebenkele la Temo',
+  },
+  'agri_shop_desc': {
+    AppLanguage.english: 'I sell seeds, fertiliser, tools, machinery',
+    AppLanguage.setswana: 'Ke rekisa dipeu, monontsha, didiriswa, metšhine',
+  },
+  'supermarket_vendor': {
+    AppLanguage.english: 'Supermarket/Vendor',
+    AppLanguage.setswana: 'Supermarket/Morekisi',
+  },
+  'supermarket_vendor_desc': {
+    AppLanguage.english: 'I buy and sell farm produce',
+    AppLanguage.setswana: 'Ke reka le go rekisa thobo ya polasi',
+  },
   'agri_merchant': {
     AppLanguage.english: 'AgriMerchant',
     AppLanguage.setswana: 'Morekisi wa Temo',
@@ -306,8 +322,50 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
     AppLanguage.english: 'Livestock',
     AppLanguage.setswana: 'Leruo',
   },
+  'Livestock Products': {
+    AppLanguage.english: 'Livestock Products',
+    AppLanguage.setswana: 'Dithoto tsa Leruo',
+  },
   'Dairy': {AppLanguage.english: 'Dairy', AppLanguage.setswana: 'Mashi'},
   'Poultry': {AppLanguage.english: 'Poultry', AppLanguage.setswana: 'Dikoko'},
+  'Eggs': {AppLanguage.english: 'Eggs', AppLanguage.setswana: 'Mae'},
+  'Processed Foods': {
+    AppLanguage.english: 'Processed Foods',
+    AppLanguage.setswana: 'Dijo tse di Baakantsweng',
+  },
+  'Seeds': {AppLanguage.english: 'Seeds', AppLanguage.setswana: 'Dipeu'},
+  'Fertiliser': {
+    AppLanguage.english: 'Fertiliser',
+    AppLanguage.setswana: 'Monontsha',
+  },
+  'Pesticides': {
+    AppLanguage.english: 'Pesticides',
+    AppLanguage.setswana: 'Dibolayadi-twatsi',
+  },
+  'Tools': {
+    AppLanguage.english: 'Tools',
+    AppLanguage.setswana: 'Didiriswa',
+  },
+  'Machinery': {
+    AppLanguage.english: 'Machinery',
+    AppLanguage.setswana: 'Metšhine',
+  },
+  'Animal Feed': {
+    AppLanguage.english: 'Animal Feed',
+    AppLanguage.setswana: 'Dijo tsa Diphoofolo',
+  },
+  'Irrigation Equipment': {
+    AppLanguage.english: 'Irrigation Equipment',
+    AppLanguage.setswana: 'Didiriswa tsa Nosetso',
+  },
+  'Farming Supplies': {
+    AppLanguage.english: 'Farming Supplies',
+    AppLanguage.setswana: 'Dithoto tsa Temo',
+  },
+  'what_do_you_sell': {
+    AppLanguage.english: 'What do you sell?',
+    AppLanguage.setswana: 'O rekisa eng?',
+  },
   // Farm Sizes
   '< 1 Hectare': {
     AppLanguage.english: '< 1 Hectare',

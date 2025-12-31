@@ -39,7 +39,14 @@ class StepContent extends ConsumerWidget {
   Widget _buildCropsStep(WidgetRef ref) {
     final cropCategories = {
       'Grains': ['Maize', 'Sorghum', 'Millet', 'Wheat', 'Rice', 'Barley'],
-      'Legumes': ['Beans', 'Cowpeas', 'Peas', 'Lentils', 'Groundnuts', 'Soybeans'],
+      'Legumes': [
+        'Beans',
+        'Cowpeas',
+        'Peas',
+        'Lentils',
+        'Groundnuts',
+        'Soybeans',
+      ],
       'Vegetables': [
         'Lettuce',
         'Tomatoes',
@@ -49,7 +56,14 @@ class StepContent extends ConsumerWidget {
         'Carrots',
         'Peppers',
       ],
-      'Fruits': ['Watermelon', 'Oranges', 'Bananas', 'Grapes', 'Mangoes', 'Apples'],
+      'Fruits': [
+        'Watermelon',
+        'Oranges',
+        'Bananas',
+        'Grapes',
+        'Mangoes',
+        'Apples',
+      ],
       'Root & Tubers': ['Potatoes', 'Cassava', 'Sweet Potatoes', 'Yams'],
       'Cash Crops': ['Cotton', 'Tobacco', 'Coffee', 'Tea', 'Sugarcane'],
     };
@@ -354,17 +368,31 @@ class StepContent extends ConsumerWidget {
   }
 
   Widget _buildProductsStep(WidgetRef ref) {
-    final products = [
-      'Grains',
-      'Vegetables',
-      'Fruits',
-      'Livestock',
-      'Dairy',
-      'Poultry',
-    ];
     final state = ref.watch(profileSetupProvider);
     final notifier = ref.read(profileSetupProvider.notifier);
     final currentLang = ref.watch(languageProvider);
+
+    final products = state.merchantType == MerchantType.agriShop
+        ? [
+            'Seeds',
+            'Fertiliser',
+            'Pesticides',
+            'Tools',
+            'Machinery',
+            'Animal Feed',
+            'Irrigation Equipment',
+            'Farming Supplies',
+          ]
+        : [
+            'Grains',
+            'Vegetables',
+            'Fruits',
+            'Livestock Products',
+            'Dairy',
+            'Poultry',
+            'Eggs',
+            'Processed Foods',
+          ];
 
     return Wrap(
       spacing: 8,

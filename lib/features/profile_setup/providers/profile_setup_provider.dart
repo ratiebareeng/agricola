@@ -5,6 +5,8 @@ final profileSetupProvider =
       return ProfileSetupNotifier();
     });
 
+enum MerchantType { agriShop, supermarketVendor }
+
 class ProfileSetupNotifier extends StateNotifier<ProfileSetupState> {
   ProfileSetupNotifier() : super(ProfileSetupState());
 
@@ -18,6 +20,10 @@ class ProfileSetupNotifier extends StateNotifier<ProfileSetupState> {
     if (state.currentStep > 0) {
       state = state.copyWith(currentStep: state.currentStep - 1);
     }
+  }
+
+  void setMerchantType(MerchantType type) {
+    state = state.copyWith(merchantType: type);
   }
 
   void setPhoto(String path) => state = state.copyWith(photoPath: path);
@@ -63,6 +69,7 @@ class ProfileSetupState {
   final int currentStep;
   final int totalSteps;
   final UserType userType;
+  final MerchantType? merchantType;
 
   // Farmer Fields
   final String village;
@@ -82,6 +89,7 @@ class ProfileSetupState {
     this.currentStep = 0,
     this.totalSteps = 4,
     this.userType = UserType.farmer,
+    this.merchantType,
     this.village = '',
     this.customVillage = '',
     this.selectedCrops = const [],
@@ -96,6 +104,7 @@ class ProfileSetupState {
     int? currentStep,
     int? totalSteps,
     UserType? userType,
+    MerchantType? merchantType,
     String? village,
     String? customVillage,
     List<String>? selectedCrops,
@@ -109,6 +118,7 @@ class ProfileSetupState {
       currentStep: currentStep ?? this.currentStep,
       totalSteps: totalSteps ?? this.totalSteps,
       userType: userType ?? this.userType,
+      merchantType: merchantType ?? this.merchantType,
       village: village ?? this.village,
       customVillage: customVillage ?? this.customVillage,
       selectedCrops: selectedCrops ?? this.selectedCrops,

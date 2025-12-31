@@ -12,7 +12,8 @@ A modern farm management application built with Flutter, designed specifically f
 ### DONE: 2. User Registration & Authentication
 - Email/password authentication
 - Social login options (Google, Facebook)
-- User type selection (Farmer/AgriMerchant)
+- User type selection (Farmer/Agri Shop/Supermarket-Vendor) ⭐ UPDATED
+- Split merchant registration types
 - Clean, modern UI
 
 ### DONE: 3. Farmer Dashboard
@@ -51,7 +52,7 @@ Complete multi-step wizard for farmer profile completion:
 - Optional step
 - Optimized uploads (1024x1024, 85% quality)
 
-### DONE: 6. Profile Management ⭐ NEW
+### DONE: 6. Profile Management ⭐ UPDATED
 Beautiful profile screens for both farmers and merchants:
 
 #### Farmer Profile
@@ -63,10 +64,14 @@ Beautiful profile screens for both farmers and merchants:
 - Settings menu with language toggle
 - Logout functionality
 
-#### Merchant Profile
+#### Merchant Profile ⭐ UPDATED WITH SPLIT TYPES
+- **Two merchant types**: Agri Shop & Supermarket/Vendor
 - Business-focused header with logo
 - Business statistics dashboard (4 key metrics)
 - Business details (name, products, location)
+- **Dynamic categories based on merchant type:**
+  - **Agri Shop**: Seeds, Fertiliser, Pesticides, Tools, Machinery, etc.
+  - **Supermarket/Vendor**: Grains, Vegetables, Fruits, Dairy, etc.
 - Supplier management quick access
 - Purchase history overview
 - Same settings and quick actions
@@ -116,6 +121,7 @@ Comprehensive documentation available in `/docs`:
 - [`profile_setup_examples.md`](docs/profile_setup_examples.md) - Code examples
 - [`profile_setup_visual_guide.md`](docs/profile_setup_visual_guide.md) - UI mockups
 - [`PROFILE_SETUP_SUMMARY.md`](docs/PROFILE_SETUP_SUMMARY.md) - Implementation summary
+- [`MERCHANT_REGISTRY_UPDATE.md`](docs/MERCHANT_REGISTRY_UPDATE.md) - ⭐ Merchant split implementation
 
 ## 🚀 Getting Started
 

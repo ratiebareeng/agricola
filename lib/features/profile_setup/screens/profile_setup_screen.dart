@@ -130,10 +130,19 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.initialUserType != null) {
-        final type = widget.initialUserType == 'agriMerchant'
-            ? UserType.merchant
-            : UserType.farmer;
-        ref.read(profileSetupProvider.notifier).setUserType(type);
+        final notifier = ref.read(profileSetupProvider.notifier);
+        
+        if (widget.initialUserType == 'farmer') {
+          notifier.setUserType(UserType.farmer);
+        } else {
+          notifier.setUserType(UserType.merchant);
+          
+          if (widget.initialUserType == 'agriShop') {
+            notifier.setMerchantType(MerchantType.agriShop);
+          } else if (widget.initialUserType == 'supermarketVendor') {
+            notifier.setMerchantType(MerchantType.supermarketVendor);
+          }
+        }
       }
     });
   }
@@ -187,13 +196,18 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
           return '';
       }
     } else {
+      final state = ref.watch(profileSetupProvider);
+      final isAgriShop = state.merchantType == MerchantType.agriShop;
+      
       switch (step) {
         case 0:
           return t('business_details', lang);
         case 1:
           return t('where_are_you_located', lang);
         case 2:
-          return t('what_do_you_buy', lang);
+          return isAgriShop 
+              ? t('what_do_you_sell', lang)
+              : t('what_do_you_buy', lang);
         case 3:
           return t('add_photo', lang);
         default:

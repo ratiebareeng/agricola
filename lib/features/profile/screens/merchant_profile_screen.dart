@@ -103,7 +103,9 @@ class MerchantProfileScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      t('agri_merchant', currentLang),
+                      profileState.merchantType == MerchantType.agriShop
+                          ? t('agri_shop', currentLang)
+                          : t('supermarket_vendor', currentLang),
                       style: TextStyle(
                         color: Colors.white.withAlpha(90),
                         fontSize: 14,
@@ -283,6 +285,7 @@ class MerchantProfileScreen extends ConsumerWidget {
   Widget _buildProductsSection(BuildContext context, WidgetRef ref) {
     final currentLang = ref.watch(languageProvider);
     final profileState = ref.watch(profileSetupProvider);
+    final isAgriShop = profileState.merchantType == MerchantType.agriShop;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -292,7 +295,9 @@ class MerchantProfileScreen extends ConsumerWidget {
             const Icon(Icons.shopping_cart, size: 20, color: AppColors.green),
             const SizedBox(width: 12),
             Text(
-              t('products_bought', currentLang),
+              isAgriShop
+                  ? t('what_do_you_sell', currentLang)
+                  : t('products_bought', currentLang),
               style: TextStyle(
                 fontSize: 14,
                 color: Colors.grey[600],

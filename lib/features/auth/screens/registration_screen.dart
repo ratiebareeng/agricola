@@ -13,7 +13,7 @@ class RegistrationScreen extends ConsumerStatefulWidget {
   ConsumerState<RegistrationScreen> createState() => _RegistrationScreenState();
 }
 
-enum UserType { farmer, agriMerchant }
+enum UserType { farmer, agriShop, supermarketVendor }
 
 class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
   UserType? _selectedUserType;
@@ -41,7 +41,7 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
         centerTitle: true,
       ),
       body: SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(24.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -68,17 +68,29 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
               ),
               const SizedBox(height: 16),
               SelectionCard(
-                title: t('agri_merchant', currentLang),
-                description: t('agri_merchant_desc', currentLang),
-                icon: Icons.storefront,
-                isSelected: _selectedUserType == UserType.agriMerchant,
+                title: t('agri_shop', currentLang),
+                description: t('agri_shop_desc', currentLang),
+                icon: Icons.store,
+                isSelected: _selectedUserType == UserType.agriShop,
                 onTap: () {
                   setState(() {
-                    _selectedUserType = UserType.agriMerchant;
+                    _selectedUserType = UserType.agriShop;
                   });
                 },
               ),
-              const Spacer(),
+              const SizedBox(height: 16),
+              SelectionCard(
+                title: t('supermarket_vendor', currentLang),
+                description: t('supermarket_vendor_desc', currentLang),
+                icon: Icons.storefront,
+                isSelected: _selectedUserType == UserType.supermarketVendor,
+                onTap: () {
+                  setState(() {
+                    _selectedUserType = UserType.supermarketVendor;
+                  });
+                },
+              ),
+              const SizedBox(height: 32),
               AppPrimaryButton(
                 label: t('continue', currentLang),
                 onTap: _selectedUserType != null ? _onContinue : null,
