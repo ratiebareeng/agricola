@@ -409,7 +409,10 @@ class _FarmerInventoryScreenState extends ConsumerState<FarmerInventoryScreen> {
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
-                children: ['maize', 'sorghum', 'beans', 'cowpeas', 'melons']
+                children: [
+                  'maize', 'sorghum', 'wheat', 'beans', 'cowpeas', 
+                  'tomatoes', 'onions', 'cabbage', 'watermelon'
+                ]
                     .map(
                       (crop) => FilterChip(
                         label: Text(t(crop, lang)),

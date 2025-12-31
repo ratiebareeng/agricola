@@ -18,14 +18,37 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
   final _formKey = GlobalKey<FormState>();
   int _currentStep = 0;
 
-  final List<String> _cropTypes = [
-    'maize',
-    'sorghum',
-    'beans',
-    'cowpeas',
-    'melons',
-    'other',
-  ];
+  final Map<String, List<String>> _cropCategories = {
+    'cereals_grains': ['maize', 'sorghum', 'wheat', 'rice', 'millet', 'barley'],
+    'vegetables': [
+      'tomatoes',
+      'onions',
+      'cabbage',
+      'carrots',
+      'peppers',
+      'lettuce',
+      'spinach',
+    ],
+    'fruits': [
+      'watermelon',
+      'oranges',
+      'bananas',
+      'grapes',
+      'mangoes',
+      'apples',
+    ],
+    'legumes_pulses': [
+      'beans',
+      'cowpeas',
+      'peas',
+      'lentils',
+      'groundnuts',
+      'soybeans',
+    ],
+    'root_tubers': ['potatoes', 'cassava', 'sweet_potatoes', 'yams'],
+    'cash_crops': ['cotton', 'tobacco', 'coffee', 'tea', 'sugarcane'],
+  };
+
   final List<String> _sizeUnits = ['hectares', 'acres'];
   final List<String> _yieldUnits = ['kg', 'bags', 'tons'];
   final List<String> _storageMethods = [
@@ -35,8 +58,8 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
     'open_air',
     'warehouse',
   ];
+  Set<String> _selectedCropTypes = {};
 
-  String? _selectedCropType;
   final TextEditingController _fieldNameController = TextEditingController();
   final TextEditingController _fieldSizeController = TextEditingController();
   String _selectedSizeUnit = 'hectares';
@@ -47,6 +70,9 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
   String _selectedYieldUnit = 'kg';
   String? _selectedStorageMethod;
   final TextEditingController _notesController = TextEditingController();
+  final TextEditingController _otherCropNameController =
+      TextEditingController();
+  bool _otherCropSelected = false;
 
   @override
   Widget build(BuildContext context) {
@@ -133,6 +159,8 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
                       child: Text(
                         _currentStep < 2
                             ? t('next', currentLang)
+                            : _selectedCropTypes.length > 1
+                            ? '${t('save', currentLang)} ${_selectedCropTypes.length} ${t('crops_selected', currentLang).split(' ')[0]}'
                             : t('save', currentLang),
                       ),
                     ),
@@ -152,6 +180,7 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
     _fieldSizeController.dispose();
     _estimatedYieldController.dispose();
     _notesController.dispose();
+    _otherCropNameController.dispose();
     super.dispose();
   }
 
@@ -167,16 +196,46 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
     final daysToHarvest = {
       'maize': 120,
       'sorghum': 110,
+      'wheat': 120,
+      'rice': 120,
+      'millet': 90,
+      'barley': 90,
+      'tomatoes': 85,
+      'onions': 120,
+      'cabbage': 70,
+      'carrots': 75,
+      'peppers': 80,
+      'lettuce': 50,
+      'spinach': 40,
+      'watermelon': 90,
+      'oranges': 365,
+      'bananas': 270,
+      'grapes': 150,
+      'mangoes': 365,
+      'apples': 180,
       'beans': 90,
       'cowpeas': 75,
-      'melons': 100,
+      'peas': 60,
+      'lentils': 100,
+      'groundnuts': 120,
+      'soybeans': 120,
+      'potatoes': 90,
+      'cassava': 270,
+      'sweet_potatoes': 120,
+      'yams': 240,
+      'cotton': 180,
+      'tobacco': 90,
+      'coffee': 365,
+      'tea': 365,
+      'sugarcane': 365,
       'other': 90,
     };
 
-    if (_selectedCropType != null) {
+    if (_selectedCropTypes.isNotEmpty) {
       setState(() {
+        final firstCrop = _selectedCropTypes.first;
         _expectedHarvestDate = _plantingDate.add(
-          Duration(days: daysToHarvest[_selectedCropType] ?? 90),
+          Duration(days: daysToHarvest[firstCrop] ?? 90),
         );
       });
     }
@@ -197,40 +256,258 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
               ),
             ),
             const SizedBox(width: 8),
-            const InfoTooltip(message: 'Select the crop you are planting'),
+            const InfoTooltip(message: 'Select all crops you are planting'),
           ],
         ),
-        const SizedBox(height: 12),
-        DropdownButtonFormField<String>(
-          initialValue: _selectedCropType,
-          decoration: InputDecoration(
-            hintText: t('select_crop_type', lang),
-            filled: true,
-            fillColor: Colors.white,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.grey[300]!),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.grey[300]!),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFF2D6A4F), width: 2),
+        const SizedBox(height: 8),
+        if (_selectedCropTypes.isEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Text(
+              t('required', lang),
+              style: const TextStyle(fontSize: 12, color: Colors.red),
             ),
           ),
-          items: _cropTypes.map((crop) {
-            return DropdownMenuItem(value: crop, child: Text(t(crop, lang)));
-          }).toList(),
-          onChanged: (value) {
+        // Container(
+        //   padding: const EdgeInsets.all(12),
+        //   decoration: BoxDecoration(
+        //     color: Colors.blue.withAlpha(26),
+        //     borderRadius: BorderRadius.circular(8),
+        //     border: Border.all(color: Colors.blue.withAlpha(51)),
+        //   ),
+        //   child: Row(
+        //     children: [
+        //       const Icon(Icons.info_outline, color: Colors.blue, size: 20),
+        //       const SizedBox(width: 8),
+        //       Expanded(
+        //         child: Text(
+        //           t('select_multiple_crops_hint', lang),
+        //           style: const TextStyle(fontSize: 12, color: Colors.blue),
+        //         ),
+        //       ),
+        //     ],
+        //   ),
+        // ),
+        const SizedBox(height: 12),
+        ..._cropCategories.entries.map((entry) {
+          final categoryKey = entry.key;
+          final crops = entry.value;
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8, top: 8),
+                child: Text(
+                  t(categoryKey, lang),
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.grey[700],
+                  ),
+                ),
+              ),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: crops.map((crop) {
+                  final isSelected = _selectedCropTypes.contains(crop);
+                  return FilterChip(
+                    label: Text(t(crop, lang)),
+                    selected: isSelected,
+                    onSelected: (selected) {
+                      setState(() {
+                        if (selected) {
+                          _selectedCropTypes.add(crop);
+                        } else {
+                          _selectedCropTypes.remove(crop);
+                        }
+                        _autoCalculateHarvestDate();
+                      });
+                    },
+                    selectedColor: const Color(0xFF2D6A4F).withAlpha(51),
+                    checkmarkColor: const Color(0xFF2D6A4F),
+                    backgroundColor: Colors.white,
+                    side: BorderSide(
+                      color: isSelected
+                          ? const Color(0xFF2D6A4F)
+                          : Colors.grey[300]!,
+                      width: isSelected ? 2 : 1,
+                    ),
+                    labelStyle: TextStyle(
+                      color: isSelected
+                          ? const Color(0xFF2D6A4F)
+                          : Colors.black87,
+                      fontWeight: isSelected
+                          ? FontWeight.w600
+                          : FontWeight.normal,
+                    ),
+                  );
+                }).toList(),
+              ),
+            ],
+          );
+        }),
+        const SizedBox(height: 16),
+        FilterChip(
+          label: Text(t('other', lang)),
+          selected: _otherCropSelected,
+          onSelected: (selected) {
             setState(() {
-              _selectedCropType = value;
-              _autoCalculateHarvestDate();
+              _otherCropSelected = selected;
+              // if (selected) {
+              //   _selectedCropTypes.add('other');
+              // } else {
+              //   _selectedCropTypes.remove('other');
+              //   _otherCropNameController.clear();
+              // }
+              // _autoCalculateHarvestDate();
             });
           },
-          validator: (value) => value == null ? t('required', lang) : null,
+          selectedColor: const Color(0xFF2D6A4F).withAlpha(51),
+          checkmarkColor: const Color(0xFF2D6A4F),
+          backgroundColor: Colors.white,
+          side: BorderSide(
+            color: _selectedCropTypes.contains('other')
+                ? const Color(0xFF2D6A4F)
+                : Colors.grey[300]!,
+            width: _selectedCropTypes.contains('other') ? 2 : 1,
+          ),
+          labelStyle: TextStyle(
+            color: _selectedCropTypes.contains('other')
+                ? const Color(0xFF2D6A4F)
+                : Colors.black87,
+            fontWeight: _selectedCropTypes.contains('other')
+                ? FontWeight.w600
+                : FontWeight.normal,
+          ),
         ),
+        if (_otherCropSelected)
+          Padding(
+            padding: const EdgeInsets.only(top: 12),
+            child: TextFormField(
+              controller: _otherCropNameController,
+              decoration: InputDecoration(
+                labelText: t('specify_other_crop', lang),
+                hintText: t('enter_crop_name', lang),
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Colors.grey[300]!),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Colors.grey[300]!),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(
+                    color: Color(0xFF2D6A4F),
+                    width: 2,
+                  ),
+                ),
+              ),
+              validator: (value) {
+                if (!_otherCropSelected) {
+                  return null;
+                }
+                return value?.isEmpty ?? true ? t('required', lang) : null;
+              },
+              onEditingComplete: () {},
+              onFieldSubmitted: (newValue) {
+                if (newValue.isEmpty || _selectedCropTypes.contains(newValue)) {
+                  return;
+                }
+
+                // Add to crop list
+                setState(() {
+                  _selectedCropTypes.add(newValue);
+
+                  _autoCalculateHarvestDate();
+                });
+              },
+            ),
+          ),
+
+        if (_selectedCropTypes.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 12),
+            child: Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFF2D6A4F).withAlpha(26),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.check_circle,
+                        color: Color(0xFF2D6A4F),
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          '${_selectedCropTypes.length} ${t(_selectedCropTypes.length == 1 ? "crop_selected" : "crops_selected", lang)}',
+                          style: const TextStyle(
+                            color: Color(0xFF2D6A4F),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  // Only show chips for custom "other" crops
+                  if (_selectedCropTypes.any(
+                    (crop) =>
+                        !_cropCategories.values.any(
+                          (list) => list.contains(crop),
+                        ) &&
+                        crop != 'other',
+                  )) ...[
+                    const SizedBox(height: 12),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: _selectedCropTypes
+                          .where(
+                            (cropType) =>
+                                !_cropCategories.values.any(
+                                  (list) => list.contains(cropType),
+                                ) &&
+                                cropType != 'other',
+                          )
+                          .map((cropType) {
+                            return Chip(
+                              label: Text(cropType),
+                              deleteIcon: const Icon(Icons.close, size: 18),
+                              onDeleted: () {
+                                setState(() {
+                                  _selectedCropTypes.remove(cropType);
+                                  _autoCalculateHarvestDate();
+                                });
+                              },
+                              backgroundColor: const Color(
+                                0xFF2D6A4F,
+                              ).withAlpha(51),
+                              labelStyle: const TextStyle(
+                                color: Color(0xFF2D6A4F),
+                                fontWeight: FontWeight.w600,
+                              ),
+                              deleteIconColor: const Color(0xFF2D6A4F),
+                            );
+                          })
+                          .toList(),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
         const SizedBox(height: 24),
         Row(
           children: [
@@ -243,8 +520,10 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
               ),
             ),
             const SizedBox(width: 8),
-            const InfoTooltip(
-              message: 'Give your field a name for easy identification',
+            InfoTooltip(
+              message: _selectedCropTypes.length > 1
+                  ? 'Optional - will auto-generate names if empty'
+                  : 'Give your field a name for easy identification',
             ),
           ],
         ),
@@ -268,8 +547,12 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
               borderSide: const BorderSide(color: Color(0xFF2D6A4F), width: 2),
             ),
           ),
-          validator: (value) =>
-              value?.isEmpty ?? true ? t('required', lang) : null,
+          validator: (value) {
+            if (_selectedCropTypes.length == 1) {
+              return value?.isEmpty ?? true ? t('required', lang) : null;
+            }
+            return null;
+          },
         ),
       ],
     );
@@ -662,6 +945,47 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
     );
   }
 
+  DateTime _calculateHarvestDateForCrop(String cropType) {
+    final daysToHarvest = {
+      'maize': 120,
+      'sorghum': 110,
+      'wheat': 120,
+      'rice': 120,
+      'millet': 90,
+      'barley': 90,
+      'tomatoes': 85,
+      'onions': 120,
+      'cabbage': 70,
+      'carrots': 75,
+      'peppers': 80,
+      'lettuce': 50,
+      'spinach': 40,
+      'watermelon': 90,
+      'oranges': 365,
+      'bananas': 270,
+      'grapes': 150,
+      'mangoes': 365,
+      'apples': 180,
+      'beans': 90,
+      'cowpeas': 75,
+      'peas': 60,
+      'lentils': 100,
+      'groundnuts': 120,
+      'soybeans': 120,
+      'potatoes': 90,
+      'cassava': 270,
+      'sweet_potatoes': 120,
+      'yams': 240,
+      'cotton': 180,
+      'tobacco': 90,
+      'coffee': 365,
+      'tea': 365,
+      'sugarcane': 365,
+      'other': 90,
+    };
+    return _plantingDate.add(Duration(days: daysToHarvest[cropType] ?? 90));
+  }
+
   String _getStepTitle(AppLanguage lang) {
     switch (_currentStep) {
       case 0:
@@ -677,7 +1001,7 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
 
   void _loadExistingCrop() {
     final crop = widget.existingCrop!;
-    _selectedCropType = crop.cropType;
+    _selectedCropTypes = {crop.cropType};
     _fieldNameController.text = crop.fieldName;
     _fieldSizeController.text = crop.fieldSize.toString();
     _selectedSizeUnit = crop.fieldSizeUnit;
@@ -690,6 +1014,18 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
   }
 
   void _nextStep() {
+    if (_currentStep == 0 && _selectedCropTypes.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            t('select_at_least_one_crop', ref.watch(languageProvider)),
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
     if (_currentStep < 2) {
       setState(() => _currentStep++);
     }
@@ -702,22 +1038,60 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
   }
 
   void _saveCrop() {
-    if (_formKey.currentState!.validate()) {
-      final crop = CropModel(
-        id: widget.existingCrop?.id,
-        cropType: _selectedCropType!,
-        fieldName: _fieldNameController.text,
-        fieldSize: double.parse(_fieldSizeController.text),
-        fieldSizeUnit: _selectedSizeUnit,
-        plantingDate: _plantingDate,
-        expectedHarvestDate: _expectedHarvestDate ?? _plantingDate,
-        estimatedYield: double.parse(_estimatedYieldController.text),
-        yieldUnit: _selectedYieldUnit,
-        storageMethod: _selectedStorageMethod!,
-        notes: _notesController.text.isEmpty ? null : _notesController.text,
-      );
+    if (_formKey.currentState!.validate() && _selectedCropTypes.isNotEmpty) {
+      final lang = ref.watch(languageProvider);
 
-      Navigator.pop(context, crop);
+      if (_selectedCropTypes.length == 1) {
+        final cropType = _selectedCropTypes.first;
+        final cropName =
+            cropType == 'other' && _otherCropNameController.text.isNotEmpty
+            ? _otherCropNameController.text
+            : cropType;
+
+        final crop = CropModel(
+          id: widget.existingCrop?.id,
+          cropType: cropName,
+          fieldName: _fieldNameController.text,
+          fieldSize: double.parse(_fieldSizeController.text),
+          fieldSizeUnit: _selectedSizeUnit,
+          plantingDate: _plantingDate,
+          expectedHarvestDate: _expectedHarvestDate ?? _plantingDate,
+          estimatedYield: double.parse(_estimatedYieldController.text),
+          yieldUnit: _selectedYieldUnit,
+          storageMethod: _selectedStorageMethod!,
+          notes: _notesController.text.isEmpty ? null : _notesController.text,
+        );
+        Navigator.pop(context, crop);
+      } else {
+        final crops = _selectedCropTypes.map((cropType) {
+          final cropName =
+              cropType == 'other' && _otherCropNameController.text.isNotEmpty
+              ? _otherCropNameController.text
+              : cropType;
+
+          final displayName =
+              cropType == 'other' && _otherCropNameController.text.isNotEmpty
+              ? _otherCropNameController.text
+              : t(cropType, lang);
+
+          return CropModel(
+            id: null,
+            cropType: cropName,
+            fieldName: _fieldNameController.text.isEmpty
+                ? '$displayName Field'
+                : '${_fieldNameController.text} - $displayName',
+            fieldSize: double.parse(_fieldSizeController.text),
+            fieldSizeUnit: _selectedSizeUnit,
+            plantingDate: _plantingDate,
+            expectedHarvestDate: _calculateHarvestDateForCrop(cropType),
+            estimatedYield: double.parse(_estimatedYieldController.text),
+            yieldUnit: _selectedYieldUnit,
+            storageMethod: _selectedStorageMethod!,
+            notes: _notesController.text.isEmpty ? null : _notesController.text,
+          );
+        }).toList();
+        Navigator.pop(context, crops);
+      }
     }
   }
 }

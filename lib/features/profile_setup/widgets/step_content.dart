@@ -38,9 +38,10 @@ class StepContent extends ConsumerWidget {
 
   Widget _buildCropsStep(WidgetRef ref) {
     final cropCategories = {
-      'Grains': ['Maize', 'Sorghum', 'Millet', 'Wheat'],
-      'Legumes': ['Beans', 'Cowpeas', 'Groundnuts'],
+      'Grains': ['Maize', 'Sorghum', 'Millet', 'Wheat', 'Rice', 'Barley'],
+      'Legumes': ['Beans', 'Cowpeas', 'Peas', 'Lentils', 'Groundnuts', 'Soybeans'],
       'Vegetables': [
+        'Lettuce',
         'Tomatoes',
         'Onions',
         'Cabbage',
@@ -48,7 +49,9 @@ class StepContent extends ConsumerWidget {
         'Carrots',
         'Peppers',
       ],
-      'Fruits': ['Watermelon', 'Butternut', 'Pumpkin'],
+      'Fruits': ['Watermelon', 'Oranges', 'Bananas', 'Grapes', 'Mangoes', 'Apples'],
+      'Root & Tubers': ['Potatoes', 'Cassava', 'Sweet Potatoes', 'Yams'],
+      'Cash Crops': ['Cotton', 'Tobacco', 'Coffee', 'Tea', 'Sugarcane'],
     };
 
     final state = ref.watch(profileSetupProvider);
