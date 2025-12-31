@@ -246,7 +246,7 @@ class InventoryDetailScreen extends ConsumerWidget {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.6),
+                        color: Colors.black.withAlpha(60),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: const Text(
