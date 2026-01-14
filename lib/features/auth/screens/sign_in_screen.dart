@@ -2,6 +2,7 @@ import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/core/widgets/app_buttons.dart';
 import 'package:agricola/core/widgets/app_text_field.dart';
+import 'package:agricola/features/auth/providers/sign_in_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -17,11 +18,28 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  bool _isLoading = false;
 
   @override
   Widget build(BuildContext context) {
     final currentLang = ref.watch(languageProvider);
+    final signInState = ref.watch(signInProvider);
+    final signInNotifier = ref.read(signInProvider.notifier);
+
+    // Show error or success message if present
+    if (signInState.errorMessage != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(signInState.errorMessage!),
+            backgroundColor: signInState.errorMessage!.contains('sent')
+                ? Colors.green
+                : Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        signInNotifier.clearError();
+      });
+    }
 
     return Scaffold(
       backgroundColor: AppColors.white,
@@ -55,12 +73,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                   hint: 'example@email.com',
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your email';
-                    }
-                    return null;
-                  },
+                  validator: (_) => signInNotifier.validateEmail(),
                 ),
                 const SizedBox(height: 24),
                 AppTextField(
@@ -68,18 +81,33 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                   hint: '********',
                   controller: _passwordController,
                   obscureText: true,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your password';
-                    }
-                    return null;
-                  },
+                  validator: (_) => signInNotifier.validatePassword(),
                 ),
                 const SizedBox(height: 32),
                 AppPrimaryButton(
                   label: t('sign_in', currentLang),
-                  onTap: _onSignIn,
-                  isLoading: _isLoading,
+                  onTap: () => _onSignIn(signInNotifier),
+                  isLoading: signInState.isLoading,
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    TextButton(
+                      onPressed: signInState.isLoading
+                          ? null
+                          : () => signInNotifier.sendPasswordResetEmail(),
+                      child: Text(
+                        'Forgot Password?',
+                        style: TextStyle(
+                          color: signInState.isLoading
+                              ? AppColors.mediumGray
+                              : AppColors.green,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 32),
                 Row(
@@ -105,7 +133,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                       child: AppSecondaryButton(
                         label: t('google', currentLang),
                         icon: Icons.g_mobiledata,
-                        onTap: () => context.go('/home'),
+                        onTap: () => signInNotifier.signInWithGoogle(context),
                       ),
                     ),
                     const SizedBox(width: 16),
@@ -157,22 +185,24 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     super.dispose();
   }
 
-  void _onSignIn() async {
+  @override
+  void initState() {
+    super.initState();
+
+    // Listen to text changes and update provider
+    _emailController.addListener(() {
+      ref.read(signInProvider.notifier).updateEmail(_emailController.text);
+    });
+    _passwordController.addListener(() {
+      ref
+          .read(signInProvider.notifier)
+          .updatePassword(_passwordController.text);
+    });
+  }
+
+  void _onSignIn(SignInNotifier signInNotifier) {
     if (_formKey.currentState!.validate()) {
-      setState(() {
-        _isLoading = true;
-      });
-
-      // Simulate API call
-      await Future.delayed(const Duration(seconds: 2));
-
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-        // Navigate to dashboard
-        context.go('/home');
-      }
+      signInNotifier.signInWithEmailPassword(context);
     }
   }
 }
