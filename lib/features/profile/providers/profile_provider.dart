@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-final profileProvider = StateNotifierProvider<ProfileNotifier, ProfileState>((ref) {
+final profileProvider = StateNotifierProvider<ProfileNotifier, ProfileState>((
+  ref,
+) {
   final authController = ref.watch(authControllerProvider.notifier);
   return ProfileNotifier(authController);
 });
@@ -17,6 +19,41 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
     state = state.copyWith(errorMessage: null);
   }
 
+  /// Delete the current user account
+  Future<bool> deleteAccount(BuildContext context) async {
+    state = state.copyWith(isLoading: true, errorMessage: null);
+
+    try {
+      final result = await _authController.deleteAccount();
+
+      return result.fold(
+        (failure) {
+          state = state.copyWith(
+            isLoading: false,
+            errorMessage: failure.message,
+          );
+          return false;
+        },
+        (_) {
+          state = state.copyWith(isLoading: false);
+
+          // Navigate to welcome screen after successful deletion
+          if (context.mounted) {
+            context.go('/welcome');
+          }
+
+          return true;
+        },
+      );
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: 'Failed to delete account. Please try again.',
+      );
+      return false;
+    }
+  }
+
   /// Sign out the current user
   Future<bool> signOut(BuildContext context) async {
     state = state.copyWith(isLoading: true, errorMessage: null);
@@ -24,12 +61,12 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
     try {
       await _authController.signOut();
       state = state.copyWith(isLoading: false);
-      
+
       // Navigate to welcome screen after successful sign out
       if (context.mounted) {
         context.go('/welcome');
       }
-      
+
       return true;
     } catch (e) {
       state = state.copyWith(
@@ -45,15 +82,9 @@ class ProfileState {
   final bool isLoading;
   final String? errorMessage;
 
-  const ProfileState({
-    this.isLoading = false,
-    this.errorMessage,
-  });
+  const ProfileState({this.isLoading = false, this.errorMessage});
 
-  ProfileState copyWith({
-    bool? isLoading,
-    String? errorMessage,
-  }) {
+  ProfileState copyWith({bool? isLoading, String? errorMessage}) {
     return ProfileState(
       isLoading: isLoading ?? this.isLoading,
       errorMessage: errorMessage,

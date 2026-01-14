@@ -12,7 +12,20 @@
           "package_name": "com.agricola.prod"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "510300582302-mb4flksb94lnia7ci4qv2931q3rbj5kv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.agricola.prod",
+            "certificate_hash": "06e64cf83711d508cbf217b95f55faa75ccd2a99"
+          }
+        },
+        {
+          "client_id": "510300582302-aogld1kvrr3skn2qa3en0ji8fueh3tqe.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyAgH0JqHgJd7cnd4g-OHQJfQYULpt32Zf8"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "510300582302-aogld1kvrr3skn2qa3en0ji8fueh3tqe.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

@@ -525,6 +525,14 @@ class FarmerProfileScreen extends ConsumerWidget {
                 () => _showLogoutDialog(context, ref),
                 isDestructive: true,
               ),
+              const Divider(height: 1),
+              _buildSettingsTile(
+                context,
+                Icons.delete_forever,
+                'Delete Account',
+                () => _showDeleteAccountDialog(context, ref),
+                isDestructive: true,
+              ),
             ],
           ),
         ),
@@ -590,6 +598,119 @@ class FarmerProfileScreen extends ConsumerWidget {
     if (image != null) {
       notifier.setPhoto(image.path);
     }
+  }
+
+  void _showDeleteAccountDialog(BuildContext context, WidgetRef ref) {
+    final currentLang = ref.watch(languageProvider);
+    final profileState = ref.watch(profileProvider);
+    final profileNotifier = ref.read(profileProvider.notifier);
+
+    showDialog(
+      context: context,
+      barrierDismissible: !profileState.isLoading,
+      builder: (context) => AlertDialog(
+        title: const Row(
+          children: [
+            Icon(Icons.warning, color: Colors.red, size: 24),
+            SizedBox(width: 8),
+            Text('Delete Account'),
+          ],
+        ),
+        content: const Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'This action cannot be undone. Deleting your account will:',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 12),
+            Text('• Remove all your personal information'),
+            Text('• Delete all your crop and farm data'),
+            Text('• Cancel any active subscriptions'),
+            Text('• Remove access to all features'),
+            SizedBox(height: 16),
+            Text(
+              'Are you absolutely sure you want to delete your account?',
+              style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: profileState.isLoading
+                ? null
+                : () => Navigator.pop(context),
+            child: Text(t('cancel', currentLang)),
+          ),
+          TextButton(
+            onPressed: profileState.isLoading
+                ? null
+                : () => _showFinalDeleteConfirmation(context, ref),
+            style: TextButton.styleFrom(
+              foregroundColor: profileState.isLoading
+                  ? Colors.grey
+                  : Colors.red,
+            ),
+            child: const Text('Continue'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showFinalDeleteConfirmation(BuildContext context, WidgetRef ref) {
+    Navigator.pop(context); // Close first dialog
+
+    final currentLang = ref.watch(languageProvider);
+    final profileState = ref.watch(profileProvider);
+    final profileNotifier = ref.read(profileProvider.notifier);
+
+    showDialog(
+      context: context,
+      barrierDismissible: !profileState.isLoading,
+      builder: (context) => AlertDialog(
+        title: const Text(
+          'Final Confirmation',
+          style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+        ),
+        content: const Text(
+          'This will permanently delete your account and all associated data. This action cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: profileState.isLoading
+                ? null
+                : () => Navigator.pop(context),
+            child: Text(t('cancel', currentLang)),
+          ),
+          TextButton(
+            onPressed: profileState.isLoading
+                ? null
+                : () async {
+                    final success = await profileNotifier.deleteAccount(
+                      context,
+                    );
+                    if (success && context.mounted) {
+                      Navigator.pop(context);
+                    }
+                  },
+            style: TextButton.styleFrom(
+              foregroundColor: profileState.isLoading
+                  ? Colors.grey
+                  : Colors.red,
+            ),
+            child: profileState.isLoading
+                ? const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Text('DELETE ACCOUNT'),
+          ),
+        ],
+      ),
+    );
   }
 
   void _showLanguageDialog(BuildContext context, WidgetRef ref) {

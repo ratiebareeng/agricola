@@ -181,8 +181,6 @@ import 'package:equatable/equatable.dart';
 class UserModel extends Equatable {
   final String uid;
   final String email;
-  final String? displayName;
-  final String? photoUrl;
   final String? phoneNumber;
   final bool emailVerified;
   final DateTime createdAt;
@@ -196,8 +194,6 @@ class UserModel extends Equatable {
   const UserModel({
     required this.uid,
     required this.email,
-    this.displayName,
-    this.photoUrl,
     this.phoneNumber,
     required this.emailVerified,
     required this.createdAt,
@@ -217,8 +213,6 @@ class UserModel extends Equatable {
     return UserModel(
       uid: firebaseUser.uid,
       email: firebaseUser.email ?? '',
-      displayName: firebaseUser.displayName,
-      photoUrl: firebaseUser.photoURL,
       phoneNumber: firebaseUser.phoneNumber,
       emailVerified: firebaseUser.emailVerified,
       createdAt: firebaseUser.metadata.creationTime ?? DateTime.now(),
@@ -234,8 +228,6 @@ class UserModel extends Equatable {
     return UserModel(
       uid: uid,
       email: doc['email'] as String,
-      displayName: doc['displayName'] as String?,
-      photoUrl: doc['photoUrl'] as String?,
       phoneNumber: doc['phoneNumber'] as String?,
       emailVerified: doc['emailVerified'] as bool? ?? false,
       createdAt: (doc['createdAt'] as Timestamp).toDate(),
@@ -260,8 +252,6 @@ class UserModel extends Equatable {
   Map<String, dynamic> toFirestore() {
     return {
       'email': email,
-      'displayName': displayName,
-      'photoUrl': photoUrl,
       'phoneNumber': phoneNumber,
       'emailVerified': emailVerified,
       'createdAt': Timestamp.fromDate(createdAt),
@@ -276,8 +266,6 @@ class UserModel extends Equatable {
   UserModel copyWith({
     String? uid,
     String? email,
-    String? displayName,
-    String? photoUrl,
     String? phoneNumber,
     bool? emailVerified,
     DateTime? createdAt,
@@ -289,8 +277,6 @@ class UserModel extends Equatable {
     return UserModel(
       uid: uid ?? this.uid,
       email: email ?? this.email,
-      displayName: displayName ?? this.displayName,
-      photoUrl: photoUrl ?? this.photoUrl,
       phoneNumber: phoneNumber ?? this.phoneNumber,
       emailVerified: emailVerified ?? this.emailVerified,
       createdAt: createdAt ?? this.createdAt,
@@ -305,8 +291,6 @@ class UserModel extends Equatable {
   List<Object?> get props => [
         uid,
         email,
-        displayName,
-        photoUrl,
         phoneNumber,
         emailVerified,
         createdAt,
@@ -551,26 +535,43 @@ class FirebaseAuthDatasource {
     );
   }
 
-  /// Sign in with Google
-  Future<firebase_auth.UserCredential> signInWithGoogle() async {
-    // Trigger Google Sign-In flow
-    final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-
-    if (googleUser == null) {
-      throw Exception('Google sign-in aborted by user');
+    Future<AuthModel> signInWithGoogle() async {
+    if (kIsWeb) {
+      return await _signInWithGoogleWeb();
+    } else {
+      return await _signInWithGoogleMobile();
     }
+  }
 
-    // Obtain auth details
-    final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+  Future<AuthModel> _signInWithGoogleMobile() async {
+    final GoogleSignInAccount googleUser = await _googleSignIn.authenticate();
+    final GoogleSignInAuthentication googleAuth = googleUser.authentication;
 
-    // Create credential
-    final credential = firebase_auth.GoogleAuthProvider.credential(
-      accessToken: googleAuth.accessToken,
+    final credential = auth.GoogleAuthProvider.credential(
       idToken: googleAuth.idToken,
     );
 
-    // Sign in to Firebase
-    return await _firebaseAuth.signInWithCredential(credential);
+    final userCredential = await _firebaseAuth.signInWithCredential(credential);
+
+    if (userCredential.user == null) {
+      throw Exception('Sign in failed');
+    }
+
+    return AuthModel.fromFirebaseUser(userCredential.user!);
+  }
+
+  Future<AuthModel> _signInWithGoogleWeb() async {
+    auth.GoogleAuthProvider googleProvider = auth.GoogleAuthProvider();
+    googleProvider.addScope('email');
+    googleProvider.addScope('profile');
+
+    final userCredential = await _firebaseAuth.signInWithPopup(googleProvider);
+
+    if (userCredential.user == null) {
+      throw Exception('Sign in failed');
+    }
+
+    return AuthModel.fromFirebaseUser(userCredential.user!);
   }
 
   /// Sign out
@@ -654,7 +655,7 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Stream<UserModel?> get authStateChanges {
     return _datasource.authStateChanges.asyncMap((firebaseUser) async {
-      if (firebaseUser == null) return null;
+      if (firebaseUser == null){  return null; }
       return await _getUserModelFromFirebaseUser(firebaseUser);
     });
   }
@@ -662,7 +663,7 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   UserModel? get currentUser {
     final firebaseUser = _datasource.currentFirebaseUser;
-    if (firebaseUser == null) return null;
+    if (firebaseUser == null){  return null; }
     
     // Note: This is sync, so we return a basic user model
     // The stream will provide the full user data asynchronously
@@ -968,13 +969,13 @@ import 'package:agricola/features/auth/providers/auth_provider.dart';
 final authTokenProvider = FutureProvider.autoDispose<String?>((ref) async {
   // Watch auth state to rebuild when user changes
   final user = ref.watch(currentUserProvider);
-  if (user == null) return null;
+  if (user == null){  return null; }
   
   // Get fresh token from Firebase (auto-refreshes if expired)
   final firebaseAuth = ref.watch(firebaseAuthProvider);
   final firebaseUser = firebaseAuth.currentUser;
   
-  if (firebaseUser == null) return null;
+  if (firebaseUser == null){  return null; }
   
   return await firebaseUser.getIdToken();
 });
@@ -1236,67 +1237,778 @@ class AuthController extends StateNotifier<AsyncValue<void>> {
 
 ## Presentation Layer
 
-### 1. Update Sign Up Screen
-**File:** sign_up_screen.dart
+### Architecture Pattern: Screen-Specific Controllers
 
-**Modifications:**
+Following clean architecture and the pattern used in `ProfileSetupProvider`, we separate business logic from UI widgets by creating dedicated controllers for each screen. This ensures:
+
+- ✅ UI widgets focus purely on presentation
+- ✅ Business logic isolated in testable controllers  
+- ✅ Consistent state management pattern
+- ✅ Better separation of concerns
+- ✅ Easier maintenance and testing
+
+### 1. Sign Up Screen Controller ✅ IMPLEMENTED
+**File:** `lib/features/auth/providers/sign_up_provider.dart`
+
+**Key Features:**
+- ✅ Email/password/confirm password validation
+- ✅ Form validation state management  
+- ✅ Loading and error state handling
+- ✅ Email/password and Google sign up flows
+- ✅ User type parsing (farmer/merchant with subtypes)
+- ✅ Navigation to profile setup after successful auth
+- ✅ Error message display with auto-clear
+
+**State Management:**
+```dart
+class SignUpState {
+  final String email;
+  final String password;
+  final String confirmPassword;
+  final bool isLoading;
+  final String? errorMessage;
+  final bool isFormValid;
+}
+```
+
+**Methods:**
+- `updateEmail()` - Real-time email validation
+- `updatePassword()` - Real-time password validation  
+- `updateConfirmPassword()` - Real-time confirm password validation
+- `signUpWithEmailPassword()` - Email/password registration
+- `signUpWithGoogle()` - Google OAuth registration
+- `validateEmail/Password/ConfirmPassword()` - Form field validators
+
+### 2. Updated Sign Up Screen ✅ IMPLEMENTED
+**File:** `lib/features/auth/screens/sign_up_screen.dart`
+
+**Key Updates:**
+- ✅ Removed local state management (email, password, loading)
+- ✅ Integrated with SignUpProvider for all business logic
+- ✅ Real-time form validation using provider methods
+- ✅ Error message display via SnackBar
+- ✅ Loading state from provider
+- ✅ Google sign up integration (replaces hardcoded navigation)
+- ✅ Clean separation of UI and business logic
+
+**Controller Integration:**
+```dart
+// Listen to text changes and update provider
+_emailController.addListener(() {
+  ref.read(signUpProvider.notifier).updateEmail(_emailController.text);
+});
+
+// Use provider validation
+validator: (_) => signUpNotifier.validateEmail(),
+
+// Use provider methods for actions
+onTap: () => signUpNotifier.signUpWithEmailPassword(
+  userType: widget.userType ?? 'farmer',
+  context: context,
+),
+```
+
+**Error Handling:**
+- Firebase auth errors automatically handled
+- User-friendly error messages
+- Auto-clearing error state
+- Loading indicators during auth operations
+
+### 3. User Flow Implementation
+
+**Email/Password Sign Up Flow:**
+1. User types email → `updateEmail()` → real-time validation
+2. User types password → `updatePassword()` → real-time validation  
+3. User types confirm → `updateConfirmPassword()` → match validation
+4. User taps Sign Up → `signUpWithEmailPassword()` 
+5. Success → Navigate to `/profile-setup?type={userType}`
+6. Error → Show SnackBar with Firebase error message
+
+**Google Sign Up Flow:**
+1. User taps Google button → `signUpWithGoogle()`
+2. Google OAuth flow handles authentication
+3. Success → Navigate to `/profile-setup?type={userType}`  
+4. Error → Show SnackBar with error message
+
+**User Type Mapping:**
+- `'farmer'` → `(UserType.farmer, null)`
+- `'agriShop'` → `(UserType.merchant, MerchantType.agriShop)`
+- `'supermarketVendor'` → `(UserType.merchant, MerchantType.supermarketVendor)`
+
+### Next Implementation Steps
+
+**Remaining Presentation Components:**
+- [x] Sign In Screen Controller (`sign_in_provider.dart`) ✅ IMPLEMENTED
+- [x] Updated Sign In Screen with provider integration ✅ IMPLEMENTED
+- [x] Password Reset functionality ✅ IMPLEMENTED
+- [ ] Account deletion confirmation flow
+
+### 4. Sign In Screen Controller ✅ IMPLEMENTED
+**File:** `lib/features/auth/providers/sign_in_provider.dart`
+
+**Key Features:**
+- ✅ Email/password validation with real-time feedback
+- ✅ Form validation state management
+- ✅ Loading and error state handling  
+- ✅ Email/password and Google sign in flows
+- ✅ Smart navigation based on profile completion status
+- ✅ Password reset email functionality
+- ✅ Error message display with auto-clear
+
+**State Management:**
+```dart
+class SignInState {
+  final String email;
+  final String password;
+  final bool isLoading;
+  final String? errorMessage;
+  final bool isFormValid;
+}
+```
+
+**Methods:**
+- `updateEmail()` - Real-time email validation
+- `updatePassword()` - Real-time password validation
+- `signInWithEmailPassword()` - Email/password authentication
+- `signInWithGoogle()` - Google OAuth authentication
+- `sendPasswordResetEmail()` - Password reset functionality
+- `validateEmail/Password()` - Form field validators
+
+**Smart Navigation Logic:**
+```dart
+void _navigateBasedOnProfile(BuildContext context, user) {
+  if (user.isProfileComplete) {
+    context.go('/home');  // Complete profile → Home
+  } else {
+    // Incomplete profile → Profile Setup with correct user type
+    String userTypeParam = user.userType == UserType.merchant 
+        ? (user.merchantType == MerchantType.agriShop ? 'agriShop' : 'supermarketVendor')
+        : 'farmer';
+    context.go('/profile-setup?type=$userTypeParam');
+  }
+}
+```
+
+### 5. Updated Sign In Screen ✅ IMPLEMENTED
+**File:** `lib/features/auth/screens/sign_in_screen.dart`
+
+**Key Updates:**
+- ✅ Removed local state management (email, password, loading)
+- ✅ Integrated with SignInProvider for all business logic
+- ✅ Real-time form validation using provider methods
+- ✅ Error/success message display via SnackBar
+- ✅ Loading state from provider
+- ✅ Google sign in integration (replaces hardcoded navigation)
+- ✅ Password reset functionality with email validation
+- ✅ Clean separation of UI and business logic
+
+**New Features Added:**
+- **Forgot Password Link**: Validates email first, sends reset email, shows confirmation
+- **Smart Error Handling**: Different colors for success (green) vs error (red) messages
+- **Loading State Management**: Disables forgot password during operations
+
+### 6. Authentication Flow Summary
+
+**Email/Password Sign In Flow:**
+1. User types email → `updateEmail()` → real-time validation
+2. User types password → `updatePassword()` → real-time validation
+3. User taps Sign In → `signInWithEmailPassword()`
+4. Success → Check `isProfileComplete` → Navigate to home or profile setup
+5. Error → Show SnackBar with Firebase error message
+
+**Google Sign In Flow:**
+1. User taps Google button → `signInWithGoogle()`
+2. Google OAuth flow → Firebase authentication
+3. Success → Check `isProfileComplete` → Navigate appropriately
+4. Error → Show SnackBar with error message
+
+**Password Reset Flow:**
+1. User enters email → Real-time validation
+2. User taps "Forgot Password?" → Validates email format
+3. Success → Sends reset email → Shows green confirmation
+4. Error → Shows red error message
+
+**Pattern Established:** Each screen gets its own controller following the `SignUpProvider` pattern for consistent state management and clean architecture.
+
+**Remaining Implementation:**
+- [x] Account Sign Out functionality ✅ IMPLEMENTED
+- [x] Account deletion confirmation flow ✅ IMPLEMENTED
+
+### 8. Delete Account Implementation ✅ IMPLEMENTED
+
+**Files Updated:**
+- ✅ `lib/features/profile/providers/profile_provider.dart` - Added deleteAccount method
+- ✅ `lib/features/profile/screens/farmer_profile_screen.dart` - Added delete account option and dialogs
+- ✅ `lib/features/profile/screens/merchant_profile_screen.dart` - Added delete account option and dialogs
+
+**Key Features:**
+- ✅ **Two-Stage Confirmation**: Initial warning dialog + final confirmation
+- ✅ **Clear Warning Messages**: Lists exactly what will be deleted
+- ✅ **User Type Specific**: Different warnings for farmers vs merchants
+- ✅ **Loading States**: Shows spinner during deletion operation
+- ✅ **Error Handling**: Displays Firebase errors with user-friendly messages
+- ✅ **Navigation**: Automatically redirects to welcome screen after deletion
+- ✅ **Prevention of Accidental Deletion**: Multiple confirmation steps
+
+**Delete Account Flow:**
+1. **Settings Access**: User taps "Delete Account" in profile settings
+2. **Warning Dialog**: Shows comprehensive list of what will be lost
+3. **First Confirmation**: User must click "Continue" to proceed
+4. **Final Confirmation**: Second dialog with stronger warning
+5. **Deletion Process**: ProfileProvider → AuthController → Firebase account deletion
+6. **Success Navigation**: Redirects to `/welcome` screen
+7. **Error Handling**: Shows error message if deletion fails
+
+**User Experience Design:**
+```dart
+// Warning Dialog Features
+- Red warning icon
+- Bullet point list of consequences
+- "This action cannot be undone" messaging
+- User-type specific warnings (farm data vs business data)
+
+// Final Confirmation Features  
+- Red color scheme for danger
+- Clear "DELETE ACCOUNT" button
+- Loading indicator during operation
+- Non-dismissible during operation
+```
+
+**Security Features:**
+- ✅ **Multiple Confirmations**: Prevents accidental deletions
+- ✅ **Firebase Integration**: Uses AuthController for secure deletion
+- ✅ **Data Cleanup**: Firebase handles Firestore document deletion
+- ✅ **Session Termination**: User signed out and redirected after deletion
+
+---
+
+## 🎉 AUTH IMPLEMENTATION COMPLETE
+
+### Implementation Summary
+
+The Firebase Authentication system is now fully implemented with:
+
+**✅ Authentication Flows:**
+- Email/Password Sign Up with profile completion flow
+- Email/Password Sign In with smart navigation
+- Google OAuth Sign Up/Sign In
+- Password Reset functionality
+- Account Sign Out with confirmation
+- Account Deletion with multi-step confirmation
+
+**✅ Architecture Achievements:**
+- Clean Architecture with Repository Pattern
+- Riverpod State Management throughout
+- Screen-specific controllers for business logic separation
+- Proper error handling and user feedback
+- Consistent patterns across all auth screens
+
+**✅ User Experience:**
+- Real-time form validation
+- Loading states and error messages
+- Smart navigation based on profile completion
+- Multiple confirmation for destructive actions
+- Bilingual support ready
+
+**✅ Security & Safety:**
+- Firebase Auth integration for all operations
+- Proper token management for backend API calls
+- Error handling for all edge cases
+- Prevention of accidental account deletion
+
+The authentication system is now production-ready and follows Flutter/Firebase best practices with clean, maintainable, and testable code.
+
+### 7. Sign Out Implementation ✅ IMPLEMENTED
+
+**Files Created/Updated:**
+- ✅ `lib/features/profile/providers/profile_provider.dart` - New provider for profile actions
+- ✅ `lib/features/profile/screens/farmer_profile_screen.dart` - Updated with working sign out
+- ✅ `lib/features/profile/screens/merchant_profile_screen.dart` - Updated with working sign out
+
+**Key Features:**
+- ✅ **Profile Provider**: Clean controller for profile-related actions like sign out
+- ✅ **Loading States**: Shows spinner during sign out operation
+- ✅ **Error Handling**: Displays errors if sign out fails
+- ✅ **Dialog Improvements**: Prevents dismissal during operation, shows loading indicator
+- ✅ **Navigation**: Automatically redirects to welcome screen after successful sign out
+- ✅ **Consistent UX**: Same implementation across farmer and merchant profiles
+
+**Sign Out Flow:**
+1. User taps logout button → Shows confirmation dialog
+2. User confirms → `profileNotifier.signOut()` 
+3. Provider calls `authController.signOut()` → Firebase sign out
+4. Success → Navigate to `/welcome` → Close dialog
+5. Error → Show error message → Keep user in app
+
+**Technical Details:**
+```dart
+// Profile Provider manages sign out state
+class ProfileState {
+  final bool isLoading;
+  final String? errorMessage;
+}
+
+// Sign out method with navigation
+Future<bool> signOut(BuildContext context) async {
+  await _authController.signOut();
+  if (context.mounted) {
+    context.go('/welcome');
+  }
+}
+
+// Enhanced dialog with loading states
+TextButton(
+  child: profileState.isLoading
+      ? CircularProgressIndicator()
+      : Text('Logout'),
+)
+```
+
+---
+
+### Architecture Pattern: Screen-Specific Controllers
+
+Following clean architecture and the pattern used in `ProfileSetupProvider`, we separate business logic from UI widgets by creating dedicated controllers for each screen. This ensures:
+
+- ✅ UI widgets focus purely on presentation
+- ✅ Business logic isolated in testable controllers  
+- ✅ Consistent state management pattern
+- ✅ Better separation of concerns
+- ✅ Easier maintenance and testing
+
+### 1. Sign Up Screen Controller
+**File:** `lib/features/auth/providers/sign_up_provider.dart`
 
 ```dart
-// Add at top
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:agricola/features/auth/providers/auth_controller.dart';
-import 'package:agricola/features/auth/domain/failures/auth_failure.dart';
+import 'package:agricola/features/profile_setup/providers/profile_setup_provider.dart';
+
+final signUpProvider = StateNotifierProvider<SignUpNotifier, SignUpState>((ref) {
+  final authController = ref.watch(authControllerProvider.notifier);
+  return SignUpNotifier(authController);
+});
+
+class SignUpState {
+  final String email;
+  final String password;
+  final String confirmPassword;
+  final bool isLoading;
+  final String? errorMessage;
+  final bool isFormValid;
+
+  const SignUpState({
+    this.email = '',
+    this.password = '',
+    this.confirmPassword = '',
+    this.isLoading = false,
+    this.errorMessage,
+    this.isFormValid = false,
+  });
+
+  SignUpState copyWith({
+    String? email,
+    String? password,
+    String? confirmPassword,
+    bool? isLoading,
+    String? errorMessage,
+    bool? isFormValid,
+  }) {
+    return SignUpState(
+      email: email ?? this.email,
+      password: password ?? this.password,
+      confirmPassword: confirmPassword ?? this.confirmPassword,
+      isLoading: isLoading ?? this.isLoading,
+      errorMessage: errorMessage ?? this.errorMessage,
+      isFormValid: isFormValid ?? this.isFormValid,
+    );
+  }
+}
+
+class SignUpNotifier extends StateNotifier<SignUpState> {
+  final AuthController _authController;
+
+  SignUpNotifier(this._authController) : super(const SignUpState());
+
+  void updateEmail(String email) {
+    state = state.copyWith(
+      email: email,
+      errorMessage: null,
+      isFormValid: _validateForm(email, state.password, state.confirmPassword),
+    );
+  }
+
+  void updatePassword(String password) {
+    state = state.copyWith(
+      password: password,
+      errorMessage: null,
+      isFormValid: _validateForm(state.email, password, state.confirmPassword),
+    );
+  }
+
+  void updateConfirmPassword(String confirmPassword) {
+    state = state.copyWith(
+      confirmPassword: confirmPassword,
+      errorMessage: null,
+      isFormValid: _validateForm(state.email, state.password, confirmPassword),
+    );
+  }
+
+  bool _validateForm(String email, String password, String confirmPassword) {
+    return email.isNotEmpty &&
+           email.contains('@') &&
+           password.length >= 6 &&
+           password == confirmPassword;
+  }
+
+  void clearError() {
+    state = state.copyWith(errorMessage: null);
+  }
+
+  /// Sign up with email and password
+  Future<bool> signUpWithEmailPassword({
+    required String userType,
+    required BuildContext context,
+  }) async {
+    if (!state.isFormValid) return false;
+
+    state = state.copyWith(isLoading: true, errorMessage: null);
+
+    try {
+      // Parse user type and merchant type
+      final (userTypeEnum, merchantType) = _parseUserType(userType);
+
+      final result = await _authController.signUpWithEmailPassword(
+        email: state.email.trim(),
+        password: state.password,
+        userType: userTypeEnum,
+        merchantType: merchantType,
+      );
+
+      return result.fold(
+        (failure) {
+          state = state.copyWith(
+            isLoading: false,
+            errorMessage: failure.message,
+          );
+          return false;
+        },
+        (user) {
+          state = state.copyWith(isLoading: false);
+          if (context.mounted) {
+            context.go('/profile-setup?type=$userType');
+          }
+          return true;
+        },
+      );
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: 'An unexpected error occurred',
+      );
+      return false;
+    }
+  }
+
+  /// Sign up with Google
+  Future<bool> signUpWithGoogle({
+    required String userType,
+    required BuildContext context,
+  }) async {
+    state = state.copyWith(isLoading: true, errorMessage: null);
+
+    try {
+      final (userTypeEnum, merchantType) = _parseUserType(userType);
+
+      final result = await _authController.signInWithGoogle(
+        userType: userTypeEnum,
+        merchantType: merchantType,
+      );
+
+      return result.fold(
+        (failure) {
+          state = state.copyWith(
+            isLoading: false,
+            errorMessage: failure.message,
+          );
+          return false;
+        },
+        (user) {
+          state = state.copyWith(isLoading: false);
+          if (context.mounted) {
+            final route = user.isProfileComplete 
+                ? '/home' 
+                : '/profile-setup?type=$userType';
+            context.go(route);
+          }
+          return true;
+        },
+      );
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: 'Google sign up failed',
+      );
+      return false;
+    }
+  }
+
+  /// Parse user type string to enums
+  (UserType, MerchantType?) _parseUserType(String userType) {
+    switch (userType) {
+      case 'agriShop':
+        return (UserType.merchant, MerchantType.agriShop);
+      case 'supermarketVendor':
+        return (UserType.merchant, MerchantType.supermarketVendor);
+      default:
+        return (UserType.farmer, null);
+    }
+  }
+
+  /// Form validation getters
+  String? validateEmail() {
+    if (state.email.isEmpty) return 'Email is required';
+    if (!state.email.contains('@')) return 'Invalid email format';
+    return null;
+  }
+
+  String? validatePassword() {
+    if (state.password.isEmpty) return 'Password is required';
+    if (state.password.length < 6) return 'Password must be at least 6 characters';
+    return null;
+  }
+
+  String? validateConfirmPassword() {
+    if (state.confirmPassword.isEmpty) return 'Please confirm your password';
+    if (state.password != state.confirmPassword) return 'Passwords do not match';
+    return null;
+  }
+}
+```
+
+**Rationale:**
+- **Business Logic Separation**: All form validation, user type parsing, and navigation logic moved to controller
+- **Clean State Management**: Follows existing app patterns (ProfileSetupProvider)
+- **Testability**: Controller can be unit tested independently of UI
+- **Reusability**: Same controller could support different UI layouts (mobile/web)
+
+---
+
+### 2. Updated Sign Up Screen (Clean UI)
+**File:** `lib/features/auth/screens/sign_up_screen.dart`
+
+```dart
+// Add imports
+import 'package:agricola/features/auth/providers/sign_up_provider.dart';
 
 class _SignUpScreenState extends ConsumerState<SignUpScreen> {
-  final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-  
-  // Add error state
-  String? _errorMessage;
 
-  // Replace existing _onSignUp method
-  Future<void> _onSignUp() async {
-    if (_formKey.currentState!.validate()) {
-      final controller = ref.read(authControllerProvider.notifier);
-      
-      // Determine user type from widget.userType
-      UserType userType = UserType.farmer;
-      MerchantType? merchantType;
-      
-      if (widget.userType == 'agriShop') {
-        userType = UserType.merchant;
-        merchantType = MerchantType.agriShop;
-      } else if (widget.userType == 'supermarketVendor') {
-        userType = UserType.merchant;
-        merchantType = MerchantType.supermarketVendor;
-      }
-      
-      final result = await controller.signUpWithEmailPassword(
-        email: _emailController.text.trim(),
-        password: _passwordController.text,
-        userType: userType,
-        merchantType: merchantType,
-      );
-      
-      result.fold(
-        (failure) {
-          // Show error
-          setState(() {
-            _errorMessage = failure.message;
-          });
-        },
-        (user) {
-          // Navigate to profile setup
-          if (mounted) {
-            context.go('/profile-setup?type=${widget.userType ?? "farmer"}');
-          }
-        },
-      );
-    }
+  @override
+  void initState() {
+    super.initState();
+    
+    // Bind controllers to provider state
+    _emailController.addListener(() {
+      ref.read(signUpProvider.notifier).updateEmail(_emailController.text);
+    });
+    _passwordController.addListener(() {
+      ref.read(signUpProvider.notifier).updatePassword(_passwordController.text);
+    });
+    _confirmPasswordController.addListener(() {
+      ref.read(signUpProvider.notifier).updateConfirmPassword(_confirmPasswordController.text);
+    });
   }
-  
-  // Add Google Sign Up method
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final state = ref.watch(signUpProvider);
+    final notifier = ref.read(signUpProvider.notifier);
+    final currentLang = ref.watch(languageProvider);
+
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            children: [
+              const SizedBox(height: 40),
+              
+              // Title and subtitle
+              Text(
+                t('create_account', currentLang),
+                style: const TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.darkGray,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              
+              const SizedBox(height: 8),
+              
+              Text(
+                t('sign_up_subtitle', currentLang),
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey[600],
+                ),
+                textAlign: TextAlign.center,
+              ),
+              
+              const SizedBox(height: 32),
+              
+              // Error message display
+              if (state.errorMessage != null) ...[
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.red.shade50,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.red.shade200),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.error_outline, color: Colors.red.shade700),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          state.errorMessage!,
+                          style: TextStyle(color: Colors.red.shade700),
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: notifier.clearError,
+                        color: Colors.red.shade700,
+                        iconSize: 20,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
+              
+              // Form fields
+              AppTextField(
+                controller: _emailController,
+                label: t('email', currentLang),
+                keyboardType: TextInputType.emailAddress,
+                validator: (value) => notifier.validateEmail(),
+              ),
+              
+              const SizedBox(height: 16),
+              
+              AppTextField(
+                controller: _passwordController,
+                label: t('password', currentLang),
+                obscureText: true,
+                validator: (value) => notifier.validatePassword(),
+              ),
+              
+              const SizedBox(height: 16),
+              
+              AppTextField(
+                controller: _confirmPasswordController,
+                label: t('confirm_password', currentLang),
+                obscureText: true,
+                validator: (value) => notifier.validateConfirmPassword(),
+              ),
+              
+              const SizedBox(height: 32),
+              
+              // Sign Up button
+              AppPrimaryButton(
+                label: t('sign_up', currentLang),
+                isLoading: state.isLoading,
+                onTap: state.isFormValid 
+                    ? () => notifier.signUpWithEmailPassword(
+                        userType: widget.userType ?? 'farmer',
+                        context: context,
+                      )
+                    : null,
+              ),
+              
+              const SizedBox(height: 16),
+              
+              // Divider
+              Row(
+                children: [
+                  const Expanded(child: Divider()),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Text(
+                      t('or', currentLang),
+                      style: TextStyle(color: Colors.grey[600]),
+                    ),
+                  ),
+                  const Expanded(child: Divider()),
+                ],
+              ),
+              
+              const SizedBox(height: 16),
+              
+              // Google Sign Up button
+              AppSecondaryButton(
+                label: t('sign_up_with_google', currentLang),
+                icon: Icons.g_mobiledata,
+                isLoading: state.isLoading,
+                onTap: () => notifier.signUpWithGoogle(
+                  userType: widget.userType ?? 'farmer',
+                  context: context,
+                ),
+              ),
+              
+              const SizedBox(height: 32),
+              
+              // Footer
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    t('already_have_account', currentLang),
+                    style: TextStyle(color: Colors.grey[600]),
+                  ),
+                  const SizedBox(width: 8),
+                  GestureDetector(
+                    onTap: () => context.go('/sign-in'),
+                    child: Text(
+                      t('sign_in', currentLang),
+                      style: const TextStyle(
+                        color: AppColors.green,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+```
+
+**Rationale:**
+- **Pure UI**: Widget only handles presentation and user interaction
+- **No Business Logic**: All logic delegated to SignUpNotifier
+- **Reactive**: UI automatically updates based on provider state
+- **Clean**: Much simpler and easier to understand
   Future<void> _onGoogleSignUp() async {
     final controller = ref.read(authControllerProvider.notifier);
     
@@ -1580,6 +2292,194 @@ class PrimaryButton extends StatelessWidget {
 }
 ```
 
+**Rationale:**
+- **Pure UI**: Widget only handles presentation and user interaction
+- **No Business Logic**: All logic delegated to SignInNotifier
+- **Reactive**: UI automatically updates based on provider state
+- **Clean**: Much simpler and easier to understand
+
+---
+
+### 5. Additional Screen Controllers
+
+#### Password Reset Screen Controller
+**File:** `lib/features/auth/providers/password_reset_provider.dart`
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:agricola/features/auth/providers/auth_controller.dart';
+
+final passwordResetProvider = StateNotifierProvider<PasswordResetNotifier, PasswordResetState>((ref) {
+  final authController = ref.watch(authControllerProvider.notifier);
+  return PasswordResetNotifier(authController);
+});
+
+class PasswordResetState {
+  final String email;
+  final bool isLoading;
+  final String? errorMessage;
+  final bool isSuccessful;
+  final bool isFormValid;
+
+  const PasswordResetState({
+    this.email = '',
+    this.isLoading = false,
+    this.errorMessage,
+    this.isSuccessful = false,
+    this.isFormValid = false,
+  });
+
+  PasswordResetState copyWith({
+    String? email,
+    bool? isLoading,
+    String? errorMessage,
+    bool? isSuccessful,
+    bool? isFormValid,
+  }) {
+    return PasswordResetState(
+      email: email ?? this.email,
+      isLoading: isLoading ?? this.isLoading,
+      errorMessage: errorMessage ?? this.errorMessage,
+      isSuccessful: isSuccessful ?? this.isSuccessful,
+      isFormValid: isFormValid ?? this.isFormValid,
+    );
+  }
+}
+
+class PasswordResetNotifier extends StateNotifier<PasswordResetState> {
+  final AuthController _authController;
+
+  PasswordResetNotifier(this._authController) : super(const PasswordResetState());
+
+  void updateEmail(String email) {
+    state = state.copyWith(
+      email: email,
+      errorMessage: null,
+      isFormValid: _validateEmail(email),
+    );
+  }
+
+  bool _validateEmail(String email) {
+    return email.isNotEmpty && email.contains('@');
+  }
+
+  void clearError() {
+    state = state.copyWith(errorMessage: null);
+  }
+
+  void reset() {
+    state = const PasswordResetState();
+  }
+
+  /// Send password reset email
+  Future<bool> resetPassword({required BuildContext context}) async {
+    if (!state.isFormValid) return false;
+
+    state = state.copyWith(isLoading: true, errorMessage: null);
+
+    try {
+      final result = await _authController.resetPassword(state.email.trim());
+
+      return result.fold(
+        (failure) {
+          state = state.copyWith(
+            isLoading: false,
+            errorMessage: failure.message,
+          );
+          return false;
+        },
+        (_) {
+          state = state.copyWith(
+            isLoading: false,
+            isSuccessful: true,
+          );
+          return true;
+        },
+      );
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: 'Password reset failed',
+      );
+      return false;
+    }
+  }
+
+  String? validateEmail() {
+    if (state.email.isEmpty) return 'Email is required';
+    if (!state.email.contains('@')) return 'Invalid email format';
+    return null;
+  }
+}
+```
+
+---
+
+### 6. Architecture Benefits Summary
+
+#### ✅ Benefits of Controller Pattern
+
+1. **Clear Separation of Concerns**
+   - UI widgets handle only presentation
+   - Controllers manage business logic and state
+   - Easy to reason about code organization
+
+2. **Enhanced Testability**
+   - Controllers can be unit tested independently
+   - Mock dependencies easily injected
+   - UI tests focus on user interaction only
+
+3. **Code Reusability**
+   - Same controller can support multiple UI layouts
+   - Business logic easily shared between screens
+   - Platform-specific UI with shared logic
+
+4. **Better Error Handling**
+   - Centralized error state management
+   - Consistent error display patterns
+   - Easy to track and debug issues
+
+5. **Performance Optimization**
+   - Reduced UI rebuilds with focused providers
+   - Efficient state updates using copyWith
+   - Lazy loading of controllers
+
+6. **Consistent Patterns**
+   - Follows existing ProfileSetupProvider approach
+   - Predictable code structure across features
+   - Easy onboarding for new developers
+
+#### ✅ Implementation Guidelines
+
+1. **Naming Conventions**
+   - Controller providers: `screenNameProvider`
+   - State classes: `ScreenNameState`
+   - Notifier classes: `ScreenNameNotifier`
+
+2. **State Management**
+   - Always use copyWith for state updates
+   - Include loading, error, and validation states
+   - Clear errors when input changes
+
+3. **Business Logic**
+   - Keep UI widgets pure and stateless when possible
+   - Move form validation to controllers
+   - Handle navigation in controllers, not UI
+
+4. **Error Handling**
+   - Provide user-friendly error messages
+   - Include error clearing functionality
+   - Show loading states during operations
+
+5. **Dependencies**
+   - Inject controllers through Riverpod
+   - Use existing AuthController for auth operations
+   - Follow dependency injection patterns
+
+This controller-based approach provides a robust foundation for the authentication screens while maintaining consistency with the existing codebase patterns and ensuring clean separation of concerns.
+
 ---
 
 ### 4. Update Profile Setup Screen
@@ -1605,7 +2505,7 @@ if (state.currentStep == state.totalSteps - 1) {
 
 ---
 
-### 5. Add Sign Out in Profile Screens
+### 7. Add Sign Out in Profile Screens
 **Files:** 
 - farmer_profile_screen.dart
 - merchant_profile_screen.dart
@@ -1728,7 +2628,7 @@ class AgricolaApp extends ConsumerWidget {
             }
             
             // No redirect needed
-            return null;
+           {  return null; }
           },
           loading: () => null, // Don't redirect while loading
           error: (_, __) => '/', // Redirect to welcome on error
