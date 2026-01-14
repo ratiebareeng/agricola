@@ -43,6 +43,10 @@ final firestoreProvider = Provider<FirebaseFirestore>((ref) {
 });
 
 final googleSignInProvider = Provider<GoogleSignIn>((ref) {
+  GoogleSignIn.instance.initialize(
+    serverClientId:
+        '510300582302-aogld1kvrr3skn2qa3en0ji8fueh3tqe.apps.googleusercontent.com',
+  );
   return GoogleSignIn.instance;
 });
 

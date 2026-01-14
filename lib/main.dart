@@ -6,11 +6,16 @@ import 'package:agricola/features/home/screens/home_screen.dart';
 import 'package:agricola/features/onboarding/screens/onboarding_screen.dart';
 import 'package:agricola/features/onboarding/screens/welcome_screen.dart';
 import 'package:agricola/features/profile_setup/screens/profile_setup_screen.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-void main() {
+import 'firebase_options.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const ProviderScope(child: AgricolaApp()));
 }
 
