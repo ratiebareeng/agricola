@@ -22,6 +22,14 @@
           }
         },
         {
+          "client_id": "510300582302-q7fqmrshfn7kf2p7q1mtokpsovq7uvn2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.agricola.prod",
+            "certificate_hash": "ed8ff3ec1e7696c5f4ee91cb78cc2cb35399ae20"
+          }
+        },
+        {
           "client_id": "510300582302-aogld1kvrr3skn2qa3en0ji8fueh3tqe.apps.googleusercontent.com",
           "client_type": 3
         }
