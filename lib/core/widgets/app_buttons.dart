@@ -62,42 +62,54 @@ class AppSecondaryButton extends StatelessWidget {
   final String label;
   final VoidCallback? onTap;
   final IconData? icon;
+  final bool isLoading;
 
   const AppSecondaryButton({
     super.key,
     required this.label,
     this.onTap,
     this.icon,
+    this.isLoading = false,
   });
 
   @override
   Widget build(BuildContext context) {
     return OutlinedButton(
-      onPressed: onTap,
+      onPressed: isLoading ? null : onTap,
       style: OutlinedButton.styleFrom(
         foregroundColor: AppColors.green,
         side: const BorderSide(color: AppColors.green, width: 2),
         minimumSize: const Size(double.infinity, 56),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        disabledForegroundColor: AppColors.green.withAlpha(50),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          if (icon != null) ...[
-            Icon(icon, size: 22),
-            const SizedBox(width: 12),
-          ],
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 0.5,
+      child: isLoading
+          ? const SizedBox(
+              height: 24,
+              width: 24,
+              child: CircularProgressIndicator(
+                color: AppColors.green,
+                strokeWidth: 2.5,
+              ),
+            )
+          : Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (icon != null) ...[
+                  Icon(icon, size: 22),
+                  const SizedBox(width: 12),
+                ],
+                Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ],
             ),
-          ),
-        ],
-      ),
     );
   }
 }
