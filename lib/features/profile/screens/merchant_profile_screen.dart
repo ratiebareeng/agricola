@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/core/widgets/language_select_content.dart';
+import 'package:agricola/features/profile/providers/profile_provider.dart';
 import 'package:agricola/features/profile/screens/business_statistics_screen.dart';
 import 'package:agricola/features/profile_setup/providers/profile_setup_provider.dart';
 import 'package:flutter/material.dart';
@@ -635,23 +636,43 @@ class MerchantProfileScreen extends ConsumerWidget {
 
   void _showLogoutDialog(BuildContext context, WidgetRef ref) {
     final currentLang = ref.watch(languageProvider);
+    final profileState = ref.watch(profileProvider);
+    final profileNotifier = ref.read(profileProvider.notifier);
 
     showDialog(
       context: context,
+      barrierDismissible: !profileState.isLoading,
       builder: (context) => AlertDialog(
         title: Text(t('logout', currentLang)),
         content: Text(t('logout_confirmation', currentLang)),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: profileState.isLoading
+                ? null
+                : () => Navigator.pop(context),
             child: Text(t('cancel', currentLang)),
           ),
           TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text(t('logout', currentLang)),
+            onPressed: profileState.isLoading
+                ? null
+                : () async {
+                    final success = await profileNotifier.signOut(context);
+                    if (success && context.mounted) {
+                      Navigator.pop(context);
+                    }
+                  },
+            style: TextButton.styleFrom(
+              foregroundColor: profileState.isLoading
+                  ? Colors.grey
+                  : Colors.red,
+            ),
+            child: profileState.isLoading
+                ? const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : Text(t('logout', currentLang)),
           ),
         ],
       ),
