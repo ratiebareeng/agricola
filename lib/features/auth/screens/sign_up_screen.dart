@@ -2,6 +2,7 @@ import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/core/widgets/app_buttons.dart';
 import 'package:agricola/core/widgets/app_text_field.dart';
+import 'package:agricola/features/auth/providers/sign_up_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -19,11 +20,26 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-  bool _isLoading = false;
 
   @override
   Widget build(BuildContext context) {
     final currentLang = ref.watch(languageProvider);
+    final signUpState = ref.watch(signUpProvider);
+    final signUpNotifier = ref.read(signUpProvider.notifier);
+
+    // Show error message if present
+    if (signUpState.errorMessage != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(signUpState.errorMessage!),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        signUpNotifier.clearError();
+      });
+    }
 
     return Scaffold(
       backgroundColor: AppColors.white,
@@ -57,12 +73,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                   hint: 'example@email.com',
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your email';
-                    }
-                    return null;
-                  },
+                  validator: (_) => signUpNotifier.validateEmail(),
                 ),
                 const SizedBox(height: 24),
                 AppTextField(
@@ -70,15 +81,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                   hint: '********',
                   controller: _passwordController,
                   obscureText: true,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter a password';
-                    }
-                    if (value.length < 6) {
-                      return 'Password must be at least 6 characters';
-                    }
-                    return null;
-                  },
+                  validator: (_) => signUpNotifier.validatePassword(),
                 ),
                 const SizedBox(height: 24),
                 AppTextField(
@@ -86,18 +89,13 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                   hint: '********',
                   controller: _confirmPasswordController,
                   obscureText: true,
-                  validator: (value) {
-                    if (value != _passwordController.text) {
-                      return 'Passwords do not match';
-                    }
-                    return null;
-                  },
+                  validator: (_) => signUpNotifier.validateConfirmPassword(),
                 ),
                 const SizedBox(height: 32),
                 AppPrimaryButton(
                   label: t('sign_up', currentLang),
-                  onTap: _onSignUp,
-                  isLoading: _isLoading,
+                  onTap: () => _onSignUp(signUpNotifier),
+                  isLoading: signUpState.isLoading,
                 ),
                 const SizedBox(height: 32),
                 Row(
@@ -123,8 +121,9 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                       child: AppSecondaryButton(
                         label: t('google', currentLang),
                         icon: Icons.g_mobiledata, // Placeholder
-                        onTap: () => context.go(
-                          '/profile-setup?type=${widget.userType ?? "farmer"}',
+                        onTap: () => signUpNotifier.signUpWithGoogle(
+                          userType: widget.userType ?? 'farmer',
+                          context: context,
                         ),
                       ),
                     ),
@@ -180,22 +179,32 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     super.dispose();
   }
 
-  void _onSignUp() async {
+  @override
+  void initState() {
+    super.initState();
+
+    // Listen to text changes and update provider
+    _emailController.addListener(() {
+      ref.read(signUpProvider.notifier).updateEmail(_emailController.text);
+    });
+    _passwordController.addListener(() {
+      ref
+          .read(signUpProvider.notifier)
+          .updatePassword(_passwordController.text);
+    });
+    _confirmPasswordController.addListener(() {
+      ref
+          .read(signUpProvider.notifier)
+          .updateConfirmPassword(_confirmPasswordController.text);
+    });
+  }
+
+  void _onSignUp(SignUpNotifier signUpNotifier) {
     if (_formKey.currentState!.validate()) {
-      setState(() {
-        _isLoading = true;
-      });
-
-      // Simulate API call
-      await Future.delayed(const Duration(seconds: 2));
-
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-        // Navigate to profile setup
-        context.go('/profile-setup?type=${widget.userType ?? "farmer"}');
-      }
+      signUpNotifier.signUpWithEmailPassword(
+        userType: widget.userType ?? 'farmer',
+        context: context,
+      );
     }
   }
 }
