@@ -2,6 +2,7 @@ import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/features/auth/screens/registration_screen.dart';
 import 'package:agricola/features/auth/screens/sign_in_screen.dart';
 import 'package:agricola/features/auth/screens/sign_up_screen.dart';
+import 'package:agricola/features/debug/screens/health_check_page.dart';
 import 'package:agricola/features/home/screens/home_screen.dart';
 import 'package:agricola/features/onboarding/screens/onboarding_screen.dart';
 import 'package:agricola/features/onboarding/screens/welcome_screen.dart';
@@ -47,6 +48,12 @@ final _router = GoRouter(
       ),
     ),
     GoRoute(path: '/home', builder: (context, state) => const HomeScreen()),
+    GoRoute(
+      path: '/debug/health-check',
+      builder: (context, state) {
+        return const HealthCheckPage();
+      },
+    ),
   ],
 );
 
