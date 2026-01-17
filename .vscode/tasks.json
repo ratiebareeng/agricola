@@ -1,0 +1,31 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "shelf",
+            "type": "shell",
+            "command": "dart run bin/pandamatenga.dart",
+            "options": {
+                "cwd": "${workspaceFolder}/../pandamatenga"
+            },
+            "isBackground": true,
+            "problemMatcher": {
+                "pattern": {
+                    "regexp": "^([^\\s].*)$",
+                    "message": 1
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": ".",
+                    "endsPattern": "Server listening on"
+                }
+            }
+        },
+        {
+            "label": "Stop Shelf Server",
+            "type": "shell",
+            "command": "pkill -f 'dart run bin/pandamatenga.dart' || true",
+            "problemMatcher": []
+        }
+    ]
+}
