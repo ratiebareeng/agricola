@@ -128,7 +128,9 @@ class WelcomeScreen extends ConsumerWidget {
                             Future.delayed(
                               const Duration(milliseconds: 300),
                               () {
-                                if (!context.mounted) return;
+                                if (!context.mounted) {
+                                  return;
+                                }
                                 context.go('/onboarding');
                               },
                             );

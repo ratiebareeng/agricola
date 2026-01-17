@@ -7,6 +7,7 @@ import 'package:agricola/features/profile/providers/profile_provider.dart';
 import 'package:agricola/features/profile_setup/providers/profile_setup_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
 class FarmerProfileScreen extends ConsumerWidget {
@@ -419,10 +420,25 @@ class FarmerProfileScreen extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
+            'Development',
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          Text(
             t('quick_actions', currentLang),
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
+          _buildActionButton(
+            context,
+            Icons.analytics_outlined,
+            'Development',
+            'Track and manage farm development activities',
+            () {
+              // Navigate to health-check page
+              context.go('/debug/health-check');
+            },
+          ),
+          const SizedBox(height: 12),
           _buildActionButton(
             context,
             Icons.analytics_outlined,
