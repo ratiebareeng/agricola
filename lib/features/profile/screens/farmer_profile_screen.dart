@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:agricola/core/providers/language_provider.dart';
+import 'package:agricola/core/routing/route_guard_helpers.dart';
 import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/core/widgets/language_select_content.dart';
 import 'package:agricola/features/profile/providers/profile_provider.dart';
@@ -420,24 +421,19 @@ class FarmerProfileScreen extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Development',
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          Text(
             t('quick_actions', currentLang),
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
-          const SizedBox(height: 16),
-          _buildActionButton(
-            context,
-            Icons.analytics_outlined,
-            'Development',
-            'Track and manage farm development activities',
-            () {
-              // Navigate to health-check page
-              context.go('/debug/health-check');
-            },
-          ),
+          if (RouteGuardHelpers.isDebugBuild) ...[
+            const SizedBox(height: 16),
+            _buildActionButton(
+              context,
+              Icons.analytics_outlined,
+              'Development',
+              'Track and manage farm development activities',
+              () => context.go('/debug/health-check'),
+            ),
+          ],
           const SizedBox(height: 12),
           _buildActionButton(
             context,
