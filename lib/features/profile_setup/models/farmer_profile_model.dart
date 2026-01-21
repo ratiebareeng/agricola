@@ -1,4 +1,6 @@
-class FarmerProfileModel {
+import 'package:equatable/equatable.dart';
+
+class FarmerProfileModel extends Equatable {
   final String id;
   final String userId;
   final String village;
@@ -9,7 +11,7 @@ class FarmerProfileModel {
   final DateTime createdAt;
   final DateTime updatedAt;
 
-  FarmerProfileModel({
+  const FarmerProfileModel({
     required this.id,
     required this.userId,
     required this.village,
@@ -17,22 +19,21 @@ class FarmerProfileModel {
     required this.primaryCrops,
     required this.farmSize,
     this.photoUrl,
-    DateTime? createdAt,
-    DateTime? updatedAt,
-  }) : createdAt = createdAt ?? DateTime.now(),
-       updatedAt = updatedAt ?? DateTime.now();
+    required this.createdAt,
+    required this.updatedAt,
+  });
 
   factory FarmerProfileModel.fromJson(Map<String, dynamic> json) {
     return FarmerProfileModel(
-      id: json['id'],
-      userId: json['userId'],
-      village: json['village'],
-      customVillage: json['customVillage'],
+      id: json['id'] as String,
+      userId: json['userId'] as String,
+      village: json['village'] as String,
+      customVillage: json['customVillage'] as String?,
       primaryCrops: List<String>.from(json['primaryCrops'] ?? []),
-      farmSize: json['farmSize'],
-      photoUrl: json['photoUrl'],
-      createdAt: DateTime.parse(json['createdAt']),
-      updatedAt: DateTime.parse(json['updatedAt']),
+      farmSize: json['farmSize'] as String,
+      photoUrl: json['photoUrl'] as String?,
+      createdAt: DateTime.parse(json['createdAt'] as String),
+      updatedAt: DateTime.parse(json['updatedAt'] as String),
     );
   }
 
@@ -42,6 +43,19 @@ class FarmerProfileModel {
     }
     return village;
   }
+
+  @override
+  List<Object?> get props => [
+    id,
+    userId,
+    village,
+    customVillage,
+    primaryCrops,
+    farmSize,
+    photoUrl,
+    createdAt,
+    updatedAt,
+  ];
 
   FarmerProfileModel copyWith({
     String? id,
@@ -67,6 +81,17 @@ class FarmerProfileModel {
     );
   }
 
+  Map<String, dynamic> toCreateRequest() {
+    return {
+      'userId': userId,
+      'village': village,
+      'customVillage': customVillage,
+      'primaryCrops': primaryCrops,
+      'farmSize': farmSize,
+      'photoUrl': photoUrl,
+    };
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -78,6 +103,16 @@ class FarmerProfileModel {
       'photoUrl': photoUrl,
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
+    };
+  }
+
+  Map<String, dynamic> toUpdateRequest() {
+    return {
+      'village': village,
+      'customVillage': customVillage,
+      'primaryCrops': primaryCrops,
+      'farmSize': farmSize,
+      'photoUrl': photoUrl,
     };
   }
 }

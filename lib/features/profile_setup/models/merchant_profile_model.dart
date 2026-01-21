@@ -1,0 +1,169 @@
+import 'package:equatable/equatable.dart';
+
+class MerchantProfileModel extends Equatable {
+  final String id;
+  final String userId;
+  final MerchantType merchantType;
+  final String businessName;
+  final String location;
+  final String? customLocation;
+  final List<String> productsOffered;
+  final String? photoUrl;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+
+  const MerchantProfileModel({
+    required this.id,
+    required this.userId,
+    required this.merchantType,
+    required this.businessName,
+    required this.location,
+    this.customLocation,
+    required this.productsOffered,
+    this.photoUrl,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+
+  factory MerchantProfileModel.fromJson(Map<String, dynamic> json) {
+    return MerchantProfileModel(
+      id: json['id'] as String,
+      userId: json['userId'] as String,
+      merchantType: MerchantType.fromString(json['merchantType'] as String),
+      businessName: json['businessName'] as String,
+      location: json['location'] as String,
+      customLocation: json['customLocation'] as String?,
+      productsOffered: List<String>.from(json['productsOffered'] ?? []),
+      photoUrl: json['photoUrl'] as String?,
+      createdAt: DateTime.parse(json['createdAt'] as String),
+      updatedAt: DateTime.parse(json['updatedAt'] as String),
+    );
+  }
+
+  String get displayLocation {
+    if (location == 'Other' && customLocation != null) {
+      return customLocation!;
+    }
+    return location;
+  }
+
+  @override
+  List<Object?> get props => [
+    id,
+    userId,
+    merchantType,
+    businessName,
+    location,
+    customLocation,
+    productsOffered,
+    photoUrl,
+    createdAt,
+    updatedAt,
+  ];
+
+  MerchantProfileModel copyWith({
+    String? id,
+    String? userId,
+    MerchantType? merchantType,
+    String? businessName,
+    String? location,
+    String? customLocation,
+    List<String>? productsOffered,
+    String? photoUrl,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) {
+    return MerchantProfileModel(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      merchantType: merchantType ?? this.merchantType,
+      businessName: businessName ?? this.businessName,
+      location: location ?? this.location,
+      customLocation: customLocation ?? this.customLocation,
+      productsOffered: productsOffered ?? this.productsOffered,
+      photoUrl: photoUrl ?? this.photoUrl,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
+  Map<String, dynamic> toCreateRequest() {
+    return {
+      'userId': userId,
+      'merchantType': merchantType.name,
+      'businessName': businessName,
+      'location': location,
+      'customLocation': customLocation,
+      'productsOffered': productsOffered,
+      'photoUrl': photoUrl,
+    };
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'userId': userId,
+      'merchantType': merchantType.name,
+      'businessName': businessName,
+      'location': location,
+      'customLocation': customLocation,
+      'productsOffered': productsOffered,
+      'photoUrl': photoUrl,
+      'createdAt': createdAt.toIso8601String(),
+      'updatedAt': updatedAt.toIso8601String(),
+    };
+  }
+
+  Map<String, dynamic> toUpdateRequest() {
+    return {
+      'merchantType': merchantType.name,
+      'businessName': businessName,
+      'location': location,
+      'customLocation': customLocation,
+      'productsOffered': productsOffered,
+      'photoUrl': photoUrl,
+    };
+  }
+}
+
+enum MerchantType {
+  agriShop,
+  supermarketVendor,
+  nursery,
+  vetClinic,
+  feedSupplier,
+  equipmentSupplier,
+  transportService,
+  processingUnit,
+  other;
+
+  String get displayName {
+    switch (this) {
+      case MerchantType.agriShop:
+        return 'Agri Shop';
+      case MerchantType.supermarketVendor:
+        return 'Supermarket Vendor';
+      case MerchantType.nursery:
+        return 'Nursery';
+      case MerchantType.vetClinic:
+        return 'Vet Clinic';
+      case MerchantType.feedSupplier:
+        return 'Feed Supplier';
+      case MerchantType.equipmentSupplier:
+        return 'Equipment Supplier';
+      case MerchantType.transportService:
+        return 'Transport Service';
+      case MerchantType.processingUnit:
+        return 'Processing Unit';
+      case MerchantType.other:
+        return 'Other';
+    }
+  }
+
+  static MerchantType fromString(String value) {
+    return MerchantType.values.firstWhere(
+      (e) => e.name == value,
+      orElse: () => MerchantType.other,
+    );
+  }
+}
