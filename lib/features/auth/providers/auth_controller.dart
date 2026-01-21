@@ -1,6 +1,4 @@
-import 'package:agricola/features/auth/domain/failures/auth_failure.dart';
-import 'package:agricola/features/auth/domain/models/user_model.dart';
-import 'package:agricola/features/auth/domain/repositories/auth_repository.dart';
+import 'package:agricola/domain/domain.dart';
 import 'package:agricola/features/auth/providers/auth_provider.dart';
 import 'package:agricola/features/profile_setup/providers/profile_setup_provider.dart';
 import 'package:flutter/foundation.dart';

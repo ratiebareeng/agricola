@@ -1,4 +1,4 @@
-import 'package:agricola/features/auth/domain/models/user_model.dart';
+import 'package:agricola/domain/auth/models/user_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:flutter/foundation.dart' show kIsWeb;

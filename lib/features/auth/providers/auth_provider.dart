@@ -1,7 +1,5 @@
-import 'package:agricola/features/auth/data/datasources/firebase_auth_datasource.dart';
-import 'package:agricola/features/auth/data/repositories/auth_repository_impl.dart';
-import 'package:agricola/features/auth/domain/models/user_model.dart';
-import 'package:agricola/features/auth/domain/repositories/auth_repository.dart';
+import 'package:agricola/data/data.dart';
+import 'package:agricola/domain/domain.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

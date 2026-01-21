@@ -15,13 +15,13 @@ class RouteGuards {
     final isPublicRoute = RouteGuardHelpers.isPublicRoute(path);
 
     if (authState.isAuthenticated) {
-      if (authState.needsProfileSetup) {
-        if (path != '/profile-setup') {
-          final userType = state.uri.queryParameters['type'] ?? 'farmer';
-          return '/profile-setup?type=$userType';
-        }
-        return null;
-      }
+      // if (authState.needsProfileSetup) {
+      //   if (path != '/profile-setup') {
+      //     final userType = state.uri.queryParameters['type'] ?? 'farmer';
+      //     return '/profile-setup?type=$userType';
+      //   }
+      //   return null;
+      // }
 
       if (isPublicRoute) {
         return '/home';

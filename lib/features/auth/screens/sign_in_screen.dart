@@ -2,6 +2,7 @@ import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/core/widgets/app_buttons.dart';
 import 'package:agricola/core/widgets/app_text_field.dart';
+import 'package:agricola/features/auth/providers/auth_provider.dart';
 import 'package:agricola/features/auth/providers/sign_in_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -23,7 +24,15 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
   Widget build(BuildContext context) {
     final currentLang = ref.watch(languageProvider);
     final signInState = ref.watch(signInProvider);
+    final authState = ref.watch(currentUserProvider);
     final signInNotifier = ref.read(signInProvider.notifier);
+
+    if (authState != null) {
+      // Redirect to home if already signed in
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        context.go('/home');
+      });
+    }
 
     // Show error or success message if present
     if (signInState.errorMessage != null) {

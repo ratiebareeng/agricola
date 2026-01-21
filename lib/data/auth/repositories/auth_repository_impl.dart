@@ -1,7 +1,5 @@
-import 'package:agricola/features/auth/data/datasources/firebase_auth_datasource.dart';
-import 'package:agricola/features/auth/domain/failures/auth_failure.dart';
-import 'package:agricola/features/auth/domain/models/user_model.dart';
-import 'package:agricola/features/auth/domain/repositories/auth_repository.dart';
+import 'package:agricola/data/auth/datasources/firebase_auth_datasource.dart';
+import 'package:agricola/domain/domain.dart';
 import 'package:agricola/features/profile_setup/providers/profile_setup_provider.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:fpdart/fpdart.dart';

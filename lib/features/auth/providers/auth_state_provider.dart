@@ -1,4 +1,4 @@
-import 'package:agricola/features/auth/domain/models/user_model.dart';
+import 'package:agricola/domain/auth/models/user_model.dart';
 import 'package:agricola/features/auth/providers/auth_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
