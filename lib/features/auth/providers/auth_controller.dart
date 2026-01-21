@@ -1,6 +1,8 @@
 import 'package:agricola/domain/domain.dart';
 import 'package:agricola/domain/profile/enum/merchant_type.dart';
 import 'package:agricola/features/auth/providers/auth_provider.dart';
+import 'package:agricola/features/profile/domain/models/profile_response.dart';
+import 'package:agricola/features/profile/providers/profile_controller_provider.dart';
 import 'package:agricola/features/profile_setup/providers/profile_setup_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,16 +11,31 @@ import 'package:fpdart/fpdart.dart';
 final authControllerProvider =
     StateNotifierProvider<AuthController, AsyncValue<void>>((ref) {
       final repository = ref.watch(authRepositoryProvider);
-      return AuthController(repository);
+      return AuthController(repository, ref);
     });
 
 class AuthController extends StateNotifier<AsyncValue<void>> {
   final AuthRepository _repository;
+  final Ref _ref;
 
-  AuthController(this._repository) : super(const AsyncValue.data(null));
+  AuthController(this._repository, this._ref)
+    : super(const AsyncValue.data(null));
 
   Future<Either<AuthFailure, void>> deleteAccount() async {
     state = const AsyncValue.loading();
+
+    // Delete profile from backend before deleting account
+    final user = _ref.read(currentUserProvider);
+    if (user != null) {
+      // Get current profile to get the profileId
+      final profile = _ref.read(currentProfileProvider);
+      if (profile != null) {
+        final profileId = profile.id;
+        await _ref
+            .read(profileControllerProvider.notifier)
+            .deleteProfile(profileId: profileId);
+      }
+    }
 
     final result = await _repository.deleteAccount();
 
@@ -64,7 +81,15 @@ class AuthController extends StateNotifier<AsyncValue<void>> {
 
     result.fold(
       (failure) => state = AsyncValue.error(failure, StackTrace.current),
-      (_) => state = const AsyncValue.data(null),
+      (user) {
+        state = const AsyncValue.data(null);
+        // Load profile if profile is complete
+        if (user.isProfileComplete) {
+          _ref
+              .read(profileControllerProvider.notifier)
+              .loadProfile(userId: user.uid);
+        }
+      },
     );
 
     return result;
@@ -83,7 +108,15 @@ class AuthController extends StateNotifier<AsyncValue<void>> {
 
     result.fold(
       (failure) => state = AsyncValue.error(failure, StackTrace.current),
-      (_) => state = const AsyncValue.data(null),
+      (user) {
+        state = const AsyncValue.data(null);
+        // Load profile if profile is complete
+        if (user.isProfileComplete) {
+          _ref
+              .read(profileControllerProvider.notifier)
+              .loadProfile(userId: user.uid);
+        }
+      },
     );
 
     return result;
@@ -91,6 +124,9 @@ class AuthController extends StateNotifier<AsyncValue<void>> {
 
   Future<void> signOut() async {
     state = const AsyncValue.loading();
+
+    // Clear profile before signing out
+    await _ref.read(profileControllerProvider.notifier).clearProfile();
 
     final result = await _repository.signOut();
 

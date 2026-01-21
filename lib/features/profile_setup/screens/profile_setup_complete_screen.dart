@@ -1,7 +1,10 @@
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
+import 'package:agricola/features/profile/providers/profile_controller_provider.dart';
+import 'package:agricola/features/profile_setup/providers/profile_setup_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class ProfileSetupCompleteScreen extends ConsumerWidget {
   final Map<String, dynamic> profileData;
@@ -11,6 +14,9 @@ class ProfileSetupCompleteScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentLang = ref.watch(languageProvider);
+    final profileState = ref.watch(profileControllerProvider);
+    final isCreatingProfile = profileState.isLoading;
+    final errorMessage = profileState.errorMessage;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -64,9 +70,9 @@ class ProfileSetupCompleteScreen extends ConsumerWidget {
               child: SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).pushReplacementNamed('/home');
-                  },
+                  onPressed: isCreatingProfile
+                      ? null
+                      : () => _handleGetStarted(context, ref),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.green,
                     foregroundColor: Colors.white,
@@ -75,16 +81,49 @@ class ProfileSetupCompleteScreen extends ConsumerWidget {
                       borderRadius: BorderRadius.circular(16),
                     ),
                   ),
-                  child: Text(
-                    t('go_to_dashboard', currentLang),
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+                  child: isCreatingProfile
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : Text(
+                          t('go_to_dashboard', currentLang),
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                 ),
               ),
             ),
+            if (errorMessage != null)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.red.shade50,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.red.shade200),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.error_outline, color: Colors.red.shade700),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          errorMessage,
+                          style: TextStyle(color: Colors.red.shade700),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
           ],
         ),
       ),
@@ -228,5 +267,15 @@ class ProfileSetupCompleteScreen extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  Future<void> _handleGetStarted(BuildContext context, WidgetRef ref) async {
+    final success = await ref
+        .read(profileSetupProvider.notifier)
+        .completeSetup();
+
+    if (success && context.mounted) {
+      context.go('/home');
+    }
   }
 }
