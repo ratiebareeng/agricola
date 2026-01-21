@@ -2,6 +2,7 @@ import 'package:agricola/domain/profile/enum/merchant_type.dart';
 import 'package:agricola/features/auth/providers/auth_controller.dart';
 import 'package:agricola/features/auth/providers/auth_provider.dart';
 import 'package:agricola/features/profile/providers/profile_controller_provider.dart';
+import 'package:agricola/features/profile/utils/profile_validators.dart';
 import 'package:agricola/features/profile_setup/models/farmer_profile_model.dart';
 import 'package:agricola/features/profile_setup/models/merchant_profile_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -23,14 +24,7 @@ class ProfileSetupNotifier extends StateNotifier<ProfileSetupState> {
     final user = _ref.read(currentUserProvider);
     if (user == null) return false;
 
-    // Validate based on user type
     if (state.userType == UserType.farmer) {
-      if (state.village.isEmpty ||
-          state.selectedCrops.isEmpty ||
-          state.farmSize.isEmpty) {
-        return false;
-      }
-
       // Create farmer profile model
       final farmerProfile = FarmerProfileModel(
         id: '', // Will be assigned by backend
@@ -46,6 +40,14 @@ class ProfileSetupNotifier extends StateNotifier<ProfileSetupState> {
         updatedAt: DateTime.now(),
       );
 
+      // Validate farmer profile
+      final validationError = ProfileValidators.validateFarmerProfile(
+        farmerProfile,
+      );
+      if (validationError != null) {
+        return false;
+      }
+
       // Create profile in backend
       final success = await _ref
           .read(profileControllerProvider.notifier)
@@ -60,19 +62,11 @@ class ProfileSetupNotifier extends StateNotifier<ProfileSetupState> {
 
       return success;
     } else {
-      // Merchant
-      if (state.businessName.isEmpty ||
-          state.location.isEmpty ||
-          state.selectedProducts.isEmpty ||
-          state.merchantType == null) {
-        return false;
-      }
-
       // Create merchant profile model
       final merchantProfile = MerchantProfileModel(
         id: '', // Will be assigned by backend
         userId: user.uid,
-        merchantType: state.merchantType!,
+        merchantType: state.merchantType ?? MerchantType.agriShop,
         businessName: state.businessName,
         location: state.location,
         customLocation: state.customVillage.isNotEmpty
@@ -83,6 +77,14 @@ class ProfileSetupNotifier extends StateNotifier<ProfileSetupState> {
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       );
+
+      // Validate merchant profile
+      final validationError = ProfileValidators.validateMerchantProfile(
+        merchantProfile,
+      );
+      if (validationError != null) {
+        return false;
+      }
 
       // Create profile in backend
       final success = await _ref
