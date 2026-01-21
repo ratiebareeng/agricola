@@ -1,3 +1,4 @@
+import 'package:agricola/domain/profile/enum/merchant_type.dart';
 import 'package:agricola/features/marketplace/models/marketplace_listing.dart';
 import 'package:agricola/features/profile_setup/providers/profile_setup_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

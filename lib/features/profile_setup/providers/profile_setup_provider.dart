@@ -1,3 +1,4 @@
+import 'package:agricola/domain/profile/enum/merchant_type.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -5,8 +6,6 @@ final profileSetupProvider =
     StateNotifierProvider<ProfileSetupNotifier, ProfileSetupState>((ref) {
       return ProfileSetupNotifier()..loadProfile();
     });
-
-enum MerchantType { agriShop, supermarketVendor }
 
 class ProfileSetupNotifier extends StateNotifier<ProfileSetupState> {
   bool _isNewProfileSetup = false;

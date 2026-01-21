@@ -1,4 +1,5 @@
 import 'package:agricola/core/providers/language_provider.dart';
+import 'package:agricola/domain/profile/enum/merchant_type.dart';
 import 'package:agricola/features/inventory/screens/merchant_inventory_detail_screen.dart';
 import 'package:agricola/features/profile_setup/providers/profile_setup_provider.dart';
 import 'package:flutter/material.dart';

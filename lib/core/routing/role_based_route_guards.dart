@@ -1,4 +1,5 @@
 import 'package:agricola/core/routing/route_guard_helpers.dart';
+import 'package:agricola/domain/profile/enum/merchant_type.dart';
 import 'package:agricola/features/auth/providers/auth_provider.dart';
 import 'package:agricola/features/auth/providers/auth_state_provider.dart';
 import 'package:agricola/features/profile_setup/providers/profile_setup_provider.dart';

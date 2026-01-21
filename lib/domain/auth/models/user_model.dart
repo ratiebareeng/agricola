@@ -1,3 +1,4 @@
+import 'package:agricola/domain/profile/enum/merchant_type.dart';
 import 'package:agricola/features/profile_setup/providers/profile_setup_provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
@@ -10,7 +11,7 @@ class UserModel extends Equatable {
   final bool emailVerified;
   final DateTime createdAt;
   final DateTime? lastSignInAt;
-  
+
   // Agricola-specific fields
   final UserType userType;
   final MerchantType? merchantType;
@@ -126,7 +127,9 @@ class UserModel extends Equatable {
       'phoneNumber': phoneNumber,
       'emailVerified': emailVerified,
       'createdAt': Timestamp.fromDate(createdAt),
-      'lastSignInAt': lastSignInAt != null ? Timestamp.fromDate(lastSignInAt!) : null,
+      'lastSignInAt': lastSignInAt != null
+          ? Timestamp.fromDate(lastSignInAt!)
+          : null,
       'userType': userType.name,
       'merchantType': merchantType?.name,
       'isProfileComplete': isProfileComplete,

@@ -1,5 +1,6 @@
 import 'package:agricola/data/auth/datasources/firebase_auth_datasource.dart';
 import 'package:agricola/domain/domain.dart';
+import 'package:agricola/domain/profile/enum/merchant_type.dart';
 import 'package:agricola/features/profile_setup/providers/profile_setup_provider.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:fpdart/fpdart.dart';
