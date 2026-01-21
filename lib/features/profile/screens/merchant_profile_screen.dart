@@ -1,151 +1,221 @@
-import 'dart:io';
-
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/core/widgets/language_select_content.dart';
 import 'package:agricola/domain/profile/enum/merchant_type.dart';
+import 'package:agricola/features/auth/providers/auth_provider.dart';
+import 'package:agricola/features/profile/domain/models/profile_response.dart';
+import 'package:agricola/features/profile/providers/profile_controller_provider.dart';
 import 'package:agricola/features/profile/providers/profile_provider.dart';
 import 'package:agricola/features/profile/screens/business_statistics_screen.dart';
-import 'package:agricola/features/profile_setup/providers/profile_setup_provider.dart';
+import 'package:agricola/features/profile_setup/models/merchant_profile_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:go_router/go_router.dart';
 
-class MerchantProfileScreen extends ConsumerWidget {
+class MerchantProfileScreen extends ConsumerStatefulWidget {
   const MerchantProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<MerchantProfileScreen> createState() =>
+      _MerchantProfileScreenState();
+}
+
+class _MerchantProfileScreenState extends ConsumerState<MerchantProfileScreen> {
+  @override
+  Widget build(BuildContext context) {
     final currentLang = ref.watch(languageProvider);
-    final profileState = ref.watch(profileSetupProvider);
+    final profileState = ref.watch(profileControllerProvider);
+    final profile = profileState.profile;
+
+    if (profileState.isLoading && profile == null) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
+    if (profile == null) {
+      return Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline, size: 48, color: Colors.grey),
+              const SizedBox(height: 16),
+              Text(
+                'Profile not found',
+                style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () => context.go('/profile-setup'),
+                child: const Text('Complete Profile Setup'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    final merchantProfile = switch (profile) {
+      MerchantProfileResponse(profile: final p) => p,
+      _ => null,
+    };
+
+    if (merchantProfile == null) {
+      return const Scaffold(body: Center(child: Text('Invalid profile type')));
+    }
 
     return Scaffold(
       backgroundColor: Colors.grey[50],
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            expandedHeight: 200,
-            pinned: true,
-            backgroundColor: AppColors.green,
-            flexibleSpace: FlexibleSpaceBar(
-              background: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [AppColors.green, AppColors.green.withAlpha(80)],
+      body: RefreshIndicator(
+        onRefresh: () async {
+          final user = ref.read(currentUserProvider);
+          if (user != null) {
+            await ref
+                .read(profileControllerProvider.notifier)
+                .loadProfile(userId: user.uid);
+          }
+        },
+        child: CustomScrollView(
+          slivers: [
+            SliverAppBar(
+              expandedHeight: 200,
+              pinned: true,
+              backgroundColor: AppColors.green,
+              flexibleSpace: FlexibleSpaceBar(
+                background: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [AppColors.green, AppColors.green.withAlpha(80)],
+                    ),
                   ),
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const SizedBox(height: 60),
-                    GestureDetector(
-                      onTap: () => _pickProfilePhoto(ref),
-                      child: Stack(
-                        children: [
-                          Container(
-                            height: 100,
-                            width: 100,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(color: Colors.white, width: 3),
-                              image: profileState.photoPath != null
-                                  ? DecorationImage(
-                                      image: FileImage(
-                                        File(profileState.photoPath!),
-                                      ),
-                                      fit: BoxFit.cover,
-                                    )
-                                  : null,
-                              color: Colors.white.withAlpha(30),
-                            ),
-                            child: profileState.photoPath == null
-                                ? const Icon(
-                                    Icons.store,
-                                    size: 50,
-                                    color: Colors.white,
-                                  )
-                                : null,
-                          ),
-                          Positioned(
-                            bottom: 0,
-                            right: 0,
-                            child: Container(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const SizedBox(height: 60),
+                      GestureDetector(
+                        onTap: () =>
+                            _navigateToEditProfile(context, merchantProfile),
+                        child: Stack(
+                          children: [
+                            Container(
+                              height: 100,
+                              width: 100,
                               decoration: BoxDecoration(
-                                color: Colors.white,
                                 shape: BoxShape.circle,
                                 border: Border.all(
-                                  color: AppColors.green,
-                                  width: 2,
+                                  color: Colors.white,
+                                  width: 3,
                                 ),
+                                image: merchantProfile.photoUrl != null
+                                    ? DecorationImage(
+                                        image: NetworkImage(
+                                          merchantProfile.photoUrl!,
+                                        ),
+                                        fit: BoxFit.cover,
+                                      )
+                                    : null,
+                                color: Colors.white.withAlpha(30),
                               ),
-                              child: const Padding(
-                                padding: EdgeInsets.all(6.0),
-                                child: Icon(
-                                  Icons.camera_alt,
-                                  color: AppColors.green,
-                                  size: 16,
+                              child: merchantProfile.photoUrl == null
+                                  ? const Icon(
+                                      Icons.store,
+                                      size: 50,
+                                      color: Colors.white,
+                                    )
+                                  : null,
+                            ),
+                            Positioned(
+                              bottom: 0,
+                              right: 0,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: AppColors.green,
+                                    width: 2,
+                                  ),
+                                ),
+                                child: const Padding(
+                                  padding: EdgeInsets.all(6.0),
+                                  child: Icon(
+                                    Icons.camera_alt,
+                                    color: AppColors.green,
+                                    size: 16,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      profileState.businessName.isNotEmpty
-                          ? profileState.businessName
-                          : 'Fresh Produce Store',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
+                      const SizedBox(height: 12),
+                      Text(
+                        merchantProfile.businessName,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      profileState.merchantType == MerchantType.agriShop
-                          ? t('agri_shop', currentLang)
-                          : t('supermarket_vendor', currentLang),
-                      style: TextStyle(
-                        color: Colors.white.withAlpha(90),
-                        fontSize: 14,
+                      const SizedBox(height: 4),
+                      Text(
+                        merchantProfile.merchantType == MerchantType.agriShop
+                            ? t('agri_shop', currentLang)
+                            : t('supermarket_vendor', currentLang),
+                        style: TextStyle(
+                          color: Colors.white.withAlpha(90),
+                          fontSize: 14,
+                        ),
                       ),
-                    ),
+                    ],
+                  ),
+                ),
+              ),
+              actions: [
+                IconButton(
+                  onPressed: () => _showLanguageDialog(context, ref),
+                  icon: const Icon(Icons.language, color: Colors.white),
+                ),
+              ],
+            ),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildProfileInfoCard(context, ref, merchantProfile),
+                    const SizedBox(height: 16),
+                    _buildBusinessDetailsCard(context, ref, merchantProfile),
+                    const SizedBox(height: 16),
+                    _buildQuickActionsCard(context, ref),
+                    const SizedBox(height: 16),
+                    _buildSettingsSection(context, ref),
+                    const SizedBox(height: 80),
                   ],
                 ),
               ),
             ),
-            actions: [
-              IconButton(
-                onPressed: () => _showLanguageDialog(context, ref),
-                icon: const Icon(Icons.language, color: Colors.white),
-              ),
-            ],
-          ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildProfileInfoCard(context, ref),
-                  const SizedBox(height: 16),
-                  _buildBusinessDetailsCard(context, ref),
-                  const SizedBox(height: 16),
-                  _buildQuickActionsCard(context, ref),
-                  const SizedBox(height: 16),
-                  _buildSettingsSection(context, ref),
-                  const SizedBox(height: 80),
-                ],
-              ),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    Future.microtask(() {
+      final user = ref.read(currentUserProvider);
+      if (user != null && user.isProfileComplete) {
+        ref
+            .read(profileControllerProvider.notifier)
+            .loadProfile(userId: user.uid);
+      }
+    });
   }
 
   Widget _buildActionButton(
@@ -201,9 +271,12 @@ class MerchantProfileScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildBusinessDetailsCard(BuildContext context, WidgetRef ref) {
+  Widget _buildBusinessDetailsCard(
+    BuildContext context,
+    WidgetRef ref,
+    MerchantProfileModel profile,
+  ) {
     final currentLang = ref.watch(languageProvider);
-    final profileState = ref.watch(profileSetupProvider);
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -232,7 +305,7 @@ class MerchantProfileScreen extends ConsumerWidget {
               ),
               const Spacer(),
               TextButton.icon(
-                onPressed: () {},
+                onPressed: () => _navigateToEditProfile(context, profile),
                 icon: const Icon(Icons.edit, size: 16),
                 label: Text(t('edit', currentLang)),
                 style: TextButton.styleFrom(foregroundColor: AppColors.green),
@@ -243,12 +316,10 @@ class MerchantProfileScreen extends ConsumerWidget {
           _buildInfoRow(
             Icons.business,
             t('business_name', currentLang),
-            profileState.businessName.isNotEmpty
-                ? profileState.businessName
-                : 'Not set',
+            profile.businessName,
           ),
           const Divider(height: 24),
-          _buildProductsSection(context, ref),
+          _buildProductsSection(context, ref, profile),
         ],
       ),
     );
@@ -283,10 +354,13 @@ class MerchantProfileScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildProductsSection(BuildContext context, WidgetRef ref) {
+  Widget _buildProductsSection(
+    BuildContext context,
+    WidgetRef ref,
+    MerchantProfileModel profile,
+  ) {
     final currentLang = ref.watch(languageProvider);
-    final profileState = ref.watch(profileSetupProvider);
-    final isAgriShop = profileState.merchantType == MerchantType.agriShop;
+    final isAgriShop = profile.merchantType == MerchantType.agriShop;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -308,7 +382,7 @@ class MerchantProfileScreen extends ConsumerWidget {
           ],
         ),
         const SizedBox(height: 12),
-        if (profileState.selectedProducts.isEmpty)
+        if (profile.productsOffered.isEmpty)
           const Text(
             'Not set',
             style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
@@ -317,7 +391,7 @@ class MerchantProfileScreen extends ConsumerWidget {
           Wrap(
             spacing: 8,
             runSpacing: 8,
-            children: profileState.selectedProducts.map((product) {
+            children: profile.productsOffered.map((product) {
               return Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 12,
@@ -343,8 +417,13 @@ class MerchantProfileScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildProfileInfoCard(BuildContext context, WidgetRef ref) {
+  Widget _buildProfileInfoCard(
+    BuildContext context,
+    WidgetRef ref,
+    MerchantProfileModel profile,
+  ) {
     final currentLang = ref.watch(languageProvider);
+    final user = ref.read(currentUserProvider);
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -373,7 +452,7 @@ class MerchantProfileScreen extends ConsumerWidget {
               ),
               const Spacer(),
               TextButton.icon(
-                onPressed: () {},
+                onPressed: () => _navigateToEditProfile(context, profile),
                 icon: const Icon(Icons.edit, size: 16),
                 label: Text(t('edit', currentLang)),
                 style: TextButton.styleFrom(foregroundColor: AppColors.green),
@@ -384,19 +463,19 @@ class MerchantProfileScreen extends ConsumerWidget {
           _buildInfoRow(
             Icons.email_outlined,
             t('email', currentLang),
-            'merchant@example.com',
+            user?.email ?? 'Not available',
           ),
           const Divider(height: 24),
           _buildInfoRow(
             Icons.phone_outlined,
             t('phone', currentLang),
-            '+267 7123 4567',
+            user?.phoneNumber ?? 'Not set',
           ),
           const Divider(height: 24),
           _buildInfoRow(
             Icons.location_on_outlined,
             t('location', currentLang),
-            'Gaborone Main Mall',
+            profile.displayLocation,
           ),
         ],
       ),
@@ -611,26 +690,16 @@ class MerchantProfileScreen extends ConsumerWidget {
     );
   }
 
-  Future<void> _pickProfilePhoto(WidgetRef ref) async {
-    final picker = ImagePicker();
-    final notifier = ref.read(profileSetupProvider.notifier);
-
-    final XFile? image = await picker.pickImage(
-      source: ImageSource.gallery,
-      maxWidth: 1024,
-      maxHeight: 1024,
-      imageQuality: 85,
-    );
-
-    if (image != null) {
-      notifier.setPhoto(image.path);
-    }
+  void _navigateToEditProfile(
+    BuildContext context,
+    MerchantProfileModel profile,
+  ) {
+    context.push('/profile/edit-merchant', extra: profile);
   }
 
   void _showDeleteAccountDialog(BuildContext context, WidgetRef ref) {
     final currentLang = ref.watch(languageProvider);
     final profileState = ref.watch(profileProvider);
-    final profileNotifier = ref.read(profileProvider.notifier);
 
     showDialog(
       context: context,
@@ -691,7 +760,6 @@ class MerchantProfileScreen extends ConsumerWidget {
 
     final currentLang = ref.watch(languageProvider);
     final profileState = ref.watch(profileProvider);
-    final profileNotifier = ref.read(profileProvider.notifier);
 
     showDialog(
       context: context,
@@ -715,9 +783,9 @@ class MerchantProfileScreen extends ConsumerWidget {
             onPressed: profileState.isLoading
                 ? null
                 : () async {
-                    final success = await profileNotifier.deleteAccount(
-                      context,
-                    );
+                    final success = await ref
+                        .read(profileProvider.notifier)
+                        .deleteAccount(context);
                     if (success && context.mounted) {
                       Navigator.pop(context);
                     }

@@ -1,147 +1,219 @@
-import 'dart:io';
-
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/routing/route_guard_helpers.dart';
 import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/core/widgets/language_select_content.dart';
+import 'package:agricola/features/auth/providers/auth_provider.dart';
+import 'package:agricola/features/profile/domain/models/profile_response.dart';
+import 'package:agricola/features/profile/providers/profile_controller_provider.dart';
 import 'package:agricola/features/profile/providers/profile_provider.dart';
-import 'package:agricola/features/profile_setup/providers/profile_setup_provider.dart';
+import 'package:agricola/features/profile_setup/models/farmer_profile_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:image_picker/image_picker.dart';
 
-class FarmerProfileScreen extends ConsumerWidget {
+class FarmerProfileScreen extends ConsumerStatefulWidget {
   const FarmerProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<FarmerProfileScreen> createState() =>
+      _FarmerProfileScreenState();
+}
+
+class _FarmerProfileScreenState extends ConsumerState<FarmerProfileScreen> {
+  @override
+  Widget build(BuildContext context) {
     final currentLang = ref.watch(languageProvider);
-    final profileState = ref.watch(profileSetupProvider);
+    final profileState = ref.watch(profileControllerProvider);
+    final profile = profileState.profile;
+
+    if (profileState.isLoading && profile == null) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
+    if (profile == null) {
+      return Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline, size: 48, color: Colors.grey),
+              const SizedBox(height: 16),
+              Text(
+                'Profile not found',
+                style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () => context.go('/profile-setup'),
+                child: const Text('Complete Profile Setup'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    final farmerProfile = switch (profile) {
+      FarmerProfileResponse(profile: final p) => p,
+      _ => null,
+    };
+
+    if (farmerProfile == null) {
+      return const Scaffold(body: Center(child: Text('Invalid profile type')));
+    }
 
     return Scaffold(
       backgroundColor: Colors.grey[50],
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            expandedHeight: 220,
-            pinned: true,
-            backgroundColor: AppColors.green,
-            flexibleSpace: FlexibleSpaceBar(
-              background: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [AppColors.green, AppColors.green.withAlpha(80)],
+      body: RefreshIndicator(
+        onRefresh: () async {
+          final user = ref.read(currentUserProvider);
+          if (user != null) {
+            await ref
+                .read(profileControllerProvider.notifier)
+                .loadProfile(userId: user.uid);
+          }
+        },
+        child: CustomScrollView(
+          slivers: [
+            SliverAppBar(
+              expandedHeight: 220,
+              pinned: true,
+              backgroundColor: AppColors.green,
+              flexibleSpace: FlexibleSpaceBar(
+                background: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [AppColors.green, AppColors.green.withAlpha(80)],
+                    ),
                   ),
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const SizedBox(height: 60),
-                    GestureDetector(
-                      onTap: () => _pickProfilePhoto(ref),
-                      child: Stack(
-                        children: [
-                          Container(
-                            height: 100,
-                            width: 100,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(color: Colors.white, width: 3),
-                              image: profileState.photoPath != null
-                                  ? DecorationImage(
-                                      image: FileImage(
-                                        File(profileState.photoPath!),
-                                      ),
-                                      fit: BoxFit.cover,
-                                    )
-                                  : null,
-                              color: Colors.white.withAlpha(30),
-                            ),
-                            child: profileState.photoPath == null
-                                ? const Icon(
-                                    Icons.person,
-                                    size: 50,
-                                    color: Colors.white,
-                                  )
-                                : null,
-                          ),
-                          Positioned(
-                            bottom: 0,
-                            right: 0,
-                            child: Container(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const SizedBox(height: 60),
+                      GestureDetector(
+                        onTap: () =>
+                            _navigateToEditProfile(context, farmerProfile),
+                        child: Stack(
+                          children: [
+                            Container(
+                              height: 100,
+                              width: 100,
                               decoration: BoxDecoration(
-                                color: Colors.white,
                                 shape: BoxShape.circle,
                                 border: Border.all(
-                                  color: AppColors.green,
-                                  width: 2,
+                                  color: Colors.white,
+                                  width: 3,
                                 ),
+                                image: farmerProfile.photoUrl != null
+                                    ? DecorationImage(
+                                        image: NetworkImage(
+                                          farmerProfile.photoUrl!,
+                                        ),
+                                        fit: BoxFit.cover,
+                                      )
+                                    : null,
+                                color: Colors.white.withAlpha(30),
                               ),
-                              child: const Padding(
-                                padding: EdgeInsets.all(6.0),
-                                child: Icon(
-                                  Icons.camera_alt,
-                                  color: AppColors.green,
-                                  size: 16,
+                              child: farmerProfile.photoUrl == null
+                                  ? const Icon(
+                                      Icons.person,
+                                      size: 50,
+                                      color: Colors.white,
+                                    )
+                                  : null,
+                            ),
+                            Positioned(
+                              bottom: 0,
+                              right: 0,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: AppColors.green,
+                                    width: 2,
+                                  ),
+                                ),
+                                child: const Padding(
+                                  padding: EdgeInsets.all(6.0),
+                                  child: Icon(
+                                    Icons.camera_alt,
+                                    color: AppColors.green,
+                                    size: 16,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      'Molemi Kgosi',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
+                      const SizedBox(height: 12),
+                      Text(
+                        ref.read(currentUserProvider)?.email.split('@').first ??
+                            'User',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      t('farmer', currentLang),
-                      style: TextStyle(
-                        color: Colors.white.withAlpha(90),
-                        fontSize: 14,
+                      const SizedBox(height: 4),
+                      Text(
+                        t('farmer', currentLang),
+                        style: TextStyle(
+                          color: Colors.white.withAlpha(90),
+                          fontSize: 14,
+                        ),
                       ),
-                    ),
+                    ],
+                  ),
+                ),
+              ),
+              actions: [
+                IconButton(
+                  onPressed: () => _showLanguageDialog(context, ref),
+                  icon: const Icon(Icons.language, color: Colors.white),
+                ),
+              ],
+            ),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildProfileInfoCard(context, ref, farmerProfile),
+                    const SizedBox(height: 16),
+                    _buildFarmDetailsCard(context, ref, farmerProfile),
+                    const SizedBox(height: 16),
+                    _buildQuickActionsCard(context, ref),
+                    const SizedBox(height: 16),
+                    _buildSettingsSection(context, ref),
+                    const SizedBox(height: 80),
                   ],
                 ),
               ),
             ),
-            actions: [
-              IconButton(
-                onPressed: () => _showLanguageDialog(context, ref),
-                icon: const Icon(Icons.language, color: Colors.white),
-              ),
-            ],
-          ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildProfileInfoCard(context, ref),
-                  const SizedBox(height: 16),
-                  _buildFarmDetailsCard(context, ref),
-                  const SizedBox(height: 16),
-                  _buildQuickActionsCard(context, ref),
-                  const SizedBox(height: 16),
-                  _buildSettingsSection(context, ref),
-                  const SizedBox(height: 80),
-                ],
-              ),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    Future.microtask(() {
+      final user = ref.read(currentUserProvider);
+      if (user != null && user.isProfileComplete) {
+        ref
+            .read(profileControllerProvider.notifier)
+            .loadProfile(userId: user.uid);
+      }
+    });
   }
 
   Widget _buildActionButton(
@@ -197,9 +269,12 @@ class FarmerProfileScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildCropsSection(BuildContext context, WidgetRef ref) {
+  Widget _buildCropsSection(
+    BuildContext context,
+    WidgetRef ref,
+    FarmerProfileModel profile,
+  ) {
     final currentLang = ref.watch(languageProvider);
-    final profileState = ref.watch(profileSetupProvider);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -219,7 +294,7 @@ class FarmerProfileScreen extends ConsumerWidget {
           ],
         ),
         const SizedBox(height: 12),
-        if (profileState.selectedCrops.isEmpty)
+        if (profile.primaryCrops.isEmpty)
           Text(
             'Not set',
             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
@@ -228,7 +303,7 @@ class FarmerProfileScreen extends ConsumerWidget {
           Wrap(
             spacing: 8,
             runSpacing: 8,
-            children: profileState.selectedCrops.map((crop) {
+            children: profile.primaryCrops.map((crop) {
               return Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 12,
@@ -254,9 +329,12 @@ class FarmerProfileScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildFarmDetailsCard(BuildContext context, WidgetRef ref) {
+  Widget _buildFarmDetailsCard(
+    BuildContext context,
+    WidgetRef ref,
+    FarmerProfileModel profile,
+  ) {
     final currentLang = ref.watch(languageProvider);
-    final profileState = ref.watch(profileSetupProvider);
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -285,7 +363,7 @@ class FarmerProfileScreen extends ConsumerWidget {
               ),
               const Spacer(),
               TextButton.icon(
-                onPressed: () {},
+                onPressed: () => _navigateToEditProfile(context, profile),
                 icon: const Icon(Icons.edit, size: 16),
                 label: Text(t('edit', currentLang)),
                 style: TextButton.styleFrom(foregroundColor: AppColors.green),
@@ -296,12 +374,10 @@ class FarmerProfileScreen extends ConsumerWidget {
           _buildInfoRow(
             Icons.landscape,
             t('farm_size', currentLang),
-            profileState.farmSize.isNotEmpty
-                ? profileState.farmSize
-                : 'Not set',
+            profile.farmSize,
           ),
           const Divider(height: 24),
-          _buildCropsSection(context, ref),
+          _buildCropsSection(context, ref, profile),
         ],
       ),
     );
@@ -336,9 +412,13 @@ class FarmerProfileScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildProfileInfoCard(BuildContext context, WidgetRef ref) {
+  Widget _buildProfileInfoCard(
+    BuildContext context,
+    WidgetRef ref,
+    FarmerProfileModel profile,
+  ) {
     final currentLang = ref.watch(languageProvider);
-    final profileState = ref.watch(profileSetupProvider);
+    final user = ref.read(currentUserProvider);
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -367,7 +447,7 @@ class FarmerProfileScreen extends ConsumerWidget {
               ),
               const Spacer(),
               TextButton.icon(
-                onPressed: () {},
+                onPressed: () => _navigateToEditProfile(context, profile),
                 icon: const Icon(Icons.edit, size: 16),
                 label: Text(t('edit', currentLang)),
                 style: TextButton.styleFrom(foregroundColor: AppColors.green),
@@ -378,23 +458,19 @@ class FarmerProfileScreen extends ConsumerWidget {
           _buildInfoRow(
             Icons.email_outlined,
             t('email', currentLang),
-            'molemi@example.com',
+            user?.email ?? 'Not available',
           ),
           const Divider(height: 24),
           _buildInfoRow(
             Icons.phone_outlined,
             t('phone', currentLang),
-            '+267 7123 4567',
+            user?.phoneNumber ?? 'Not set',
           ),
           const Divider(height: 24),
           _buildInfoRow(
             Icons.location_on_outlined,
             t('location', currentLang),
-            profileState.village.isNotEmpty
-                ? (profileState.village == 'Other'
-                      ? profileState.customVillage
-                      : profileState.village)
-                : 'Not set',
+            profile.displayLocation,
           ),
         ],
       ),
@@ -596,26 +672,16 @@ class FarmerProfileScreen extends ConsumerWidget {
     );
   }
 
-  Future<void> _pickProfilePhoto(WidgetRef ref) async {
-    final picker = ImagePicker();
-    final notifier = ref.read(profileSetupProvider.notifier);
-
-    final XFile? image = await picker.pickImage(
-      source: ImageSource.gallery,
-      maxWidth: 1024,
-      maxHeight: 1024,
-      imageQuality: 85,
-    );
-
-    if (image != null) {
-      notifier.setPhoto(image.path);
-    }
+  void _navigateToEditProfile(
+    BuildContext context,
+    FarmerProfileModel profile,
+  ) {
+    context.push('/profile/edit', extra: profile);
   }
 
   void _showDeleteAccountDialog(BuildContext context, WidgetRef ref) {
     final currentLang = ref.watch(languageProvider);
     final profileState = ref.watch(profileProvider);
-    final profileNotifier = ref.read(profileProvider.notifier);
 
     showDialog(
       context: context,
@@ -676,7 +742,6 @@ class FarmerProfileScreen extends ConsumerWidget {
 
     final currentLang = ref.watch(languageProvider);
     final profileState = ref.watch(profileProvider);
-    final profileNotifier = ref.read(profileProvider.notifier);
 
     showDialog(
       context: context,
@@ -700,9 +765,9 @@ class FarmerProfileScreen extends ConsumerWidget {
             onPressed: profileState.isLoading
                 ? null
                 : () async {
-                    final success = await profileNotifier.deleteAccount(
-                      context,
-                    );
+                    final success = await ref
+                        .read(profileProvider.notifier)
+                        .deleteAccount(context);
                     if (success && context.mounted) {
                       Navigator.pop(context);
                     }

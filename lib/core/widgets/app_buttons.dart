@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 class AppPrimaryButton extends StatelessWidget {
   final String label;
   final VoidCallback? onTap;
+  final VoidCallback? onPressed;
   final bool isLoading;
   final IconData? icon;
 
@@ -11,6 +12,7 @@ class AppPrimaryButton extends StatelessWidget {
     super.key,
     required this.label,
     this.onTap,
+    this.onPressed,
     this.isLoading = false,
     this.icon,
   });
@@ -18,7 +20,7 @@ class AppPrimaryButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
-      onPressed: isLoading ? null : onTap,
+      onPressed: isLoading ? null : (onPressed ?? onTap),
       style: ElevatedButton.styleFrom(
         backgroundColor: AppColors.green,
         foregroundColor: AppColors.white,

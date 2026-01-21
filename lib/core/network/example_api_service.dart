@@ -1,5 +1,4 @@
 import 'package:agricola/core/network/http_client_provider.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Provider for crop API service

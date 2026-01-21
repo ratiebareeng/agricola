@@ -178,6 +178,32 @@ class ProfileStateNotifier extends StateNotifier<ProfileState> {
     );
   }
 
+  /// Update farmer profile with photo upload if needed
+  Future<String?> updateFarmerProfileWithPhoto({
+    required FarmerProfileModel profile,
+    File? newPhoto,
+  }) async {
+    state = state.setLoading(true);
+
+    String? photoUrl = profile.photoUrl;
+
+    if (newPhoto != null) {
+      photoUrl = await uploadProfilePhoto(
+        userId: profile.userId,
+        photoFile: newPhoto,
+      );
+
+      if (photoUrl == null) {
+        return 'Failed to upload photo';
+      }
+    }
+
+    final updatedProfile = profile.copyWith(photoUrl: photoUrl);
+    final success = await updateFarmerProfile(profile: updatedProfile);
+
+    return success ? null : (state.errorMessage ?? 'Failed to update profile');
+  }
+
   Future<bool> updateMerchantProfile({
     required MerchantProfileModel profile,
   }) async {
@@ -195,6 +221,32 @@ class ProfileStateNotifier extends StateNotifier<ProfileState> {
         return true;
       },
     );
+  }
+
+  /// Update merchant profile with photo upload if needed
+  Future<String?> updateMerchantProfileWithPhoto({
+    required MerchantProfileModel profile,
+    File? newPhoto,
+  }) async {
+    state = state.setLoading(true);
+
+    String? photoUrl = profile.photoUrl;
+
+    if (newPhoto != null) {
+      photoUrl = await uploadProfilePhoto(
+        userId: profile.userId,
+        photoFile: newPhoto,
+      );
+
+      if (photoUrl == null) {
+        return 'Failed to upload photo';
+      }
+    }
+
+    final updatedProfile = profile.copyWith(photoUrl: photoUrl);
+    final success = await updateMerchantProfile(profile: updatedProfile);
+
+    return success ? null : (state.errorMessage ?? 'Failed to update profile');
   }
 
   Future<String?> uploadProfilePhoto({

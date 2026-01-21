@@ -14,9 +14,8 @@ final signInProvider = StateNotifierProvider<SignInNotifier, SignInState>((
 
 class SignInNotifier extends StateNotifier<SignInState> {
   final AuthController _authController;
-  final Ref _ref;
 
-  SignInNotifier(this._authController, this._ref) : super(const SignInState());
+  SignInNotifier(this._authController, Ref ref) : super(const SignInState());
 
   void clearError() {
     state = state.copyWith(errorMessage: null);

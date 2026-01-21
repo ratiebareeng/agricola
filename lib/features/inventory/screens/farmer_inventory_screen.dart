@@ -13,52 +13,6 @@ class FarmerInventoryScreen extends ConsumerStatefulWidget {
       _FarmerInventoryScreenState();
 }
 
-class _ActionButton extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final Color? color;
-  final VoidCallback onTap;
-
-  const _ActionButton({
-    required this.icon,
-    required this.label,
-    this.color,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final buttonColor = color ?? const Color(0xFF2D6A4F);
-
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: buttonColor.withAlpha(10),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: buttonColor.withAlpha(30)),
-        ),
-        child: Row(
-          children: [
-            Icon(icon, color: buttonColor),
-            const SizedBox(width: 16),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: buttonColor,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 class _FarmerInventoryScreenState extends ConsumerState<FarmerInventoryScreen> {
   String? _selectedCropFilter;
   String? _selectedLocationFilter;
@@ -417,22 +371,30 @@ class _FarmerInventoryScreenState extends ConsumerState<FarmerInventoryScreen> {
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
-                children: [
-                  'maize', 'sorghum', 'wheat', 'beans', 'cowpeas', 
-                  'tomatoes', 'onions', 'cabbage', 'watermelon'
-                ]
-                    .map(
-                      (crop) => FilterChip(
-                        label: Text(t(crop, lang)),
-                        selected: tempCropFilter == crop,
-                        onSelected: (selected) {
-                          setModalState(() {
-                            tempCropFilter = selected ? crop : null;
-                          });
-                        },
-                      ),
-                    )
-                    .toList(),
+                children:
+                    [
+                          'maize',
+                          'sorghum',
+                          'wheat',
+                          'beans',
+                          'cowpeas',
+                          'tomatoes',
+                          'onions',
+                          'cabbage',
+                          'watermelon',
+                        ]
+                        .map(
+                          (crop) => FilterChip(
+                            label: Text(t(crop, lang)),
+                            selected: tempCropFilter == crop,
+                            onSelected: (selected) {
+                              setModalState(() {
+                                tempCropFilter = selected ? crop : null;
+                              });
+                            },
+                          ),
+                        )
+                        .toList(),
               ),
               const SizedBox(height: 20),
               Text(
@@ -484,87 +446,6 @@ class _FarmerInventoryScreenState extends ConsumerState<FarmerInventoryScreen> {
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-
-  void _showItemActions(
-    BuildContext context,
-    AppLanguage lang,
-    InventoryModel item,
-  ) {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.grey[100],
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                children: [
-                  Icon(Icons.inventory_2, color: Colors.grey[700]),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          t(item.cropType, lang),
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          '${item.quantity} ${t(item.unit, lang)}',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
-            _ActionButton(
-              icon: Icons.edit,
-              label: t('update_quantity', lang),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            const SizedBox(height: 12),
-            _ActionButton(
-              icon: Icons.warning_amber,
-              label: t('record_loss', lang),
-              color: Colors.orange,
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            const SizedBox(height: 12),
-            _ActionButton(
-              icon: Icons.shopping_cart,
-              label: t('record_sale', lang),
-              color: Colors.green,
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-          ],
         ),
       ),
     );

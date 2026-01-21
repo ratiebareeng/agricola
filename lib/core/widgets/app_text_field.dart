@@ -8,6 +8,7 @@ class AppTextField extends StatelessWidget {
   final bool obscureText;
   final TextInputType? keyboardType;
   final Widget? suffixIcon;
+  final IconData? prefixIcon;
   final String? Function(String?)? validator;
   final void Function(String)? onChanged;
   final String? initialValue;
@@ -20,6 +21,7 @@ class AppTextField extends StatelessWidget {
     this.obscureText = false,
     this.keyboardType,
     this.suffixIcon,
+    this.prefixIcon,
     this.validator,
     this.onChanged,
     this.initialValue,
@@ -48,6 +50,9 @@ class AppTextField extends StatelessWidget {
           validator: validator,
           style: const TextStyle(fontSize: 16, color: AppColors.darkGray),
           decoration: InputDecoration(
+            prefixIcon: prefixIcon != null
+                ? Icon(prefixIcon, color: AppColors.green)
+                : null,
             hintText: hint,
             hintStyle: TextStyle(
               color: AppColors.mediumGray.withAlpha(70),
