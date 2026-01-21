@@ -373,6 +373,13 @@ void main() {
       await Future.delayed(const Duration(milliseconds: 100));
       // Don't select any products
 
+      // Mock should not be called, but stub it just in case
+      when(
+        () => mockProfileNotifier.createMerchantProfile(
+          profile: any(named: 'profile'),
+        ),
+      ).thenAnswer((_) async => false);
+
       // Act
       final success = await notifier.completeSetup();
 
@@ -397,6 +404,13 @@ void main() {
       notifier.updateLocation('Gaborone');
       notifier.toggleProduct('Seeds');
       await Future.delayed(const Duration(milliseconds: 100));
+
+      // Mock should not be called, but stub it just in case
+      when(
+        () => mockProfileNotifier.createMerchantProfile(
+          profile: any(named: 'profile'),
+        ),
+      ).thenAnswer((_) async => false);
 
       // Act
       final success = await notifier.completeSetup();

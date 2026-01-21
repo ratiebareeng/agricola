@@ -70,6 +70,10 @@ class ProfileValidators {
       return ValidationRules.villageRequired;
     }
 
+    if (profile.productsOffered.isEmpty) {
+      return 'Select at least one product';
+    }
+
     return null; // Valid
   }
 

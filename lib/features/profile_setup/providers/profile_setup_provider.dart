@@ -62,11 +62,16 @@ class ProfileSetupNotifier extends StateNotifier<ProfileSetupState> {
 
       return success;
     } else {
+      // Validate merchant type is set
+      if (state.merchantType == null) {
+        return false;
+      }
+
       // Create merchant profile model
       final merchantProfile = MerchantProfileModel(
         id: '', // Will be assigned by backend
         userId: user.uid,
-        merchantType: state.merchantType ?? MerchantType.agriShop,
+        merchantType: state.merchantType!,
         businessName: state.businessName,
         location: state.location,
         customLocation: state.customVillage.isNotEmpty
