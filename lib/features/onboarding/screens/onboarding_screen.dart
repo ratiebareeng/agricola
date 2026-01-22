@@ -1,9 +1,11 @@
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/core/widgets/app_buttons.dart';
+import 'package:agricola/features/auth/providers/auth_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({super.key});
@@ -210,7 +212,19 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         curve: Curves.easeInOut,
       );
     } else {
-      context.go('/register');
+      _onGetStarted();
+    }
+  }
+
+  Future<void> _onGetStarted() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('has_seen_onboarding', true);
+
+    final authController = ref.read(authControllerProvider.notifier);
+    await authController.signInAnonymously();
+
+    if (mounted) {
+      context.go('/home');
     }
   }
 

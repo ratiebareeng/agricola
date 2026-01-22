@@ -68,6 +68,19 @@ class AuthController extends StateNotifier<AsyncValue<void>> {
     return result;
   }
 
+  Future<Either<AuthFailure, String>> signInAnonymously() async {
+    state = const AsyncValue.loading();
+
+    final result = await _repository.signInAnonymously();
+
+    result.fold(
+      (failure) => state = AsyncValue.error(failure, StackTrace.current),
+      (_) => state = const AsyncValue.data(null),
+    );
+
+    return result;
+  }
+
   Future<Either<AuthFailure, UserModel>> signInWithEmailPassword({
     required String email,
     required String password,
@@ -110,7 +123,6 @@ class AuthController extends StateNotifier<AsyncValue<void>> {
       (failure) => state = AsyncValue.error(failure, StackTrace.current),
       (user) {
         state = const AsyncValue.data(null);
-        // Load profile if profile is complete
         if (user.isProfileComplete) {
           _ref
               .read(profileControllerProvider.notifier)
