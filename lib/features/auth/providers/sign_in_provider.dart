@@ -1,9 +1,7 @@
-import 'package:agricola/domain/profile/enum/merchant_type.dart';
 import 'package:agricola/features/auth/providers/auth_controller.dart';
 import 'package:agricola/features/profile_setup/providers/profile_setup_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 final signInProvider = StateNotifierProvider<SignInNotifier, SignInState>((
   ref,
@@ -84,7 +82,6 @@ class SignInNotifier extends StateNotifier<SignInState> {
         },
         (user) {
           state = state.copyWith(isLoading: false);
-          _navigateBasedOnProfile(context, user);
           return true;
         },
       );
@@ -102,7 +99,6 @@ class SignInNotifier extends StateNotifier<SignInState> {
     state = state.copyWith(isLoading: true, errorMessage: null);
 
     try {
-      // For existing Google users, we use farmer as default (can be updated during profile setup)
       final result = await _authController.signInWithGoogle(
         userType: UserType.farmer,
         merchantType: null,
@@ -118,7 +114,6 @@ class SignInNotifier extends StateNotifier<SignInState> {
         },
         (user) {
           state = state.copyWith(isLoading: false);
-          _navigateBasedOnProfile(context, user);
           return true;
         },
       );
@@ -157,23 +152,6 @@ class SignInNotifier extends StateNotifier<SignInState> {
   String? validatePassword() {
     if (state.password.isEmpty) return 'Password is required';
     return null;
-  }
-
-  /// Navigate based on user profile completion status
-  void _navigateBasedOnProfile(BuildContext context, user) {
-    if (user.isProfileComplete) {
-      // Profile is complete, go to home
-      context.go('/home');
-    } else {
-      // Profile needs completion, determine user type for profile setup
-      String userTypeParam = 'farmer';
-      if (user.userType == UserType.merchant) {
-        userTypeParam = user.merchantType == MerchantType.agriShop
-            ? 'agriShop'
-            : 'supermarketVendor';
-      }
-      context.go('/profile-setup?type=$userTypeParam');
-    }
   }
 
   bool _validateForm(String email, String password) {

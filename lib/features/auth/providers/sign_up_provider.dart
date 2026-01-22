@@ -3,7 +3,6 @@ import 'package:agricola/features/auth/providers/auth_controller.dart';
 import 'package:agricola/features/profile_setup/providers/profile_setup_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 final signUpProvider = StateNotifierProvider<SignUpNotifier, SignUpState>((
   ref,
@@ -50,7 +49,6 @@ class SignUpNotifier extends StateNotifier<SignUpState> {
         },
         (user) {
           state = state.copyWith(isLoading: false);
-          context.go('/profile-setup?type=$userType');
           return true;
         },
       );
@@ -88,7 +86,6 @@ class SignUpNotifier extends StateNotifier<SignUpState> {
         },
         (user) {
           state = state.copyWith(isLoading: false);
-          context.go('/profile-setup?type=$userType');
           return true;
         },
       );

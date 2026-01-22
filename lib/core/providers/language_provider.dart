@@ -1,6 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+final hasSeenWelcomeProvider = FutureProvider<bool>((ref) async {
+  final prefs = await SharedPreferences.getInstance();
+  return prefs.getBool('has_seen_welcome') ?? false;
+});
+
 final languageProvider = StateNotifierProvider<LanguageNotifier, AppLanguage>((
   ref,
 ) {
@@ -1234,6 +1239,7 @@ class LanguageNotifier extends StateNotifier<AppLanguage> {
       'language_code',
       language == AppLanguage.setswana ? 'tn' : 'en',
     );
+    await prefs.setBool('has_seen_welcome', true);
   }
 
   Future<void> _loadLanguage() async {

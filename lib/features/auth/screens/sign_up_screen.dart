@@ -132,9 +132,9 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                       child: AppSecondaryButton(
                         label: t('facebook', currentLang),
                         icon: Icons.facebook,
-                        onTap: () => context.go(
-                          '/profile-setup?type=${widget.userType ?? "farmer"}',
-                        ),
+                        onTap: () {
+                          // TODO: Implement Facebook sign-up
+                        },
                       ),
                     ),
                   ],
