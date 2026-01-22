@@ -6,6 +6,7 @@ import 'package:agricola/features/profile_setup/widgets/wizard_progress_bar.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // Import step widgets (will create next)
 import '../widgets/step_content.dart';
@@ -42,9 +43,13 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
         ),
         actions: [
           TextButton(
-            onPressed: () {
-              // Skip logic - maybe go to dashboard
-              context.go('/home'); // Placeholder route
+            onPressed: () async {
+              final prefs = await SharedPreferences.getInstance();
+              await prefs.setBool('has_seen_profile_setup', true);
+
+              if (mounted) {
+                context.go('/home');
+              }
             },
             child: Text(
               t('skip', currentLang),
@@ -110,9 +115,14 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
                     ? t('finish', currentLang)
                     : t('continue', currentLang),
                 onTap: _canContinue(state)
-                    ? () {
+                    ? () async {
                         if (state.currentStep == state.totalSteps - 1) {
-                          context.go('/home');
+                          final prefs = await SharedPreferences.getInstance();
+                          await prefs.setBool('has_seen_profile_setup', true);
+
+                          if (mounted) {
+                            context.go('/home');
+                          }
                         } else {
                           notifier.nextStep();
                         }

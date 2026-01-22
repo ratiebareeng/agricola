@@ -16,6 +16,7 @@ class UserModel extends Equatable {
   final UserType userType;
   final MerchantType? merchantType;
   final bool isProfileComplete;
+  final bool isAnonymous;
 
   const UserModel({
     required this.uid,
@@ -27,6 +28,7 @@ class UserModel extends Equatable {
     required this.userType,
     this.merchantType,
     this.isProfileComplete = false,
+    this.isAnonymous = false,
   });
 
   /// Create from Firebase User
@@ -46,6 +48,7 @@ class UserModel extends Equatable {
       userType: userType,
       merchantType: merchantType,
       isProfileComplete: isProfileComplete,
+      isAnonymous: firebaseUser.isAnonymous,
     );
   }
 
@@ -71,6 +74,7 @@ class UserModel extends Equatable {
             )
           : null,
       isProfileComplete: doc['isProfileComplete'] as bool? ?? false,
+      isAnonymous: doc['isAnonymous'] as bool? ?? false,
     );
   }
 
@@ -85,6 +89,7 @@ class UserModel extends Equatable {
     userType,
     merchantType,
     isProfileComplete,
+    isAnonymous,
   ];
 
   UserModel copyWith({
@@ -97,6 +102,7 @@ class UserModel extends Equatable {
     UserType? userType,
     MerchantType? merchantType,
     bool? isProfileComplete,
+    bool? isAnonymous,
   }) {
     return UserModel(
       uid: uid ?? this.uid,
@@ -108,6 +114,7 @@ class UserModel extends Equatable {
       userType: userType ?? this.userType,
       merchantType: merchantType ?? this.merchantType,
       isProfileComplete: isProfileComplete ?? this.isProfileComplete,
+      isAnonymous: isAnonymous ?? this.isAnonymous,
     );
   }
 
@@ -133,6 +140,7 @@ class UserModel extends Equatable {
       'userType': userType.name,
       'merchantType': merchantType?.name,
       'isProfileComplete': isProfileComplete,
+      'isAnonymous': isAnonymous,
       'updatedAt': FieldValue.serverTimestamp(),
     };
   }
