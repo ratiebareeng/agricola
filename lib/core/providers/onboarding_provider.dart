@@ -15,8 +15,3 @@ final hasSeenProfileSetupProvider = FutureProvider<bool>((ref) async {
   final prefs = await SharedPreferences.getInstance();
   return prefs.getBool('has_seen_profile_setup') ?? false;
 });
-
-final hasSeenWelcomeProvider = FutureProvider<bool>((ref) async {
-  final prefs = await SharedPreferences.getInstance();
-  return prefs.getBool('has_seen_welcome') ?? false;
-});

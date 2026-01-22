@@ -7,6 +7,7 @@ class RouteGuardHelpers {
     '/register',
     '/sign-up',
     '/sign-in',
+    '/home',
   };
 
   static const protectedRoutes = {

@@ -1,4 +1,5 @@
 import 'package:agricola/core/providers/language_provider.dart';
+import 'package:agricola/core/providers/onboarding_provider.dart';
 import 'package:agricola/core/routing/route_guard_helpers.dart';
 import 'package:agricola/domain/profile/enum/merchant_type.dart';
 import 'package:agricola/features/auth/providers/auth_state_provider.dart';
@@ -18,35 +19,57 @@ class RouteGuards {
     final hasSeenWelcomeAsync = ref.read(hasSeenWelcomeProvider);
     final hasSeenWelcome = hasSeenWelcomeAsync.value ?? false;
 
-    if (path == '/' && hasSeenWelcome && !authState.isAuthenticated) {
-      return '/onboarding';
+    final hasSeenOnboardingAsync = ref.read(hasSeenOnboardingProvider);
+    final hasSeenOnboarding = hasSeenOnboardingAsync.value ?? false;
+
+    final hasSeenProfileSetupAsync = ref.read(hasSeenProfileSetupProvider);
+    final hasSeenProfileSetup = hasSeenProfileSetupAsync.value ?? false;
+
+    // FIRST TIME USER FLOW
+    // 1. Show welcome screen if not seen
+    if (path == '/' && !hasSeenWelcome) {
+      return null;
     }
 
-    final isPublicRoute = RouteGuardHelpers.isPublicRoute(path);
+    // 2. Show onboarding if welcome seen but onboarding not seen
+    if (!hasSeenOnboarding) {
+      if (path != '/onboarding') {
+        return '/onboarding';
+      }
+      return null;
+    }
 
+    // AUTHENTICATED USER FLOW
     if (authState.isAuthenticated) {
-      if (isPublicRoute && path != '/') {
+      if (RouteGuardHelpers.isPublicRoute(path) && path != '/') {
         return '/home';
       }
-      return null;
-    }
 
-    if (authState.needsProfileSetup) {
-      if (path != '/profile-setup') {
-        final user = authState.user;
-        String userTypeParam = 'farmer';
-        if (user?.userType == UserType.merchant) {
-          userTypeParam = user?.merchantType == MerchantType.agriShop
-              ? 'agriShop'
-              : 'supermarketVendor';
+      if (authState.needsProfileSetup && !hasSeenProfileSetup) {
+        if (path != '/profile-setup') {
+          final user = authState.user;
+          String userTypeParam = 'farmer';
+          if (user?.userType == UserType.merchant) {
+            userTypeParam = user?.merchantType == MerchantType.agriShop
+                ? 'agriShop'
+                : 'supermarketVendor';
+          }
+          return '/profile-setup?type=$userTypeParam';
         }
-        return '/profile-setup?type=$userTypeParam';
+        return null;
       }
+
       return null;
     }
 
-    if (!isPublicRoute && path != '/profile-setup') {
-      return '/';
+    // UNAUTHENTICATED/ANONYMOUS USER FLOW
+    // After onboarding, allow access to home
+    if (hasSeenOnboarding) {
+      if (path == '/' || path == '/onboarding') {
+        return '/home';
+      }
+
+      return null;
     }
 
     return null;
