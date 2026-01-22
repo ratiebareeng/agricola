@@ -15,6 +15,8 @@ abstract class AuthRepository {
 
   Future<Either<AuthFailure, void>> sendPasswordResetEmail(String email);
 
+  Future<Either<AuthFailure, String>> signInAnonymously();
+
   Future<Either<AuthFailure, UserModel>> signInWithEmailPassword({
     required String email,
     required String password,

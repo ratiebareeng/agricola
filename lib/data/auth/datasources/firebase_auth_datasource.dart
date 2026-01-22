@@ -57,6 +57,11 @@ class FirebaseAuthDatasource {
     await _firebaseAuth.sendPasswordResetEmail(email: email);
   }
 
+  /// Sign in anonymously
+  Future<firebase_auth.UserCredential> signInAnonymously() async {
+    return await _firebaseAuth.signInAnonymously();
+  }
+
   /// Sign in with email and password
   Future<firebase_auth.UserCredential> signInWithEmailPassword({
     required String email,
