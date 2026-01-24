@@ -1,6 +1,6 @@
-import 'package:agricola/core/providers/language_provider.dart';
-import 'package:agricola/core/providers/onboarding_provider.dart';
+import 'package:agricola/core/providers/app_initialization_provider.dart';
 import 'package:agricola/core/routing/route_guards.dart';
+import 'package:agricola/core/screens/splash_screen.dart';
 import 'package:agricola/features/auth/screens/registration_screen.dart';
 import 'package:agricola/features/auth/screens/sign_in_screen.dart';
 import 'package:agricola/features/auth/screens/sign_up_screen.dart';
@@ -21,10 +21,14 @@ GoRouter createRouter(WidgetRef ref) {
   final notifier = ref.watch(_routerNotifierProvider);
 
   return GoRouter(
-    initialLocation: '/',
+    initialLocation: '/splash',
     refreshListenable: notifier,
     redirect: (context, state) => RouteGuards.redirect(ref, state),
     routes: [
+      GoRoute(
+        path: '/splash',
+        builder: (context, state) => const SplashScreen(),
+      ),
       GoRoute(path: '/', builder: (context, state) => const WelcomeScreen()),
       GoRoute(
         path: '/onboarding',
@@ -62,8 +66,8 @@ class RouterNotifier extends ChangeNotifier {
   final Ref _ref;
 
   RouterNotifier(this._ref) {
-    _ref.listen(hasSeenWelcomeProvider, (_, __) => notifyListeners());
-    _ref.listen(hasSeenOnboardingProvider, (_, __) => notifyListeners());
-    _ref.listen(hasSeenProfileSetupProvider, (_, __) => notifyListeners());
+    // Listen to BOTH initialization providers to trigger route re-evaluation
+    _ref.listen(appInitializationProvider, (_, __) => notifyListeners());
+    _ref.listen(appInitializationStateProvider, (_, __) => notifyListeners());
   }
 }

@@ -1,28 +1,31 @@
-import 'package:agricola/core/providers/language_provider.dart';
-import 'package:agricola/core/providers/onboarding_provider.dart';
+import 'package:agricola/core/providers/app_initialization_provider.dart';
 import 'package:agricola/core/routing/route_guard_helpers.dart';
-import 'package:agricola/domain/profile/enum/merchant_type.dart';
 import 'package:agricola/features/auth/providers/auth_state_provider.dart';
-import 'package:agricola/features/profile_setup/providers/profile_setup_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 class RouteGuards {
   static String? redirect(WidgetRef ref, GoRouterState state) {
-    final authState = ref.read(unifiedAuthStateProvider);
     final path = state.uri.path;
 
+    // Check if initialization is complete
+    final initState = ref.read(appInitializationStateProvider);
+
+    // Show splash screen while initializing
+    if (initState == null) {
+      return path == '/splash' ? null : '/splash';
+    }
+
+    // Debug route check
     if (!RouteGuardHelpers.canAccessDebugRoute(path)) {
       return '/';
     }
 
-    final hasSeenWelcomeAsync = ref.read(hasSeenWelcomeProvider);
-    final hasSeenOnboardingAsync = ref.read(hasSeenOnboardingProvider);
-    final hasSeenProfileSetupAsync = ref.read(hasSeenProfileSetupProvider);
-
-    final hasSeenWelcome = hasSeenWelcomeAsync.valueOrNull ?? false;
-    final hasSeenOnboarding = hasSeenOnboardingAsync.valueOrNull ?? false;
-    final hasSeenProfileSetup = hasSeenProfileSetupAsync.valueOrNull ?? false;
+    // Now we can safely use all the initialized data
+    final hasSeenWelcome = initState.hasSeenWelcome;
+    final hasSeenOnboarding = initState.hasSeenOnboarding;
+    final hasSeenProfileSetup = initState.hasSeenProfileSetup;
+    final authState = ref.read(unifiedAuthStateProvider);
 
     // FIRST TIME USER FLOW - Welcome screen
     if (!hasSeenWelcome) {
@@ -34,25 +37,20 @@ class RouteGuards {
       return path == '/onboarding' ? null : '/onboarding';
     }
 
-    // AUTHENTICATED USER FLOW
-    if (authState.isAuthenticated) {
-      // Check profile setup requirement
-      if (authState.needsProfileSetup && !hasSeenProfileSetup) {
-        if (path != '/profile-setup') {
-          final user = authState.user;
-          String userTypeParam = 'farmer';
-          if (user?.userType == UserType.merchant) {
-            userTypeParam = user?.merchantType == MerchantType.agriShop
-                ? 'agriShop'
-                : 'supermarketVendor';
-          }
-          return '/profile-setup?type=$userTypeParam';
-        }
+    // AUTHENTICATED USER FLOW (includes users with incomplete profiles)
+    if (authState.isAuthenticated || authState.needsProfileSetup) {
+      // Only keep user on profile setup if:
+      // 1. User needs profile setup (incomplete profile)
+      // 2. User hasn't seen profile setup yet (just signed up)
+      // 3. User is currently on the profile-setup page
+      // This allows returning users with incomplete profiles to explore the app
+      if (authState.needsProfileSetup && !hasSeenProfileSetup && path == '/profile-setup') {
         return null;
       }
 
-      // Redirect authenticated users from public routes to home
-      if (path == '/' ||
+      // Redirect authenticated users from public routes (including splash) to home
+      if (path == '/splash' ||
+          path == '/' ||
           path == '/onboarding' ||
           path == '/register' ||
           path == '/sign-in' ||
