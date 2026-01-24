@@ -1,6 +1,9 @@
 import 'dart:io';
 
 import 'package:agricola/features/auth/providers/auth_controller.dart';
+import 'package:agricola/features/auth/providers/auth_provider.dart';
+import 'package:agricola/features/profile/domain/failures/profile_failure.dart';
+import 'package:agricola/features/profile/domain/models/displayable_profile.dart';
 import 'package:agricola/features/profile/domain/models/profile_response.dart';
 import 'package:agricola/features/profile/domain/repositories/profile_repository.dart';
 import 'package:agricola/features/profile_setup/models/farmer_profile_model.dart';
@@ -9,33 +12,61 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ProfileState extends Equatable {
-  final ProfileResponse? profile;
+  final DisplayableProfile? displayableProfile;
+  final bool hasPostgresProfile;
   final bool isLoading;
   final String? errorMessage;
   final double? uploadProgress;
 
   const ProfileState({
-    this.profile,
+    this.displayableProfile,
+    this.hasPostgresProfile = false,
     this.isLoading = false,
     this.errorMessage,
     this.uploadProgress,
   });
 
+  // Backward compatibility: return ProfileResponse from displayableProfile
+  ProfileResponse? get profile {
+    final profile = displayableProfile;
+    if (profile == null) return null;
+
+    return switch (profile) {
+      CompleteFarmerProfile(farmerData: final farmerData) =>
+        FarmerProfileResponse(farmerData),
+      CompleteMerchantProfile(merchantData: final merchantData) =>
+        MerchantProfileResponse(merchantData),
+      MinimalProfile() => null, // No PostgreSQL profile yet
+    };
+  }
+
+  // Convenience getters
+  bool get hasMinimalProfile => displayableProfile is MinimalProfile;
+  bool get needsProfileCompletion => !hasPostgresProfile;
+
   @override
-  List<Object?> get props => [profile, isLoading, errorMessage, uploadProgress];
+  List<Object?> get props => [
+        displayableProfile,
+        hasPostgresProfile,
+        isLoading,
+        errorMessage,
+        uploadProgress,
+      ];
 
   ProfileState clearError() {
     return copyWith(errorMessage: '');
   }
 
   ProfileState copyWith({
-    ProfileResponse? profile,
+    DisplayableProfile? displayableProfile,
+    bool? hasPostgresProfile,
     bool? isLoading,
     String? errorMessage,
     double? uploadProgress,
   }) {
     return ProfileState(
-      profile: profile ?? this.profile,
+      displayableProfile: displayableProfile ?? this.displayableProfile,
+      hasPostgresProfile: hasPostgresProfile ?? this.hasPostgresProfile,
       isLoading: isLoading ?? this.isLoading,
       errorMessage: errorMessage ?? this.errorMessage,
       uploadProgress: uploadProgress ?? this.uploadProgress,
@@ -50,12 +81,15 @@ class ProfileState extends Equatable {
 class ProfileStateNotifier extends StateNotifier<ProfileState> {
   final ProfileRepository _repository;
   final AuthController _authController;
+  final Ref _ref;
 
   ProfileStateNotifier({
     required ProfileRepository repository,
     required AuthController authController,
+    required Ref ref,
   }) : _repository = repository,
        _authController = authController,
+       _ref = ref,
        super(const ProfileState());
 
   void clearError() {
@@ -72,6 +106,12 @@ class ProfileStateNotifier extends StateNotifier<ProfileState> {
   }) async {
     state = state.setLoading(true);
 
+    final currentUser = _ref.read(currentUserProvider);
+    if (currentUser == null) {
+      state = const ProfileState(errorMessage: 'User not authenticated');
+      return false;
+    }
+
     final result = await _repository.createFarmerProfile(profile: profile);
 
     return result.fold(
@@ -80,7 +120,14 @@ class ProfileStateNotifier extends StateNotifier<ProfileState> {
         return false;
       },
       (createdProfile) async {
-        state = ProfileState(profile: FarmerProfileResponse(createdProfile));
+        final displayableProfile = CompleteFarmerProfile.fromModels(
+          user: currentUser,
+          profile: createdProfile,
+        );
+        state = ProfileState(
+          displayableProfile: displayableProfile,
+          hasPostgresProfile: true,
+        );
         await _authController.markProfileAsComplete();
         return true;
       },
@@ -92,6 +139,12 @@ class ProfileStateNotifier extends StateNotifier<ProfileState> {
   }) async {
     state = state.setLoading(true);
 
+    final currentUser = _ref.read(currentUserProvider);
+    if (currentUser == null) {
+      state = const ProfileState(errorMessage: 'User not authenticated');
+      return false;
+    }
+
     final result = await _repository.createMerchantProfile(profile: profile);
 
     return result.fold(
@@ -100,7 +153,14 @@ class ProfileStateNotifier extends StateNotifier<ProfileState> {
         return false;
       },
       (createdProfile) async {
-        state = ProfileState(profile: MerchantProfileResponse(createdProfile));
+        final displayableProfile = CompleteMerchantProfile.fromModels(
+          user: currentUser,
+          profile: createdProfile,
+        );
+        state = ProfileState(
+          displayableProfile: displayableProfile,
+          hasPostgresProfile: true,
+        );
         await _authController.markProfileAsComplete();
         return true;
       },
@@ -139,17 +199,59 @@ class ProfileStateNotifier extends StateNotifier<ProfileState> {
   }) async {
     state = state.setLoading(true);
 
+    // Get current user from Firestore (always available)
+    final currentUser = _ref.read(currentUserProvider);
+    if (currentUser == null) {
+      state = const ProfileState(errorMessage: 'User not authenticated');
+      return false;
+    }
+
+    // Try to load PostgreSQL profile
     final result = forceRefresh
         ? await _repository.refreshProfile(userId: userId)
         : await _repository.getProfile(userId: userId);
 
     return result.fold(
       (failure) {
+        // If profile not found (404) or server error related to missing profile,
+        // create minimal profile from Firestore
+        final isProfileNotFound = failure.type == ProfileFailureType.notFound ||
+            (failure.type == ProfileFailureType.serverError &&
+                (failure.message.contains('does not exist') ||
+                    failure.message.contains('not found')));
+
+        if (isProfileNotFound) {
+          final minimalProfile = MinimalProfile.fromUserModel(currentUser);
+          state = ProfileState(
+            displayableProfile: minimalProfile,
+            hasPostgresProfile: false,
+          );
+          return true; // Success - we have a displayable profile
+        }
+
+        // Other errors (network, connection, etc.)
         state = ProfileState(errorMessage: failure.message);
         return false;
       },
       (profileResponse) {
-        state = ProfileState(profile: profileResponse);
+        // Combine Firestore + PostgreSQL data
+        final displayableProfile = switch (profileResponse) {
+          FarmerProfileResponse(profile: final farmerProfile) =>
+            CompleteFarmerProfile.fromModels(
+              user: currentUser,
+              profile: farmerProfile,
+            ),
+          MerchantProfileResponse(profile: final merchantProfile) =>
+            CompleteMerchantProfile.fromModels(
+              user: currentUser,
+              profile: merchantProfile,
+            ),
+        };
+
+        state = ProfileState(
+          displayableProfile: displayableProfile,
+          hasPostgresProfile: true,
+        );
         return true;
       },
     );
@@ -164,6 +266,12 @@ class ProfileStateNotifier extends StateNotifier<ProfileState> {
   }) async {
     state = state.setLoading(true);
 
+    final currentUser = _ref.read(currentUserProvider);
+    if (currentUser == null) {
+      state = const ProfileState(errorMessage: 'User not authenticated');
+      return false;
+    }
+
     final result = await _repository.updateFarmerProfile(profile: profile);
 
     return result.fold(
@@ -172,7 +280,14 @@ class ProfileStateNotifier extends StateNotifier<ProfileState> {
         return false;
       },
       (updatedProfile) {
-        state = ProfileState(profile: FarmerProfileResponse(updatedProfile));
+        final displayableProfile = CompleteFarmerProfile.fromModels(
+          user: currentUser,
+          profile: updatedProfile,
+        );
+        state = ProfileState(
+          displayableProfile: displayableProfile,
+          hasPostgresProfile: true,
+        );
         return true;
       },
     );
@@ -209,6 +324,12 @@ class ProfileStateNotifier extends StateNotifier<ProfileState> {
   }) async {
     state = state.setLoading(true);
 
+    final currentUser = _ref.read(currentUserProvider);
+    if (currentUser == null) {
+      state = const ProfileState(errorMessage: 'User not authenticated');
+      return false;
+    }
+
     final result = await _repository.updateMerchantProfile(profile: profile);
 
     return result.fold(
@@ -217,7 +338,14 @@ class ProfileStateNotifier extends StateNotifier<ProfileState> {
         return false;
       },
       (updatedProfile) {
-        state = ProfileState(profile: MerchantProfileResponse(updatedProfile));
+        final displayableProfile = CompleteMerchantProfile.fromModels(
+          user: currentUser,
+          profile: updatedProfile,
+        );
+        state = ProfileState(
+          displayableProfile: displayableProfile,
+          hasPostgresProfile: true,
+        );
         return true;
       },
     );

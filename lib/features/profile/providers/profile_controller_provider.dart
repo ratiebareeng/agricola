@@ -20,6 +20,7 @@ final profileControllerProvider =
       return ProfileStateNotifier(
         repository: ref.watch(profileRepositoryProvider),
         authController: ref.watch(authControllerProvider.notifier),
+        ref: ref,
       );
     });
 

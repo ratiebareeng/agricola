@@ -24,7 +24,6 @@ class RouteGuards {
     // Now we can safely use all the initialized data
     final hasSeenWelcome = initState.hasSeenWelcome;
     final hasSeenOnboarding = initState.hasSeenOnboarding;
-    final hasSeenProfileSetup = initState.hasSeenProfileSetup;
     final authState = ref.read(unifiedAuthStateProvider);
 
     // FIRST TIME USER FLOW - Welcome screen
@@ -39,12 +38,9 @@ class RouteGuards {
 
     // AUTHENTICATED USER FLOW (includes users with incomplete profiles)
     if (authState.isAuthenticated || authState.needsProfileSetup) {
-      // Only keep user on profile setup if:
-      // 1. User needs profile setup (incomplete profile)
-      // 2. User hasn't seen profile setup yet (just signed up)
-      // 3. User is currently on the profile-setup page
-      // This allows returning users with incomplete profiles to explore the app
-      if (authState.needsProfileSetup && !hasSeenProfileSetup && path == '/profile-setup') {
+      // Allow users to access profile-setup anytime (not just on first login)
+      // This enables returning users with incomplete profiles to complete it
+      if (path == '/profile-setup') {
         return null;
       }
 
