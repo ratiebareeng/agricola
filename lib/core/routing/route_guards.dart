@@ -17,34 +17,26 @@ class RouteGuards {
     }
 
     final hasSeenWelcomeAsync = ref.read(hasSeenWelcomeProvider);
-    final hasSeenWelcome = hasSeenWelcomeAsync.value ?? false;
-
     final hasSeenOnboardingAsync = ref.read(hasSeenOnboardingProvider);
-    final hasSeenOnboarding = hasSeenOnboardingAsync.value ?? false;
-
     final hasSeenProfileSetupAsync = ref.read(hasSeenProfileSetupProvider);
-    final hasSeenProfileSetup = hasSeenProfileSetupAsync.value ?? false;
 
-    // FIRST TIME USER FLOW
-    // 1. Show welcome screen if not seen
-    if (path == '/' && !hasSeenWelcome) {
-      return null;
+    final hasSeenWelcome = hasSeenWelcomeAsync.valueOrNull ?? false;
+    final hasSeenOnboarding = hasSeenOnboardingAsync.valueOrNull ?? false;
+    final hasSeenProfileSetup = hasSeenProfileSetupAsync.valueOrNull ?? false;
+
+    // FIRST TIME USER FLOW - Welcome screen
+    if (!hasSeenWelcome) {
+      return path == '/' ? null : '/';
     }
 
-    // 2. Show onboarding if welcome seen but onboarding not seen
+    // FIRST TIME USER FLOW - Onboarding
     if (!hasSeenOnboarding) {
-      if (path != '/onboarding') {
-        return '/onboarding';
-      }
-      return null;
+      return path == '/onboarding' ? null : '/onboarding';
     }
 
     // AUTHENTICATED USER FLOW
     if (authState.isAuthenticated) {
-      if (RouteGuardHelpers.isPublicRoute(path) && path != '/') {
-        return '/home';
-      }
-
+      // Check profile setup requirement
       if (authState.needsProfileSetup && !hasSeenProfileSetup) {
         if (path != '/profile-setup') {
           final user = authState.user;
@@ -59,17 +51,21 @@ class RouteGuards {
         return null;
       }
 
-      return null;
-    }
-
-    // UNAUTHENTICATED/ANONYMOUS USER FLOW
-    // After onboarding, allow access to home
-    if (hasSeenOnboarding) {
-      if (path == '/' || path == '/onboarding') {
+      // Redirect authenticated users from public routes to home
+      if (path == '/' ||
+          path == '/onboarding' ||
+          path == '/register' ||
+          path == '/sign-in' ||
+          path == '/sign-up') {
         return '/home';
       }
 
       return null;
+    }
+
+    // ANONYMOUS USER FLOW - Redirect to home after onboarding
+    if (path == '/' || path == '/onboarding') {
+      return '/home';
     }
 
     return null;
