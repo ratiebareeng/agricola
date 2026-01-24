@@ -8,6 +8,7 @@ import 'package:agricola/features/profile/providers/profile_controller_provider.
 import 'package:agricola/features/profile/providers/profile_provider.dart';
 import 'package:agricola/features/profile/screens/business_statistics_screen.dart';
 import 'package:agricola/features/profile_setup/models/merchant_profile_model.dart';
+import 'package:agricola/features/profile_setup/providers/profile_setup_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -255,11 +256,11 @@ class _MerchantProfileScreenState extends ConsumerState<MerchantProfileScreen> {
               ),
               const SizedBox(height: 4),
               Text(
-                profile is CompleteMerchantProfile &&
-                        profile.merchantData.merchantType ==
-                            MerchantType.agriShop
+                profile.merchantType == MerchantType.agriShop
                     ? t('agri_shop', currentLang)
-                    : t('supermarket_vendor', currentLang),
+                    : profile.merchantType == MerchantType.supermarketVendor
+                        ? t('supermarket_vendor', currentLang)
+                        : t('merchant', currentLang),
                 style: TextStyle(
                   color: Colors.white.withAlpha(90),
                   fontSize: 14,
@@ -279,6 +280,8 @@ class _MerchantProfileScreenState extends ConsumerState<MerchantProfileScreen> {
   }
 
   Widget _buildProfileCompletionBanner(BuildContext context, WidgetRef ref) {
+    final user = ref.watch(currentUserProvider);
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -332,7 +335,23 @@ class _MerchantProfileScreenState extends ConsumerState<MerchantProfileScreen> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: () => context.push('/profile-setup'),
+              onPressed: () {
+                if (user == null) return;
+
+                // Determine the user type string for the route
+                String userTypeParam;
+                if (user.userType == UserType.farmer) {
+                  userTypeParam = 'farmer';
+                } else if (user.merchantType == MerchantType.agriShop) {
+                  userTypeParam = 'agriShop';
+                } else if (user.merchantType == MerchantType.supermarketVendor) {
+                  userTypeParam = 'supermarketVendor';
+                } else {
+                  userTypeParam = 'agriShop'; // Default to agriShop for other merchant types
+                }
+
+                context.push('/profile-setup?type=$userTypeParam');
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white,
                 foregroundColor: AppColors.green,

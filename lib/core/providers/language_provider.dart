@@ -106,6 +106,10 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
     AppLanguage.english: 'I sell seeds, fertiliser, tools, machinery',
     AppLanguage.setswana: 'Ke rekisa dipeu, monontsha, didiriswa, metšhine',
   },
+  'merchant': {
+    AppLanguage.english: 'Merchant',
+    AppLanguage.setswana: 'Morekisi',
+  },
   'supermarket_vendor': {
     AppLanguage.english: 'Supermarket/Vendor',
     AppLanguage.setswana: 'Supermarket/Morekisi',
@@ -199,6 +203,10 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
   'select_village': {
     AppLanguage.english: 'Select your location',
     AppLanguage.setswana: 'Tlhopha lefelo la gago',
+  },
+  'select_location': {
+    AppLanguage.english: 'Select business location',
+    AppLanguage.setswana: 'Tlhopha lefelo la kgwebo',
   },
   'specify_location': {
     AppLanguage.english: 'Specify location',
@@ -1218,6 +1226,93 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
   'clear_filters': {
     AppLanguage.english: 'Clear',
     AppLanguage.setswana: 'Phimola',
+  },
+  // Agri Shop specific
+  'orders': {AppLanguage.english: 'Orders', AppLanguage.setswana: 'Ditaelo'},
+  'orders_today': {
+    AppLanguage.english: 'Orders Today',
+    AppLanguage.setswana: 'Ditaelo Gompieno',
+  },
+  'revenue_month': {
+    AppLanguage.english: 'Revenue This Month',
+    AppLanguage.setswana: 'Lotseno Kgwedi Eno',
+  },
+  'low_stock': {
+    AppLanguage.english: 'Low Stock',
+    AppLanguage.setswana: 'Dithoto Tse Nnye',
+  },
+  'coming_soon': {
+    AppLanguage.english: 'Coming Soon',
+    AppLanguage.setswana: 'E Tlaa',
+  },
+  'add_new_product': {
+    AppLanguage.english: 'Add New Product',
+    AppLanguage.setswana: 'Tsenya Selo Se Sesha',
+  },
+  'add_to_catalog': {
+    AppLanguage.english: 'Add to your catalog',
+    AppLanguage.setswana: 'Tsenya mo lenaneong la gago',
+  },
+  'view_orders': {
+    AppLanguage.english: 'View Orders',
+    AppLanguage.setswana: 'Bona Ditaelo',
+  },
+  'manage_customer_orders': {
+    AppLanguage.english: 'Manage customer orders',
+    AppLanguage.setswana: 'Laola ditaelo tsa badirisi',
+  },
+  'check_inventory': {
+    AppLanguage.english: 'Check Inventory',
+    AppLanguage.setswana: 'Tlhola Dithoto',
+  },
+  'manage_stock_levels': {
+    AppLanguage.english: 'Manage stock levels',
+    AppLanguage.setswana: 'Laola maemo a dithoto',
+  },
+  'business_insights': {
+    AppLanguage.english: 'Business insights',
+    AppLanguage.setswana: 'Ditlhaloso tsa kgwebo',
+  },
+  'no_orders_yet': {
+    AppLanguage.english: 'No orders yet',
+    AppLanguage.setswana: 'Ga go ditaelo jaanong',
+  },
+  'orders_will_appear_here': {
+    AppLanguage.english: 'Orders from farmers will appear here',
+    AppLanguage.setswana: 'Ditaelo go tswa go balemi di tlaa bonala fano',
+  },
+  'add_products_to_start': {
+    AppLanguage.english: 'Add products to your catalog to start receiving orders',
+    AppLanguage.setswana: 'Tsenya dithoto mo lenaneong go simolola go amogela ditaelo',
+  },
+  'no_recent_orders': {
+    AppLanguage.english: 'No recent orders',
+    AppLanguage.setswana: 'Ga go ditaelo tsa bosheng',
+  },
+  'good_morning': {
+    AppLanguage.english: 'Good morning',
+    AppLanguage.setswana: 'Dumela rra/mma',
+  },
+  'good_afternoon': {
+    AppLanguage.english: 'Good afternoon',
+    AppLanguage.setswana: 'Dumela rra/mma',
+  },
+  'good_evening': {
+    AppLanguage.english: 'Good evening',
+    AppLanguage.setswana: 'Dumela rra/mma',
+  },
+  'feature_under_development': {
+    AppLanguage.english: 'This feature is currently under development and will be available soon.',
+    AppLanguage.setswana: 'Sediriswa se se santse se dirwa mme se tlaa nna teng ka bonako.',
+  },
+  'okay': {AppLanguage.english: 'Okay', AppLanguage.setswana: 'Go siame'},
+  'what_are_orders': {
+    AppLanguage.english: 'What are orders?',
+    AppLanguage.setswana: 'Ditaelo ke eng?',
+  },
+  'orders_description': {
+    AppLanguage.english: 'Orders are purchase requests from farmers who want to buy your products. Once you add products to your catalog, farmers can place orders through the marketplace.',
+    AppLanguage.setswana: 'Ditaelo ke dikopo tsa go reka go tswa go balemi ba ba batlang go reka dithoto tsa gago. Fa o tsenya dithoto mo lenaneong la gago, balemi ba ka dira ditaelo go ralala mmaraka.',
   },
 };
 

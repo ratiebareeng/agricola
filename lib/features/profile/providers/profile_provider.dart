@@ -39,7 +39,7 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
 
           // Navigate to welcome screen after successful deletion
           if (context.mounted) {
-            context.go('/welcome');
+            context.go('/');
           }
 
           return true;
@@ -62,9 +62,10 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
       await _authController.signOut();
       state = state.copyWith(isLoading: false);
 
-      // Navigate to welcome screen after successful sign out
+      // Navigate to home screen after successful sign out
+      // Home screen handles both authenticated and anonymous users
       if (context.mounted) {
-        context.go('/welcome');
+        context.go('/home');
       }
 
       return true;

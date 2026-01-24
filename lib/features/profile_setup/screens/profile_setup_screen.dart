@@ -20,8 +20,36 @@ class ProfileSetupScreen extends ConsumerStatefulWidget {
 }
 
 class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
+  bool _hasInitialized = false;
+
+  void _initializeProfileSetup() {
+    if (widget.initialUserType == null) return;
+
+    final notifier = ref.read(profileSetupProvider.notifier);
+
+    if (widget.initialUserType == 'farmer') {
+      notifier.startNewProfileSetup(UserType.farmer, null);
+    } else {
+      MerchantType? merchantType;
+      if (widget.initialUserType == 'agriShop') {
+        merchantType = MerchantType.agriShop;
+      } else if (widget.initialUserType == 'supermarketVendor') {
+        merchantType = MerchantType.supermarketVendor;
+      }
+      notifier.startNewProfileSetup(UserType.merchant, merchantType);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    // Initialize profile setup AFTER build completes to avoid modifying provider during build
+    if (widget.initialUserType != null && !_hasInitialized) {
+      _hasInitialized = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _initializeProfileSetup();
+      });
+    }
+
     final state = ref.watch(profileSetupProvider);
     final notifier = ref.read(profileSetupProvider.notifier);
     final currentLang = ref.watch(languageProvider);
@@ -179,27 +207,6 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
     );
   }
 
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (widget.initialUserType != null) {
-        final notifier = ref.read(profileSetupProvider.notifier);
-
-        if (widget.initialUserType == 'farmer') {
-          notifier.startNewProfileSetup(UserType.farmer, null);
-        } else {
-          MerchantType? merchantType;
-          if (widget.initialUserType == 'agriShop') {
-            merchantType = MerchantType.agriShop;
-          } else if (widget.initialUserType == 'supermarketVendor') {
-            merchantType = MerchantType.supermarketVendor;
-          }
-          notifier.startNewProfileSetup(UserType.merchant, merchantType);
-        }
-      }
-    });
-  }
 
   Future<void> _handleFinish(BuildContext context, WidgetRef ref) async {
     // Create profile via API (provider handles loading/error state)

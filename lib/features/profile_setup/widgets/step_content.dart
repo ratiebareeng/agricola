@@ -30,6 +30,7 @@ class StepContent extends ConsumerWidget {
     final currentLang = ref.watch(languageProvider);
 
     return AppTextField(
+      key: ValueKey('business_name_${state.userType.name}_${state.merchantType?.name}_${state.currentStep}'),
       label: t('business_name', currentLang),
       hint: 'e.g. Fresh Produce Wholesalers',
       initialValue: state.businessName,
@@ -204,84 +205,83 @@ class StepContent extends ConsumerWidget {
     final notifier = ref.read(profileSetupProvider.notifier);
     final currentLang = ref.watch(languageProvider);
 
-    if (isFarmer) {
-      final villages = [
-        'Gaborone',
-        'Francistown',
-        'Maun',
-        'Serowe',
-        'Molepolole',
-        'Kanye',
-        'Mochudi',
-        'Mahalapye',
-        'Palapye',
-        'Tlokweng',
-        'Ramotswa',
-        'Mogoditshane',
-        'Gabane',
-        'Lobatse',
-        'Thamaga',
-        'Letlhakane',
-        'Tonota',
-        'Moshupa',
-        'Jwaneng',
-        'Ghanzi',
-        'Other',
-      ];
+    // Use same locations list for both farmers and merchants
+    final locations = [
+      'Gaborone',
+      'Francistown',
+      'Maun',
+      'Serowe',
+      'Molepolole',
+      'Kanye',
+      'Mochudi',
+      'Mahalapye',
+      'Palapye',
+      'Tlokweng',
+      'Ramotswa',
+      'Mogoditshane',
+      'Gabane',
+      'Lobatse',
+      'Thamaga',
+      'Letlhakane',
+      'Tonota',
+      'Moshupa',
+      'Jwaneng',
+      'Ghanzi',
+      'Other',
+    ];
 
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            t('select_village', currentLang),
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[600],
-              fontWeight: FontWeight.w500,
-            ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          isFarmer ? t('select_village', currentLang) : t('select_location', currentLang),
+          style: TextStyle(
+            fontSize: 14,
+            color: Colors.grey[600],
+            fontWeight: FontWeight.w500,
           ),
-          const SizedBox(height: 16),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey[300]!),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton<String>(
-                value: state.village.isEmpty ? null : state.village,
-                hint: Text(t('select_village', currentLang)),
-                isExpanded: true,
-                items: villages.map((village) {
-                  return DropdownMenuItem(value: village, child: Text(village));
-                }).toList(),
-                onChanged: (value) {
-                  if (value != null) {
+        ),
+        const SizedBox(height: 16),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey[300]!),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<String>(
+              value: isFarmer
+                  ? (state.village.isEmpty ? null : state.village)
+                  : (state.location.isEmpty ? null : state.location),
+              hint: Text(isFarmer ? t('select_village', currentLang) : t('select_location', currentLang)),
+              isExpanded: true,
+              items: locations.map((location) {
+                return DropdownMenuItem(value: location, child: Text(location));
+              }).toList(),
+              onChanged: (value) {
+                if (value != null) {
+                  if (isFarmer) {
                     notifier.updateVillage(value);
+                  } else {
+                    notifier.updateLocation(value);
                   }
-                },
-              ),
+                }
+              },
             ),
           ),
-          if (state.village == 'Other') ...[
-            const SizedBox(height: 16),
-            AppTextField(
-              label: t('specify_location', currentLang),
-              hint: 'Enter your village/area',
-              initialValue: state.customVillage,
-              onChanged: (value) => notifier.updateCustomVillage(value),
-            ),
-          ],
+        ),
+        if ((isFarmer && state.village == 'Other') || (!isFarmer && state.location == 'Other')) ...[
+          const SizedBox(height: 16),
+          AppTextField(
+            key: ValueKey('custom_village_${state.userType.name}_${state.merchantType?.name}_${state.currentStep}'),
+            label: t('specify_location', currentLang),
+            hint: isFarmer ? 'Enter your village/area' : 'Enter your business location',
+            initialValue: state.customVillage,
+            onChanged: (value) => notifier.updateCustomVillage(value),
+          ),
         ],
-      );
-    } else {
-      return AppTextField(
-        label: t('location', currentLang),
-        hint: 'e.g. Gaborone Main Mall',
-        initialValue: state.location,
-        onChanged: (value) => notifier.updateLocation(value),
-      );
-    }
+      ],
+    );
   }
 
   Widget _buildMerchantStep(BuildContext context, WidgetRef ref) {

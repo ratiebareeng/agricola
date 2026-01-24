@@ -8,13 +8,16 @@ class RouteGuards {
   static String? redirect(WidgetRef ref, GoRouterState state) {
     final path = state.uri.path;
 
-    // Check if initialization is complete
-    final initState = ref.read(appInitializationStateProvider);
+    // Read initialization state directly (not the synchronous wrapper)
+    final initAsync = ref.read(appInitializationProvider);
 
     // Show splash screen while initializing
-    if (initState == null) {
+    if (initAsync is! AsyncData<AppInitializationState>) {
       return path == '/splash' ? null : '/splash';
     }
+
+    final initState = initAsync.value;
+    final authState = ref.read(unifiedAuthStateProvider);
 
     // Debug route check
     if (!RouteGuardHelpers.canAccessDebugRoute(path)) {
@@ -24,27 +27,23 @@ class RouteGuards {
     // Now we can safely use all the initialized data
     final hasSeenWelcome = initState.hasSeenWelcome;
     final hasSeenOnboarding = initState.hasSeenOnboarding;
-    final authState = ref.read(unifiedAuthStateProvider);
 
     // FIRST TIME USER FLOW - Welcome screen
-    if (!hasSeenWelcome) {
-      return path == '/' ? null : '/';
+    if (!hasSeenWelcome && path != '/') {
+      return '/';
     }
 
     // FIRST TIME USER FLOW - Onboarding
-    if (!hasSeenOnboarding) {
-      return path == '/onboarding' ? null : '/onboarding';
+    if (hasSeenWelcome && !hasSeenOnboarding && path != '/onboarding') {
+      return '/onboarding';
     }
 
-    // AUTHENTICATED USER FLOW (includes users with incomplete profiles)
+    // AUTHENTICATED USER FLOW
     if (authState.isAuthenticated || authState.needsProfileSetup) {
-      // Allow users to access profile-setup anytime (not just on first login)
-      // This enables returning users with incomplete profiles to complete it
       if (path == '/profile-setup') {
         return null;
       }
 
-      // Redirect authenticated users from public routes (including splash) to home
       if (path == '/splash' ||
           path == '/' ||
           path == '/onboarding' ||
@@ -57,9 +56,12 @@ class RouteGuards {
       return null;
     }
 
-    // ANONYMOUS USER FLOW - Redirect to home after onboarding
-    if (path == '/' || path == '/onboarding') {
-      return '/home';
+    // ANONYMOUS USER FLOW - After completing onboarding, go to home
+    if (hasSeenOnboarding) {
+      if (path == '/splash' || path == '/') {
+        return '/home';
+      }
+      return null;
     }
 
     return null;

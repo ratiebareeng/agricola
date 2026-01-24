@@ -246,7 +246,16 @@ class ProfileSetupNotifier extends StateNotifier<ProfileSetupState> {
       selectedProducts: [],
       photoPath: null,
     );
-    saveProfile();
+    // Clear old cache and save new profile type (async, runs after build)
+    Future.microtask(() => _clearCacheAndSave());
+  }
+
+  Future<void> _clearCacheAndSave() async {
+    final prefs = await SharedPreferences.getInstance();
+    // Clear all previous profile data
+    await prefs.clear();
+    // Save new profile data
+    await saveProfile();
   }
 
   void toggleCrop(String crop) {

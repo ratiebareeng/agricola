@@ -1,4 +1,5 @@
 import 'package:agricola/domain/auth/models/user_model.dart';
+import 'package:agricola/domain/profile/enum/merchant_type.dart';
 import 'package:agricola/features/profile_setup/models/farmer_profile_model.dart';
 import 'package:agricola/features/profile_setup/models/merchant_profile_model.dart';
 import 'package:agricola/features/profile_setup/providers/profile_setup_provider.dart';
@@ -14,6 +15,7 @@ sealed class DisplayableProfile extends Equatable {
   final String? phoneNumber;
   final String? photoUrl;
   final UserType userType;
+  final MerchantType? merchantType;
 
   const DisplayableProfile({
     required this.userId,
@@ -22,6 +24,7 @@ sealed class DisplayableProfile extends Equatable {
     this.phoneNumber,
     this.photoUrl,
     required this.userType,
+    this.merchantType,
   });
 
   @override
@@ -32,6 +35,7 @@ sealed class DisplayableProfile extends Equatable {
         phoneNumber,
         photoUrl,
         userType,
+        merchantType,
       ];
 }
 
@@ -45,6 +49,7 @@ class MinimalProfile extends DisplayableProfile {
     super.phoneNumber,
     super.photoUrl,
     required super.userType,
+    super.merchantType,
   });
 
   /// Create minimal profile from Firestore UserModel
@@ -59,6 +64,7 @@ class MinimalProfile extends DisplayableProfile {
       phoneNumber: user.phoneNumber,
       photoUrl: null, // No custom photo yet
       userType: user.userType,
+      merchantType: user.merchantType,
     );
   }
 }
@@ -74,7 +80,7 @@ class CompleteFarmerProfile extends DisplayableProfile {
     super.phoneNumber,
     super.photoUrl,
     required this.farmerData,
-  }) : super(userType: UserType.farmer);
+  }) : super(userType: UserType.farmer, merchantType: null);
 
   /// Create complete farmer profile from both Firestore and PostgreSQL data
   factory CompleteFarmerProfile.fromModels({
@@ -106,7 +112,7 @@ class CompleteMerchantProfile extends DisplayableProfile {
     super.phoneNumber,
     super.photoUrl,
     required this.merchantData,
-  }) : super(userType: UserType.merchant);
+  }) : super(userType: UserType.merchant, merchantType: null);
 
   /// Create complete merchant profile from both Firestore and PostgreSQL data
   /// Uses business name as display name for merchants

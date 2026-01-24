@@ -28,16 +28,20 @@ class MerchantProfileModel extends Equatable {
 
   factory MerchantProfileModel.fromJson(Map<String, dynamic> json) {
     return MerchantProfileModel(
-      id: json['id'].toString(), // Convert to string (server returns int)
-      userId: json['userId'] as String,
-      merchantType: MerchantType.fromString(json['merchantType'] as String),
-      businessName: json['businessName'] as String,
-      location: json['location'] as String,
+      id: json['id']?.toString() ?? '', // Convert to string (server returns int)
+      userId: (json['userId'] as String?) ?? '',
+      merchantType: MerchantType.fromString((json['merchantType'] as String?) ?? 'market_vendor'),
+      businessName: (json['businessName'] as String?) ?? '',
+      location: (json['location'] as String?) ?? '',
       customLocation: json['customLocation'] as String?,
       productsOffered: List<String>.from(json['productsOffered'] ?? []),
       photoUrl: json['photoUrl'] as String?,
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      updatedAt: DateTime.parse(json['updatedAt'] as String),
+      createdAt: json['createdAt'] != null
+          ? DateTime.parse(json['createdAt'] as String)
+          : DateTime.now(),
+      updatedAt: json['updatedAt'] != null
+          ? DateTime.parse(json['updatedAt'] as String)
+          : DateTime.now(),
     );
   }
 

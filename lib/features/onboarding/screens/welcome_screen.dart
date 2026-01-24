@@ -1,3 +1,4 @@
+import 'package:agricola/core/providers/app_initialization_provider.dart';
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/core/widgets/app_buttons.dart';
@@ -121,36 +122,24 @@ class WelcomeScreen extends ConsumerWidget {
                         AppSecondaryButton(
                           label: 'English',
                           icon: Icons.language,
-                          onTap: () {
-                            ref
+                          onTap: () async {
+                            await ref
                                 .read(languageProvider.notifier)
                                 .setLanguage(AppLanguage.english);
-                            Future.delayed(
-                              const Duration(milliseconds: 300),
-                              () {
-                                if (!context.mounted) {
-                                  return;
-                                }
-                                context.go('/onboarding');
-                              },
-                            );
+                            if (!context.mounted) return;
+                            context.go('/onboarding');
                           },
                         ),
                         const SizedBox(height: 16),
                         AppSecondaryButton(
                           label: 'Setswana',
                           icon: Icons.translate,
-                          onTap: () {
-                            ref
+                          onTap: () async {
+                            await ref
                                 .read(languageProvider.notifier)
                                 .setLanguage(AppLanguage.setswana);
-                            Future.delayed(
-                              const Duration(milliseconds: 300),
-                              () {
-                                if (!context.mounted) return;
-                                context.go('/onboarding');
-                              },
-                            );
+                            if (!context.mounted) return;
+                            context.go('/onboarding');
                           },
                         ),
                       ],

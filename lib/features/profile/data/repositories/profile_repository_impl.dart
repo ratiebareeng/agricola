@@ -123,7 +123,9 @@ class ProfileRepositoryImpl implements ProfileRepository {
     try {
       try {
         final response = await _apiService.getFarmerProfile(userId);
-        final farmerProfile = FarmerProfileModel.fromJson(response);
+        // Extract the data field from the API response
+        final data = response['data'] as Map<String, dynamic>;
+        final farmerProfile = FarmerProfileModel.fromJson(data);
         await _cacheService.cacheFarmerProfile(farmerProfile);
         return right(FarmerProfileResponse(farmerProfile));
       } on DioException catch (e) {
@@ -133,7 +135,9 @@ class ProfileRepositoryImpl implements ProfileRepository {
       }
 
       final response = await _apiService.getMerchantProfile(userId);
-      final merchantProfile = MerchantProfileModel.fromJson(response);
+      // Extract the data field from the API response
+      final data = response['data'] as Map<String, dynamic>;
+      final merchantProfile = MerchantProfileModel.fromJson(data);
       await _cacheService.cacheMerchantProfile(merchantProfile);
       return right(MerchantProfileResponse(merchantProfile));
     } on DioException catch (e) {
@@ -150,7 +154,9 @@ class ProfileRepositoryImpl implements ProfileRepository {
     try {
       try {
         final response = await _apiService.getFarmerProfile(userId);
-        final farmerProfile = FarmerProfileModel.fromJson(response);
+        // Extract the data field from the API response
+        final data = response['data'] as Map<String, dynamic>;
+        final farmerProfile = FarmerProfileModel.fromJson(data);
         await _cacheService.cacheFarmerProfile(farmerProfile);
         return right(FarmerProfileResponse(farmerProfile));
       } on DioException catch (e) {
@@ -160,7 +166,9 @@ class ProfileRepositoryImpl implements ProfileRepository {
       }
 
       final response = await _apiService.getMerchantProfile(userId);
-      final merchantProfile = MerchantProfileModel.fromJson(response);
+      // Extract the data field from the API response
+      final data = response['data'] as Map<String, dynamic>;
+      final merchantProfile = MerchantProfileModel.fromJson(data);
       await _cacheService.cacheMerchantProfile(merchantProfile);
       return right(MerchantProfileResponse(merchantProfile));
     } on DioException catch (e) {
@@ -181,7 +189,9 @@ class ProfileRepositoryImpl implements ProfileRepository {
         updates,
       );
 
-      final updatedProfile = FarmerProfileModel.fromJson(response);
+      // Extract the data field from the API response
+      final data = response['data'] as Map<String, dynamic>;
+      final updatedProfile = FarmerProfileModel.fromJson(data);
 
       await _cacheService.cacheFarmerProfile(updatedProfile);
 
@@ -204,7 +214,9 @@ class ProfileRepositoryImpl implements ProfileRepository {
         updates,
       );
 
-      final updatedProfile = MerchantProfileModel.fromJson(response);
+      // Extract the data field from the API response
+      final data = response['data'] as Map<String, dynamic>;
+      final updatedProfile = MerchantProfileModel.fromJson(data);
 
       await _cacheService.cacheMerchantProfile(updatedProfile);
 
