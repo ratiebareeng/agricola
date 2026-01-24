@@ -1,7 +1,6 @@
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/features/profile/providers/profile_controller_provider.dart';
-import 'package:agricola/features/profile_setup/providers/profile_setup_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -232,6 +231,9 @@ class ProfileSetupCompleteScreen extends ConsumerWidget {
   }
 
   Widget _buildSummaryCard(AppLanguage lang) {
+    final userType = profileData['userType'] ?? 'farmer';
+    final isFarmer = userType == 'farmer';
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -247,34 +249,51 @@ class ProfileSetupCompleteScreen extends ConsumerWidget {
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
-          _buildInfoRow(
-            Icons.location_on,
-            t('location', lang),
-            profileData['location'] ?? 'Not set',
-          ),
-          const Divider(height: 24),
-          _buildInfoRow(
-            Icons.agriculture,
-            t('crops', lang),
-            (profileData['crops'] as List?)?.join(', ') ?? 'Not set',
-          ),
-          const Divider(height: 24),
-          _buildInfoRow(
-            Icons.landscape,
-            t('farm_size', lang),
-            profileData['farmSize'] ?? 'Not set',
-          ),
+          if (isFarmer) ...[
+            _buildInfoRow(
+              Icons.location_on,
+              t('location', lang),
+              profileData['location'] ?? 'Not set',
+            ),
+            const Divider(height: 24),
+            _buildInfoRow(
+              Icons.agriculture,
+              t('crops', lang),
+              (profileData['crops'] as List?)?.join(', ') ?? 'Not set',
+            ),
+            const Divider(height: 24),
+            _buildInfoRow(
+              Icons.landscape,
+              t('farm_size', lang),
+              profileData['farmSize'] ?? 'Not set',
+            ),
+          ] else ...[
+            _buildInfoRow(
+              Icons.business,
+              t('business_name', lang),
+              profileData['businessName'] ?? 'Not set',
+            ),
+            const Divider(height: 24),
+            _buildInfoRow(
+              Icons.location_on,
+              t('location', lang),
+              profileData['location'] ?? 'Not set',
+            ),
+            const Divider(height: 24),
+            _buildInfoRow(
+              Icons.inventory,
+              t('products', lang),
+              (profileData['products'] as List?)?.join(', ') ?? 'Not set',
+            ),
+          ],
         ],
       ),
     );
   }
 
   Future<void> _handleGetStarted(BuildContext context, WidgetRef ref) async {
-    final success = await ref
-        .read(profileSetupProvider.notifier)
-        .completeSetup();
-
-    if (success && context.mounted) {
+    // Profile is already created at this point, just navigate to home
+    if (context.mounted) {
       context.go('/home');
     }
   }

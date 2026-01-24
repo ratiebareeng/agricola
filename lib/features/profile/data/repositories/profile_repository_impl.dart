@@ -43,7 +43,9 @@ class ProfileRepositoryImpl implements ProfileRepository {
       final profileData = profile.toJson();
       final response = await _apiService.createFarmerProfile(profileData);
 
-      final createdProfile = FarmerProfileModel.fromJson(response);
+      // Extract the data field from the API response
+      final data = response['data'] as Map<String, dynamic>;
+      final createdProfile = FarmerProfileModel.fromJson(data);
 
       await _cacheService.cacheFarmerProfile(createdProfile);
 
@@ -63,7 +65,9 @@ class ProfileRepositoryImpl implements ProfileRepository {
       final profileData = profile.toJson();
       final response = await _apiService.createMerchantProfile(profileData);
 
-      final createdProfile = MerchantProfileModel.fromJson(response);
+      // Extract the data field from the API response
+      final data = response['data'] as Map<String, dynamic>;
+      final createdProfile = MerchantProfileModel.fromJson(data);
 
       await _cacheService.cacheMerchantProfile(createdProfile);
 

@@ -192,13 +192,13 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
     AppLanguage.setswana: 'Leina la Kgwebo',
   },
   'village_area': {
-    AppLanguage.english: 'Village / Area',
+    AppLanguage.english: 'Town / Village / Area',
     AppLanguage.setswana: 'Motse / Kgaolo',
   },
   'location': {AppLanguage.english: 'Location', AppLanguage.setswana: 'Lefelo'},
   'select_village': {
-    AppLanguage.english: 'Select your village',
-    AppLanguage.setswana: 'Tlhopha motse wa gago',
+    AppLanguage.english: 'Select your location',
+    AppLanguage.setswana: 'Tlhopha lefelo la gago',
   },
   'specify_location': {
     AppLanguage.english: 'Specify location',

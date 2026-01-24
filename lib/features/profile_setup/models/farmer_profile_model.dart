@@ -25,7 +25,7 @@ class FarmerProfileModel extends Equatable {
 
   factory FarmerProfileModel.fromJson(Map<String, dynamic> json) {
     return FarmerProfileModel(
-      id: json['id'] as String,
+      id: json['id'].toString(), // Convert to string (server returns int)
       userId: json['userId'] as String,
       village: json['village'] as String,
       customVillage: json['customVillage'] as String?,

@@ -28,7 +28,7 @@ class MerchantProfileModel extends Equatable {
 
   factory MerchantProfileModel.fromJson(Map<String, dynamic> json) {
     return MerchantProfileModel(
-      id: json['id'] as String,
+      id: json['id'].toString(), // Convert to string (server returns int)
       userId: json['userId'] as String,
       merchantType: MerchantType.fromString(json['merchantType'] as String),
       businessName: json['businessName'] as String,

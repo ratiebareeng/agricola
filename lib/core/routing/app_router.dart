@@ -8,6 +8,7 @@ import 'package:agricola/features/debug/screens/health_check_page.dart';
 import 'package:agricola/features/home/screens/home_screen.dart';
 import 'package:agricola/features/onboarding/screens/onboarding_screen.dart';
 import 'package:agricola/features/onboarding/screens/welcome_screen.dart';
+import 'package:agricola/features/profile_setup/screens/profile_setup_complete_screen.dart';
 import 'package:agricola/features/profile_setup/screens/profile_setup_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -52,6 +53,13 @@ GoRouter createRouter(WidgetRef ref) {
         builder: (context, state) => ProfileSetupScreen(
           initialUserType: state.uri.queryParameters['type'],
         ),
+      ),
+      GoRoute(
+        path: '/profile-setup-complete',
+        builder: (context, state) {
+          final profileData = state.extra as Map<String, dynamic>? ?? {};
+          return ProfileSetupCompleteScreen(profileData: profileData);
+        },
       ),
       GoRoute(path: '/home', builder: (context, state) => const HomeScreen()),
       GoRoute(

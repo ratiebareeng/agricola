@@ -110,24 +110,67 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
             ),
             Padding(
               padding: const EdgeInsets.all(24.0),
-              child: AppPrimaryButton(
-                label: state.currentStep == state.totalSteps - 1
-                    ? t('finish', currentLang)
-                    : t('continue', currentLang),
-                onTap: _canContinue(state)
-                    ? () async {
-                        if (state.currentStep == state.totalSteps - 1) {
-                          final prefs = await SharedPreferences.getInstance();
-                          await prefs.setBool('has_seen_profile_setup', true);
-
-                          if (mounted) {
-                            context.go('/home');
+              child: Column(
+                children: [
+                  AppPrimaryButton(
+                    label: state.currentStep == state.totalSteps - 1
+                        ? t('finish', currentLang)
+                        : t('continue', currentLang),
+                    onTap: (_canContinue(state) && !state.isCreatingProfile)
+                        ? () async {
+                            if (state.currentStep == state.totalSteps - 1) {
+                              await _handleFinish(context, ref);
+                            } else {
+                              notifier.nextStep();
+                            }
                           }
-                        } else {
-                          notifier.nextStep();
-                        }
-                      }
-                    : null,
+                        : null,
+                  ),
+                  if (state.isCreatingProfile)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 12),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const SizedBox(
+                            height: 16,
+                            width: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            t('creating_profile', currentLang),
+                            style: TextStyle(color: Colors.grey[600]),
+                          ),
+                        ],
+                      ),
+                    ),
+                  if (state.errorMessage != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 12),
+                      child: Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.red.shade50,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.red.shade200),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.error_outline,
+                                color: Colors.red.shade700),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                state.errorMessage!,
+                                style: TextStyle(color: Colors.red.shade700),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                ],
               ),
             ),
           ],
@@ -156,6 +199,53 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
         }
       }
     });
+  }
+
+  Future<void> _handleFinish(BuildContext context, WidgetRef ref) async {
+    // Create profile via API (provider handles loading/error state)
+    final success = await ref
+        .read(profileSetupProvider.notifier)
+        .completeSetup();
+
+    if (!mounted) return;
+
+    if (success) {
+      // Mark profile setup as complete
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('has_seen_profile_setup', true);
+
+      if (mounted) {
+        final state = ref.read(profileSetupProvider);
+        // Navigate to complete screen with success
+        context.go(
+          '/profile-setup-complete',
+          extra: _buildProfileData(state),
+        );
+      }
+    }
+  }
+
+  Map<String, dynamic> _buildProfileData(ProfileSetupState state) {
+    if (state.userType == UserType.farmer) {
+      return {
+        'userType': 'farmer',
+        'village': state.village,
+        'customVillage': state.customVillage,
+        'crops': state.selectedCrops,
+        'farmSize': state.farmSize,
+        'photoPath': state.photoPath,
+        'location': state.village == 'Other' ? state.customVillage : state.village,
+      };
+    } else {
+      return {
+        'userType': 'merchant',
+        'merchantType': state.merchantType?.name,
+        'businessName': state.businessName,
+        'location': state.location,
+        'products': state.selectedProducts,
+        'photoPath': state.photoPath,
+      };
+    }
   }
 
   bool _canContinue(ProfileSetupState state) {

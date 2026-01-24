@@ -21,89 +21,132 @@ class ProfileSetupNotifier extends StateNotifier<ProfileSetupState> {
 
   /// Complete profile setup and create profile in backend
   Future<bool> completeSetup() async {
+    // Set loading state
+    state = state.copyWith(isCreatingProfile: true, clearError: true);
+
     final user = _ref.read(currentUserProvider);
-    if (user == null) return false;
-
-    if (state.userType == UserType.farmer) {
-      // Create farmer profile model
-      final farmerProfile = FarmerProfileModel(
-        id: '', // Will be assigned by backend
-        userId: user.uid,
-        village: state.village,
-        customVillage: state.customVillage.isNotEmpty
-            ? state.customVillage
-            : null,
-        primaryCrops: state.selectedCrops,
-        farmSize: state.farmSize,
-        photoUrl: state.photoPath,
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
+    if (user == null) {
+      state = state.copyWith(
+        isCreatingProfile: false,
+        errorMessage: 'User not authenticated',
       );
+      return false;
+    }
 
-      // Validate farmer profile
-      final validationError = ProfileValidators.validateFarmerProfile(
-        farmerProfile,
+    try {
+      if (state.userType == UserType.farmer) {
+        // Create farmer profile model
+        final farmerProfile = FarmerProfileModel(
+          id: '', // Will be assigned by backend
+          userId: user.uid,
+          village: state.village,
+          customVillage: state.customVillage.isNotEmpty
+              ? state.customVillage
+              : null,
+          primaryCrops: state.selectedCrops,
+          farmSize: state.farmSize,
+          photoUrl: state.photoPath,
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        );
+
+        // Validate farmer profile
+        final validationError = ProfileValidators.validateFarmerProfile(
+          farmerProfile,
+        );
+        if (validationError != null) {
+          state = state.copyWith(
+            isCreatingProfile: false,
+            errorMessage: validationError,
+          );
+          return false;
+        }
+
+        // Create profile in backend
+        final success = await _ref
+            .read(profileControllerProvider.notifier)
+            .createFarmerProfile(profile: farmerProfile);
+
+        if (success) {
+          // Mark profile as complete in Firestore
+          await _ref
+              .read(authControllerProvider.notifier)
+              .markProfileAsComplete();
+
+          state = state.copyWith(isCreatingProfile: false, clearError: true);
+        } else {
+          state = state.copyWith(
+            isCreatingProfile: false,
+            errorMessage: 'Failed to create profile. Please try again.',
+          );
+        }
+
+        return success;
+      } else {
+        // Validate merchant type is set
+        if (state.merchantType == null) {
+          state = state.copyWith(
+            isCreatingProfile: false,
+            errorMessage: 'Merchant type is required',
+          );
+          return false;
+        }
+
+        // Create merchant profile model
+        final merchantProfile = MerchantProfileModel(
+          id: '', // Will be assigned by backend
+          userId: user.uid,
+          merchantType: state.merchantType!,
+          businessName: state.businessName,
+          location: state.location,
+          customLocation: state.customVillage.isNotEmpty
+              ? state.customVillage
+              : null,
+          productsOffered: state.selectedProducts,
+          photoUrl: state.photoPath,
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        );
+
+        // Validate merchant profile
+        final validationError = ProfileValidators.validateMerchantProfile(
+          merchantProfile,
+        );
+        if (validationError != null) {
+          state = state.copyWith(
+            isCreatingProfile: false,
+            errorMessage: validationError,
+          );
+          return false;
+        }
+
+        // Create profile in backend
+        final success = await _ref
+            .read(profileControllerProvider.notifier)
+            .createMerchantProfile(profile: merchantProfile);
+
+        if (success) {
+          // Mark profile as complete in Firestore
+          await _ref
+              .read(authControllerProvider.notifier)
+              .markProfileAsComplete();
+
+          state = state.copyWith(isCreatingProfile: false, clearError: true);
+        } else {
+          state = state.copyWith(
+            isCreatingProfile: false,
+            errorMessage: 'Failed to create profile. Please try again.',
+          );
+        }
+
+        return success;
+      }
+    } catch (e) {
+      state = state.copyWith(
+        isCreatingProfile: false,
+        errorMessage: 'An error occurred: ${e.toString()}',
       );
-      if (validationError != null) {
-        return false;
-      }
-
-      // Create profile in backend
-      final success = await _ref
-          .read(profileControllerProvider.notifier)
-          .createFarmerProfile(profile: farmerProfile);
-
-      if (success) {
-        // Mark profile as complete in Firestore
-        await _ref
-            .read(authControllerProvider.notifier)
-            .markProfileAsComplete();
-      }
-
-      return success;
-    } else {
-      // Validate merchant type is set
-      if (state.merchantType == null) {
-        return false;
-      }
-
-      // Create merchant profile model
-      final merchantProfile = MerchantProfileModel(
-        id: '', // Will be assigned by backend
-        userId: user.uid,
-        merchantType: state.merchantType!,
-        businessName: state.businessName,
-        location: state.location,
-        customLocation: state.customVillage.isNotEmpty
-            ? state.customVillage
-            : null,
-        productsOffered: state.selectedProducts,
-        photoUrl: state.photoPath,
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-      );
-
-      // Validate merchant profile
-      final validationError = ProfileValidators.validateMerchantProfile(
-        merchantProfile,
-      );
-      if (validationError != null) {
-        return false;
-      }
-
-      // Create profile in backend
-      final success = await _ref
-          .read(profileControllerProvider.notifier)
-          .createMerchantProfile(profile: merchantProfile);
-
-      if (success) {
-        // Mark profile as complete in Firestore
-        await _ref
-            .read(authControllerProvider.notifier)
-            .markProfileAsComplete();
-      }
-
-      return success;
+      return false;
     }
   }
 
@@ -274,6 +317,10 @@ class ProfileSetupState {
   // Common
   final String? photoPath;
 
+  // Creation state
+  final bool isCreatingProfile;
+  final String? errorMessage;
+
   ProfileSetupState({
     this.currentStep = 0,
     this.totalSteps = 4,
@@ -287,6 +334,8 @@ class ProfileSetupState {
     this.location = '',
     this.selectedProducts = const [],
     this.photoPath,
+    this.isCreatingProfile = false,
+    this.errorMessage,
   });
 
   ProfileSetupState copyWith({
@@ -302,6 +351,9 @@ class ProfileSetupState {
     String? location,
     List<String>? selectedProducts,
     String? photoPath,
+    bool? isCreatingProfile,
+    String? errorMessage,
+    bool clearError = false,
   }) {
     return ProfileSetupState(
       currentStep: currentStep ?? this.currentStep,
@@ -316,6 +368,8 @@ class ProfileSetupState {
       location: location ?? this.location,
       selectedProducts: selectedProducts ?? this.selectedProducts,
       photoPath: photoPath ?? this.photoPath,
+      isCreatingProfile: isCreatingProfile ?? this.isCreatingProfile,
+      errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
     );
   }
 }
