@@ -2,6 +2,7 @@ import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/core/widgets/app_buttons.dart';
 import 'package:agricola/core/widgets/selection_card.dart';
+import 'package:agricola/features/auth/providers/auth_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -119,6 +120,30 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
                   ),
                 ],
               ),
+              const SizedBox(height: 24),
+              // Divider
+              Row(
+                children: [
+                  const Expanded(child: Divider()),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Text(
+                      t('or', currentLang),
+                      style: const TextStyle(
+                        color: AppColors.mediumGray,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                  const Expanded(child: Divider()),
+                ],
+              ),
+              const SizedBox(height: 24),
+              // Continue as Guest button
+              AppSecondaryButton(
+                label: t('continue_as_guest', currentLang),
+                onTap: _onContinueAsGuest,
+              ),
               const SizedBox(height: 16),
             ],
           ),
@@ -130,6 +155,20 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
   void _onContinue() {
     if (_selectedUserType != null) {
       context.push('/sign-up?type=${_selectedUserType!.name}');
+    }
+  }
+
+  Future<void> _onContinueAsGuest() async {
+    final authController = ref.read(authControllerProvider.notifier);
+    await authController.signInAnonymously();
+
+    if (mounted) {
+      // Wait a brief moment for auth state to update
+      await Future.delayed(const Duration(milliseconds: 300));
+
+      if (mounted) {
+        context.go('/home');
+      }
     }
   }
 }

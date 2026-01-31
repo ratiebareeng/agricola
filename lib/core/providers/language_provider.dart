@@ -1,3 +1,6 @@
+import 'dart:developer' as developer;
+
+import 'package:agricola/core/providers/app_initialization_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -9,7 +12,7 @@ final hasSeenWelcomeProvider = FutureProvider<bool>((ref) async {
 final languageProvider = StateNotifierProvider<LanguageNotifier, AppLanguage>((
   ref,
 ) {
-  return LanguageNotifier();
+  return LanguageNotifier(ref);
 });
 
 // Simple string map for prototype
@@ -145,6 +148,14 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
   'already_have_account': {
     AppLanguage.english: 'Already have an account?',
     AppLanguage.setswana: 'A o setse o na le akhaonto?',
+  },
+  'or': {
+    AppLanguage.english: 'or',
+    AppLanguage.setswana: 'kgotsa',
+  },
+  'continue_as_guest': {
+    AppLanguage.english: 'Continue as Guest',
+    AppLanguage.setswana: 'Tswelela jaaka moeng',
   },
   'dont_have_account': {
     AppLanguage.english: 'Don\'t have an account?',
@@ -1323,7 +1334,9 @@ String t(String key, AppLanguage lang) {
 enum AppLanguage { english, setswana }
 
 class LanguageNotifier extends StateNotifier<AppLanguage> {
-  LanguageNotifier() : super(AppLanguage.english) {
+  final Ref _ref;
+
+  LanguageNotifier(this._ref) : super(AppLanguage.english) {
     _loadLanguage();
   }
 
@@ -1335,6 +1348,11 @@ class LanguageNotifier extends StateNotifier<AppLanguage> {
       language == AppLanguage.setswana ? 'tn' : 'en',
     );
     await prefs.setBool('has_seen_welcome', true);
+    developer.log('✅ LANGUAGE SET: ${language.name}, has_seen_welcome = true', name: 'LanguageProvider');
+
+    // Update the initialization provider synchronously
+    _ref.read(appInitializationProvider.notifier).updateFlag(hasSeenWelcome: true);
+    developer.log('🔄 UPDATED: appInitializationProvider (hasSeenWelcome: true)', name: 'LanguageProvider');
   }
 
   Future<void> _loadLanguage() async {

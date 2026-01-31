@@ -1,7 +1,9 @@
+import 'dart:developer' as developer;
+
+import 'package:agricola/core/providers/app_initialization_provider.dart';
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/core/widgets/app_buttons.dart';
-import 'package:agricola/features/auth/providers/auth_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -217,14 +219,21 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   }
 
   Future<void> _onGetStarted() async {
+    developer.log('📝 ONBOARDING: User clicked Get Started', name: 'OnboardingScreen');
+
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('has_seen_onboarding', true);
+    developer.log('✅ ONBOARDING: has_seen_onboarding = true', name: 'OnboardingScreen');
 
-    final authController = ref.read(authControllerProvider.notifier);
-    await authController.signInAnonymously();
+    // Update the initialization provider synchronously
+    ref.read(appInitializationProvider.notifier).updateFlag(hasSeenOnboarding: true);
+    developer.log('🔄 UPDATED: appInitializationProvider (hasSeenOnboarding: true)', name: 'OnboardingScreen');
 
+    // Navigate to registration screen for user type selection
+    // User can choose to create account or continue as guest
     if (mounted) {
-      context.go('/home');
+      developer.log('🔄 ONBOARDING: Navigating to /register', name: 'OnboardingScreen');
+      context.go('/register');
     }
   }
 

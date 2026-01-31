@@ -2,46 +2,64 @@ import 'package:agricola/features/auth/providers/auth_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// Provider that loads SharedPreferences flags
-final _sharedPrefsInitProvider = FutureProvider<_PrefsData>((ref) async {
-  final prefs = await SharedPreferences.getInstance();
-  return _PrefsData(
-    hasSeenWelcome: prefs.getBool('has_seen_welcome') ?? false,
-    hasSeenOnboarding: prefs.getBool('has_seen_onboarding') ?? false,
-    hasSeenProfileSetup: prefs.getBool('has_seen_profile_setup') ?? false,
-  );
-});
+/// StateNotifier for managing SharedPreferences flags
+class AppInitializationNotifier extends StateNotifier<AsyncValue<AppInitializationState>> {
+  AppInitializationNotifier(this._ref) : super(const AsyncValue.loading()) {
+    _initialize();
+  }
+
+  final Ref _ref;
+
+  Future<void> _initialize() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final authAsync = _ref.read(authStateProvider);
+
+      final authUser = authAsync.maybeWhen(
+        data: (user) => user,
+        orElse: () => null,
+      );
+
+      state = AsyncValue.data(
+        AppInitializationState(
+          hasSeenWelcome: prefs.getBool('has_seen_welcome') ?? false,
+          hasSeenOnboarding: prefs.getBool('has_seen_onboarding') ?? false,
+          hasSeenProfileSetup: prefs.getBool('has_seen_profile_setup') ?? false,
+          authUser: authUser,
+        ),
+      );
+    } catch (error, stackTrace) {
+      state = AsyncValue.error(error, stackTrace);
+    }
+  }
+
+  /// Update a specific flag synchronously (after it's been written to SharedPreferences)
+  Future<void> updateFlag({
+    bool? hasSeenWelcome,
+    bool? hasSeenOnboarding,
+    bool? hasSeenProfileSetup,
+  }) async {
+    state.whenData((currentState) {
+      state = AsyncValue.data(
+        AppInitializationState(
+          hasSeenWelcome: hasSeenWelcome ?? currentState.hasSeenWelcome,
+          hasSeenOnboarding: hasSeenOnboarding ?? currentState.hasSeenOnboarding,
+          hasSeenProfileSetup: hasSeenProfileSetup ?? currentState.hasSeenProfileSetup,
+          authUser: currentState.authUser,
+        ),
+      );
+    });
+  }
+
+  /// Reload flags from SharedPreferences (for edge cases)
+  Future<void> reload() async {
+    await _initialize();
+  }
+}
 
 /// Combined initialization provider that waits for both prefs and auth
-final appInitializationProvider = Provider<AsyncValue<AppInitializationState>>((ref) {
-  final prefsAsync = ref.watch(_sharedPrefsInitProvider);
-  final authAsync = ref.watch(authStateProvider);
-
-  // Both must be loaded before we return data
-  if (prefsAsync is AsyncLoading || authAsync is AsyncLoading) {
-    return const AsyncValue.loading();
-  }
-
-  if (prefsAsync is AsyncError) {
-    return AsyncValue.error(prefsAsync.error!, prefsAsync.stackTrace!);
-  }
-
-  if (authAsync is AsyncError) {
-    return AsyncValue.error(authAsync.error!, authAsync.stackTrace!);
-  }
-
-  // Both are loaded successfully
-  final prefsData = prefsAsync.value!;
-  final authUser = authAsync.value;
-
-  return AsyncValue.data(
-    AppInitializationState(
-      hasSeenWelcome: prefsData.hasSeenWelcome,
-      hasSeenOnboarding: prefsData.hasSeenOnboarding,
-      hasSeenProfileSetup: prefsData.hasSeenProfileSetup,
-      authUser: authUser,
-    ),
-  );
+final appInitializationProvider = StateNotifierProvider<AppInitializationNotifier, AsyncValue<AppInitializationState>>((ref) {
+  return AppInitializationNotifier(ref);
 });
 
 /// Synchronous access to initialization state (only use after initialization is complete)
@@ -52,18 +70,6 @@ final appInitializationStateProvider = Provider<AppInitializationState?>((ref) {
     orElse: () => null,
   );
 });
-
-class _PrefsData {
-  final bool hasSeenWelcome;
-  final bool hasSeenOnboarding;
-  final bool hasSeenProfileSetup;
-
-  _PrefsData({
-    required this.hasSeenWelcome,
-    required this.hasSeenOnboarding,
-    required this.hasSeenProfileSetup,
-  });
-}
 
 class AppInitializationState {
   final bool hasSeenWelcome;

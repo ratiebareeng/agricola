@@ -1,6 +1,9 @@
+import 'dart:developer' as developer;
+
 import 'package:agricola/core/providers/app_initialization_provider.dart';
 import 'package:agricola/core/routing/route_guards.dart';
 import 'package:agricola/core/screens/splash_screen.dart';
+import 'package:agricola/features/auth/providers/auth_state_provider.dart';
 import 'package:agricola/features/auth/screens/registration_screen.dart';
 import 'package:agricola/features/auth/screens/sign_in_screen.dart';
 import 'package:agricola/features/auth/screens/sign_up_screen.dart';
@@ -74,8 +77,22 @@ class RouterNotifier extends ChangeNotifier {
   final Ref _ref;
 
   RouterNotifier(this._ref) {
-    // Listen to BOTH initialization providers to trigger route re-evaluation
-    _ref.listen(appInitializationProvider, (_, __) => notifyListeners());
-    _ref.listen(appInitializationStateProvider, (_, __) => notifyListeners());
+    // Listen to both initialization and auth state changes
+    // This ensures the router re-evaluates route guards when either changes
+    _ref.listen(appInitializationProvider, (_, __) {
+      developer.log('🔔 ROUTER: App initialization state changed, notifying router', name: 'RouterNotifier');
+      notifyListeners();
+    });
+    _ref.listen(unifiedAuthStateProvider, (previous, next) {
+      developer.log(
+        '🔔 ROUTER: Auth state changed\n'
+        '  Previous: ${previous?.status}\n'
+        '  Next: ${next.status}\n'
+        '  isAuthenticated: ${next.isAuthenticated}\n'
+        '  isAnonymous: ${next.user?.isAnonymous}',
+        name: 'RouterNotifier',
+      );
+      notifyListeners();
+    });
   }
 }

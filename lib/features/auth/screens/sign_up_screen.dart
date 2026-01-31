@@ -1,3 +1,5 @@
+import 'dart:developer' as developer;
+
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/core/widgets/app_buttons.dart';
@@ -121,10 +123,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                       child: AppSecondaryButton(
                         label: t('google', currentLang),
                         icon: Icons.g_mobiledata, // Placeholder
-                        onTap: () => signUpNotifier.signUpWithGoogle(
-                          userType: widget.userType ?? 'farmer',
-                          context: context,
-                        ),
+                        onTap: () => _onGoogleSignUp(signUpNotifier),
                       ),
                     ),
                     const SizedBox(width: 16),
@@ -199,12 +198,47 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     });
   }
 
-  void _onSignUp(SignUpNotifier signUpNotifier) {
+  Future<void> _onSignUp(SignUpNotifier signUpNotifier) async {
     if (_formKey.currentState!.validate()) {
-      signUpNotifier.signUpWithEmailPassword(
+      developer.log('📝 SIGN UP: Form validated, calling signUpWithEmailPassword', name: 'SignUpScreen');
+
+      final success = await signUpNotifier.signUpWithEmailPassword(
         userType: widget.userType ?? 'farmer',
         context: context,
       );
+
+      developer.log('📝 SIGN UP: Sign up result = $success', name: 'SignUpScreen');
+
+      if (success && mounted) {
+        // Wait a brief moment for auth state to update
+        developer.log('⏳ SIGN UP: Waiting 300ms for auth state update', name: 'SignUpScreen');
+        await Future.delayed(const Duration(milliseconds: 300));
+
+        if (mounted) {
+          developer.log('🔄 SIGN UP: Navigating to /profile-setup', name: 'SignUpScreen');
+          context.go('/profile-setup');
+        }
+      } else if (!success) {
+        developer.log('❌ SIGN UP: Sign up failed', name: 'SignUpScreen');
+      }
+    } else {
+      developer.log('❌ SIGN UP: Form validation failed', name: 'SignUpScreen');
+    }
+  }
+
+  Future<void> _onGoogleSignUp(SignUpNotifier signUpNotifier) async {
+    final success = await signUpNotifier.signUpWithGoogle(
+      userType: widget.userType ?? 'farmer',
+      context: context,
+    );
+
+    if (success && mounted) {
+      // Wait a brief moment for auth state to update
+      await Future.delayed(const Duration(milliseconds: 300));
+
+      if (mounted) {
+        context.go('/profile-setup');
+      }
     }
   }
 }

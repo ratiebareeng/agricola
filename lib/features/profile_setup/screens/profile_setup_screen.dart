@@ -75,6 +75,9 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
               final prefs = await SharedPreferences.getInstance();
               await prefs.setBool('has_seen_profile_setup', true);
 
+              // Wait for auth state to fully update
+              await Future.delayed(const Duration(milliseconds: 300));
+
               if (mounted) {
                 context.go('/home');
               }

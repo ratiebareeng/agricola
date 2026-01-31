@@ -72,7 +72,9 @@ class AuthState {
 
   bool get hasError => error != null;
 
-  bool get isAuthenticated => status == AuthStatus.authenticated;
+  // User is authenticated if they have an account, regardless of profile completion
+  bool get isAuthenticated =>
+      status == AuthStatus.authenticated || status == AuthStatus.profileIncomplete;
   bool get isLoading => status == AuthStatus.loading;
   bool get isUnauthenticated => status == AuthStatus.unauthenticated;
   bool get needsProfileSetup => status == AuthStatus.profileIncomplete;
