@@ -128,7 +128,13 @@ class ProfileStateNotifier extends StateNotifier<ProfileState> {
           displayableProfile: displayableProfile,
           hasPostgresProfile: true,
         );
+        // Mark profile as complete and refresh user data
         await _authController.markProfileAsComplete();
+        await _authController.refreshUserData();
+        // Invalidate auth state to force reload with updated isProfileComplete
+        _ref.invalidate(authStateProvider);
+        // Wait a moment for the stream to update
+        await Future.delayed(const Duration(milliseconds: 500));
         return true;
       },
     );
@@ -161,7 +167,13 @@ class ProfileStateNotifier extends StateNotifier<ProfileState> {
           displayableProfile: displayableProfile,
           hasPostgresProfile: true,
         );
+        // Mark profile as complete and refresh user data
         await _authController.markProfileAsComplete();
+        await _authController.refreshUserData();
+        // Invalidate auth state to force reload with updated isProfileComplete
+        _ref.invalidate(authStateProvider);
+        // Wait a moment for the stream to update
+        await Future.delayed(const Duration(milliseconds: 500));
         return true;
       },
     );

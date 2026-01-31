@@ -1,6 +1,7 @@
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/widgets/app_buttons.dart';
 import 'package:agricola/domain/profile/enum/merchant_type.dart';
+import 'package:agricola/features/auth/providers/auth_provider.dart';
 import 'package:agricola/features/profile_setup/providers/profile_setup_provider.dart';
 import 'package:agricola/features/profile_setup/widgets/wizard_progress_bar.dart';
 import 'package:flutter/material.dart';
@@ -23,27 +24,34 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
   bool _hasInitialized = false;
 
   void _initializeProfileSetup() {
-    if (widget.initialUserType == null) return;
-
     final notifier = ref.read(profileSetupProvider.notifier);
 
-    if (widget.initialUserType == 'farmer') {
-      notifier.startNewProfileSetup(UserType.farmer, null);
-    } else {
-      MerchantType? merchantType;
-      if (widget.initialUserType == 'agriShop') {
-        merchantType = MerchantType.agriShop;
-      } else if (widget.initialUserType == 'supermarketVendor') {
-        merchantType = MerchantType.supermarketVendor;
+    // If initialUserType provided (from sign-up), use it
+    if (widget.initialUserType != null) {
+      if (widget.initialUserType == 'farmer') {
+        notifier.startNewProfileSetup(UserType.farmer, null);
+      } else {
+        MerchantType? merchantType;
+        if (widget.initialUserType == 'agriShop') {
+          merchantType = MerchantType.agriShop;
+        } else if (widget.initialUserType == 'supermarketVendor') {
+          merchantType = MerchantType.supermarketVendor;
+        }
+        notifier.startNewProfileSetup(UserType.merchant, merchantType);
       }
-      notifier.startNewProfileSetup(UserType.merchant, merchantType);
+    } else {
+      // No initialUserType (sign-in flow) - load from current user
+      final user = ref.read(currentUserProvider);
+      if (user != null) {
+        notifier.startNewProfileSetup(user.userType, user.merchantType);
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     // Initialize profile setup AFTER build completes to avoid modifying provider during build
-    if (widget.initialUserType != null && !_hasInitialized) {
+    if (!_hasInitialized) {
       _hasInitialized = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _initializeProfileSetup();

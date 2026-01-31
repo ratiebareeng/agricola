@@ -1,9 +1,11 @@
 import 'dart:developer' as developer;
 
 import 'package:agricola/core/providers/language_provider.dart';
+import 'package:agricola/core/routing/navigation_helpers.dart';
 import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/core/widgets/app_buttons.dart';
 import 'package:agricola/core/widgets/app_text_field.dart';
+import 'package:agricola/features/auth/providers/auth_provider.dart';
 import 'package:agricola/features/auth/providers/sign_up_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -215,8 +217,11 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
         await Future.delayed(const Duration(milliseconds: 300));
 
         if (mounted) {
-          developer.log('🔄 SIGN UP: Navigating to /profile-setup', name: 'SignUpScreen');
-          context.go('/profile-setup');
+          // Get current user to determine destination based on profile completion
+          final user = ref.read(currentUserProvider);
+          final destination = NavigationHelpers.getPostAuthDestination(user);
+          developer.log('🔄 SIGN UP: Navigating to $destination', name: 'SignUpScreen');
+          context.go(destination);
         }
       } else if (!success) {
         developer.log('❌ SIGN UP: Sign up failed', name: 'SignUpScreen');
@@ -237,7 +242,10 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
       await Future.delayed(const Duration(milliseconds: 300));
 
       if (mounted) {
-        context.go('/profile-setup');
+        // Get current user to determine destination based on profile completion
+        final user = ref.read(currentUserProvider);
+        final destination = NavigationHelpers.getPostAuthDestination(user);
+        context.go(destination);
       }
     }
   }

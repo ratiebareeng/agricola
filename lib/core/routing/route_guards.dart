@@ -1,6 +1,7 @@
 import 'dart:developer' as developer;
 
 import 'package:agricola/core/providers/app_initialization_provider.dart';
+import 'package:agricola/core/routing/navigation_helpers.dart';
 import 'package:agricola/core/routing/route_guard_helpers.dart';
 import 'package:agricola/features/auth/providers/auth_state_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -72,28 +73,40 @@ class RouteGuards {
 
     // 5. Authenticated or anonymous users
     if (isAuthenticated || isAnonymous) {
-      // Redirect from auth routes to profile setup or home
+      final user = authState.user;
+
+      // Redirect from auth routes based on profile completion
       if (path == '/register' || path == '/sign-up' || path == '/sign-in') {
-        // If authenticated (not anonymous) and hasn't completed profile setup, go to profile setup
         if (isAuthenticated && !isAnonymous) {
-          developer.log('🔄 REDIRECT: $path -> /profile-setup (authenticated user on auth screen)', name: 'RouteGuards');
-          return '/profile-setup';
+          // Determine destination based on profile completion
+          final destination = NavigationHelpers.getPostAuthDestination(user);
+          developer.log('🔄 REDIRECT: $path -> $destination (authenticated user on auth screen)', name: 'RouteGuards');
+          return destination;
         }
         // Anonymous users can access auth routes (for account upgrade)
         developer.log('✅ ALLOW: $path (anonymous user can upgrade account)', name: 'RouteGuards');
         return null;
       }
 
-      // Allow profile setup
-      if (path == '/profile-setup') {
+      // If profile is incomplete and not on profile setup, redirect there
+      if (isAuthenticated && !isAnonymous && user != null && !user.isProfileComplete) {
+        if (path != '/profile-setup' && path != '/profile-setup-complete') {
+          developer.log('🔄 REDIRECT: $path -> /profile-setup (profile incomplete)', name: 'RouteGuards');
+          return '/profile-setup';
+        }
+      }
+
+      // Allow profile setup routes
+      if (path == '/profile-setup' || path == '/profile-setup-complete') {
         developer.log('✅ ALLOW: $path (profile setup page)', name: 'RouteGuards');
         return null;
       }
 
-      // Redirect intro screens to home
+      // Redirect intro screens to appropriate destination
       if (path == '/splash' || path == '/' || path == '/onboarding') {
-        developer.log('🔄 REDIRECT: $path -> /home (authenticated/anonymous user on intro screen)', name: 'RouteGuards');
-        return '/home';
+        final destination = NavigationHelpers.getPostAuthDestination(user);
+        developer.log('🔄 REDIRECT: $path -> $destination (authenticated/anonymous user on intro screen)', name: 'RouteGuards');
+        return destination;
       }
 
       // Allow all other routes

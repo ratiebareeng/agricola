@@ -40,7 +40,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
     required FarmerProfileModel profile,
   }) async {
     try {
-      final profileData = profile.toJson();
+      final profileData = profile.toCreateRequest();
       final response = await _apiService.createFarmerProfile(profileData);
 
       // Extract the data field from the API response
@@ -62,7 +62,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
     required MerchantProfileModel profile,
   }) async {
     try {
-      final profileData = profile.toJson();
+      final profileData = profile.toCreateRequest();
       final response = await _apiService.createMerchantProfile(profileData);
 
       // Extract the data field from the API response
