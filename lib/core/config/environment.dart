@@ -1,12 +1,14 @@
 /// Environment configuration for the Agricola app
 ///
-/// To switch environments, change the [currentEnvironment] value:
-/// - AppEnvironment.development: Local development with localhost backend
-/// - AppEnvironment.production: Production deployment on Render
+/// Automatically uses:
+/// - Development (localhost) for debug builds
+/// - Production (Render) for release builds
 ///
-/// You can also override via environment variable:
+/// You can override via environment variable:
 /// flutter run --dart-define=ENVIRONMENT=production
 library;
+
+import 'package:flutter/foundation.dart';
 
 final _developmentConfig = _DevelopmentConfig();
 
@@ -15,8 +17,9 @@ final _productionConfig = _ProductionConfig();
 enum AppEnvironment { development, production }
 
 class EnvironmentConfig {
-  // CHANGE THIS TO SWITCH ENVIRONMENTS
-  static const AppEnvironment currentEnvironment = AppEnvironment.development;
+  // Automatically use production for release builds, development for debug
+  static AppEnvironment get defaultEnvironment =>
+      kReleaseMode ? AppEnvironment.production : AppEnvironment.development;
 
   // API Configuration
   static String get apiBaseUrl {
@@ -46,16 +49,16 @@ class EnvironmentConfig {
     }
   }
 
-  // Or use environment variable override
+  // Use environment variable override, or default based on build mode
   static AppEnvironment get environment {
     const envString = String.fromEnvironment('ENVIRONMENT');
     if (envString.isNotEmpty) {
       return AppEnvironment.values.firstWhere(
         (e) => e.name == envString.toLowerCase(),
-        orElse: () => currentEnvironment,
+        orElse: () => defaultEnvironment,
       );
     }
-    return currentEnvironment;
+    return defaultEnvironment;
   }
 
   static String get environmentName => environment.name;
