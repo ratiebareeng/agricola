@@ -27,8 +27,8 @@ class HarvestModel {
 
   factory HarvestModel.fromJson(Map<String, dynamic> json) {
     return HarvestModel(
-      id: json['id'],
-      cropId: json['cropId'],
+      id: json['id']?.toString(),
+      cropId: json['cropId'].toString(),
       harvestDate: DateTime.parse(json['harvestDate']),
       actualYield: (json['actualYield'] as num).toDouble(),
       yieldUnit: json['yieldUnit'],

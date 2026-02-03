@@ -22,11 +22,22 @@ A modern farm management application built with Flutter, designed specifically f
 - Crop management quick access
 - Bilingual interface
 
-### DONE: 4. Crop Management
-- Add/Edit crops with detailed information
-- Track planting to harvest cycle
-- Record harvests with quality ratings
-- Visual crop cards with status indicators
+### DONE: 4. Crop Management ⭐ BACKEND INTEGRATED
+Full CRUD backed by the Pandamatenga API — no local sample data:
+
+#### Crop CRUD
+- Add/Edit/Delete crops via `POST/PUT/DELETE /api/crops`
+- Crop list fetched on dashboard load via `GET /api/crops`
+- `CropApiService` (Dio) + `CropNotifier` (Riverpod StateNotifier) pattern
+- Optimistic local updates; error string returned to UI for SnackBar feedback
+
+#### Harvest History
+- Record harvests via `RecordHarvestScreen` (date, yield, quality, losses, storage)
+- Persisted to backend via `POST /api/harvests` on save
+- Per-crop harvest list fetched via `GET /api/harvests/crop/<cropId>`
+- `HarvestApiService` + `HarvestNotifier` (StateNotifierProviderFamily keyed by cropId)
+- Crop detail screen shows real harvest cards, loading spinner, and empty state
+- Harvests ordered newest-first; new harvest appears immediately after recording
 
 ### DONE: 5. Profile Setup Wizard
 Complete multi-step wizard for farmer profile completion:
@@ -123,7 +134,12 @@ lib/
 │   ├── auth/              # Authentication
 │   ├── onboarding/        # Welcome & onboarding
 │   ├── home/              # Dashboard & home screens
-│   ├── crops/             # Crop management
+│   ├── crops/             # Crop + Harvest management
+│   │   ├── data/          #   CropApiService, HarvestApiService (Dio)
+│   │   ├── models/        #   CropModel, HarvestModel
+│   │   ├── providers/     #   CropNotifier, HarvestNotifier (Riverpod)
+│   │   ├── screens/       #   Dashboard, Details, AddEdit, RecordHarvest
+│   │   └── widgets/       #   HarvestHistoryCard, InfoCard, TimelineView
 │   ├── inventory/         # Inventory tracking
 │   ├── marketplace/       # ⭐ NEW - Marketplace with search
 │   │   ├── models/
@@ -278,6 +294,7 @@ flutter pub run build_runner build
 dependencies:
   flutter_riverpod: ^2.6.1      # State management
   go_router: ^14.6.0            # Routing
+  dio: ^5.x                     # HTTP client (Crop + Harvest API)
   google_fonts: ^6.2.1          # Typography
   shared_preferences: ^2.3.3    # Local storage
   image_picker: ^1.0.7          # Photo selection
@@ -290,14 +307,14 @@ dependencies:
 - [x] Authentication
 - [x] Profile Setup Wizard
 - [x] Farmer Dashboard
-- [x] Crop Management
+- [x] Crop CRUD (backend-backed via Pandamatenga API)
+- [x] Harvest recording & history (backend-backed)
 - [x] Basic Inventory
 
 ### Phase 2: Enhanced Features
-- [ ] Firebase integration
-- [ ] Real-time data sync
 - [ ] Weather integration
 - [ ] Market prices
+- [ ] Inventory CRUD (backend)
 - [ ] Community features
 
 ### Phase 3: Advanced Features

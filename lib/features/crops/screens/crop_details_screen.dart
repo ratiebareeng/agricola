@@ -2,6 +2,8 @@ import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/features/crops/models/crop_model.dart';
 import 'package:agricola/features/crops/providers/crop_providers.dart';
 import 'package:agricola/features/crops/screens/add_edit_crop_screen.dart';
+import 'package:agricola/features/crops/models/harvest_model.dart';
+import 'package:agricola/features/crops/providers/harvest_providers.dart';
 import 'package:agricola/features/crops/screens/record_harvest_screen.dart';
 import 'package:agricola/features/crops/widgets/harvest_history_card.dart';
 import 'package:agricola/features/crops/widgets/info_card.dart';
@@ -17,6 +19,7 @@ class CropDetailsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentLang = ref.watch(languageProvider);
+    final harvestsState = ref.watch(harvestNotifierProvider(crop.id!));
     final status = _getCropStatus(crop);
     final currentStage = _getCurrentStage(crop);
     final now = DateTime.now();
@@ -326,15 +329,36 @@ class CropDetailsScreen extends ConsumerWidget {
                     ],
                   ),
                   const SizedBox(height: 16),
-                  const HarvestHistoryCard(
-                    date: 'May 15, 2024',
-                    yield: '450 kg',
-                    quality: 'Good',
-                  ),
-                  const HarvestHistoryCard(
-                    date: 'January 20, 2024',
-                    yield: '380 kg',
-                    quality: 'Fair',
+                  harvestsState.when(
+                    loading: () => const Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                    error: (error, _) => Text(
+                      'Failed to load harvests: $error',
+                      style: const TextStyle(color: Colors.red),
+                    ),
+                    data: (harvests) {
+                      if (harvests.isEmpty) {
+                        return Text(
+                          t('no_harvest_history', currentLang),
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[600],
+                          ),
+                        );
+                      }
+                      return Column(
+                        children: harvests.map((harvest) {
+                          final date =
+                              '${_monthName(harvest.harvestDate.month)} ${harvest.harvestDate.day}, ${harvest.harvestDate.year}';
+                          return HarvestHistoryCard(
+                            date: date,
+                            yield: '${harvest.actualYield} ${harvest.yieldUnit}',
+                            quality: harvest.quality,
+                          );
+                        }).toList(),
+                      );
+                    },
                   ),
                   const SizedBox(height: 20),
                 ],
@@ -356,13 +380,26 @@ class CropDetailsScreen extends ConsumerWidget {
           ],
         ),
         child: ElevatedButton.icon(
-          onPressed: () {
-            Navigator.push(
+          onPressed: () async {
+            final result = await Navigator.push<HarvestModel>(
               context,
               MaterialPageRoute(
                 builder: (context) => RecordHarvestScreen(crop: crop),
               ),
             );
+            if (result != null && context.mounted) {
+              final error = await ref
+                  .read(harvestNotifierProvider(crop.id!).notifier)
+                  .addHarvest(result);
+              if (error != null && context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Failed to save harvest: $error'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
+            }
           },
           icon: const Icon(Icons.agriculture),
           label: Text(t('record_harvest', currentLang)),
@@ -418,6 +455,25 @@ class CropDetailsScreen extends ConsumerWidget {
       default:
         return Colors.grey;
     }
+  }
+
+  String _monthName(int month) {
+    const months = [
+      '',
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
+    ];
+    return months[month];
   }
 
   void _showDeleteDialog(BuildContext context, AppLanguage lang, WidgetRef ref) {
