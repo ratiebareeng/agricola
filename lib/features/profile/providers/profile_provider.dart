@@ -62,10 +62,10 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
       await _authController.signOut();
       state = state.copyWith(isLoading: false);
 
-      // Navigate to home screen after successful sign out
-      // Home screen handles both authenticated and anonymous users
+      // Navigate to welcome screen after successful sign out
+      // This ensures a clean slate for the next user to log in
       if (context.mounted) {
-        context.go('/home');
+        context.go('/');
       }
 
       return true;

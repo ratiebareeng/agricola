@@ -12,7 +12,8 @@ import 'package:agricola/features/inventory/screens/merchant_inventory_screen.da
 import 'package:agricola/features/marketplace/screens/marketplace_screen.dart';
 import 'package:agricola/features/orders/screens/agri_shop_orders_screen.dart';
 import 'package:agricola/features/profile/screens/profile_screen.dart';
-import 'package:agricola/features/profile_setup/providers/profile_setup_provider.dart';
+import 'package:agricola/features/profile_setup/providers/profile_setup_provider.dart'
+    show UserType;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -38,11 +39,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       return _buildAnonymousHomeScreen(context, currentLang);
     }
 
-    final profile = ref.watch(profileSetupProvider);
-    final isFarmer = profile.userType == UserType.farmer;
-    final isAgriShop =
-        (profile.merchantType ?? MerchantType.agriShop) ==
-        MerchantType.agriShop;
+    // Use actual user data from Firebase/Firestore, NOT the cached profileSetupProvider
+    // This ensures the correct dashboard is shown based on the logged-in user's type
+    final isFarmer = user?.userType == UserType.farmer;
+    final isAgriShop = user?.merchantType == MerchantType.agriShop;
 
     final List<Widget> widgetOptions = isFarmer
         ? [
@@ -53,19 +53,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             const ProfileScreen(),
           ]
         : (isAgriShop
-            ? [
-                const AgriShopDashboardScreen(),
-                const MerchantInventoryScreen(),
-                const AgriShopOrdersScreen(),
-                const MarketplaceScreen(),
-                const ProfileScreen(),
-              ]
-            : [
-                const MerchantDashboardScreen(),
-                const MarketplaceScreen(),
-                const MerchantInventoryScreen(),
-                const ProfileScreen(),
-              ]);
+              ? [
+                  const AgriShopDashboardScreen(),
+                  const MerchantInventoryScreen(),
+                  const AgriShopOrdersScreen(),
+                  const MarketplaceScreen(),
+                  const ProfileScreen(),
+                ]
+              : [
+                  const MerchantDashboardScreen(),
+                  const MarketplaceScreen(),
+                  const MerchantInventoryScreen(),
+                  const ProfileScreen(),
+                ]);
 
     // Ensure selected index is within bounds
     if (_selectedIndex >= widgetOptions.length) {
@@ -101,55 +101,55 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
           ]
         : (isAgriShop
-            ? [
-                BottomNavigationBarItem(
-                  icon: const Icon(Icons.dashboard_outlined),
-                  activeIcon: const Icon(Icons.dashboard),
-                  label: t('dashboard', currentLang),
-                ),
-                BottomNavigationBarItem(
-                  icon: const Icon(Icons.inventory_2_outlined),
-                  activeIcon: const Icon(Icons.inventory_2),
-                  label: t('products', currentLang),
-                ),
-                BottomNavigationBarItem(
-                  icon: const Icon(Icons.receipt_long_outlined),
-                  activeIcon: const Icon(Icons.receipt_long),
-                  label: t('orders', currentLang),
-                ),
-                BottomNavigationBarItem(
-                  icon: const Icon(Icons.store_outlined),
-                  activeIcon: const Icon(Icons.store),
-                  label: t('marketplace', currentLang),
-                ),
-                BottomNavigationBarItem(
-                  icon: const Icon(Icons.person_outline_outlined),
-                  activeIcon: const Icon(Icons.person),
-                  label: t('profile', currentLang),
-                ),
-              ]
-            : [
-                BottomNavigationBarItem(
-                  icon: const Icon(Icons.dashboard_outlined),
-                  activeIcon: const Icon(Icons.dashboard),
-                  label: t('dashboard', currentLang),
-                ),
-                BottomNavigationBarItem(
-                  icon: const Icon(Icons.store_outlined),
-                  activeIcon: const Icon(Icons.store),
-                  label: t('marketplace', currentLang),
-                ),
-                BottomNavigationBarItem(
-                  icon: const Icon(Icons.inventory_2_outlined),
-                  activeIcon: const Icon(Icons.inventory_2),
-                  label: t('produce', currentLang),
-                ),
-                BottomNavigationBarItem(
-                  icon: const Icon(Icons.person_outline_outlined),
-                  activeIcon: const Icon(Icons.person),
-                  label: t('profile', currentLang),
-                ),
-              ]);
+              ? [
+                  BottomNavigationBarItem(
+                    icon: const Icon(Icons.dashboard_outlined),
+                    activeIcon: const Icon(Icons.dashboard),
+                    label: t('dashboard', currentLang),
+                  ),
+                  BottomNavigationBarItem(
+                    icon: const Icon(Icons.inventory_2_outlined),
+                    activeIcon: const Icon(Icons.inventory_2),
+                    label: t('products', currentLang),
+                  ),
+                  BottomNavigationBarItem(
+                    icon: const Icon(Icons.receipt_long_outlined),
+                    activeIcon: const Icon(Icons.receipt_long),
+                    label: t('orders', currentLang),
+                  ),
+                  BottomNavigationBarItem(
+                    icon: const Icon(Icons.store_outlined),
+                    activeIcon: const Icon(Icons.store),
+                    label: t('marketplace', currentLang),
+                  ),
+                  BottomNavigationBarItem(
+                    icon: const Icon(Icons.person_outline_outlined),
+                    activeIcon: const Icon(Icons.person),
+                    label: t('profile', currentLang),
+                  ),
+                ]
+              : [
+                  BottomNavigationBarItem(
+                    icon: const Icon(Icons.dashboard_outlined),
+                    activeIcon: const Icon(Icons.dashboard),
+                    label: t('dashboard', currentLang),
+                  ),
+                  BottomNavigationBarItem(
+                    icon: const Icon(Icons.store_outlined),
+                    activeIcon: const Icon(Icons.store),
+                    label: t('marketplace', currentLang),
+                  ),
+                  BottomNavigationBarItem(
+                    icon: const Icon(Icons.inventory_2_outlined),
+                    activeIcon: const Icon(Icons.inventory_2),
+                    label: t('produce', currentLang),
+                  ),
+                  BottomNavigationBarItem(
+                    icon: const Icon(Icons.person_outline_outlined),
+                    activeIcon: const Icon(Icons.person),
+                    label: t('profile', currentLang),
+                  ),
+                ]);
 
     return Scaffold(
       body: widgetOptions.elementAt(_selectedIndex),

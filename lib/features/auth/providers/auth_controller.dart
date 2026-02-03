@@ -7,6 +7,7 @@ import 'package:agricola/features/profile_setup/providers/profile_setup_provider
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fpdart/fpdart.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 final authControllerProvider =
     StateNotifierProvider<AuthController, AsyncValue<void>>((ref) {
@@ -139,6 +140,11 @@ class AuthController extends StateNotifier<AsyncValue<void>> {
 
     // Clear profile before signing out
     await _ref.read(profileControllerProvider.notifier).clearProfile();
+
+    // Clear cached profile setup data from SharedPreferences
+    // This prevents the next user from seeing the wrong dashboard
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
 
     final result = await _repository.signOut();
 
