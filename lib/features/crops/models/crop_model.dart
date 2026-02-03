@@ -32,7 +32,7 @@ class CropModel {
 
   factory CropModel.fromJson(Map<String, dynamic> json) {
     return CropModel(
-      id: json['id'],
+      id: json['id']?.toString(),
       cropType: json['cropType'],
       fieldName: json['fieldName'],
       fieldSize: (json['fieldSize'] as num).toDouble(),

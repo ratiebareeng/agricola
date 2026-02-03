@@ -1,5 +1,6 @@
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/features/crops/models/crop_model.dart';
+import 'package:agricola/features/crops/providers/crop_providers.dart';
 import 'package:agricola/features/crops/screens/add_edit_crop_screen.dart';
 import 'package:agricola/features/crops/screens/record_harvest_screen.dart';
 import 'package:agricola/features/crops/widgets/harvest_history_card.dart';
@@ -35,18 +36,32 @@ class CropDetailsScreen extends ConsumerWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.edit_outlined),
-            onPressed: () {
-              Navigator.push(
+            onPressed: () async {
+              final result = await Navigator.push<CropModel>(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => AddEditCropScreen(existingCrop: crop),
+                  builder: (context) =>
+                      AddEditCropScreen(existingCrop: crop),
                 ),
               );
+              if (result != null && context.mounted) {
+                final error = await ref
+                    .read(cropNotifierProvider.notifier)
+                    .updateCrop(result);
+                if (error != null && context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Failed to update: $error'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              }
             },
           ),
           IconButton(
             icon: const Icon(Icons.delete_outline),
-            onPressed: () => _showDeleteDialog(context, currentLang),
+            onPressed: () => _showDeleteDialog(context, currentLang, ref),
           ),
         ],
       ),
@@ -405,7 +420,7 @@ class CropDetailsScreen extends ConsumerWidget {
     }
   }
 
-  void _showDeleteDialog(BuildContext context, AppLanguage lang) {
+  void _showDeleteDialog(BuildContext context, AppLanguage lang, WidgetRef ref) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -418,9 +433,23 @@ class CropDetailsScreen extends ConsumerWidget {
             child: Text(t('cancel', lang)),
           ),
           ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              Navigator.pop(context);
+            onPressed: () async {
+              Navigator.pop(context); // close dialog
+              if (crop.id != null) {
+                final error = await ref
+                    .read(cropNotifierProvider.notifier)
+                    .deleteCrop(crop.id!);
+                if (error != null && context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Failed to delete: $error'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                  return;
+                }
+              }
+              if (context.mounted) Navigator.pop(context); // close details
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,
