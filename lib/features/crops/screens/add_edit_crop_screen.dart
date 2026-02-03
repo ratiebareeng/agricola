@@ -520,11 +520,7 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
               ),
             ),
             const SizedBox(width: 8),
-            InfoTooltip(
-              message: _selectedCropTypes.length > 1
-                  ? 'Optional - will auto-generate names if empty'
-                  : 'Give your field a name for easy identification',
-            ),
+            InfoTooltip(message: 'Optional - will auto-generate name if empty'),
           ],
         ),
         const SizedBox(height: 12),
@@ -548,9 +544,8 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
             ),
           ),
           validator: (value) {
-            if (_selectedCropTypes.length == 1) {
-              return value?.isEmpty ?? true ? t('required', lang) : null;
-            }
+            // Field name is now optional for both single and multiple crops
+            // as we auto-generate names when empty
             return null;
           },
         ),
@@ -1132,10 +1127,17 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
             ? _otherCropNameController.text
             : cropType;
 
+        final displayName =
+            cropType == 'other' && _otherCropNameController.text.isNotEmpty
+            ? _otherCropNameController.text
+            : t(cropType, lang);
+
         final crop = CropModel(
           id: widget.existingCrop?.id,
           cropType: cropName,
-          fieldName: _fieldNameController.text,
+          fieldName: _fieldNameController.text.isEmpty
+              ? '$displayName Field'
+              : _fieldNameController.text,
           fieldSize: double.parse(_fieldSizeController.text),
           fieldSizeUnit: _selectedSizeUnit,
           plantingDate: _plantingDate,
