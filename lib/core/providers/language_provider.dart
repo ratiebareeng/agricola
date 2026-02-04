@@ -1218,8 +1218,84 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
     AppLanguage.setswana: 'Ga go dithoto tsa jaana',
   },
   'add_inventory': {
+    AppLanguage.english: 'Add Inventory',
+    AppLanguage.setswana: 'Tsenya Dithoto',
+  },
+  'add_inventory_hint': {
     AppLanguage.english: 'Add your first harvest to start tracking',
     AppLanguage.setswana: 'Tsenya thobo ya gago ya ntlha go simolola go latela',
+  },
+  'edit_inventory': {
+    AppLanguage.english: 'Edit Inventory',
+    AppLanguage.setswana: 'Baakanya Dithoto',
+  },
+  'save_inventory': {
+    AppLanguage.english: 'Save Inventory',
+    AppLanguage.setswana: 'Boloka Dithoto',
+  },
+  'update_inventory': {
+    AppLanguage.english: 'Update Inventory',
+    AppLanguage.setswana: 'Baakanya Dithoto',
+  },
+  'inventory_added': {
+    AppLanguage.english: 'Inventory item added successfully',
+    AppLanguage.setswana: 'Selo sa dithoto se tsentswe ka katlego',
+  },
+  'inventory_updated': {
+    AppLanguage.english: 'Inventory item updated successfully',
+    AppLanguage.setswana: 'Selo sa dithoto se baakantse ka katlego',
+  },
+  'inventory_deleted': {
+    AppLanguage.english: 'Inventory item deleted successfully',
+    AppLanguage.setswana: 'Selo sa dithoto se phimolotse ka katlego',
+  },
+  'delete_inventory': {
+    AppLanguage.english: 'Delete Inventory Item',
+    AppLanguage.setswana: 'Phimola Selo sa Dithoto',
+  },
+  'delete_inventory_confirm': {
+    AppLanguage.english: 'Are you sure you want to delete this inventory item?',
+    AppLanguage.setswana: 'A o tlhomamisa gore o batla go phimola selo se sa dithoto?',
+  },
+  'error_loading_inventory': {
+    AppLanguage.english: 'Failed to load inventory',
+    AppLanguage.setswana: 'Go padile go tsenya dithoto',
+  },
+  'inventory_details': {
+    AppLanguage.english: 'Inventory Details',
+    AppLanguage.setswana: 'Dintlha tsa Dithoto',
+  },
+  'storage_info': {
+    AppLanguage.english: 'Storage Information',
+    AppLanguage.setswana: 'Tshedimosetso ya Poloko',
+  },
+  'storage_date': {
+    AppLanguage.english: 'Storage Date',
+    AppLanguage.setswana: 'Letlha la Poloko',
+  },
+  'enter_quantity': {
+    AppLanguage.english: 'Enter quantity',
+    AppLanguage.setswana: 'Tsenya selekanyo',
+  },
+  'quantity_required': {
+    AppLanguage.english: 'Quantity is required',
+    AppLanguage.setswana: 'Selekanyo se a tlhokega',
+  },
+  'quantity_invalid': {
+    AppLanguage.english: 'Quantity must be greater than 0',
+    AppLanguage.setswana: 'Selekanyo se tshwanetse go feta 0',
+  },
+  'add_notes': {
+    AppLanguage.english: 'Add any notes about this item...',
+    AppLanguage.setswana: 'Tsenya ditshupiso ka selo se...',
+  },
+  'error': {
+    AppLanguage.english: 'Error',
+    AppLanguage.setswana: 'Phoso',
+  },
+  'sunflower': {
+    AppLanguage.english: 'Sunflower',
+    AppLanguage.setswana: 'Sunflower',
   },
   'quantity': {
     AppLanguage.english: 'Quantity',

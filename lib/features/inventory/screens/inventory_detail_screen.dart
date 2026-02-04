@@ -1,16 +1,33 @@
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/features/inventory/models/inventory_model.dart';
+import 'package:agricola/features/inventory/providers/inventory_providers.dart';
+import 'package:agricola/features/inventory/screens/add_edit_inventory_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
-class InventoryDetailScreen extends ConsumerWidget {
+class InventoryDetailScreen extends ConsumerStatefulWidget {
   final InventoryModel item;
 
   const InventoryDetailScreen({super.key, required this.item});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<InventoryDetailScreen> createState() =>
+      _InventoryDetailScreenState();
+}
+
+class _InventoryDetailScreenState extends ConsumerState<InventoryDetailScreen> {
+  late InventoryModel _item;
+  bool _isDeleting = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _item = widget.item;
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final language = ref.watch(languageProvider);
     final dateFormat = DateFormat.yMMMd();
 
@@ -20,19 +37,17 @@ class InventoryDetailScreen extends ConsumerWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.edit),
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(t('edit_simulated', language))),
-              );
-            },
+            onPressed: () => _editItem(context, language),
           ),
           IconButton(
-            icon: const Icon(Icons.delete),
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(t('delete_simulated', language))),
-              );
-            },
+            icon: _isDeleting
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.delete),
+            onPressed: _isDeleting ? null : () => _confirmDelete(context, language),
           ),
         ],
       ),
@@ -53,29 +68,29 @@ class InventoryDetailScreen extends ConsumerWidget {
                   context,
                   icon: Icons.calendar_today,
                   label: t('storage_date', language),
-                  value: dateFormat.format(item.storageDate),
+                  value: dateFormat.format(_item.storageDate),
                 ),
                 _buildDetailRow(
                   context,
                   icon: Icons.location_on,
                   label: t('location', language),
-                  value: item.storageLocation,
+                  value: _item.storageLocation,
                 ),
                 _buildDetailRow(
                   context,
                   icon: Icons.info_outline,
                   label: t('condition', language),
-                  value: t(item.condition, language),
+                  value: t(_item.condition, language),
                 ),
               ],
             ),
-            if (item.notes != null && item.notes!.isNotEmpty) ...[
+            if (_item.notes != null && _item.notes!.isNotEmpty) ...[
               const SizedBox(height: 24),
               _buildDetailSection(
                 context,
                 title: t('notes', language),
                 children: [
-                  Text(item.notes!, style: const TextStyle(fontSize: 16)),
+                  Text(_item.notes!, style: const TextStyle(fontSize: 16)),
                 ],
               ),
             ],
@@ -83,6 +98,95 @@ class InventoryDetailScreen extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _editItem(BuildContext context, AppLanguage language) async {
+    final result = await Navigator.push<InventoryModel>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AddEditInventoryScreen(existingItem: _item),
+      ),
+    );
+
+    if (result != null && context.mounted) {
+      final error = await ref
+          .read(inventoryNotifierProvider.notifier)
+          .updateInventory(result);
+      if (error != null && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${t('error', language)}: $error'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      } else if (context.mounted) {
+        setState(() {
+          _item = result;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(t('inventory_updated', language)),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _confirmDelete(BuildContext context, AppLanguage language) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(t('delete_inventory', language)),
+        content: Text(t('delete_inventory_confirm', language)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(t('cancel', language)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: Text(t('delete', language)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && context.mounted) {
+      await _deleteItem(context, language);
+    }
+  }
+
+  Future<void> _deleteItem(BuildContext context, AppLanguage language) async {
+    if (_item.id == null) return;
+
+    setState(() => _isDeleting = true);
+
+    final error = await ref
+        .read(inventoryNotifierProvider.notifier)
+        .deleteInventory(_item.id!);
+
+    if (!context.mounted) return;
+
+    setState(() => _isDeleting = false);
+
+    if (error != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('${t('error', language)}: $error'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(t('inventory_deleted', language)),
+          backgroundColor: Colors.green,
+        ),
+      );
+      Navigator.pop(context, true);
+    }
   }
 
   Widget _buildDetailRow(
@@ -190,7 +294,7 @@ class InventoryDetailScreen extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  t(item.cropType, language),
+                  t(_item.cropType, language),
                   style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -199,7 +303,7 @@ class InventoryDetailScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '${item.quantity} ${t(item.unit, language)}',
+                  '${_item.quantity} ${t(_item.unit, language)}',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
@@ -229,7 +333,7 @@ class InventoryDetailScreen extends ConsumerWidget {
               borderRadius: BorderRadius.circular(16),
               image: DecorationImage(
                 image: NetworkImage(
-                  'https://picsum.photos/seed/${item.id ?? 'default'}$index/600/400',
+                  'https://picsum.photos/seed/${_item.id ?? 'default'}$index/600/400',
                 ),
                 fit: BoxFit.cover,
               ),
