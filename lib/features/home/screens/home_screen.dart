@@ -1,4 +1,5 @@
 import 'package:agricola/core/providers/language_provider.dart';
+import 'package:agricola/core/providers/nav_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/core/widgets/app_buttons.dart';
 import 'package:agricola/domain/profile/enum/merchant_type.dart';
@@ -26,11 +27,10 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
-  int _selectedIndex = 0;
-
   @override
   Widget build(BuildContext context) {
     final currentLang = ref.watch(languageProvider);
+    final selectedIndex = ref.watch(selectedTabProvider);
     final authState = ref.watch(unifiedAuthStateProvider);
     final user = authState.user;
     final isAnonymous = user?.isAnonymous ?? true;
@@ -68,8 +68,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 ]);
 
     // Ensure selected index is within bounds
-    if (_selectedIndex >= widgetOptions.length) {
-      _selectedIndex = 0;
+    if (selectedIndex >= widgetOptions.length) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ref.read(selectedTabProvider.notifier).state = 0;
+      });
     }
 
     final List<BottomNavigationBarItem> navItems = isFarmer
@@ -152,7 +154,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 ]);
 
     return Scaffold(
-      body: widgetOptions.elementAt(_selectedIndex),
+      body: widgetOptions.elementAt(selectedIndex),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           boxShadow: [
@@ -165,7 +167,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ),
         child: BottomNavigationBar(
           items: navItems,
-          currentIndex: _selectedIndex,
+          currentIndex: selectedIndex,
           selectedItemColor: const Color(0xFF2D6A4F),
           unselectedItemColor: Colors.grey,
           showUnselectedLabels: true,
@@ -243,8 +245,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+    ref.read(selectedTabProvider.notifier).state = index;
   }
 }

@@ -19,64 +19,61 @@ class CropsScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
       body: SafeArea(
-        child: Stack(
+        child: Column(
           children: [
-            SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // My Crops Section
-                  Text(
-                    t('my_crops', currentLang),
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF1A1A1A),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // My Crops Section
+                    Text(
+                      t('my_crops', currentLang),
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF1A1A1A),
+                      ),
                     ),
-                  ),
 
-                  const SizedBox(height: 16),
+                    const SizedBox(height: 16),
 
-                  // Crops List — from backend
-                  cropsAsync.when(
-                    data: (crops) => _buildCropsList(context, crops),
-                    loading: () => const Center(
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(vertical: 32),
-                        child: CircularProgressIndicator(
-                          color: Color(0xFF2D6A4F),
+                    // Crops List — from backend
+                    cropsAsync.when(
+                      data: (crops) => _buildCropsList(context, crops),
+                      loading: () => const Center(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(vertical: 32),
+                          child: CircularProgressIndicator(
+                            color: Color(0xFF2D6A4F),
+                          ),
+                        ),
+                      ),
+                      error: (error, _) => Center(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 32),
+                          child: Column(
+                            children: [
+                              const Icon(Icons.error_outline, color: Colors.red),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Failed to load crops',
+                                style: TextStyle(color: Colors.grey[600]),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                    error: (error, _) => Center(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 32),
-                        child: Column(
-                          children: [
-                            const Icon(Icons.error_outline, color: Colors.red),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Failed to load crops',
-                              style: TextStyle(color: Colors.grey[600]),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  // Add padding to avoid being hidden by the button
-                  const SizedBox(height: 80),
-                ],
+                  ],
+                ),
               ),
             ),
 
-            // Add New Crop Button
-            Positioned(
-              bottom: 16,
-              left: 16,
-              right: 16,
+            // Add New Crop Button — pinned below the scroll area
+            Padding(
+              padding: const EdgeInsets.all(16),
               child: SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(

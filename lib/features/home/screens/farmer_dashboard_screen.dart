@@ -1,4 +1,5 @@
 import 'package:agricola/core/providers/language_provider.dart';
+import 'package:agricola/core/providers/nav_provider.dart';
 import 'package:agricola/features/crops/crop_helpers.dart';
 import 'package:agricola/features/crops/models/crop_model.dart';
 import 'package:agricola/features/crops/providers/crop_providers.dart';
@@ -114,7 +115,9 @@ class FarmerDashboardScreen extends ConsumerWidget {
                     ),
                   ),
                   TextButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      ref.read(selectedTabProvider.notifier).state = 2; // Crops tab
+                    },
                     child: Text(t('view_all', currentLang)),
                   ),
                 ],
@@ -143,13 +146,12 @@ class FarmerDashboardScreen extends ConsumerWidget {
 
               // Crops List — from backend
               cropsAsync.when(
-                data: (crops) => _buildCropsList(context, crops),
+                data: (crops) =>
+                    _buildCropsList(context, crops.take(3).toList()),
                 loading: () => const Center(
                   child: Padding(
                     padding: EdgeInsets.symmetric(vertical: 32),
-                    child: CircularProgressIndicator(
-                      color: Color(0xFF2D6A4F),
-                    ),
+                    child: CircularProgressIndicator(color: Color(0xFF2D6A4F)),
                   ),
                 ),
                 error: (error, _) => Center(
@@ -176,6 +178,58 @@ class FarmerDashboardScreen extends ConsumerWidget {
   }
 
   // ---------------------------------------------------------------------------
+  // Crop cards from backend data
+  // ---------------------------------------------------------------------------
+  Widget _buildCropsList(BuildContext context, List<CropModel> crops) {
+    if (crops.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 32),
+          child: Column(
+            children: [
+              const Icon(
+                Icons.agriculture_outlined,
+                size: 48,
+                color: Colors.grey,
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'No crops yet. Tap the button above to add one.',
+                style: TextStyle(color: Colors.grey[600]),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return Column(
+      children: crops
+          .map(
+            (crop) => GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => CropDetailsScreen(crop: crop),
+                  ),
+                );
+              },
+              child: CropCard(
+                name: crop.fieldName,
+                stage: cropStage(crop),
+                plantedDate: formatCropDate(crop.plantingDate),
+                progress: cropProgress(crop),
+                imageUrl: imageUrlForCrop(crop.cropType),
+              ),
+            ),
+          )
+          .toList(),
+    );
+  }
+
+  // ---------------------------------------------------------------------------
   // Stats grid built from real crop data
   // ---------------------------------------------------------------------------
   Widget _buildStatsGrid(List<CropModel> crops, AppLanguage lang) {
@@ -184,8 +238,7 @@ class FarmerDashboardScreen extends ConsumerWidget {
         .where(
           (c) =>
               c.expectedHarvestDate.isAfter(now) &&
-              c.expectedHarvestDate
-                  .isBefore(now.add(const Duration(days: 30))),
+              c.expectedHarvestDate.isBefore(now.add(const Duration(days: 30))),
         )
         .length;
 
@@ -250,58 +303,6 @@ class FarmerDashboardScreen extends ConsumerWidget {
           ),
         ),
       ),
-    );
-  }
-
-  // ---------------------------------------------------------------------------
-  // Crop cards from backend data
-  // ---------------------------------------------------------------------------
-  Widget _buildCropsList(BuildContext context, List<CropModel> crops) {
-    if (crops.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 32),
-          child: Column(
-            children: [
-              const Icon(
-                Icons.agriculture_outlined,
-                size: 48,
-                color: Colors.grey,
-              ),
-              const SizedBox(height: 12),
-              Text(
-                'No crops yet. Tap the button above to add one.',
-                style: TextStyle(color: Colors.grey[600]),
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    return Column(
-      children: crops
-          .map(
-            (crop) => GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => CropDetailsScreen(crop: crop),
-                  ),
-                );
-              },
-              child: CropCard(
-                name: crop.fieldName,
-                stage: cropStage(crop),
-                plantedDate: formatCropDate(crop.plantingDate),
-                progress: cropProgress(crop),
-                imageUrl: imageUrlForCrop(crop.cropType),
-              ),
-            ),
-          )
-          .toList(),
     );
   }
 
