@@ -1235,8 +1235,32 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
     AppLanguage.setswana: 'Dirisa Dikgetho',
   },
   'clear_filters': {
-    AppLanguage.english: 'Clear',
-    AppLanguage.setswana: 'Phimola',
+    AppLanguage.english: 'Clear All',
+    AppLanguage.setswana: 'Phimola Tsotlhe',
+  },
+  'price_range': {
+    AppLanguage.english: 'Price Range',
+    AppLanguage.setswana: 'Tlhwatlhwa',
+  },
+  'min_price': {
+    AppLanguage.english: 'Min',
+    AppLanguage.setswana: 'Bonnye',
+  },
+  'max_price': {
+    AppLanguage.english: 'Max',
+    AppLanguage.setswana: 'Bogolo',
+  },
+  'category': {
+    AppLanguage.english: 'Category',
+    AppLanguage.setswana: 'Mokgwa',
+  },
+  'error_loading': {
+    AppLanguage.english: 'Failed to Load',
+    AppLanguage.setswana: 'Go Padile go Tsenya',
+  },
+  'retry': {
+    AppLanguage.english: 'Retry',
+    AppLanguage.setswana: 'Leka Gape',
   },
   // Agri Shop specific
   'orders': {AppLanguage.english: 'Orders', AppLanguage.setswana: 'Ditaelo'},

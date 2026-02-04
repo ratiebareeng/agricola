@@ -1,9 +1,13 @@
+import 'dart:async';
+
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/domain/profile/enum/merchant_type.dart';
+import 'package:agricola/features/marketplace/models/marketplace_filter.dart';
 import 'package:agricola/features/marketplace/models/marketplace_listing.dart';
 import 'package:agricola/features/marketplace/providers/marketplace_provider.dart';
 import 'package:agricola/features/marketplace/screens/marketplace_detail_screen.dart';
+import 'package:agricola/features/marketplace/widgets/marketplace_filter_bottom_sheet.dart';
 import 'package:agricola/features/profile_setup/providers/profile_setup_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -17,11 +21,20 @@ class MarketplaceScreen extends ConsumerStatefulWidget {
 
 class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
   final _searchController = TextEditingController();
+  Timer? _debounce;
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _debounce?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final currentLang = ref.watch(languageProvider);
-    final marketplaceState = ref.watch(marketplaceProvider);
+    final listingsAsync = ref.watch(marketplaceNotifierProvider);
+    final filter = ref.watch(marketplaceFilterProvider);
     final profileState = ref.watch(profileSetupProvider);
 
     return Scaffold(
@@ -34,40 +47,202 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
         backgroundColor: AppColors.white,
         elevation: 0,
         actions: [
-          IconButton(onPressed: () {}, icon: const Icon(Icons.filter_list)),
+          Stack(
+            children: [
+              IconButton(
+                onPressed: () => _showFilterBottomSheet(context),
+                icon: const Icon(Icons.filter_list),
+              ),
+              if (filter.activeFilterCount > 0)
+                Positioned(
+                  right: 8,
+                  top: 8,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: const BoxDecoration(
+                      color: AppColors.green,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Text(
+                      '${filter.activeFilterCount}',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
         ],
       ),
       body: Column(
         children: [
           _buildSearchBar(currentLang),
           _buildCategoryHint(currentLang, profileState),
+          _buildActiveFilterChips(currentLang, filter),
           Expanded(
-            child: marketplaceState.filteredListings.isEmpty
-                ? _buildEmptyState(currentLang)
-                : _buildListingsList(marketplaceState.filteredListings),
+            child: listingsAsync.when(
+              data: (listings) => listings.isEmpty
+                  ? _buildEmptyState(currentLang)
+                  : RefreshIndicator(
+                      onRefresh: () =>
+                          ref.read(marketplaceNotifierProvider.notifier).refresh(),
+                      color: AppColors.green,
+                      child: _buildListingsList(listings),
+                    ),
+              loading: () => const Center(
+                child: CircularProgressIndicator(color: AppColors.green),
+              ),
+              error: (error, _) => _buildErrorState(currentLang, error),
+            ),
           ),
         ],
       ),
     );
   }
 
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
+  Widget _buildActiveFilterChips(AppLanguage lang, MarketplaceFilter filter) {
+    if (!filter.hasActiveFilters || filter.activeFilterCount == 0) {
+      return const SizedBox.shrink();
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: [
+            if (filter.minPrice != null || filter.maxPrice != null)
+              _buildFilterChip(
+                label: _formatPriceRange(filter, lang),
+                onRemove: () {
+                  ref.read(marketplaceFilterProvider.notifier).state =
+                      filter.copyWith(clearMinPrice: true, clearMaxPrice: true);
+                  ref.read(marketplaceNotifierProvider.notifier).loadListings();
+                },
+              ),
+            if (filter.category != null) ...[
+              if (filter.minPrice != null || filter.maxPrice != null)
+                const SizedBox(width: 8),
+              _buildFilterChip(
+                label: filter.category!,
+                onRemove: () {
+                  ref.read(marketplaceFilterProvider.notifier).state =
+                      filter.copyWith(clearCategory: true);
+                  ref.read(marketplaceNotifierProvider.notifier).loadListings();
+                },
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
   }
 
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final profileState = ref.read(profileSetupProvider);
-      ref
-          .read(marketplaceProvider.notifier)
-          .initializeForUserType(
-            userType: profileState.userType,
-            merchantType: profileState.merchantType,
-          );
+  Widget _buildFilterChip({required String label, required VoidCallback onRemove}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: AppColors.green.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.green.withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 13,
+              color: AppColors.green,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(width: 6),
+          GestureDetector(
+            onTap: onRemove,
+            child: const Icon(
+              Icons.close,
+              size: 16,
+              color: AppColors.green,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _formatPriceRange(MarketplaceFilter filter, AppLanguage lang) {
+    if (filter.minPrice != null && filter.maxPrice != null) {
+      return 'P${filter.minPrice!.toStringAsFixed(0)} - P${filter.maxPrice!.toStringAsFixed(0)}';
+    } else if (filter.minPrice != null) {
+      return '${t('min_price', lang)}: P${filter.minPrice!.toStringAsFixed(0)}';
+    } else if (filter.maxPrice != null) {
+      return '${t('max_price', lang)}: P${filter.maxPrice!.toStringAsFixed(0)}';
+    }
+    return '';
+  }
+
+  Widget _buildErrorState(AppLanguage lang, Object error) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.error_outline, size: 64, color: Colors.red[300]),
+            const SizedBox(height: 16),
+            Text(
+              t('error_loading', lang),
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: Colors.grey[600],
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              error.toString(),
+              style: TextStyle(fontSize: 14, color: Colors.grey[500]),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton.icon(
+              onPressed: () =>
+                  ref.read(marketplaceNotifierProvider.notifier).loadListings(),
+              icon: const Icon(Icons.refresh),
+              label: Text(t('retry', lang)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.green,
+                foregroundColor: Colors.white,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showFilterBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      isScrollControlled: true,
+      builder: (context) => const MarketplaceFilterBottomSheet(),
+    );
+  }
+
+  void _onSearchChanged(String query) {
+    _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 300), () {
+      final currentFilter = ref.read(marketplaceFilterProvider);
+      ref.read(marketplaceFilterProvider.notifier).state =
+          currentFilter.copyWith(searchQuery: query);
+      ref.read(marketplaceNotifierProvider.notifier).loadListings();
     });
   }
 
@@ -311,13 +486,10 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                   icon: const Icon(Icons.clear),
                   onPressed: () {
                     _searchController.clear();
-                    final profileState = ref.read(profileSetupProvider);
-                    ref
-                        .read(marketplaceProvider.notifier)
-                        .clearSearch(
-                          userType: profileState.userType,
-                          merchantType: profileState.merchantType,
-                        );
+                    final currentFilter = ref.read(marketplaceFilterProvider);
+                    ref.read(marketplaceFilterProvider.notifier).state =
+                        currentFilter.copyWith(searchQuery: '');
+                    ref.read(marketplaceNotifierProvider.notifier).loadListings();
                     setState(() {});
                   },
                 )
@@ -338,14 +510,7 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
           fillColor: Colors.grey[50],
         ),
         onChanged: (value) {
-          final profileState = ref.read(profileSetupProvider);
-          ref
-              .read(marketplaceProvider.notifier)
-              .search(
-                value,
-                userType: profileState.userType,
-                merchantType: profileState.merchantType,
-              );
+          _onSearchChanged(value);
           setState(() {});
         },
       ),
