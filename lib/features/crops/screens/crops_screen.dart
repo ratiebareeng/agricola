@@ -1,5 +1,7 @@
 import 'package:agricola/core/providers/language_provider.dart';
+import 'package:agricola/features/crops/crop_helpers.dart';
 import 'package:agricola/features/crops/models/crop_model.dart';
+import 'package:agricola/features/crops/providers/crop_providers.dart';
 import 'package:agricola/features/crops/screens/add_edit_crop_screen.dart';
 import 'package:agricola/features/crops/screens/crop_details_screen.dart';
 import 'package:agricola/features/home/widgets/crop_card.dart';
@@ -12,6 +14,7 @@ class CropsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentLang = ref.watch(languageProvider);
+    final cropsAsync = ref.watch(cropNotifierProvider);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
@@ -35,87 +38,34 @@ class CropsScreen extends ConsumerWidget {
 
                   const SizedBox(height: 16),
 
-                  // Crops List
-                  GestureDetector(
-                    onTap: () {
-                      final sampleCrop = CropModel(
-                        id: '1',
-                        cropType: 'maize',
-                        fieldName: 'Maize Field A',
-                        fieldSize: 2.5,
-                        fieldSizeUnit: 'hectares',
-                        plantingDate: DateTime(2023, 10, 15),
-                        expectedHarvestDate: DateTime(2024, 2, 12),
-                        estimatedYield: 450,
-                        yieldUnit: 'kg',
-                        storageMethod: 'improved_storage',
-                        notes: 'Good soil quality, using hybrid seeds',
-                      );
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              CropDetailsScreen(crop: sampleCrop),
+                  // Crops List — from backend
+                  cropsAsync.when(
+                    data: (crops) => _buildCropsList(context, crops),
+                    loading: () => const Center(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 32),
+                        child: CircularProgressIndicator(
+                          color: Color(0xFF2D6A4F),
                         ),
-                      );
-                    },
-                    child: const CropCard(
-                      name: 'Maize Field A',
-                      stage: 'Vegetative',
-                      plantedDate: 'Oct 15, 2023',
-                      progress: 0.4,
-                      imageUrl:
-                          'https://images.unsplash.com/photo-1551754655-cd27e38d2076?q=80&w=2070&auto=format&fit=crop',
+                      ),
+                    ),
+                    error: (error, _) => Center(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 32),
+                        child: Column(
+                          children: [
+                            const Icon(Icons.error_outline, color: Colors.red),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Failed to load crops',
+                              style: TextStyle(color: Colors.grey[600]),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
-                  const CropCard(
-                    name: 'Sorghum Plot',
-                    stage: 'Flowering',
-                    plantedDate: 'Sep 01, 2023',
-                    progress: 0.7,
-                    imageUrl:
-                        'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?q=80&w=2070&auto=format&fit=crop',
-                  ),
-                  const CropCard(
-                    name: 'Beans Row',
-                    stage: 'Harvest Ready',
-                    plantedDate: 'Aug 20, 2023',
-                    progress: 0.95,
-                    imageUrl:
-                        'https://images.unsplash.com/photo-1592982537447-6f2a6a0c7c18?q=80&w=2069&auto=format&fit=crop',
-                  ),
-                  const CropCard(
-                    name: 'Sorghum Plot',
-                    stage: 'Flowering',
-                    plantedDate: 'Sep 01, 2023',
-                    progress: 0.7,
-                    imageUrl:
-                        'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?q=80&w=2070&auto=format&fit=crop',
-                  ),
-                  const CropCard(
-                    name: 'Beans Row',
-                    stage: 'Harvest Ready',
-                    plantedDate: 'Aug 20, 2023',
-                    progress: 0.95,
-                    imageUrl:
-                        'https://images.unsplash.com/photo-1592982537447-6f2a6a0c7c18?q=80&w=2069&auto=format&fit=crop',
-                  ),
-                  const CropCard(
-                    name: 'Sorghum Plot',
-                    stage: 'Flowering',
-                    plantedDate: 'Sep 01, 2023',
-                    progress: 0.7,
-                    imageUrl:
-                        'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?q=80&w=2070&auto=format&fit=crop',
-                  ),
-                  const CropCard(
-                    name: 'Beans Row',
-                    stage: 'Harvest Ready',
-                    plantedDate: 'Aug 20, 2023',
-                    progress: 0.95,
-                    imageUrl:
-                        'https://images.unsplash.com/photo-1592982537447-6f2a6a0c7c18?q=80&w=2069&auto=format&fit=crop',
-                  ),
+
                   // Add padding to avoid being hidden by the button
                   const SizedBox(height: 80),
                 ],
@@ -130,14 +80,7 @@ class CropsScreen extends ConsumerWidget {
               child: SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const AddEditCropScreen(),
-                      ),
-                    );
-                  },
+                  onPressed: () => _onAddCrop(context, ref),
                   icon: const Icon(Icons.add),
                   label: Text(t('add_new_crop', currentLang)),
                   style: ElevatedButton.styleFrom(
@@ -156,5 +99,76 @@ class CropsScreen extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  Widget _buildCropsList(BuildContext context, List<CropModel> crops) {
+    if (crops.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 32),
+          child: Column(
+            children: [
+              const Icon(
+                Icons.agriculture_outlined,
+                size: 48,
+                color: Colors.grey,
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'No crops yet. Tap the button below to add one.',
+                style: TextStyle(color: Colors.grey[600]),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return Column(
+      children: crops
+          .map(
+            (crop) => GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => CropDetailsScreen(crop: crop),
+                  ),
+                );
+              },
+              child: CropCard(
+                name: crop.fieldName,
+                stage: cropStage(crop),
+                plantedDate: formatCropDate(crop.plantingDate),
+                progress: cropProgress(crop),
+                imageUrl: imageUrlForCrop(crop.cropType),
+              ),
+            ),
+          )
+          .toList(),
+    );
+  }
+
+  Future<void> _onAddCrop(BuildContext context, WidgetRef ref) async {
+    final result = await Navigator.push<dynamic>(
+      context,
+      MaterialPageRoute(builder: (_) => const AddEditCropScreen()),
+    );
+
+    if (result == null || !context.mounted) return;
+
+    if (result is CropModel) {
+      final error =
+          await ref.read(cropNotifierProvider.notifier).addCrop(result);
+      if (error != null && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to save crop: $error'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 }

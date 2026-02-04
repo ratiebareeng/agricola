@@ -1,4 +1,5 @@
 import 'package:agricola/core/providers/language_provider.dart';
+import 'package:agricola/features/crops/crop_helpers.dart';
 import 'package:agricola/features/crops/models/crop_model.dart';
 import 'package:agricola/features/crops/providers/crop_providers.dart';
 import 'package:agricola/features/crops/screens/add_edit_crop_screen.dart';
@@ -293,73 +294,15 @@ class FarmerDashboardScreen extends ConsumerWidget {
               },
               child: CropCard(
                 name: crop.fieldName,
-                stage: _cropStage(crop),
-                plantedDate: _formatDate(crop.plantingDate),
-                progress: _cropProgress(crop),
-                imageUrl: _imageUrlForCrop(crop.cropType),
+                stage: cropStage(crop),
+                plantedDate: formatCropDate(crop.plantingDate),
+                progress: cropProgress(crop),
+                imageUrl: imageUrlForCrop(crop.cropType),
               ),
             ),
           )
           .toList(),
     );
-  }
-
-  // ---------------------------------------------------------------------------
-  // Helpers
-  // ---------------------------------------------------------------------------
-
-  /// Derive a growth-stage label from planting / harvest dates.
-  String _cropStage(CropModel crop) {
-    final progress = _cropProgress(crop);
-    if (progress >= 0.66) return 'Harvest Ready';
-    if (progress >= 0.33) return 'Flowering';
-    return 'Vegetative';
-  }
-
-  /// Progress 0–1 based on how far through the growing period we are.
-  double _cropProgress(CropModel crop) {
-    final totalDays =
-        crop.expectedHarvestDate.difference(crop.plantingDate).inDays;
-    if (totalDays <= 0) return 1.0;
-    final elapsed = DateTime.now().difference(crop.plantingDate).inDays;
-    return (elapsed / totalDays).clamp(0.0, 1.0);
-  }
-
-  String _formatDate(DateTime date) {
-    const months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ];
-    return '${months[date.month - 1]} ${date.day}, ${date.year}';
-  }
-
-  /// Map crop types to representative images. Falls back to a generic one.
-  String _imageUrlForCrop(String cropType) {
-    const images = {
-      'maize':
-          'https://images.unsplash.com/photo-1551754655-cd27e38d2076?q=80&w=2070&auto=format&fit=crop',
-      'sorghum':
-          'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?q=80&w=2070&auto=format&fit=crop',
-      'beans':
-          'https://images.unsplash.com/photo-1592982537447-6f2a6a0c7c18?q=80&w=2069&auto=format&fit=crop',
-      'wheat':
-          'https://images.unsplash.com/photo-1599091b9609544e4d5c61a878044f0076438309db88aa09cdc10da8897553?q=80&w=1974&auto=format&fit=crop',
-      'tomatoes':
-          'https://images.unsplash.com/photo-1490645935967-10de6ba17061?q=80&w=1974&auto=format&fit=crop',
-      'groundnuts':
-          'https://images.unsplash.com/photo-1604374894610-66a930d04661?q=80&w=1974&auto=format&fit=crop',
-    };
-    return images[cropType.toLowerCase()] ?? images['maize']!;
   }
 
   /// Navigate to AddEditCropScreen and persist any new crops via the notifier.
