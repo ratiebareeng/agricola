@@ -1368,6 +1368,10 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
     AppLanguage.english: 'View Orders',
     AppLanguage.setswana: 'Bona Ditaelo',
   },
+  'view_all_orders': {
+    AppLanguage.english: 'View All Orders',
+    AppLanguage.setswana: 'Bona Ditaelo Tsotlhe',
+  },
   'manage_customer_orders': {
     AppLanguage.english: 'Manage customer orders',
     AppLanguage.setswana: 'Laola ditaelo tsa badirisi',

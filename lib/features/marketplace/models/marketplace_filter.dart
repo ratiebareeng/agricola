@@ -6,6 +6,7 @@ class MarketplaceFilter {
   final double? maxPrice;
   final ListingType? itemType;
   final String? category;
+  final String? sellerId;
 
   const MarketplaceFilter({
     this.searchQuery = '',
@@ -13,6 +14,7 @@ class MarketplaceFilter {
     this.maxPrice,
     this.itemType,
     this.category,
+    this.sellerId,
   });
 
   bool get hasActiveFilters =>
@@ -34,9 +36,11 @@ class MarketplaceFilter {
     double? maxPrice,
     ListingType? itemType,
     String? category,
+    String? sellerId,
     bool clearMinPrice = false,
     bool clearMaxPrice = false,
     bool clearCategory = false,
+    bool clearSellerId = false,
   }) {
     return MarketplaceFilter(
       searchQuery: searchQuery ?? this.searchQuery,
@@ -44,6 +48,7 @@ class MarketplaceFilter {
       maxPrice: clearMaxPrice ? null : (maxPrice ?? this.maxPrice),
       itemType: itemType ?? this.itemType,
       category: clearCategory ? null : (category ?? this.category),
+      sellerId: clearSellerId ? null : (sellerId ?? this.sellerId),
     );
   }
 
@@ -54,6 +59,7 @@ class MarketplaceFilter {
       if (maxPrice != null) 'maxPrice': maxPrice.toString(),
       if (itemType != null) 'type': itemType!.name,
       if (category != null) 'category': category,
+      if (sellerId != null) 'sellerId': sellerId,
     };
   }
 }

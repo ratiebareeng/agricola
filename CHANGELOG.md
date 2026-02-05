@@ -6,6 +6,10 @@
   - `orders_api_service.dart` - Dio service for orders API (getUserOrders, getOrder, updateOrderStatus, cancelOrder)
   - `orders_provider.dart` - StateNotifierProvider for orders state management
   - `api_constants.dart` - Added ordersEndpoint
+- Dashboard stats provider for AgriShop merchants
+  - `dashboard_stats_provider.dart` - Aggregates data from orders, inventory, and marketplace
+  - `myListingsNotifierProvider` - Fetches seller's own marketplace listings
+  - `merchantDashboardStatsProvider` - Computes Total Products, Monthly Revenue, Active Orders, Low Stock Items
 
 ### Changed
 - `agri_shop_orders_screen.dart` - Full rewrite with:
@@ -14,6 +18,13 @@
   - Action buttons to progress order status (confirm → ship → deliver)
   - Bottom sheet order details showing items and totals
   - Loading, error, and empty states
+- `merchant_dashboard_screen.dart` - Connected to real data:
+  - Stats cards now show live data from backend
+  - Recent activity section displays last 5 orders
+  - Loading states while data fetches
+  - "View All Orders" link navigates to Orders tab
+- `marketplace_filter.dart` - Added sellerId filter for fetching seller's own listings
+- `language_provider.dart` - Added 'view_all_orders' translation
 
 ## 0.2.3
 
