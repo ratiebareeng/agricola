@@ -1364,6 +1364,42 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
     AppLanguage.english: 'Add to your catalog',
     AppLanguage.setswana: 'Tsenya mo lenaneong la gago',
   },
+  'add_product': {
+    AppLanguage.english: 'Add Product',
+    AppLanguage.setswana: 'Tsenya Selo',
+  },
+  'edit_product': {
+    AppLanguage.english: 'Edit Product',
+    AppLanguage.setswana: 'Fetola Selo',
+  },
+  'update_product': {
+    AppLanguage.english: 'Update Product',
+    AppLanguage.setswana: 'Ntšhafatsa Selo',
+  },
+  'product_name': {
+    AppLanguage.english: 'Product Name',
+    AppLanguage.setswana: 'Leina la Selo',
+  },
+  'enter_product_name': {
+    AppLanguage.english: 'Enter product name',
+    AppLanguage.setswana: 'Tsenya leina la selo',
+  },
+  'enter_description': {
+    AppLanguage.english: 'Enter description',
+    AppLanguage.setswana: 'Tsenya tlhaloso',
+  },
+  'unit': {
+    AppLanguage.english: 'Unit',
+    AppLanguage.setswana: 'Tekanyetso',
+  },
+  'quantity_available': {
+    AppLanguage.english: 'Quantity Available',
+    AppLanguage.setswana: 'Palo e e Leng Teng',
+  },
+  'enter_quantity': {
+    AppLanguage.english: 'Enter quantity',
+    AppLanguage.setswana: 'Tsenya palo',
+  },
   'view_orders': {
     AppLanguage.english: 'View Orders',
     AppLanguage.setswana: 'Bona Ditaelo',

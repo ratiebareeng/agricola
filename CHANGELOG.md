@@ -10,6 +10,14 @@
   - `dashboard_stats_provider.dart` - Aggregates data from orders, inventory, and marketplace
   - `myListingsNotifierProvider` - Fetches seller's own marketplace listings
   - `merchantDashboardStatsProvider` - Computes Total Products, Monthly Revenue, Active Orders, Low Stock Items
+- Add Product screen for AgriShop merchants
+  - `add_product_screen.dart` - Form to add marketplace listings (supplies for farmers)
+  - "Add New Product" quick action now navigates to this screen
+
+### Fixed
+- StatCard overflow issue on merchant dashboard
+  - Reduced padding and font sizes for better fit
+  - Changed aspect ratio from 1.5 to 1.25 for taller cards
 
 ### Changed
 - `agri_shop_orders_screen.dart` - Full rewrite with:
@@ -24,7 +32,8 @@
   - Loading states while data fetches
   - "View All Orders" link navigates to Orders tab
 - `marketplace_filter.dart` - Added sellerId filter for fetching seller's own listings
-- `language_provider.dart` - Added 'view_all_orders' translation
+- `language_provider.dart` - Added translations for orders and product management
+- `stat_card.dart` - Compact layout to prevent overflow
 
 ## 0.2.3
 

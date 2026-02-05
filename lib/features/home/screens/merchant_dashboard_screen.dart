@@ -4,6 +4,7 @@ import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/domain/profile/enum/merchant_type.dart';
 import 'package:agricola/features/home/providers/dashboard_stats_provider.dart';
 import 'package:agricola/features/home/widgets/stat_card.dart';
+import 'package:agricola/features/marketplace/screens/add_product_screen.dart';
 import 'package:agricola/features/orders/models/order_model.dart';
 import 'package:agricola/features/profile_setup/providers/profile_setup_provider.dart';
 import 'package:flutter/material.dart';
@@ -90,9 +91,9 @@ class MerchantDashboardScreen extends ConsumerWidget {
         crossAxisCount: 2,
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
-        mainAxisSpacing: 16,
-        crossAxisSpacing: 16,
-        childAspectRatio: 1.5,
+        mainAxisSpacing: 12,
+        crossAxisSpacing: 12,
+        childAspectRatio: 1.25,
         children: List.generate(
           4,
           (_) => Container(
@@ -115,9 +116,9 @@ class MerchantDashboardScreen extends ConsumerWidget {
       crossAxisCount: 2,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      mainAxisSpacing: 16,
-      crossAxisSpacing: 16,
-      childAspectRatio: 1.5,
+      mainAxisSpacing: 12,
+      crossAxisSpacing: 12,
+      childAspectRatio: 1.25,
       children: [
         if (isAgriShop) ...[
           StatCard(
@@ -221,7 +222,14 @@ class MerchantDashboardScreen extends ConsumerWidget {
                 iconColor: AppColors.green,
                 title: t('add_new_product', lang),
                 subtitle: t('add_to_catalog', lang),
-                onTap: () => _showComingSoonDialog(context, lang),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const AddProductScreen(),
+                    ),
+                  );
+                },
               ),
               const Divider(height: 24),
               _buildQuickActionTile(
