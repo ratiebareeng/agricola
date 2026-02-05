@@ -16,7 +16,7 @@ class OrdersApiService {
     }
 
     final response = await _dio.get(
-      ApiConstants.ordersEndpoint,
+      '/${ApiConstants.ordersEndpoint}',
       queryParameters: queryParams.isNotEmpty ? queryParams : null,
     );
 
@@ -28,14 +28,14 @@ class OrdersApiService {
 
   /// GET /api/v1/orders/:id - Get a single order
   Future<OrderModel> getOrder(String id) async {
-    final response = await _dio.get('${ApiConstants.ordersEndpoint}/$id');
+    final response = await _dio.get('/${ApiConstants.ordersEndpoint}/$id');
     return OrderModel.fromJson(response.data['data'] as Map<String, dynamic>);
   }
 
   /// PUT /api/v1/orders/:id/status - Update order status (seller only)
   Future<OrderModel> updateOrderStatus(String id, String status) async {
     final response = await _dio.put(
-      '${ApiConstants.ordersEndpoint}/$id/status',
+      '/${ApiConstants.ordersEndpoint}/$id/status',
       data: {'status': status},
     );
     return OrderModel.fromJson(response.data['data'] as Map<String, dynamic>);
@@ -43,6 +43,6 @@ class OrdersApiService {
 
   /// DELETE /api/v1/orders/:id - Cancel order (buyer only, pending only)
   Future<void> cancelOrder(String id) async {
-    await _dio.delete('${ApiConstants.ordersEndpoint}/$id');
+    await _dio.delete('/${ApiConstants.ordersEndpoint}/$id');
   }
 }

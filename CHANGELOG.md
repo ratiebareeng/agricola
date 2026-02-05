@@ -1,3 +1,17 @@
+## 0.2.5
+
+### Fixed
+- AgriShop dashboard stat card overflow errors
+  - Removed "Coming Soon" subtitle text to fit within card bounds
+  - Reduced padding and font sizes for compact layout
+- AgriShop dashboard quick actions now navigate to actual screens
+  - "Add New Product" navigates to AddProductScreen
+  - "View Orders" switches to Orders tab (index 2)
+  - "Check Inventory" switches to Inventory tab (index 1)
+  - "View Analytics" still shows Coming Soon dialog
+- Orders API endpoint path missing leading slash
+  - Fixed `orders_api_service.dart` to use `/${ApiConstants.ordersEndpoint}` consistent with other services
+
 ## 0.2.4
 
 ### Added
@@ -15,7 +29,7 @@
   - "Add New Product" quick action now navigates to this screen
 
 ### Fixed
-- StatCard overflow issue on merchant dashboard
+- StatCard overflow issue on merchant dashboard (non-AgriShop)
   - Reduced padding and font sizes for better fit
   - Changed aspect ratio from 1.5 to 1.25 for taller cards
 

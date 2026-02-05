@@ -1,6 +1,8 @@
 import 'package:agricola/core/providers/language_provider.dart';
+import 'package:agricola/core/providers/nav_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/features/auth/providers/auth_provider.dart';
+import 'package:agricola/features/marketplace/screens/add_product_screen.dart';
 import 'package:agricola/features/profile/domain/models/displayable_profile.dart';
 import 'package:agricola/features/profile/providers/profile_controller_provider.dart';
 import 'package:flutter/material.dart';
@@ -49,7 +51,7 @@ class AgriShopDashboardScreen extends ConsumerWidget {
                   const SizedBox(height: 24),
 
                   // Quick Actions
-                  _buildQuickActionsSection(context, currentLang),
+                  _buildQuickActionsSection(context, ref, currentLang),
                   const SizedBox(height: 24),
 
                   // Recent Activity
@@ -113,28 +115,24 @@ class AgriShopDashboardScreen extends ConsumerWidget {
           iconColor: AppColors.green,
           label: t('total_products', lang),
           value: '0',
-          subtitle: t('coming_soon', lang),
         ),
         _buildStatCard(
           icon: Icons.shopping_cart,
           iconColor: Colors.orange,
           label: t('orders_today', lang),
           value: '0',
-          subtitle: t('coming_soon', lang),
         ),
         _buildStatCard(
           icon: Icons.attach_money,
           iconColor: Colors.blue,
           label: t('revenue_month', lang),
           value: 'P 0.00',
-          subtitle: t('coming_soon', lang),
         ),
         _buildStatCard(
           icon: Icons.warning,
           iconColor: Colors.red,
           label: t('low_stock', lang),
           value: '0',
-          subtitle: t('coming_soon', lang),
         ),
       ],
     );
@@ -145,10 +143,9 @@ class AgriShopDashboardScreen extends ConsumerWidget {
     required Color iconColor,
     required String label,
     required String value,
-    required String subtitle,
   }) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -162,57 +159,44 @@ class AgriShopDashboardScreen extends ConsumerWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: iconColor.withAlpha(20),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(icon, color: iconColor, size: 20),
-              ),
-            ],
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: iconColor.withAlpha(20),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(icon, color: iconColor, size: 18),
           ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                value,
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey[600],
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              Text(
-                subtitle,
-                style: TextStyle(
-                  fontSize: 10,
-                  color: Colors.grey[400],
-                  fontStyle: FontStyle.italic,
-                ),
-              ),
-            ],
+          const Spacer(),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 2),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 11,
+              color: Colors.grey[600],
+              fontWeight: FontWeight.w500,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
     );
   }
 
-  Widget _buildQuickActionsSection(BuildContext context, AppLanguage lang) {
+  Widget _buildQuickActionsSection(BuildContext context, WidgetRef ref, AppLanguage lang) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -246,7 +230,10 @@ class AgriShopDashboardScreen extends ConsumerWidget {
                 iconColor: AppColors.green,
                 title: t('add_new_product', lang),
                 subtitle: t('add_to_catalog', lang),
-                onTap: () => _showComingSoonDialog(context, lang),
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const AddProductScreen()),
+                ),
               ),
               const Divider(height: 24),
               _buildQuickActionTile(
@@ -255,7 +242,7 @@ class AgriShopDashboardScreen extends ConsumerWidget {
                 iconColor: Colors.orange,
                 title: t('view_orders', lang),
                 subtitle: t('manage_customer_orders', lang),
-                onTap: () => _showComingSoonDialog(context, lang),
+                onTap: () => ref.read(selectedTabProvider.notifier).state = 2,
               ),
               const Divider(height: 24),
               _buildQuickActionTile(
@@ -264,7 +251,7 @@ class AgriShopDashboardScreen extends ConsumerWidget {
                 iconColor: Colors.blue,
                 title: t('check_inventory', lang),
                 subtitle: t('manage_stock_levels', lang),
-                onTap: () => _showComingSoonDialog(context, lang),
+                onTap: () => ref.read(selectedTabProvider.notifier).state = 1,
               ),
               const Divider(height: 24),
               _buildQuickActionTile(
