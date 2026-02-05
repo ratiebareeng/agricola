@@ -2,6 +2,7 @@ import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/routing/route_guard_helpers.dart';
 import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/core/widgets/language_select_content.dart';
+import 'package:agricola/features/auth/providers/auth_controller.dart';
 import 'package:agricola/features/auth/providers/auth_provider.dart';
 import 'package:agricola/features/profile/domain/models/displayable_profile.dart';
 import 'package:agricola/features/profile/providers/profile_controller_provider.dart';
@@ -37,71 +38,128 @@ class _FarmerProfileScreenState extends ConsumerState<FarmerProfileScreen> {
 
     // Handle both minimal and complete profiles
     return switch (displayableProfile) {
-      MinimalProfile() =>
-        _buildMinimalProfileScreen(context, ref, displayableProfile),
-      CompleteFarmerProfile() =>
-        _buildCompleteProfileScreen(context, ref, displayableProfile),
-      CompleteMerchantProfile() =>
-        throw StateError('Merchant profile in farmer screen'),
+      MinimalProfile() => _buildMinimalProfileScreen(
+        context,
+        ref,
+        displayableProfile,
+      ),
+      CompleteFarmerProfile() => _buildCompleteProfileScreen(
+        context,
+        ref,
+        displayableProfile,
+      ),
+      CompleteMerchantProfile() => throw StateError(
+        'Merchant profile in farmer screen',
+      ),
     };
   }
 
-  Widget _buildErrorScreen(BuildContext context, String? errorMessage) {
-    return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+  @override
+  void initState() {
+    super.initState();
+
+    // Always try to load profile (will fallback to minimal profile if needed)
+    Future.microtask(() {
+      final user = ref.read(currentUserProvider);
+      if (user != null) {
+        ref
+            .read(profileControllerProvider.notifier)
+            .loadProfile(userId: user.uid);
+      }
+    });
+  }
+
+  Widget _buildActionButton(
+    BuildContext context,
+    IconData icon,
+    String title,
+    String subtitle,
+    VoidCallback onTap,
+  ) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey[200]!),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
           children: [
-            const Icon(Icons.error_outline, size: 48, color: Colors.grey),
-            const SizedBox(height: 16),
-            Text(
-              errorMessage ?? 'Failed to load profile',
-              style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: AppColors.green.withAlpha(10),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(icon, color: AppColors.green, size: 24),
             ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                final user = ref.read(currentUserProvider);
-                if (user != null) {
-                  ref
-                      .read(profileControllerProvider.notifier)
-                      .loadProfile(userId: user.uid);
-                }
-              },
-              child: const Text('Retry'),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                  ),
+                ],
+              ),
             ),
+            Icon(Icons.chevron_right, color: Colors.grey[400]),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildMinimalProfileScreen(
+  Widget _buildBasicInfoCard(
     BuildContext context,
     WidgetRef ref,
     MinimalProfile profile,
   ) {
-    return Scaffold(
-      backgroundColor: Colors.grey[50],
-      body: CustomScrollView(
-        slivers: [
-          _buildProfileHeader(context, ref, profile),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  _buildProfileCompletionBanner(context, ref),
-                  const SizedBox(height: 16),
-                  _buildBasicInfoCard(context, ref, profile),
-                  const SizedBox(height: 16),
-                  _buildFarmDetailsPlaceholder(context, ref),
-                  const SizedBox(height: 16),
-                  _buildSettingsSection(context, ref),
-                  const SizedBox(height: 80),
-                ],
-              ),
-            ),
+    final currentLang = ref.watch(languageProvider);
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withAlpha(25),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            t('profile_information', currentLang),
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 16),
+          _buildInfoRow(
+            Icons.email_outlined,
+            t('email', currentLang),
+            profile.email,
+          ),
+          const Divider(height: 24),
+          _buildInfoRow(
+            Icons.phone_outlined,
+            t('phone', currentLang),
+            profile.phoneNumber ?? 'Not set',
           ),
         ],
       ),
@@ -150,19 +208,316 @@ class _FarmerProfileScreenState extends ConsumerState<FarmerProfileScreen> {
     );
   }
 
-  @override
-  void initState() {
-    super.initState();
+  Widget _buildCropsSection(
+    BuildContext context,
+    WidgetRef ref,
+    FarmerProfileModel profile,
+  ) {
+    final currentLang = ref.watch(languageProvider);
 
-    // Always try to load profile (will fallback to minimal profile if needed)
-    Future.microtask(() {
-      final user = ref.read(currentUserProvider);
-      if (user != null) {
-        ref
-            .read(profileControllerProvider.notifier)
-            .loadProfile(userId: user.uid);
-      }
-    });
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Icon(Icons.agriculture, size: 20, color: AppColors.green),
+            const SizedBox(width: 12),
+            Text(
+              t('primary_crops', currentLang),
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey[600],
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        if (profile.primaryCrops.isEmpty)
+          Text(
+            'Not set',
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+          )
+        else
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: profile.primaryCrops.map((crop) {
+              return Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.green.withAlpha(10),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: AppColors.green.withAlpha(30)),
+                ),
+                child: Text(
+                  crop,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: AppColors.green,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildErrorScreen(BuildContext context, String? errorMessage) {
+    return Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.error_outline, size: 48, color: Colors.grey),
+            const SizedBox(height: 16),
+            Text(
+              errorMessage ?? 'Failed to load profile',
+              style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                final user = ref.read(currentUserProvider);
+                if (user != null) {
+                  ref
+                      .read(profileControllerProvider.notifier)
+                      .loadProfile(userId: user.uid);
+                }
+              },
+              child: const Text('Retry'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFarmDetailsCard(
+    BuildContext context,
+    WidgetRef ref,
+    FarmerProfileModel profile,
+  ) {
+    final currentLang = ref.watch(languageProvider);
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withAlpha(25),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Text(
+                t('farm_details', currentLang),
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const Spacer(),
+              TextButton.icon(
+                onPressed: () => _navigateToEditProfile(context, profile),
+                icon: const Icon(Icons.edit, size: 16),
+                label: Text(t('edit', currentLang)),
+                style: TextButton.styleFrom(foregroundColor: AppColors.green),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          _buildInfoRow(
+            Icons.landscape,
+            t('farm_size', currentLang),
+            profile.farmSize,
+          ),
+          const Divider(height: 24),
+          _buildCropsSection(context, ref, profile),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFarmDetailsPlaceholder(BuildContext context, WidgetRef ref) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey[300]!),
+      ),
+      child: Column(
+        children: [
+          Icon(Icons.agriculture_outlined, size: 48, color: Colors.grey[400]),
+          const SizedBox(height: 12),
+          Text(
+            'Farm Details',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: Colors.grey[700],
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Complete your profile to add farm information',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 13, color: Colors.grey[500]),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(IconData icon, String label, String value) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 20, color: AppColors.green),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                value,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMinimalProfileScreen(
+    BuildContext context,
+    WidgetRef ref,
+    MinimalProfile profile,
+  ) {
+    return Scaffold(
+      backgroundColor: Colors.grey[50],
+      body: CustomScrollView(
+        slivers: [
+          _buildProfileHeader(context, ref, profile),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: [
+                  _buildProfileCompletionBanner(context, ref),
+                  const SizedBox(height: 16),
+                  _buildBasicInfoCard(context, ref, profile),
+                  const SizedBox(height: 16),
+                  _buildSettingsSection(context, ref),
+                  const SizedBox(height: 80),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProfileCompletionBanner(BuildContext context, WidgetRef ref) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [AppColors.green, AppColors.green.withAlpha(80)],
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.green.withAlpha(50),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.white.withAlpha(50),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(Icons.info_outline, color: Colors.white),
+              ),
+              const SizedBox(width: 12),
+              const Expanded(
+                child: Text(
+                  'Complete Your Profile',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'Add your farm details to unlock the full Agricola experience. Track crops, get personalized insights, and connect with merchants.',
+            style: TextStyle(color: Colors.white.withAlpha(90), fontSize: 14),
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () => context.push('/profile-setup'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                foregroundColor: AppColors.green,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Complete Profile',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(width: 8),
+                  Icon(Icons.arrow_forward, size: 20),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   SliverAppBar _buildProfileHeader(
@@ -268,367 +623,6 @@ class _FarmerProfileScreenState extends ConsumerState<FarmerProfileScreen> {
         IconButton(
           onPressed: () => _showLanguageDialog(context, ref),
           icon: const Icon(Icons.language, color: Colors.white),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildProfileCompletionBanner(BuildContext context, WidgetRef ref) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [AppColors.green, AppColors.green.withAlpha(80)],
-        ),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.green.withAlpha(50),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.white.withAlpha(50),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Icon(Icons.info_outline, color: Colors.white),
-              ),
-              const SizedBox(width: 12),
-              const Expanded(
-                child: Text(
-                  'Complete Your Profile',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Text(
-            'Add your farm details to unlock the full Agricola experience. Track crops, get personalized insights, and connect with merchants.',
-            style: TextStyle(
-              color: Colors.white.withAlpha(90),
-              fontSize: 14,
-            ),
-          ),
-          const SizedBox(height: 16),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () => context.push('/profile-setup'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-                foregroundColor: AppColors.green,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Complete Profile',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(width: 8),
-                  Icon(Icons.arrow_forward, size: 20),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBasicInfoCard(
-    BuildContext context,
-    WidgetRef ref,
-    MinimalProfile profile,
-  ) {
-    final currentLang = ref.watch(languageProvider);
-
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withAlpha(25),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            t('profile_information', currentLang),
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 16),
-          _buildInfoRow(
-            Icons.email_outlined,
-            t('email', currentLang),
-            profile.email,
-          ),
-          const Divider(height: 24),
-          _buildInfoRow(
-            Icons.phone_outlined,
-            t('phone', currentLang),
-            profile.phoneNumber ?? 'Not set',
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFarmDetailsPlaceholder(BuildContext context, WidgetRef ref) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey[300]!),
-      ),
-      child: Column(
-        children: [
-          Icon(Icons.agriculture_outlined, size: 48, color: Colors.grey[400]),
-          const SizedBox(height: 12),
-          Text(
-            'Farm Details',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: Colors.grey[700],
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            'Complete your profile to add farm information',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 13,
-              color: Colors.grey[500],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildActionButton(
-    BuildContext context,
-    IconData icon,
-    String title,
-    String subtitle,
-    VoidCallback onTap,
-  ) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey[200]!),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: AppColors.green.withAlpha(10),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Icon(icon, color: AppColors.green, size: 24),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    subtitle,
-                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                  ),
-                ],
-              ),
-            ),
-            Icon(Icons.chevron_right, color: Colors.grey[400]),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCropsSection(
-    BuildContext context,
-    WidgetRef ref,
-    FarmerProfileModel profile,
-  ) {
-    final currentLang = ref.watch(languageProvider);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            const Icon(Icons.agriculture, size: 20, color: AppColors.green),
-            const SizedBox(width: 12),
-            Text(
-              t('primary_crops', currentLang),
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[600],
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        if (profile.primaryCrops.isEmpty)
-          Text(
-            'Not set',
-            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-          )
-        else
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: profile.primaryCrops.map((crop) {
-              return Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: AppColors.green.withAlpha(10),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: AppColors.green.withAlpha(30)),
-                ),
-                child: Text(
-                  crop,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: AppColors.green,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              );
-            }).toList(),
-          ),
-      ],
-    );
-  }
-
-  Widget _buildFarmDetailsCard(
-    BuildContext context,
-    WidgetRef ref,
-    FarmerProfileModel profile,
-  ) {
-    final currentLang = ref.watch(languageProvider);
-
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withAlpha(25),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Text(
-                t('farm_details', currentLang),
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const Spacer(),
-              TextButton.icon(
-                onPressed: () => _navigateToEditProfile(context, profile),
-                icon: const Icon(Icons.edit, size: 16),
-                label: Text(t('edit', currentLang)),
-                style: TextButton.styleFrom(foregroundColor: AppColors.green),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          _buildInfoRow(
-            Icons.landscape,
-            t('farm_size', currentLang),
-            profile.farmSize,
-          ),
-          const Divider(height: 24),
-          _buildCropsSection(context, ref, profile),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildInfoRow(IconData icon, String label, String value) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Icon(icon, size: 20, color: AppColors.green),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                value,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
         ),
       ],
     );
@@ -796,36 +790,21 @@ class _FarmerProfileScreenState extends ConsumerState<FarmerProfileScreen> {
                 context,
                 Icons.lock_outline,
                 t('change_password', currentLang),
-                () {},
-              ),
-              const Divider(height: 1),
-              _buildSettingsTile(
-                context,
-                Icons.pin_outlined,
-                t('change_pin', currentLang),
-                () {},
-              ),
-              const Divider(height: 1),
-              _buildSettingsTile(
-                context,
-                Icons.notifications_outlined,
-                t('notifications', currentLang),
-                () {},
-                showBadge: true,
+                () => _showChangePasswordDialog(context, ref),
               ),
               const Divider(height: 1),
               _buildSettingsTile(
                 context,
                 Icons.help_outline,
                 t('help_support', currentLang),
-                () {},
+                () => _showComingSoonSnackbar(context),
               ),
               const Divider(height: 1),
               _buildSettingsTile(
                 context,
                 Icons.info_outline,
                 t('about', currentLang),
-                () {},
+                () => _showComingSoonSnackbar(context),
               ),
               const Divider(height: 1),
               _buildSettingsTile(
@@ -899,6 +878,86 @@ class _FarmerProfileScreenState extends ConsumerState<FarmerProfileScreen> {
     FarmerProfileModel profile,
   ) {
     context.push('/profile/edit', extra: profile);
+  }
+
+  void _showChangePasswordDialog(BuildContext context, WidgetRef ref) {
+    final currentLang = ref.watch(languageProvider);
+    final user = ref.read(currentUserProvider);
+    final email = user?.email;
+
+    if (email == null || email.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No email address associated with this account'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(t('change_password', currentLang)),
+        content: Text(
+          'We will send a password reset link to your email address:\n\n$email',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              t('cancel', currentLang),
+              style: const TextStyle(color: Colors.grey),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              final authController = ref.read(authControllerProvider.notifier);
+              final result = await authController.sendPasswordResetEmail(email);
+              if (context.mounted) {
+                result.fold(
+                  (failure) => ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        'Failed to send reset email: ${failure.message}',
+                      ),
+                      backgroundColor: Colors.red,
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  ),
+                  (_) => ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        'Password reset email sent! Check your inbox.',
+                      ),
+                      backgroundColor: Colors.green,
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  ),
+                );
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.green,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Send Reset Link'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showComingSoonSnackbar(BuildContext context) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('This feature is coming soon'),
+        behavior: SnackBarBehavior.floating,
+        duration: Duration(seconds: 2),
+      ),
+    );
   }
 
   void _showDeleteAccountDialog(BuildContext context, WidgetRef ref) {

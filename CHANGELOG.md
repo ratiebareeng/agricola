@@ -1,3 +1,17 @@
+## 0.2.2
+
+### Changed
+- Profile screen UI cleanup for both farmer and merchant screens
+  - Removed Farm/Business Details placeholder from incomplete profile view (redundant with profile completion banner)
+  - Removed "Change PIN" menu item (not implemented)
+  - Removed "Notifications" menu item (not implemented)
+  - Added Change Password functionality - sends password reset email via Firebase
+  - Added "Coming Soon" snackbar for Help & Support and About menu items
+
+### Modified Files
+- `farmer_profile_screen.dart` - Updated settings section and added password reset dialog
+- `merchant_profile_screen.dart` - Updated settings section and added password reset dialog
+
 ## 0.2.1
 
 ### Fixed

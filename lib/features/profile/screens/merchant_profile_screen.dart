@@ -2,6 +2,7 @@ import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/core/widgets/language_select_content.dart';
 import 'package:agricola/domain/profile/enum/merchant_type.dart';
+import 'package:agricola/features/auth/providers/auth_controller.dart';
 import 'package:agricola/features/auth/providers/auth_provider.dart';
 import 'package:agricola/features/profile/domain/models/displayable_profile.dart';
 import 'package:agricola/features/profile/providers/profile_controller_provider.dart';
@@ -39,117 +40,20 @@ class _MerchantProfileScreenState extends ConsumerState<MerchantProfileScreen> {
 
     // Handle both minimal and complete profiles
     return switch (displayableProfile) {
-      MinimalProfile() =>
-        _buildMinimalProfileScreen(context, ref, displayableProfile),
-      CompleteMerchantProfile() =>
-        _buildCompleteProfileScreen(context, ref, displayableProfile),
-      CompleteFarmerProfile() =>
-        throw StateError('Farmer profile in merchant screen'),
+      MinimalProfile() => _buildMinimalProfileScreen(
+        context,
+        ref,
+        displayableProfile,
+      ),
+      CompleteMerchantProfile() => _buildCompleteProfileScreen(
+        context,
+        ref,
+        displayableProfile,
+      ),
+      CompleteFarmerProfile() => throw StateError(
+        'Farmer profile in merchant screen',
+      ),
     };
-  }
-
-  Widget _buildErrorScreen(BuildContext context, String? errorMessage) {
-    return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.error_outline, size: 48, color: Colors.grey),
-            const SizedBox(height: 16),
-            Text(
-              errorMessage ?? 'Failed to load profile',
-              style: TextStyle(fontSize: 16, color: Colors.grey[600]),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                final user = ref.read(currentUserProvider);
-                if (user != null) {
-                  ref
-                      .read(profileControllerProvider.notifier)
-                      .loadProfile(userId: user.uid);
-                }
-              },
-              child: const Text('Retry'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildMinimalProfileScreen(
-    BuildContext context,
-    WidgetRef ref,
-    MinimalProfile profile,
-  ) {
-    return Scaffold(
-      backgroundColor: Colors.grey[50],
-      body: CustomScrollView(
-        slivers: [
-          _buildProfileHeader(context, ref, profile),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  _buildProfileCompletionBanner(context, ref),
-                  const SizedBox(height: 16),
-                  _buildBasicInfoCard(context, ref, profile),
-                  const SizedBox(height: 16),
-                  _buildBusinessDetailsPlaceholder(context, ref),
-                  const SizedBox(height: 16),
-                  _buildSettingsSection(context, ref),
-                  const SizedBox(height: 80),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCompleteProfileScreen(
-    BuildContext context,
-    WidgetRef ref,
-    CompleteMerchantProfile profile,
-  ) {
-    final merchantProfile = profile.merchantData;
-
-    return Scaffold(
-      backgroundColor: Colors.grey[50],
-      body: RefreshIndicator(
-        onRefresh: () async {
-          await ref
-              .read(profileControllerProvider.notifier)
-              .loadProfile(userId: profile.userId, forceRefresh: true);
-        },
-        child: CustomScrollView(
-          slivers: [
-            _buildProfileHeader(context, ref, profile),
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildProfileInfoCard(context, ref, profile),
-                    const SizedBox(height: 16),
-                    _buildBusinessDetailsCard(context, ref, merchantProfile),
-                    const SizedBox(height: 16),
-                    _buildQuickActionsCard(context, ref),
-                    const SizedBox(height: 16),
-                    _buildSettingsSection(context, ref),
-                    const SizedBox(height: 80),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 
   @override
@@ -165,301 +69,6 @@ class _MerchantProfileScreenState extends ConsumerState<MerchantProfileScreen> {
             .loadProfile(userId: user.uid);
       }
     });
-  }
-
-  SliverAppBar _buildProfileHeader(
-    BuildContext context,
-    WidgetRef ref,
-    DisplayableProfile profile,
-  ) {
-    final currentLang = ref.watch(languageProvider);
-
-    return SliverAppBar(
-      expandedHeight: 220,
-      pinned: true,
-      backgroundColor: AppColors.green,
-      flexibleSpace: FlexibleSpaceBar(
-        background: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [AppColors.green, AppColors.green.withAlpha(80)],
-            ),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const SizedBox(height: 60),
-              GestureDetector(
-                onTap: profile is CompleteMerchantProfile
-                    ? () => _navigateToEditProfile(context, profile.merchantData)
-                    : null,
-                child: Stack(
-                  children: [
-                    Container(
-                      height: 100,
-                      width: 100,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white, width: 3),
-                        image: profile.photoUrl != null
-                            ? DecorationImage(
-                                image: NetworkImage(profile.photoUrl!),
-                                fit: BoxFit.cover,
-                              )
-                            : null,
-                        color: Colors.white.withAlpha(30),
-                      ),
-                      child: profile.photoUrl == null
-                          ? const Icon(
-                              Icons.store,
-                              size: 50,
-                              color: Colors.white,
-                            )
-                          : null,
-                    ),
-                    if (profile is CompleteMerchantProfile)
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: AppColors.green,
-                              width: 2,
-                            ),
-                          ),
-                          child: const Padding(
-                            padding: EdgeInsets.all(6.0),
-                            child: Icon(
-                              Icons.camera_alt,
-                              color: AppColors.green,
-                              size: 16,
-                            ),
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                profile.displayName,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                profile.merchantType == MerchantType.agriShop
-                    ? t('agri_shop', currentLang)
-                    : profile.merchantType == MerchantType.supermarketVendor
-                        ? t('supermarket_vendor', currentLang)
-                        : t('merchant', currentLang),
-                style: TextStyle(
-                  color: Colors.white.withAlpha(90),
-                  fontSize: 14,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-      actions: [
-        IconButton(
-          onPressed: () => _showLanguageDialog(context, ref),
-          icon: const Icon(Icons.language, color: Colors.white),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildProfileCompletionBanner(BuildContext context, WidgetRef ref) {
-    final user = ref.watch(currentUserProvider);
-
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [AppColors.green, AppColors.green.withAlpha(80)],
-        ),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.green.withAlpha(50),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.white.withAlpha(50),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Icon(Icons.info_outline, color: Colors.white),
-              ),
-              const SizedBox(width: 12),
-              const Expanded(
-                child: Text(
-                  'Complete Your Profile',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Text(
-            'Add your business details to unlock the full Agricola experience. Manage inventory, track sales, and connect with suppliers.',
-            style: TextStyle(
-              color: Colors.white.withAlpha(90),
-              fontSize: 14,
-            ),
-          ),
-          const SizedBox(height: 16),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () {
-                if (user == null) return;
-
-                // Determine the user type string for the route
-                String userTypeParam;
-                if (user.userType == UserType.farmer) {
-                  userTypeParam = 'farmer';
-                } else if (user.merchantType == MerchantType.agriShop) {
-                  userTypeParam = 'agriShop';
-                } else if (user.merchantType == MerchantType.supermarketVendor) {
-                  userTypeParam = 'supermarketVendor';
-                } else {
-                  userTypeParam = 'agriShop'; // Default to agriShop for other merchant types
-                }
-
-                context.push('/profile-setup?type=$userTypeParam');
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-                foregroundColor: AppColors.green,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Complete Profile',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(width: 8),
-                  Icon(Icons.arrow_forward, size: 20),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBasicInfoCard(
-    BuildContext context,
-    WidgetRef ref,
-    MinimalProfile profile,
-  ) {
-    final currentLang = ref.watch(languageProvider);
-
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withAlpha(25),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            t('profile_information', currentLang),
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 16),
-          _buildInfoRow(
-            Icons.email_outlined,
-            t('email', currentLang),
-            profile.email,
-          ),
-          const Divider(height: 24),
-          _buildInfoRow(
-            Icons.phone_outlined,
-            t('phone', currentLang),
-            profile.phoneNumber ?? 'Not set',
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBusinessDetailsPlaceholder(BuildContext context, WidgetRef ref) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey[300]!),
-      ),
-      child: Column(
-        children: [
-          Icon(Icons.store_outlined, size: 48, color: Colors.grey[400]),
-          const SizedBox(height: 12),
-          Text(
-            'Business Details',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: Colors.grey[700],
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            'Complete your profile to add business information',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 13,
-              color: Colors.grey[500],
-            ),
-          ),
-        ],
-      ),
-    );
   }
 
   Widget _buildActionButton(
@@ -511,6 +120,50 @@ class _MerchantProfileScreenState extends ConsumerState<MerchantProfileScreen> {
             Icon(Icons.chevron_right, color: Colors.grey[400]),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildBasicInfoCard(
+    BuildContext context,
+    WidgetRef ref,
+    MinimalProfile profile,
+  ) {
+    final currentLang = ref.watch(languageProvider);
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withAlpha(25),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            t('profile_information', currentLang),
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 16),
+          _buildInfoRow(
+            Icons.email_outlined,
+            t('email', currentLang),
+            profile.email,
+          ),
+          const Divider(height: 24),
+          _buildInfoRow(
+            Icons.phone_outlined,
+            t('phone', currentLang),
+            profile.phoneNumber ?? 'Not set',
+          ),
+        ],
       ),
     );
   }
@@ -569,6 +222,109 @@ class _MerchantProfileScreenState extends ConsumerState<MerchantProfileScreen> {
     );
   }
 
+  Widget _buildBusinessDetailsPlaceholder(BuildContext context, WidgetRef ref) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey[300]!),
+      ),
+      child: Column(
+        children: [
+          Icon(Icons.store_outlined, size: 48, color: Colors.grey[400]),
+          const SizedBox(height: 12),
+          Text(
+            'Business Details',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: Colors.grey[700],
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Complete your profile to add business information',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 13, color: Colors.grey[500]),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCompleteProfileScreen(
+    BuildContext context,
+    WidgetRef ref,
+    CompleteMerchantProfile profile,
+  ) {
+    final merchantProfile = profile.merchantData;
+
+    return Scaffold(
+      backgroundColor: Colors.grey[50],
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await ref
+              .read(profileControllerProvider.notifier)
+              .loadProfile(userId: profile.userId, forceRefresh: true);
+        },
+        child: CustomScrollView(
+          slivers: [
+            _buildProfileHeader(context, ref, profile),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildProfileInfoCard(context, ref, profile),
+                    const SizedBox(height: 16),
+                    _buildBusinessDetailsCard(context, ref, merchantProfile),
+                    const SizedBox(height: 16),
+                    _buildQuickActionsCard(context, ref),
+                    const SizedBox(height: 16),
+                    _buildSettingsSection(context, ref),
+                    const SizedBox(height: 80),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildErrorScreen(BuildContext context, String? errorMessage) {
+    return Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.error_outline, size: 48, color: Colors.grey),
+            const SizedBox(height: 16),
+            Text(
+              errorMessage ?? 'Failed to load profile',
+              style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                final user = ref.read(currentUserProvider);
+                if (user != null) {
+                  ref
+                      .read(profileControllerProvider.notifier)
+                      .loadProfile(userId: user.uid);
+                }
+              },
+              child: const Text('Retry'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildInfoRow(IconData icon, String label, String value) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -595,6 +351,36 @@ class _MerchantProfileScreenState extends ConsumerState<MerchantProfileScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildMinimalProfileScreen(
+    BuildContext context,
+    WidgetRef ref,
+    MinimalProfile profile,
+  ) {
+    return Scaffold(
+      backgroundColor: Colors.grey[50],
+      body: CustomScrollView(
+        slivers: [
+          _buildProfileHeader(context, ref, profile),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: [
+                  _buildProfileCompletionBanner(context, ref),
+                  const SizedBox(height: 16),
+                  _buildBasicInfoCard(context, ref, profile),
+                  const SizedBox(height: 16),
+                  _buildSettingsSection(context, ref),
+                  const SizedBox(height: 80),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -661,6 +447,217 @@ class _MerchantProfileScreenState extends ConsumerState<MerchantProfileScreen> {
     );
   }
 
+  Widget _buildProfileCompletionBanner(BuildContext context, WidgetRef ref) {
+    final user = ref.watch(currentUserProvider);
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [AppColors.green, AppColors.green.withAlpha(80)],
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.green.withAlpha(50),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.white.withAlpha(50),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(Icons.info_outline, color: Colors.white),
+              ),
+              const SizedBox(width: 12),
+              const Expanded(
+                child: Text(
+                  'Complete Your Profile',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'Add your business details to unlock the full Agricola experience. Manage inventory, track sales, and connect with suppliers.',
+            style: TextStyle(color: Colors.white.withAlpha(90), fontSize: 14),
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () {
+                if (user == null) return;
+
+                // Determine the user type string for the route
+                String userTypeParam;
+                if (user.userType == UserType.farmer) {
+                  userTypeParam = 'farmer';
+                } else if (user.merchantType == MerchantType.agriShop) {
+                  userTypeParam = 'agriShop';
+                } else if (user.merchantType ==
+                    MerchantType.supermarketVendor) {
+                  userTypeParam = 'supermarketVendor';
+                } else {
+                  userTypeParam =
+                      'agriShop'; // Default to agriShop for other merchant types
+                }
+
+                context.push('/profile-setup?type=$userTypeParam');
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                foregroundColor: AppColors.green,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Complete Profile',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(width: 8),
+                  Icon(Icons.arrow_forward, size: 20),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  SliverAppBar _buildProfileHeader(
+    BuildContext context,
+    WidgetRef ref,
+    DisplayableProfile profile,
+  ) {
+    final currentLang = ref.watch(languageProvider);
+
+    return SliverAppBar(
+      expandedHeight: 220,
+      pinned: true,
+      backgroundColor: AppColors.green,
+      flexibleSpace: FlexibleSpaceBar(
+        background: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [AppColors.green, AppColors.green.withAlpha(80)],
+            ),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const SizedBox(height: 60),
+              GestureDetector(
+                onTap: profile is CompleteMerchantProfile
+                    ? () =>
+                          _navigateToEditProfile(context, profile.merchantData)
+                    : null,
+                child: Stack(
+                  children: [
+                    Container(
+                      height: 100,
+                      width: 100,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 3),
+                        image: profile.photoUrl != null
+                            ? DecorationImage(
+                                image: NetworkImage(profile.photoUrl!),
+                                fit: BoxFit.cover,
+                              )
+                            : null,
+                        color: Colors.white.withAlpha(30),
+                      ),
+                      child: profile.photoUrl == null
+                          ? const Icon(
+                              Icons.store,
+                              size: 50,
+                              color: Colors.white,
+                            )
+                          : null,
+                    ),
+                    if (profile is CompleteMerchantProfile)
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: AppColors.green,
+                              width: 2,
+                            ),
+                          ),
+                          child: const Padding(
+                            padding: EdgeInsets.all(6.0),
+                            child: Icon(
+                              Icons.camera_alt,
+                              color: AppColors.green,
+                              size: 16,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                profile.displayName,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                profile.merchantType == MerchantType.agriShop
+                    ? t('agri_shop', currentLang)
+                    : profile.merchantType == MerchantType.supermarketVendor
+                    ? t('supermarket_vendor', currentLang)
+                    : t('merchant', currentLang),
+                style: TextStyle(
+                  color: Colors.white.withAlpha(90),
+                  fontSize: 14,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      actions: [
+        IconButton(
+          onPressed: () => _showLanguageDialog(context, ref),
+          icon: const Icon(Icons.language, color: Colors.white),
+        ),
+      ],
+    );
+  }
+
   Widget _buildProfileInfoCard(
     BuildContext context,
     WidgetRef ref,
@@ -696,7 +693,8 @@ class _MerchantProfileScreenState extends ConsumerState<MerchantProfileScreen> {
               ),
               const Spacer(),
               TextButton.icon(
-                onPressed: () => _navigateToEditProfile(context, merchantProfile),
+                onPressed: () =>
+                    _navigateToEditProfile(context, merchantProfile),
                 icon: const Icon(Icons.edit, size: 16),
                 label: Text(t('edit', currentLang)),
                 style: TextButton.styleFrom(foregroundColor: AppColors.green),
@@ -836,36 +834,21 @@ class _MerchantProfileScreenState extends ConsumerState<MerchantProfileScreen> {
                 context,
                 Icons.lock_outline,
                 t('change_password', currentLang),
-                () {},
-              ),
-              const Divider(height: 1),
-              _buildSettingsTile(
-                context,
-                Icons.pin_outlined,
-                t('change_pin', currentLang),
-                () {},
-              ),
-              const Divider(height: 1),
-              _buildSettingsTile(
-                context,
-                Icons.notifications_outlined,
-                t('notifications', currentLang),
-                () {},
-                showBadge: true,
+                () => _showChangePasswordDialog(context, ref),
               ),
               const Divider(height: 1),
               _buildSettingsTile(
                 context,
                 Icons.help_outline,
                 t('help_support', currentLang),
-                () {},
+                () => _showComingSoonSnackbar(context),
               ),
               const Divider(height: 1),
               _buildSettingsTile(
                 context,
                 Icons.info_outline,
                 t('about', currentLang),
-                () {},
+                () => _showComingSoonSnackbar(context),
               ),
               const Divider(height: 1),
               _buildSettingsTile(
@@ -939,6 +922,86 @@ class _MerchantProfileScreenState extends ConsumerState<MerchantProfileScreen> {
     MerchantProfileModel profile,
   ) {
     context.push('/profile/edit-merchant', extra: profile);
+  }
+
+  void _showChangePasswordDialog(BuildContext context, WidgetRef ref) {
+    final currentLang = ref.watch(languageProvider);
+    final user = ref.read(currentUserProvider);
+    final email = user?.email;
+
+    if (email == null || email.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No email address associated with this account'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(t('change_password', currentLang)),
+        content: Text(
+          'We will send a password reset link to your email address:\n\n$email',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              t('cancel', currentLang),
+              style: const TextStyle(color: Colors.grey),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              final authController = ref.read(authControllerProvider.notifier);
+              final result = await authController.sendPasswordResetEmail(email);
+              if (context.mounted) {
+                result.fold(
+                  (failure) => ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        'Failed to send reset email: ${failure.message}',
+                      ),
+                      backgroundColor: Colors.red,
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  ),
+                  (_) => ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        'Password reset email sent! Check your inbox.',
+                      ),
+                      backgroundColor: Colors.green,
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  ),
+                );
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.green,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Send Reset Link'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showComingSoonSnackbar(BuildContext context) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('This feature is coming soon'),
+        behavior: SnackBarBehavior.floating,
+        duration: Duration(seconds: 2),
+      ),
+    );
   }
 
   void _showDeleteAccountDialog(BuildContext context, WidgetRef ref) {
