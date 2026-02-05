@@ -1,4 +1,6 @@
 import 'package:agricola/core/providers/language_provider.dart';
+import 'package:agricola/core/providers/nav_provider.dart';
+import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/domain/profile/enum/merchant_type.dart';
 import 'package:agricola/features/home/widgets/stat_card.dart';
 import 'package:agricola/features/profile_setup/providers/profile_setup_provider.dart';
@@ -66,149 +68,74 @@ class MerchantDashboardScreen extends ConsumerWidget {
                 physics: const NeverScrollableScrollPhysics(),
                 mainAxisSpacing: 16,
                 crossAxisSpacing: 16,
-                childAspectRatio: 1.1,
+                childAspectRatio: 1.5,
                 children: [
                   if (isAgriShop) ...[
                     StatCard(
                       title: t('total_products', currentLang),
-                      value: '47',
+                      value: '0',
                       icon: Icons.inventory_2,
                       color: const Color(0xFF2D6A4F),
-                      trend: '+5%',
+                      subtitle: t('coming_soon', currentLang),
                     ),
                     StatCard(
                       title: t('monthly_revenue', currentLang),
-                      value: 'P24.8k',
-                      icon: Icons.trending_up,
+                      value: 'P 0.00',
+                      icon: Icons.attach_money,
                       color: const Color(0xFFFF6B35),
-                      trend: '+12%',
+                      subtitle: t('coming_soon', currentLang),
                     ),
                     StatCard(
                       title: t('active_orders', currentLang),
-                      value: '18',
+                      value: '0',
                       icon: Icons.shopping_cart,
                       color: const Color(0xFF4ECDC4),
-                      trend: '+3',
+                      subtitle: t('coming_soon', currentLang),
                     ),
                     StatCard(
                       title: t('low_stock_items', currentLang),
-                      value: '6',
+                      value: '0',
                       icon: Icons.warning_amber_rounded,
                       color: const Color(0xFFFFBE0B),
-                      trend: '',
+                      subtitle: t('coming_soon', currentLang),
                     ),
                   ] else ...[
                     StatCard(
                       title: t('total_suppliers', currentLang),
-                      value: '23',
+                      value: '0',
                       icon: Icons.people,
                       color: const Color(0xFF2D6A4F),
-                      trend: '+3',
+                      subtitle: t('coming_soon', currentLang),
                     ),
                     StatCard(
                       title: t('monthly_purchases', currentLang),
-                      value: 'P18.5k',
+                      value: 'P 0.00',
                       icon: Icons.shopping_bag,
                       color: const Color(0xFFFF6B35),
-                      trend: '+8%',
+                      subtitle: t('coming_soon', currentLang),
                     ),
                     StatCard(
                       title: t('pending_orders', currentLang),
-                      value: '12',
+                      value: '0',
                       icon: Icons.pending_actions,
                       color: const Color(0xFF4ECDC4),
-                      trend: '+2',
+                      subtitle: t('coming_soon', currentLang),
                     ),
                     StatCard(
                       title: t('available_produce', currentLang),
-                      value: '2.8k kg',
+                      value: '0 kg',
                       icon: Icons.eco,
                       color: const Color(0xFFFFBE0B),
-                      trend: '+15%',
+                      subtitle: t('coming_soon', currentLang),
                     ),
                   ],
                 ],
               ),
               const SizedBox(height: 24),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    isAgriShop ? 'Recent Orders' : 'Recent Purchases',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF1A1A1A),
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () {},
-                    child: Text(
-                      t('view_all', currentLang),
-                      style: const TextStyle(color: Color(0xFF2D6A4F)),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              _buildRecentOrderCard(
-                isAgriShop ? 'Fertiliser - NPK 2:3:2' : 'Fresh Maize - 200kg',
-                isAgriShop ? 'Thabo Modise' : 'John Mokwena Farm',
-                isAgriShop ? 'P560.00' : 'P1,200.00',
-                isAgriShop ? '2 hours ago' : '5 hours ago',
-                Icons.check_circle,
-                Colors.green,
-              ),
-              const SizedBox(height: 12),
-              _buildRecentOrderCard(
-                isAgriShop ? 'Irrigation Kit' : 'Sorghum - 150kg',
-                isAgriShop ? 'Mpho Setlhabi' : 'Kgosi Agriculture',
-                isAgriShop ? 'P1,200.00' : 'P900.00',
-                isAgriShop ? 'Yesterday' : '1 day ago',
-                Icons.local_shipping,
-                Colors.orange,
-              ),
-              const SizedBox(height: 12),
-              _buildRecentOrderCard(
-                isAgriShop ? 'Pesticide - 5L' : 'Beans - 80kg',
-                isAgriShop ? 'Neo Kgabo' : 'Letlhogonolo Farm',
-                isAgriShop ? 'P350.00' : 'P640.00',
-                isAgriShop ? '2 days ago' : '3 days ago',
-                Icons.check_circle,
-                Colors.green,
-              ),
+              _buildRecentActivitySection(currentLang),
               const SizedBox(height: 24),
-              const Text(
-                'Quick Actions',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF1A1A1A),
-                ),
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildActionCard(
-                      isAgriShop ? 'Add Product' : 'Find Suppliers',
-                      isAgriShop ? Icons.add_box : Icons.search,
-                      const Color(0xFF2D6A4F),
-                      () {},
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _buildActionCard(
-                      isAgriShop ? 'Manage Stock' : 'Create Order',
-                      isAgriShop ? Icons.inventory : Icons.add_shopping_cart,
-                      const Color(0xFFFF6B35),
-                      () {},
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 100),
+              _buildQuickActionsSection(context, ref, currentLang, isAgriShop),
+              const SizedBox(height: 80),
             ],
           ),
         ),
@@ -216,132 +143,239 @@ class MerchantDashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildActionCard(
-    String label,
-    IconData icon,
-    Color color,
-    VoidCallback onTap,
+  Widget _buildQuickActionsSection(
+    BuildContext context,
+    WidgetRef ref,
+    AppLanguage lang,
+    bool isAgriShop,
   ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          t('quick_actions', lang),
+          style: const TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.black87,
+          ),
+        ),
+        const SizedBox(height: 16),
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withAlpha(25),
+                blurRadius: 10,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Column(
+            children: [
+              _buildQuickActionTile(
+                context,
+                icon: Icons.add_circle_outline,
+                iconColor: AppColors.green,
+                title: t('add_new_product', lang),
+                subtitle: t('add_to_catalog', lang),
+                onTap: () => _showComingSoonDialog(context, lang),
+              ),
+              const Divider(height: 24),
+              _buildQuickActionTile(
+                context,
+                icon: Icons.receipt_long_outlined,
+                iconColor: Colors.orange,
+                title: t('view_orders', lang),
+                subtitle: t('manage_customer_orders', lang),
+                onTap: () {
+                  // AgriShop: Orders is index 2
+                  // Non-AgriShop: No orders tab, show coming soon
+                  if (isAgriShop) {
+                    ref.read(selectedTabProvider.notifier).state = 2;
+                  } else {
+                    _showComingSoonDialog(context, lang);
+                  }
+                },
+              ),
+              const Divider(height: 24),
+              _buildQuickActionTile(
+                context,
+                icon: Icons.inventory_outlined,
+                iconColor: Colors.blue,
+                title: t('check_inventory', lang),
+                subtitle: t('manage_stock_levels', lang),
+                onTap: () {
+                  // AgriShop: Inventory is index 1
+                  // Non-AgriShop: Inventory is index 2
+                  ref.read(selectedTabProvider.notifier).state = isAgriShop ? 1 : 2;
+                },
+              ),
+              const Divider(height: 24),
+              _buildQuickActionTile(
+                context,
+                icon: Icons.analytics_outlined,
+                iconColor: Colors.purple,
+                title: t('view_analytics', lang),
+                subtitle: t('business_insights', lang),
+                onTap: () => _showComingSoonDialog(context, lang),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildQuickActionTile(
+    BuildContext context, {
+    required IconData icon,
+    required Color iconColor,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withAlpha(10),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Column(
+      borderRadius: BorderRadius.circular(12),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: color.withAlpha(26),
+                color: iconColor.withAlpha(20),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(icon, color: color, size: 28),
+              child: Icon(icon, color: iconColor, size: 24),
             ),
-            const SizedBox(height: 12),
-            Text(
-              label,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF1A1A1A),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ],
               ),
             ),
+            Icon(Icons.chevron_right, color: Colors.grey[400]),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildRecentOrderCard(
-    String title,
-    String customer,
-    String amount,
-    String time,
-    IconData statusIcon,
-    Color statusColor,
-  ) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withAlpha(10),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+  void _showComingSoonDialog(BuildContext context, AppLanguage lang) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: [
+            const Icon(Icons.construction, color: AppColors.green),
+            const SizedBox(width: 12),
+            Text(t('coming_soon', lang)),
+          ],
+        ),
+        content: Text(
+          t('feature_under_development', lang),
+          style: const TextStyle(fontSize: 15),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(t('okay', lang)),
           ),
         ],
       ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: const Color(0xFF2D6A4F).withAlpha(26),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(
-              Icons.shopping_bag,
-              color: Color(0xFF2D6A4F),
-              size: 24,
-            ),
+    );
+  }
+
+  Widget _buildRecentActivitySection(AppLanguage lang) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          t('recent_activity', lang),
+          style: const TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.black87,
           ),
-          const SizedBox(width: 12),
-          Expanded(
+        ),
+        const SizedBox(height: 16),
+        Container(
+          padding: const EdgeInsets.all(32),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withAlpha(25),
+                blurRadius: 10,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Center(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Icon(
+                  Icons.receipt_long_outlined,
+                  size: 64,
+                  color: Colors.grey[300],
+                ),
+                const SizedBox(height: 16),
                 Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 15,
+                  t('no_recent_orders', lang),
+                  style: TextStyle(
+                    fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFF1A1A1A),
+                    color: Colors.grey[700],
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 8),
                 Text(
-                  customer,
-                  style: TextStyle(fontSize: 13, color: Colors.grey[600]),
+                  t('orders_will_appear_here', lang),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey[500],
+                  ),
                 ),
-                const SizedBox(height: 2),
+                const SizedBox(height: 16),
                 Text(
-                  time,
-                  style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                  t('add_products_to_start', lang),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Colors.grey[400],
+                    fontStyle: FontStyle.italic,
+                  ),
                 ),
               ],
             ),
           ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                amount,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF1A1A1A),
-                ),
-              ),
-              const SizedBox(height: 4),
-              Icon(statusIcon, color: statusColor, size: 20),
-            ],
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

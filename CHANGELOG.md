@@ -1,3 +1,20 @@
+## 0.2.4
+
+### Added
+- Orders Flutter integration for AgriShop merchants
+  - `order_model.dart` - OrderItem and OrderModel with JSON serialization
+  - `orders_api_service.dart` - Dio service for orders API (getUserOrders, getOrder, updateOrderStatus, cancelOrder)
+  - `orders_provider.dart` - StateNotifierProvider for orders state management
+  - `api_constants.dart` - Added ordersEndpoint
+
+### Changed
+- `agri_shop_orders_screen.dart` - Full rewrite with:
+  - Order list with pull-to-refresh
+  - Color-coded status badges (pending/confirmed/shipped/delivered/cancelled)
+  - Action buttons to progress order status (confirm → ship → deliver)
+  - Bottom sheet order details showing items and totals
+  - Loading, error, and empty states
+
 ## 0.2.3
 
 ### Fixed
