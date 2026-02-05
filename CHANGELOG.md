@@ -1,3 +1,17 @@
+## 0.2.3
+
+### Fixed
+- Fixed blank screen after clicking logout in dialog
+  - Removed redundant `Navigator.pop()` call that conflicted with `context.go('/')` navigation
+- Fixed onboarding screens showing again after logout
+  - Changed `prefs.clear()` to selectively remove only user-specific data
+  - App-wide flags (`has_seen_welcome`, `has_seen_onboarding`, `language_code`) are now preserved
+
+### Modified Files
+- `farmer_profile_screen.dart` - Removed Navigator.pop after signOut
+- `merchant_profile_screen.dart` - Removed Navigator.pop after signOut  
+- `auth_controller.dart` - Selective SharedPreferences cleanup on logout
+
 ## 0.2.2
 
 ### Changed

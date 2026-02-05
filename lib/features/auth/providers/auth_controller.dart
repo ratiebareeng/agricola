@@ -141,10 +141,26 @@ class AuthController extends StateNotifier<AsyncValue<void>> {
     // Clear profile before signing out
     await _ref.read(profileControllerProvider.notifier).clearProfile();
 
-    // Clear cached profile setup data from SharedPreferences
+    // Clear user-specific cached data from SharedPreferences
     // This prevents the next user from seeing the wrong dashboard
+    // NOTE: We preserve app-wide flags (has_seen_welcome, has_seen_onboarding)
+    // so returning users don't have to go through onboarding again
     final prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
+
+    // Keys to preserve (app-wide, not user-specific)
+    const keysToPreserve = [
+      'has_seen_welcome',
+      'has_seen_onboarding',
+      'language_code',
+    ];
+
+    // Get all keys and remove only user-specific ones
+    final allKeys = prefs.getKeys();
+    for (final key in allKeys) {
+      if (!keysToPreserve.contains(key)) {
+        await prefs.remove(key);
+      }
+    }
 
     final result = await _repository.signOut();
 

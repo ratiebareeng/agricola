@@ -1109,10 +1109,10 @@ class _FarmerProfileScreenState extends ConsumerState<FarmerProfileScreen> {
             onPressed: profileState.isLoading
                 ? null
                 : () async {
-                    final success = await profileNotifier.signOut(context);
-                    if (success && context.mounted) {
-                      Navigator.pop(context);
-                    }
+                    // signOut already navigates to '/' via context.go('/'),
+                    // so we don't need to pop the dialog - it's dismissed
+                    // automatically when the navigation stack is replaced
+                    await profileNotifier.signOut(context);
                   },
             style: TextButton.styleFrom(
               foregroundColor: profileState.isLoading
