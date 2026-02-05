@@ -25,8 +25,6 @@ class _AddEditInventoryScreenState
   late String _condition;
   String? _notes;
 
-  bool get _isEditing => widget.existingItem != null;
-
   final List<String> _cropTypes = [
     'maize',
     'sorghum',
@@ -54,36 +52,13 @@ class _AddEditInventoryScreenState
   ];
 
   final List<String> _storageLocations = [
-    'Warehouse A',
-    'Warehouse B',
     'Traditional Granary',
     'Home Storage',
     'Cold Storage',
     'Silo',
   ];
 
-  @override
-  void initState() {
-    super.initState();
-    if (_isEditing) {
-      final item = widget.existingItem!;
-      _cropType = item.cropType;
-      _quantity = item.quantity;
-      _unit = item.unit;
-      _storageDate = item.storageDate;
-      _storageLocation = item.storageLocation;
-      _condition = item.condition;
-      _notes = item.notes;
-    } else {
-      _cropType = _cropTypes.first;
-      _quantity = 0;
-      _unit = _units.first;
-      _storageDate = DateTime.now();
-      _storageLocation = _storageLocations.first;
-      _condition = 'good';
-      _notes = null;
-    }
-  }
+  bool get _isEditing => widget.existingItem != null;
 
   @override
   Widget build(BuildContext context) {
@@ -136,7 +111,9 @@ class _AddEditInventoryScreenState
                         Expanded(
                           flex: 2,
                           child: TextFormField(
-                            initialValue: _isEditing ? _quantity.toString() : '',
+                            initialValue: _isEditing
+                                ? _quantity.toString()
+                                : '',
                             keyboardType: TextInputType.number,
                             decoration: InputDecoration(
                               hintText: t('enter_quantity', currentLang),
@@ -144,11 +121,15 @@ class _AddEditInventoryScreenState
                               fillColor: Colors.white,
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(color: Colors.grey[300]!),
+                                borderSide: BorderSide(
+                                  color: Colors.grey[300]!,
+                                ),
                               ),
                               enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(color: Colors.grey[300]!),
+                                borderSide: BorderSide(
+                                  color: Colors.grey[300]!,
+                                ),
                               ),
                             ),
                             validator: (value) {
@@ -190,7 +171,8 @@ class _AddEditInventoryScreenState
                       value: _storageLocation,
                       items: _storageLocations,
                       onChanged: (value) {
-                        if (value != null) setState(() => _storageLocation = value);
+                        if (value != null)
+                          setState(() => _storageLocation = value);
                       },
                       labelBuilder: (item) => item,
                     ),
@@ -199,7 +181,9 @@ class _AddEditInventoryScreenState
                     const SizedBox(height: 8),
                     _buildConditionSelector(currentLang),
                     const SizedBox(height: 20),
-                    _buildSectionTitle('${t('notes', currentLang)} (${t('optional', currentLang)})'),
+                    _buildSectionTitle(
+                      '${t('notes', currentLang)} (${t('optional', currentLang)})',
+                    ),
                     const SizedBox(height: 8),
                     TextFormField(
                       initialValue: _notes,
@@ -261,13 +245,109 @@ class _AddEditInventoryScreenState
     );
   }
 
-  Widget _buildSectionTitle(String title) {
-    return Text(
-      title,
-      style: const TextStyle(
-        fontSize: 14,
-        fontWeight: FontWeight.w600,
-        color: Color(0xFF1A1A1A),
+  @override
+  void initState() {
+    super.initState();
+    if (_isEditing) {
+      final item = widget.existingItem!;
+      _cropType = item.cropType;
+      _quantity = item.quantity;
+      _unit = item.unit;
+      _storageDate = item.storageDate;
+      _storageLocation = item.storageLocation;
+      _condition = item.condition;
+      _notes = item.notes;
+    } else {
+      _cropType = _cropTypes.first;
+      _quantity = 0;
+      _unit = _units.first;
+      _storageDate = DateTime.now();
+      _storageLocation = _storageLocations.first;
+      _condition = 'good';
+      _notes = null;
+    }
+  }
+
+  Widget _buildConditionSelector(AppLanguage lang) {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: _conditions.map((condition) {
+        final isSelected = _condition == condition;
+        final color = _getConditionColor(condition);
+        return GestureDetector(
+          onTap: () => setState(() => _condition = condition),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            decoration: BoxDecoration(
+              color: isSelected ? color.withAlpha(30) : Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: isSelected ? color : Colors.grey[300]!,
+                width: isSelected ? 2 : 1,
+              ),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  _getConditionIcon(condition),
+                  size: 16,
+                  color: isSelected ? color : Colors.grey[600],
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  t(condition, lang),
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: isSelected
+                        ? FontWeight.bold
+                        : FontWeight.normal,
+                    color: isSelected ? color : Colors.grey[700],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildDateField(AppLanguage lang) {
+    return GestureDetector(
+      onTap: () async {
+        final picked = await showDatePicker(
+          context: context,
+          initialDate: _storageDate,
+          firstDate: DateTime(2020),
+          lastDate: DateTime.now(),
+        );
+        if (picked != null) {
+          setState(() => _storageDate = picked);
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.grey[300]!),
+        ),
+        child: Row(
+          children: [
+            const Icon(
+              Icons.calendar_today,
+              size: 20,
+              color: Color(0xFF2D6A4F),
+            ),
+            const SizedBox(width: 12),
+            Text(
+              _formatDate(_storageDate),
+              style: const TextStyle(fontSize: 16),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -303,82 +383,33 @@ class _AddEditInventoryScreenState
     );
   }
 
-  Widget _buildDateField(AppLanguage lang) {
-    return GestureDetector(
-      onTap: () async {
-        final picked = await showDatePicker(
-          context: context,
-          initialDate: _storageDate,
-          firstDate: DateTime(2020),
-          lastDate: DateTime.now(),
-        );
-        if (picked != null) {
-          setState(() => _storageDate = picked);
-        }
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey[300]!),
-        ),
-        child: Row(
-          children: [
-            const Icon(Icons.calendar_today, size: 20, color: Color(0xFF2D6A4F)),
-            const SizedBox(width: 12),
-            Text(
-              _formatDate(_storageDate),
-              style: const TextStyle(fontSize: 16),
-            ),
-          ],
-        ),
+  Widget _buildSectionTitle(String title) {
+    return Text(
+      title,
+      style: const TextStyle(
+        fontSize: 14,
+        fontWeight: FontWeight.w600,
+        color: Color(0xFF1A1A1A),
       ),
     );
   }
 
-  Widget _buildConditionSelector(AppLanguage lang) {
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: _conditions.map((condition) {
-        final isSelected = _condition == condition;
-        final color = _getConditionColor(condition);
-        return GestureDetector(
-          onTap: () => setState(() => _condition = condition),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            decoration: BoxDecoration(
-              color: isSelected ? color.withAlpha(30) : Colors.white,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: isSelected ? color : Colors.grey[300]!,
-                width: isSelected ? 2 : 1,
-              ),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  _getConditionIcon(condition),
-                  size: 16,
-                  color: isSelected ? color : Colors.grey[600],
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  t(condition, lang),
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                    color: isSelected ? color : Colors.grey[700],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      }).toList(),
-    );
+  String _formatDate(DateTime date) {
+    final months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    return '${months[date.month - 1]} ${date.day}, ${date.year}';
   }
 
   Color _getConditionColor(String condition) {
@@ -413,14 +444,6 @@ class _AddEditInventoryScreenState
       default:
         return Icons.help;
     }
-  }
-
-  String _formatDate(DateTime date) {
-    final months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
-    ];
-    return '${months[date.month - 1]} ${date.day}, ${date.year}';
   }
 
   void _saveInventory() {

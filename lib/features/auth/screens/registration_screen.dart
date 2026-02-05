@@ -28,10 +28,14 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
       appBar: AppBar(
         backgroundColor: AppColors.white,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.darkGray),
-          onPressed: () => context.pop(),
-        ),
+        // Only show back button if there's navigation history
+        automaticallyImplyLeading: false,
+        leading: context.canPop()
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back, color: AppColors.darkGray),
+                onPressed: () => context.pop(),
+              )
+            : null,
         title: Text(
           t('create_account', currentLang),
           style: const TextStyle(

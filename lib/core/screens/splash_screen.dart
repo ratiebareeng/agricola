@@ -1,11 +1,37 @@
-import 'package:agricola/core/theme/app_theme.dart';
-import 'package:flutter/material.dart';
+import 'dart:async';
 
-class SplashScreen extends StatelessWidget {
+import 'package:agricola/core/providers/app_initialization_provider.dart';
+import 'package:agricola/core/theme/app_theme.dart';
+import 'package:agricola/features/auth/providers/auth_state_provider.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+/// Minimum duration the splash screen should be shown (in milliseconds)
+/// This ensures a smooth UX and allows backend to warm up
+const int _minSplashDuration = 2000;
+
+class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
 
   @override
+  ConsumerState<SplashScreen> createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends ConsumerState<SplashScreen> {
+  bool _minDurationElapsed = false;
+  bool _navigationTriggered = false;
+
+  @override
   Widget build(BuildContext context) {
+    // Watch for state changes and check if we should navigate
+    ref.listen(appInitializationProvider, (_, __) {
+      _checkAndNavigate();
+    });
+    ref.listen(unifiedAuthStateProvider, (_, __) {
+      _checkAndNavigate();
+    });
+
     return Scaffold(
       backgroundColor: AppColors.white,
       body: Stack(
@@ -67,19 +93,19 @@ class SplashScreen extends StatelessWidget {
                 Text(
                   'Agricola',
                   style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                        color: AppColors.green,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: -0.5,
-                      ),
+                    color: AppColors.green,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: -0.5,
+                  ),
                 ),
                 const SizedBox(height: 12),
                 Text(
                   'Empowering Farmers',
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: AppColors.earthBrown,
-                        fontWeight: FontWeight.w500,
-                      ),
+                    color: AppColors.earthBrown,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
                 const SizedBox(height: 48),
 
@@ -93,5 +119,44 @@ class SplashScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Start minimum duration timer
+    Timer(const Duration(milliseconds: _minSplashDuration), () {
+      if (mounted) {
+        setState(() {
+          _minDurationElapsed = true;
+        });
+        _checkAndNavigate();
+      }
+    });
+  }
+
+  void _checkAndNavigate() {
+    if (_navigationTriggered) return;
+
+    final initAsync = ref.read(appInitializationProvider);
+    final authState = ref.read(unifiedAuthStateProvider);
+
+    // Only navigate if both min duration has elapsed and states are ready
+    if (_minDurationElapsed &&
+        initAsync is AsyncData<AppInitializationState> &&
+        !authState.isLoading) {
+      _navigationTriggered = true;
+
+      // Trigger router re-evaluation by forcing a refresh
+      // The route guards will handle the actual navigation
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          // Navigate to sign-in as a trigger for route guards to re-evaluate
+          // Route guards will redirect to the appropriate screen
+          context.go('/sign-in');
+        }
+      });
+    }
   }
 }

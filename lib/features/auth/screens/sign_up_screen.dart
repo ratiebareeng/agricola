@@ -52,7 +52,14 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: AppColors.darkGray),
-          onPressed: () => context.pop(),
+          onPressed: () {
+            // Check if we can pop, otherwise go to register screen
+            if (context.canPop()) {
+              context.pop();
+            } else {
+              context.go('/register');
+            }
+          },
         ),
       ),
       body: SafeArea(
@@ -200,37 +207,6 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     });
   }
 
-  Future<void> _onSignUp(SignUpNotifier signUpNotifier) async {
-    if (_formKey.currentState!.validate()) {
-      developer.log('📝 SIGN UP: Form validated, calling signUpWithEmailPassword', name: 'SignUpScreen');
-
-      final success = await signUpNotifier.signUpWithEmailPassword(
-        userType: widget.userType ?? 'farmer',
-        context: context,
-      );
-
-      developer.log('📝 SIGN UP: Sign up result = $success', name: 'SignUpScreen');
-
-      if (success && mounted) {
-        // Wait a brief moment for auth state to update
-        developer.log('⏳ SIGN UP: Waiting 300ms for auth state update', name: 'SignUpScreen');
-        await Future.delayed(const Duration(milliseconds: 300));
-
-        if (mounted) {
-          // Get current user to determine destination based on profile completion
-          final user = ref.read(currentUserProvider);
-          final destination = NavigationHelpers.getPostAuthDestination(user);
-          developer.log('🔄 SIGN UP: Navigating to $destination', name: 'SignUpScreen');
-          context.go(destination);
-        }
-      } else if (!success) {
-        developer.log('❌ SIGN UP: Sign up failed', name: 'SignUpScreen');
-      }
-    } else {
-      developer.log('❌ SIGN UP: Form validation failed', name: 'SignUpScreen');
-    }
-  }
-
   Future<void> _onGoogleSignUp(SignUpNotifier signUpNotifier) async {
     final success = await signUpNotifier.signUpWithGoogle(
       userType: widget.userType ?? 'farmer',
@@ -247,6 +223,49 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
         final destination = NavigationHelpers.getPostAuthDestination(user);
         context.go(destination);
       }
+    }
+  }
+
+  Future<void> _onSignUp(SignUpNotifier signUpNotifier) async {
+    if (_formKey.currentState!.validate()) {
+      developer.log(
+        '📝 SIGN UP: Form validated, calling signUpWithEmailPassword',
+        name: 'SignUpScreen',
+      );
+
+      final success = await signUpNotifier.signUpWithEmailPassword(
+        userType: widget.userType ?? 'farmer',
+        context: context,
+      );
+
+      developer.log(
+        '📝 SIGN UP: Sign up result = $success',
+        name: 'SignUpScreen',
+      );
+
+      if (success && mounted) {
+        // Wait a brief moment for auth state to update
+        developer.log(
+          '⏳ SIGN UP: Waiting 300ms for auth state update',
+          name: 'SignUpScreen',
+        );
+        await Future.delayed(const Duration(milliseconds: 300));
+
+        if (mounted) {
+          // Get current user to determine destination based on profile completion
+          final user = ref.read(currentUserProvider);
+          final destination = NavigationHelpers.getPostAuthDestination(user);
+          developer.log(
+            '🔄 SIGN UP: Navigating to $destination',
+            name: 'SignUpScreen',
+          );
+          context.go(destination);
+        }
+      } else if (!success) {
+        developer.log('❌ SIGN UP: Sign up failed', name: 'SignUpScreen');
+      }
+    } else {
+      developer.log('❌ SIGN UP: Form validation failed', name: 'SignUpScreen');
     }
   }
 }

@@ -1,4 +1,4 @@
-import 'dart:developer' as developer;
+import 'dart:async';
 
 import 'package:agricola/core/providers/app_initialization_provider.dart';
 import 'package:agricola/core/routing/route_guards.dart';
@@ -75,23 +75,30 @@ GoRouter createRouter(WidgetRef ref) {
 
 class RouterNotifier extends ChangeNotifier {
   final Ref _ref;
+  Timer? _debounceTimer;
 
   RouterNotifier(this._ref) {
     // Listen to both initialization and auth state changes
     // This ensures the router re-evaluates route guards when either changes
     _ref.listen(appInitializationProvider, (_, __) {
-      developer.log('🔔 ROUTER: App initialization state changed, notifying router', name: 'RouterNotifier');
-      notifyListeners();
+      _notifyWithDebounce();
     });
     _ref.listen(unifiedAuthStateProvider, (previous, next) {
-      developer.log(
-        '🔔 ROUTER: Auth state changed\n'
-        '  Previous: ${previous?.status}\n'
-        '  Next: ${next.status}\n'
-        '  isAuthenticated: ${next.isAuthenticated}\n'
-        '  isAnonymous: ${next.user?.isAnonymous}',
-        name: 'RouterNotifier',
-      );
+      _notifyWithDebounce();
+    });
+  }
+
+  @override
+  void dispose() {
+    _debounceTimer?.cancel();
+    super.dispose();
+  }
+
+  /// Debounce router notifications to prevent rapid route re-evaluations
+  /// that can cause screen flickering during auth state transitions
+  void _notifyWithDebounce() {
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(milliseconds: 100), () {
       notifyListeners();
     });
   }
