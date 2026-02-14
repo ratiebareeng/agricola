@@ -27,68 +27,21 @@ class FarmerDashboardScreen extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Header
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        t('welcome_message', currentLang),
-                        style: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF1A1A1A),
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Let\'s check your farm status',
-                        style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-                      ),
-                    ],
+                  Text(
+                    t('welcome_message', currentLang),
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF1A1A1A),
+                    ),
                   ),
-                  Row(
-                    children: [
-                      IconButton(
-                        onPressed: () {
-                          final newLang = currentLang == AppLanguage.english
-                              ? AppLanguage.setswana
-                              : AppLanguage.english;
-                          ref
-                              .read(languageProvider.notifier)
-                              .setLanguage(newLang);
-                        },
-                        icon: Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.grey[200]!),
-                          ),
-                          child: Text(
-                            currentLang == AppLanguage.english ? 'EN' : 'TN',
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 4),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.grey[200]!),
-                        ),
-                        child: IconButton(
-                          icon: const Icon(Icons.notifications_outlined),
-                          onPressed: () {},
-                          color: Colors.black87,
-                        ),
-                      ),
-                    ],
+                  const SizedBox(height: 4),
+                  Text(
+                    'Let\'s check your farm status',
+                    style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                   ),
                 ],
               ),
@@ -116,7 +69,8 @@ class FarmerDashboardScreen extends ConsumerWidget {
                   ),
                   TextButton(
                     onPressed: () {
-                      ref.read(selectedTabProvider.notifier).state = 2; // Crops tab
+                      ref.read(selectedTabProvider.notifier).state =
+                          2; // Crops tab
                     },
                     child: Text(t('view_all', currentLang)),
                   ),

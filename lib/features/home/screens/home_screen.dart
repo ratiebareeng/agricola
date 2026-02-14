@@ -1,13 +1,12 @@
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/providers/nav_provider.dart';
-import 'package:agricola/core/theme/app_theme.dart';
-import 'package:agricola/core/widgets/app_buttons.dart';
 import 'package:agricola/domain/profile/enum/merchant_type.dart';
 import 'package:agricola/features/auth/providers/auth_state_provider.dart';
 import 'package:agricola/features/crops/screens/crops_screen.dart';
 import 'package:agricola/features/home/screens/agri_shop_dashboard_screen.dart';
 import 'package:agricola/features/home/screens/farmer_dashboard_screen.dart';
 import 'package:agricola/features/home/screens/merchant_dashboard_screen.dart';
+import 'package:agricola/features/home/widgets/anonymous_home_screen_content.dart';
 import 'package:agricola/features/home/widgets/home_bottom_navigation_bar.dart';
 import 'package:agricola/features/inventory/screens/farmer_inventory_screen.dart';
 import 'package:agricola/features/inventory/screens/merchant_inventory_screen.dart';
@@ -18,7 +17,6 @@ import 'package:agricola/features/profile_setup/providers/profile_setup_provider
     show UserType;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -37,7 +35,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final isAnonymous = user?.isAnonymous ?? true;
 
     if (isAnonymous) {
-      return _buildAnonymousHomeScreen(context, currentLang);
+      return AnonymousHomeScreenContent(lang: currentLang);
     }
 
     // Use actual user data from Firebase/Firestore, NOT the cached profileSetupProvider
@@ -45,28 +43,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final isFarmer = user?.userType == UserType.farmer;
     final isAgriShop = user?.merchantType == MerchantType.agriShop;
 
-    final List<Widget> widgetOptions = isFarmer
-        ? [
-            const FarmerDashboardScreen(),
-            const MarketplaceScreen(),
-            const CropsScreen(),
-            const FarmerInventoryScreen(),
-            const ProfileScreen(),
-          ]
-        : (isAgriShop
-              ? [
-                  const AgriShopDashboardScreen(),
-                  const MerchantInventoryScreen(),
-                  const AgriShopOrdersScreen(),
-                  const MarketplaceScreen(),
-                  const ProfileScreen(),
-                ]
-              : [
-                  const MerchantDashboardScreen(),
-                  const MarketplaceScreen(),
-                  const MerchantInventoryScreen(),
-                  const ProfileScreen(),
-                ]);
+    final widgetOptions = _widgetOptions(isFarmer, isAgriShop);
 
     // Ensure selected index is within bounds
     if (selectedIndex >= widgetOptions.length) {
@@ -164,71 +141,35 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  Widget _buildAnonymousHomeScreen(BuildContext context, AppLanguage lang) {
-    return Scaffold(
-      body: SafeArea(
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.lock_open_outlined,
-                  size: 80,
-                  color: AppColors.green.withAlpha(178),
-                ),
-                const SizedBox(height: 24),
-                Text(
-                  t('welcome_to_agricola', lang),
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.darkGray,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  t('sign_in_to_access_features', lang),
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    color: AppColors.mediumGray,
-                    height: 1.5,
-                  ),
-                ),
-                const SizedBox(height: 40),
-                AppPrimaryButton(
-                  label: t('sign_in', lang),
-                  onTap: () => context.go('/sign-in'),
-                ),
-                const SizedBox(height: 16),
-                AppSecondaryButton(
-                  label: t('sign_up', lang),
-                  onTap: () => context.go('/register'),
-                ),
-                const SizedBox(height: 24),
-                TextButton(
-                  onPressed: () => context.go('/marketplace'),
-                  child: Text(
-                    t('browse_marketplace', lang),
-                    style: const TextStyle(
-                      color: AppColors.green,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   void _onItemTapped(int index) {
     ref.read(selectedTabProvider.notifier).state = index;
+  }
+
+  List<Widget> _widgetOptions(bool isFarmer, bool isAgriShop) {
+    if (isFarmer) {
+      return [
+        const FarmerDashboardScreen(),
+        const MarketplaceScreen(),
+        const CropsScreen(),
+        const FarmerInventoryScreen(),
+        const ProfileScreen(),
+      ];
+    } else if (isAgriShop) {
+      return [
+        const AgriShopDashboardScreen(),
+        const MarketplaceScreen(),
+        const MerchantInventoryScreen(),
+        const AgriShopOrdersScreen(),
+        const ProfileScreen(),
+      ];
+    } else {
+      // Default to merchant dashboard for other merchant types
+      return [
+        const MerchantDashboardScreen(),
+        const MarketplaceScreen(),
+        const MerchantInventoryScreen(),
+        const ProfileScreen(),
+      ];
+    }
   }
 }

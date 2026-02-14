@@ -1,7 +1,14 @@
+## 0.2.7 - 2026-02-14
+
+### Changed
+- Extracted anonymous home screen content into reusable `AnonymousHomeScreenContent` widget
+- Simplified farmer dashboard header layout by removing language switcher and notification buttons
+- Refactored home screen widget options list into `_widgetOptions()` helper method
+
 ## 0.2.6 - 2026-02-14
 
 ### Changed
-- refactor: extract bottom navigation bar into reusable widget component
+- Extracted bottom navigation bar into reusable `HomeBottomNavigationBar` widget
 
 ## 0.2.5
 
