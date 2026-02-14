@@ -1,3 +1,8 @@
+## 0.2.6 - 2026-02-14
+
+### Changed
+- refactor: extract bottom navigation bar into reusable widget component
+
 ## 0.2.5
 
 ### Fixed

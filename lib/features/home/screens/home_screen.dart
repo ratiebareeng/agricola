@@ -8,6 +8,7 @@ import 'package:agricola/features/crops/screens/crops_screen.dart';
 import 'package:agricola/features/home/screens/agri_shop_dashboard_screen.dart';
 import 'package:agricola/features/home/screens/farmer_dashboard_screen.dart';
 import 'package:agricola/features/home/screens/merchant_dashboard_screen.dart';
+import 'package:agricola/features/home/widgets/home_bottom_navigation_bar.dart';
 import 'package:agricola/features/inventory/screens/farmer_inventory_screen.dart';
 import 'package:agricola/features/inventory/screens/merchant_inventory_screen.dart';
 import 'package:agricola/features/marketplace/screens/marketplace_screen.dart';
@@ -155,27 +156,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     return Scaffold(
       body: widgetOptions.elementAt(selectedIndex),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withAlpha(25),
-              blurRadius: 10,
-              offset: const Offset(0, -4),
-            ),
-          ],
-        ),
-        child: BottomNavigationBar(
-          items: navItems,
-          currentIndex: selectedIndex,
-          selectedItemColor: const Color(0xFF2D6A4F),
-          unselectedItemColor: Colors.grey,
-          showUnselectedLabels: true,
-          type: BottomNavigationBarType.fixed,
-          onTap: _onItemTapped,
-          backgroundColor: Colors.white,
-          elevation: 0,
-        ),
+      bottomNavigationBar: HomeBottomNavigationBar(
+        selectedIndex: selectedIndex,
+        navItems: navItems,
+        onItemTapped: _onItemTapped,
       ),
     );
   }
