@@ -8,6 +8,7 @@ import 'package:agricola/features/profile/domain/models/displayable_profile.dart
 import 'package:agricola/features/profile/providers/profile_controller_provider.dart';
 import 'package:agricola/features/profile/providers/profile_provider.dart';
 import 'package:agricola/features/profile_setup/models/farmer_profile_model.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -193,8 +194,10 @@ class _FarmerProfileScreenState extends ConsumerState<FarmerProfileScreen> {
                     _buildProfileInfoCard(context, ref, profile),
                     const SizedBox(height: 16),
                     _buildFarmDetailsCard(context, ref, farmerProfile),
-                    const SizedBox(height: 16),
-                    _buildQuickActionsCard(context, ref),
+                    if (kDebugMode) ...[
+                      const SizedBox(height: 16),
+                      _buildQuickActionsCard(context, ref),
+                    ],
                     const SizedBox(height: 16),
                     _buildSettingsSection(context, ref),
                     const SizedBox(height: 80),

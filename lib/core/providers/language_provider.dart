@@ -149,10 +149,7 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
     AppLanguage.english: 'Already have an account?',
     AppLanguage.setswana: 'A o setse o na le akhaonto?',
   },
-  'or': {
-    AppLanguage.english: 'or',
-    AppLanguage.setswana: 'kgotsa',
-  },
+  'or': {AppLanguage.english: 'or', AppLanguage.setswana: 'kgotsa'},
   'continue_as_guest': {
     AppLanguage.english: 'Continue as Guest',
     AppLanguage.setswana: 'Tswelela jaaka moeng',
@@ -473,6 +470,14 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
   'try_different_search': {
     AppLanguage.english: 'Try adjusting your search terms',
     AppLanguage.setswana: 'Leka go fetola mafoko a patlo',
+  },
+  'marketplace_empty': {
+    AppLanguage.english: 'No Listings Yet',
+    AppLanguage.setswana: 'Ga go na Dilisti',
+  },
+  'marketplace_empty_hint': {
+    AppLanguage.english: 'Check back later for new listings',
+    AppLanguage.setswana: 'Boa moragonyana go bona dilisti tse dintsha',
   },
   'harvested': {
     AppLanguage.english: 'Harvested',
@@ -1255,7 +1260,8 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
   },
   'delete_inventory_confirm': {
     AppLanguage.english: 'Are you sure you want to delete this inventory item?',
-    AppLanguage.setswana: 'A o tlhomamisa gore o batla go phimola selo se sa dithoto?',
+    AppLanguage.setswana:
+        'A o tlhomamisa gore o batla go phimola selo se sa dithoto?',
   },
   'error_loading_inventory': {
     AppLanguage.english: 'Failed to load inventory',
@@ -1289,10 +1295,7 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
     AppLanguage.english: 'Add any notes about this item...',
     AppLanguage.setswana: 'Tsenya ditshupiso ka selo se...',
   },
-  'error': {
-    AppLanguage.english: 'Error',
-    AppLanguage.setswana: 'Phoso',
-  },
+  'error': {AppLanguage.english: 'Error', AppLanguage.setswana: 'Phoso'},
   'sunflower': {
     AppLanguage.english: 'Sunflower',
     AppLanguage.setswana: 'Sunflower',
@@ -1318,26 +1321,14 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
     AppLanguage.english: 'Price Range',
     AppLanguage.setswana: 'Tlhwatlhwa',
   },
-  'min_price': {
-    AppLanguage.english: 'Min',
-    AppLanguage.setswana: 'Bonnye',
-  },
-  'max_price': {
-    AppLanguage.english: 'Max',
-    AppLanguage.setswana: 'Bogolo',
-  },
-  'category': {
-    AppLanguage.english: 'Category',
-    AppLanguage.setswana: 'Mokgwa',
-  },
+  'min_price': {AppLanguage.english: 'Min', AppLanguage.setswana: 'Bonnye'},
+  'max_price': {AppLanguage.english: 'Max', AppLanguage.setswana: 'Bogolo'},
+  'category': {AppLanguage.english: 'Category', AppLanguage.setswana: 'Mokgwa'},
   'error_loading': {
     AppLanguage.english: 'Failed to Load',
     AppLanguage.setswana: 'Go Padile go Tsenya',
   },
-  'retry': {
-    AppLanguage.english: 'Retry',
-    AppLanguage.setswana: 'Leka Gape',
-  },
+  'retry': {AppLanguage.english: 'Retry', AppLanguage.setswana: 'Leka Gape'},
   // Agri Shop specific
   'orders': {AppLanguage.english: 'Orders', AppLanguage.setswana: 'Ditaelo'},
   'orders_today': {
@@ -1388,10 +1379,7 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
     AppLanguage.english: 'Enter description',
     AppLanguage.setswana: 'Tsenya tlhaloso',
   },
-  'unit': {
-    AppLanguage.english: 'Unit',
-    AppLanguage.setswana: 'Tekanyetso',
-  },
+  'unit': {AppLanguage.english: 'Unit', AppLanguage.setswana: 'Tekanyetso'},
   'quantity_available': {
     AppLanguage.english: 'Quantity Available',
     AppLanguage.setswana: 'Palo e e Leng Teng',
@@ -1433,8 +1421,10 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
     AppLanguage.setswana: 'Ditaelo go tswa go balemi di tlaa bonala fano',
   },
   'add_products_to_start': {
-    AppLanguage.english: 'Add products to your catalog to start receiving orders',
-    AppLanguage.setswana: 'Tsenya dithoto mo lenaneong go simolola go amogela ditaelo',
+    AppLanguage.english:
+        'Add products to your catalog to start receiving orders',
+    AppLanguage.setswana:
+        'Tsenya dithoto mo lenaneong go simolola go amogela ditaelo',
   },
   'no_recent_orders': {
     AppLanguage.english: 'No recent orders',
@@ -1453,8 +1443,10 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
     AppLanguage.setswana: 'Dumela rra/mma',
   },
   'feature_under_development': {
-    AppLanguage.english: 'This feature is currently under development and will be available soon.',
-    AppLanguage.setswana: 'Sediriswa se se santse se dirwa mme se tlaa nna teng ka bonako.',
+    AppLanguage.english:
+        'This feature is currently under development and will be available soon.',
+    AppLanguage.setswana:
+        'Sediriswa se se santse se dirwa mme se tlaa nna teng ka bonako.',
   },
   'okay': {AppLanguage.english: 'Okay', AppLanguage.setswana: 'Go siame'},
   'what_are_orders': {
@@ -1462,8 +1454,10 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
     AppLanguage.setswana: 'Ditaelo ke eng?',
   },
   'orders_description': {
-    AppLanguage.english: 'Orders are purchase requests from farmers who want to buy your products. Once you add products to your catalog, farmers can place orders through the marketplace.',
-    AppLanguage.setswana: 'Ditaelo ke dikopo tsa go reka go tswa go balemi ba ba batlang go reka dithoto tsa gago. Fa o tsenya dithoto mo lenaneong la gago, balemi ba ka dira ditaelo go ralala mmaraka.',
+    AppLanguage.english:
+        'Orders are purchase requests from farmers who want to buy your products. Once you add products to your catalog, farmers can place orders through the marketplace.',
+    AppLanguage.setswana:
+        'Ditaelo ke dikopo tsa go reka go tswa go balemi ba ba batlang go reka dithoto tsa gago. Fa o tsenya dithoto mo lenaneong la gago, balemi ba ka dira ditaelo go ralala mmaraka.',
   },
 };
 
@@ -1488,11 +1482,19 @@ class LanguageNotifier extends StateNotifier<AppLanguage> {
       language == AppLanguage.setswana ? 'tn' : 'en',
     );
     await prefs.setBool('has_seen_welcome', true);
-    developer.log('✅ LANGUAGE SET: ${language.name}, has_seen_welcome = true', name: 'LanguageProvider');
+    developer.log(
+      '✅ LANGUAGE SET: ${language.name}, has_seen_welcome = true',
+      name: 'LanguageProvider',
+    );
 
     // Update the initialization provider synchronously
-    _ref.read(appInitializationProvider.notifier).updateFlag(hasSeenWelcome: true);
-    developer.log('🔄 UPDATED: appInitializationProvider (hasSeenWelcome: true)', name: 'LanguageProvider');
+    _ref
+        .read(appInitializationProvider.notifier)
+        .updateFlag(hasSeenWelcome: true);
+    developer.log(
+      '🔄 UPDATED: appInitializationProvider (hasSeenWelcome: true)',
+      name: 'LanguageProvider',
+    );
   }
 
   Future<void> _loadLanguage() async {

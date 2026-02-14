@@ -1,3 +1,16 @@
+## 0.3.0 - 2026-02-14
+
+### Added
+- Improved marketplace empty state with context-aware messaging
+  - Shows "No Listings Yet" when marketplace is empty
+  - Shows "No Results" when filters are active but no matches found
+  - Added translations: `marketplace_empty` and `marketplace_empty_hint`
+- Debug-only quick actions card in farmer profile screen (hidden in production)
+
+### Changed
+- Code formatting improvements in language provider (condensed single-line maps)
+- Reorganized marketplace screen methods for better readability
+
 ## 0.2.7 - 2026-02-14
 
 ### Changed
