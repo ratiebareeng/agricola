@@ -17,10 +17,14 @@ final _productionConfig = _ProductionConfig();
 enum AppEnvironment { development, production }
 
 class EnvironmentConfig {
-  // Automatically use production for release builds, development for debug
-  static AppEnvironment get defaultEnvironment =>
-      kReleaseMode ? AppEnvironment.production : AppEnvironment.development;
+  // Cold start handling configuration
+  static const Duration coldStartTimeout = Duration(seconds: 60);
 
+  static const int maxRetries = 3;
+
+  static const Duration initialRetryDelay = Duration(seconds: 3);
+
+  static const Duration serverWakeDelay = Duration(seconds: 5);
   // API Configuration
   static String get apiBaseUrl {
     switch (environment) {
@@ -39,6 +43,10 @@ class EnvironmentConfig {
         return _productionConfig.apiTimeout;
     }
   }
+
+  // Automatically use production for release builds, development for debug
+  static AppEnvironment get defaultEnvironment =>
+      kReleaseMode ? AppEnvironment.production : AppEnvironment.development;
 
   static bool get enableLogging {
     switch (environment) {
@@ -75,7 +83,9 @@ class _DevelopmentConfig {
   // For physical device: Set your machine's local IP (e.g., '192.168.1.100')
   static const String? localIpOverride = null;
 
-  final Duration apiTimeout = const Duration(seconds: 30);
+  final Duration apiTimeout = const Duration(
+    seconds: 45,
+  ); // Match production for cold starts
 
   final bool enableLogging = true;
   String get apiBaseUrl {

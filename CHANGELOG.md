@@ -1,3 +1,23 @@
+## 0.3.1 - 2026-02-15
+
+### Added
+- Cold start handling for Render free tier backend
+  - `RetryInterceptor` - Automatically retries failed requests with exponential backoff
+  - `ServerWakeService` - Proactively wakes up idle servers via health endpoint
+  - `ErrorRecoveryService` - User-friendly error messages with retry functionality
+  - `ServerStatusProvider` - Riverpod providers for server status management
+- Enhanced splash screen with real-time connection status
+  - Shows "Connecting to server...", "Server is starting up...", "Connected!"
+  - Graceful handling of slow server wake-up
+
+### Changed
+- Increased development `apiTimeout` from 30s to 45s to match production
+- Added cold start configuration constants to `EnvironmentConfig`
+  - `coldStartTimeout`: 60 seconds
+  - `maxRetries`: 3 attempts
+  - `initialRetryDelay`: 3 seconds
+  - `serverWakeDelay`: 5 seconds
+
 ## 0.3.0 - 2026-02-14
 
 ### Added

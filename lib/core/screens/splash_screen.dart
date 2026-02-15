@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:agricola/core/providers/app_initialization_provider.dart';
+import 'package:agricola/core/providers/server_status_provider.dart';
+import 'package:agricola/core/services/server_wake_service.dart';
 import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/features/auth/providers/auth_state_provider.dart';
 import 'package:flutter/material.dart';
@@ -21,15 +23,31 @@ class SplashScreen extends ConsumerStatefulWidget {
 class _SplashScreenState extends ConsumerState<SplashScreen> {
   bool _minDurationElapsed = false;
   bool _navigationTriggered = false;
+  bool _serverWakeStarted = false;
+  String _statusMessage = 'Initializing...';
 
   @override
   Widget build(BuildContext context) {
+    // Watch server status (value used to trigger rebuilds)
+    ref.watch(serverWakeStatusProvider);
+
     // Watch for state changes and check if we should navigate
     ref.listen(appInitializationProvider, (_, __) {
       _checkAndNavigate();
     });
     ref.listen(unifiedAuthStateProvider, (_, __) {
       _checkAndNavigate();
+    });
+    ref.listen(serverWakeStatusProvider, (_, state) {
+      if (mounted) {
+        setState(() {
+          _statusMessage = state.message;
+        });
+        if (state.status == ServerWakeStatus.ready ||
+            state.status == ServerWakeStatus.failed) {
+          _checkAndNavigate();
+        }
+      }
     });
 
     return Scaffold(
@@ -113,6 +131,19 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
                 const CircularProgressIndicator(
                   valueColor: AlwaysStoppedAnimation<Color>(AppColors.green),
                 ),
+                const SizedBox(height: 16),
+
+                // Status Message
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 300),
+                  child: Text(
+                    _statusMessage,
+                    key: ValueKey(_statusMessage),
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: AppColors.earthBrown.withAlpha(180),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
@@ -125,6 +156,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   void initState() {
     super.initState();
 
+    // Start server wake-up process
+    _startServerWake();
+
     // Start minimum duration timer
     Timer(const Duration(milliseconds: _minSplashDuration), () {
       if (mounted) {
@@ -136,16 +170,38 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     });
   }
 
+  /// Start the server wake-up process in background
+  void _startServerWake() {
+    if (_serverWakeStarted) return;
+    _serverWakeStarted = true;
+
+    // Use post-frame callback to ensure ref is available
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        ref.read(serverWakeStatusProvider.notifier).wakeServer();
+      }
+    });
+  }
+
   void _checkAndNavigate() {
     if (_navigationTriggered) return;
 
     final initAsync = ref.read(appInitializationProvider);
     final authState = ref.read(unifiedAuthStateProvider);
+    final serverState = ref.read(serverWakeStatusProvider);
 
-    // Only navigate if both min duration has elapsed and states are ready
+    // Check if server wake has completed (successfully or failed)
+    // We don't block on server wake - it's best effort
+    final serverWakeComplete =
+        serverState.status == ServerWakeStatus.ready ||
+        serverState.status == ServerWakeStatus.failed;
+
+    // Only navigate if min duration has elapsed and states are ready
+    // Server wake is non-blocking - we continue even if it fails
     if (_minDurationElapsed &&
         initAsync is AsyncData<AppInitializationState> &&
-        !authState.isLoading) {
+        !authState.isLoading &&
+        serverWakeComplete) {
       _navigationTriggered = true;
 
       // Trigger router re-evaluation by forcing a refresh

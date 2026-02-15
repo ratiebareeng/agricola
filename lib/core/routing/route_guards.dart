@@ -81,11 +81,12 @@ class RouteGuards {
         return null;
       }
 
-      // If profile is incomplete and not on profile setup, redirect there
+      // If profile is incomplete and user hasn't skipped, redirect to profile setup
       if (isAuthenticated &&
           !isAnonymous &&
           user != null &&
-          !user.isProfileComplete) {
+          !user.isProfileComplete &&
+          !user.hasSkippedProfileSetup) {
         if (path != '/profile-setup' && path != '/profile-setup-complete') {
           return '/profile-setup';
         }

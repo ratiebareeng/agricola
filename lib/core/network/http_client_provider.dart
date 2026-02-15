@@ -1,5 +1,6 @@
 import 'package:agricola/core/constants/api_constants.dart';
 import 'package:agricola/core/network/auth_interceptor.dart';
+import 'package:agricola/core/network/interceptors/retry_interceptor.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -13,6 +14,9 @@ final httpClientProvider = Provider<Dio>((ref) {
   dio.options.connectTimeout = const Duration(seconds: 30);
   dio.options.receiveTimeout = const Duration(seconds: 30);
   dio.options.headers['Content-Type'] = 'application/json';
+
+  // Add retry interceptor first (handles cold starts)
+  dio.interceptors.add(RetryInterceptor(dio: dio));
 
   // Add auth interceptor
   dio.interceptors.add(AuthInterceptor(ref));
