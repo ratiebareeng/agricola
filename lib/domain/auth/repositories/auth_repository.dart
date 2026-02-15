@@ -39,4 +39,6 @@ abstract class AuthRepository {
   Future<Either<AuthFailure, void>> updateProfileCompletionStatus(
     bool isComplete,
   );
+
+  Future<Either<AuthFailure, void>> markProfileSetupAsSkipped();
 }

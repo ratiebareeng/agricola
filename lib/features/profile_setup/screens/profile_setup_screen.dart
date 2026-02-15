@@ -1,6 +1,7 @@
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/widgets/app_buttons.dart';
 import 'package:agricola/domain/profile/enum/merchant_type.dart';
+import 'package:agricola/features/auth/providers/auth_controller.dart';
 import 'package:agricola/features/auth/providers/auth_provider.dart';
 import 'package:agricola/features/profile_setup/providers/profile_setup_provider.dart';
 import 'package:agricola/features/profile_setup/widgets/wizard_progress_bar.dart';
@@ -83,8 +84,14 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
               final prefs = await SharedPreferences.getInstance();
               await prefs.setBool('has_seen_profile_setup', true);
 
-              // Wait for auth state to fully update
-              await Future.delayed(const Duration(milliseconds: 300));
+              // Mark that user skipped profile setup in Firestore
+              await ref.read(authControllerProvider.notifier).markProfileSetupAsSkipped();
+
+              // Invalidate auth state to force refresh from Firestore
+              ref.invalidate(authStateProvider);
+
+              // Wait for state to update
+              await Future.delayed(const Duration(milliseconds: 800));
 
               if (mounted) {
                 context.go('/home');

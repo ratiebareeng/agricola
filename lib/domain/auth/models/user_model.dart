@@ -16,6 +16,7 @@ class UserModel extends Equatable {
   final UserType userType;
   final MerchantType? merchantType;
   final bool isProfileComplete;
+  final bool hasSkippedProfileSetup;
   final bool isAnonymous;
 
   const UserModel({
@@ -28,6 +29,7 @@ class UserModel extends Equatable {
     required this.userType,
     this.merchantType,
     this.isProfileComplete = false,
+    this.hasSkippedProfileSetup = false,
     this.isAnonymous = false,
   });
 
@@ -37,6 +39,7 @@ class UserModel extends Equatable {
     required UserType userType,
     MerchantType? merchantType,
     bool isProfileComplete = false,
+    bool hasSkippedProfileSetup = false,
   }) {
     return UserModel(
       uid: firebaseUser.uid,
@@ -48,6 +51,7 @@ class UserModel extends Equatable {
       userType: userType,
       merchantType: merchantType,
       isProfileComplete: isProfileComplete,
+      hasSkippedProfileSetup: hasSkippedProfileSetup,
       isAnonymous: firebaseUser.isAnonymous,
     );
   }
@@ -74,6 +78,7 @@ class UserModel extends Equatable {
             )
           : null,
       isProfileComplete: doc['isProfileComplete'] as bool? ?? false,
+      hasSkippedProfileSetup: doc['hasSkippedProfileSetup'] as bool? ?? false,
       isAnonymous: doc['isAnonymous'] as bool? ?? false,
     );
   }
@@ -89,6 +94,7 @@ class UserModel extends Equatable {
     userType,
     merchantType,
     isProfileComplete,
+    hasSkippedProfileSetup,
     isAnonymous,
   ];
 
@@ -102,6 +108,7 @@ class UserModel extends Equatable {
     UserType? userType,
     MerchantType? merchantType,
     bool? isProfileComplete,
+    bool? hasSkippedProfileSetup,
     bool? isAnonymous,
   }) {
     return UserModel(
@@ -114,6 +121,7 @@ class UserModel extends Equatable {
       userType: userType ?? this.userType,
       merchantType: merchantType ?? this.merchantType,
       isProfileComplete: isProfileComplete ?? this.isProfileComplete,
+      hasSkippedProfileSetup: hasSkippedProfileSetup ?? this.hasSkippedProfileSetup,
       isAnonymous: isAnonymous ?? this.isAnonymous,
     );
   }
@@ -140,6 +148,7 @@ class UserModel extends Equatable {
       'userType': userType.name,
       'merchantType': merchantType?.name,
       'isProfileComplete': isProfileComplete,
+      'hasSkippedProfileSetup': hasSkippedProfileSetup,
       'isAnonymous': isAnonymous,
       'updatedAt': FieldValue.serverTimestamp(),
     };

@@ -109,6 +109,16 @@ class FirebaseAuthDatasource {
     });
   }
 
+  /// Mark profile setup as skipped
+  Future<void> markProfileSetupAsSkipped({
+    required String uid,
+  }) async {
+    await _firestore.collection('users').doc(uid).update({
+      'hasSkippedProfileSetup': true,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+  }
+
   Future<firebase_auth.UserCredential> _signInWithGoogleMobile() async {
     List<String> scopes = [
       'https://www.googleapis.com/auth/userinfo.email',

@@ -1,3 +1,12 @@
+## 0.4.0 - 2026-02-15
+
+### Added
+- Profile setup skip tracking with Firestore persistence
+  - Added `hasSkippedProfileSetup` field to UserModel
+  - Implemented `markProfileSetupAsSkipped()` method in auth repository and controller
+  - Profile setup screens now properly mark and handle skip state
+  - Auth state refreshes after skipping to reflect updated Firestore data
+
 ## 0.3.1 - 2026-02-15
 
 ### Added

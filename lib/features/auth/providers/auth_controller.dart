@@ -52,6 +52,10 @@ class AuthController extends StateNotifier<AsyncValue<void>> {
     await _repository.updateProfileCompletionStatus(true);
   }
 
+  Future<void> markProfileSetupAsSkipped() async {
+    await _repository.markProfileSetupAsSkipped();
+  }
+
   Future<Either<AuthFailure, UserModel>> refreshUserData() async {
     return await _repository.refreshUserData();
   }

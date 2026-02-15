@@ -1,5 +1,6 @@
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
+import 'package:agricola/features/auth/providers/auth_provider.dart';
 import 'package:agricola/features/profile/providers/profile_controller_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -292,7 +293,17 @@ class ProfileSetupCompleteScreen extends ConsumerWidget {
   }
 
   Future<void> _handleGetStarted(BuildContext context, WidgetRef ref) async {
-    // Profile is already created at this point, just navigate to home
+    final skipped = profileData['skipped'] as bool? ?? false;
+
+    if (skipped) {
+      // User skipped profile setup - invalidate auth state to refresh
+      ref.invalidate(authStateProvider);
+
+      // Wait for state to refresh
+      await Future.delayed(const Duration(milliseconds: 800));
+    }
+
+    // Profile is already created (or marked as complete), navigate to home
     if (context.mounted) {
       context.go('/home');
     }

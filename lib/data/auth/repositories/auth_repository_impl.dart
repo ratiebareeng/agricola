@@ -217,6 +217,29 @@ class AuthRepositoryImpl implements AuthRepository {
     }
   }
 
+  @override
+  Future<Either<AuthFailure, void>> markProfileSetupAsSkipped() async {
+    try {
+      final firebaseUser = _datasource.currentFirebaseUser;
+      if (firebaseUser == null) {
+        return const Left(
+          AuthFailure(
+            message: 'No user signed in',
+            type: AuthFailureType.userNotFound,
+          ),
+        );
+      }
+
+      await _datasource.markProfileSetupAsSkipped(
+        uid: firebaseUser.uid,
+      );
+
+      return const Right(null);
+    } catch (e) {
+      return Left(AuthFailure.fromException(e));
+    }
+  }
+
   /// Helper method to convert Firebase User to UserModel
   Future<UserModel> _getUserModelFromFirebaseUser(
     firebase_auth.User firebaseUser,
