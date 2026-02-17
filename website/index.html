@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agricola - Smart Farm Management for Botswana</title>
+    <meta name="description" content="Empowering Botswana's farmers and agricultural merchants with smart tools to track crops, manage inventory, and reduce post-harvest losses.">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="#" class="logo">
+                    <img src="../assets/icons/icon_square.jpg" alt="Agricola" class="logo-icon">
+                    <span>Agricola</span>
+                </a>
+            </div>
+            <div class="nav-menu">
+                <a href="#features" class="nav-link">Features</a>
+                <a href="#about" class="nav-link">About</a>
+                <a href="#download" class="nav-link">Download</a>
+                <button class="language-toggle" onclick="toggleLanguage()">
+                    <span class="material-icons">translate</span>
+                    <span id="lang-text">Setswana</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero has-background">
+        <div class="hero-overlay"></div>
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <h1 data-en="Smart Farm Ecosystem for Botswana" data-sn="Tikologo ya Polasi e e Botlhale mo Botswana">
+                        Smart Farm Ecosystem for Botswana
+                    </h1>
+                    <p data-en="Empowering farmers and agricultural merchants with smart tools to track crops, manage inventory, and reduce post-harvest losses. From field to market, make every harvest count." data-sn="Re thusa balemi le barekisi ba temothuo ka didirisiwa tse di botlhale go latela dijalo, go laola thepa, le go fokotsa taelo morago ga kotulo. Go tswa tshimong go ya mmarakeng, dira kotulo nngwe le nngwe e balege.">
+                        Empowering farmers and agricultural merchants with smart tools to track crops, manage inventory, and reduce post-harvest losses. From field to market, make every harvest count.
+                    </p>
+                    <div class="hero-stats">
+                        <div class="stat">
+                            <span class="stat-number">30%</span>
+                            <span class="stat-label" data-en="Loss Reduction Target" data-sn="Pakane ya go Fokotsa Taelo">Loss Reduction Target</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-number">25%</span>
+                            <span class="stat-label" data-en="of Botswana's Workforce" data-sn="ya Badiri ba Botswana">of Botswana's Workforce</span>
+                        </div>
+                    </div>
+                    <div class="cta-buttons">
+                        <a href="#download" class="btn btn-primary">
+                            <span class="material-icons">get_app</span>
+                            <span data-en="Download App" data-sn="Kopolola App">Download App</span>
+                        </a>
+                        <a href="#features" class="btn btn-secondary">
+                            <span data-en="Learn More" data-sn="Ithute go Oketsa">Learn More</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="hero-visual">
+                    <div class="phone-mockup">
+                        <div class="phone-frame">
+                            <div class="phone-screen">
+                                <div class="app-preview">
+                                    <div class="preview-header">
+                                        <div class="preview-title">Agricola Dashboard</div>
+                                    </div>
+                                    <div class="preview-stats">
+                                        <div class="preview-card green">
+                                            <span class="material-icons">agriculture</span>
+                                            <div>
+                                                <div class="card-number">8</div>
+                                                <div class="card-label">Active Crops</div>
+                                            </div>
+                                        </div>
+                                        <div class="preview-card blue">
+                                            <span class="material-icons">inventory</span>
+                                            <div>
+                                                <div class="card-number">1.2T</div>
+                                                <div class="card-label">Inventory</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="preview-crops">
+                                        <div class="crop-item">
+                                            <span class="material-icons crop-icon">grass</span>
+                                            <div class="crop-info">
+                                                <div class="crop-name">Maize - North Field</div>
+                                                <div class="crop-status">Ready to Harvest</div>
+                                            </div>
+                                        </div>
+                                        <div class="crop-item">
+                                            <span class="material-icons crop-icon">eco</span>
+                                            <div class="crop-info">
+                                                <div class="crop-name">Sorghum - South Field</div>
+                                                <div class="crop-status">Growing - 45 days</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features">
+        <div class="container">
+            <div class="section-header">
+                <h2 data-en="Everything You Need to Succeed" data-sn="Sengwe le Sengwe se o se Tlhokang go Atlega">Everything You Need to Succeed</h2>
+                <p data-en="Designed specifically for Botswana's farmers and agricultural merchants" data-sn="E diretswe ka bomo balemi le barekisi ba temothuo ba Botswana">Designed specifically for Botswana's farmers and agricultural merchants</p>
+            </div>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <span class="material-icons">track_changes</span>
+                    </div>
+                    <h3 data-en="Crop Tracking" data-sn="Go Latela Dijalo">Crop Tracking</h3>
+                    <p data-en="Track your crops from planting to harvest with detailed records and progress monitoring." data-sn="Latela dijalo tsa gago go tswa mo go lemeng go ya go kotulo ka direkoto tse di tseneletseng le tlhokomelo ya tswelelopele.">Track your crops from planting to harvest with detailed records and progress monitoring.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <span class="material-icons">inventory_2</span>
+                    </div>
+                    <h3 data-en="Smart Inventory" data-sn="Thepa e e Botlhale">Smart Inventory</h3>
+                    <p data-en="Manage your harvest inventory with quality tracking, storage optimization, and loss prevention alerts." data-sn="Laola thepa ya gago ya kotulo ka go latela boleng, go tokafatsa polokelo, le dinotlelo tsa go thibela taelo.">Manage your harvest inventory with quality tracking, storage optimization, and loss prevention alerts.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <span class="material-icons">trending_down</span>
+                    </div>
+                    <h3 data-en="Loss Analysis" data-sn="Tshekatsheko ya Taelo">Loss Analysis</h3>
+                    <p data-en="Identify where losses occur and get actionable insights to reduce post-harvest waste by up to 30%." data-sn="Lemoga gore taelo e diragala kae mme o bone dikakanyo tse di ka dirang go fokotsa mokubu morago ga kotulo go ya go 30%.">Identify where losses occur and get actionable insights to reduce post-harvest waste by up to 30%.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <span class="material-icons">store</span>
+                    </div>
+                    <h3 data-en="Smart Marketplace" data-sn="Mmaraka o o Botlhale">Smart Marketplace</h3>
+                    <p data-en="Connect with buyers and suppliers with intelligent search that prioritizes ready-to-harvest crops." data-sn="Golagana le bareki le baphasi ka patlo e e botlhale e e beang pele dijalo tse di siametse kotulo.">Connect with buyers and suppliers with intelligent search that prioritizes ready-to-harvest crops.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <span class="material-icons">language</span>
+                    </div>
+                    <h3 data-en="Bilingual Support" data-sn="Tshegetso ya Dipuo tse Pedi">Bilingual Support</h3>
+                    <p data-en="Full support for both English and Setswana, making the app accessible to all farmers in Botswana." data-sn="Tshegetso e e feletseng ya Sekgoa le Setswana, go dira gore app e fitlhelelege balemi botlhe mo Botswana.">Full support for both English and Setswana, making the app accessible to all farmers in Botswana.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <span class="material-icons">offline_bolt</span>
+                    </div>
+                    <h3 data-en="Offline Ready" data-sn="E Siametse go Dira Ntle le Inthanete">Offline Ready</h3>
+                    <p data-en="Works perfectly without internet connection, with automatic sync when you're back online." data-sn="E dira sentle kwa ntle ga kgolagano ya inthanete, le go rulaganya ka bowona fa o boetse mo inthaneteng.">Works perfectly without internet connection, with automatic sync when you're back online.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="about">
+        <div class="container">
+            <div class="about-content">
+                <div class="about-text">
+                    <h2 data-en="Built for Botswana's Agricultural Future" data-sn="E Agilwe Bokamoso jwa Temothuo ya Botswana">Built for Botswana's Agricultural Future</h2>
+                    <p data-en="Botswana loses 20-40% of agricultural produce to post-harvest losses annually. That's millions of Pula lost and food insecurity perpetuated. Agricola is changing this." data-sn="Botswana e latlhela 20-40% ya dijalo mo taelong ya morago ga kotulo ngwaga le ngwaga. Se ke dimileone tsa Pula tse di latlhegang le tlhokego ya dijo e e tsweletseng. Agricola e fetola se.">Botswana loses 20-40% of agricultural produce to post-harvest losses annually. That's millions of Pula lost and food insecurity perpetuated. Agricola is changing this.</p>
+                    
+                    <div class="impact-stats">
+                        <div class="impact-item">
+                            <div class="impact-number">20-40%</div>
+                            <div class="impact-label" data-en="Annual Post-Harvest Losses" data-sn="Taelo ya Ngwaga ya Morago ga Kotulo">Annual Post-Harvest Losses</div>
+                        </div>
+                        <div class="impact-item">
+                            <div class="impact-number">25%</div>
+                            <div class="impact-label" data-en="of Workforce in Agriculture" data-sn="ya Badiri mo Temuothong">of Workforce in Agriculture</div>
+                        </div>
+                        <div class="impact-item">
+                            <div class="impact-number">2%</div>
+                            <div class="impact-label" data-en="GDP Contribution" data-sn="Seabe sa GDP">GDP Contribution</div>
+                        </div>
+                    </div>
+
+                    <div class="mission">
+                        <h3 data-en="Our Mission" data-sn="Maikaelelo a Rona">Our Mission</h3>
+                        <p data-en="To reduce post-harvest losses in Botswana by 30% within 3 years by providing accessible, mobile-first tools that help farmers and merchants make data-driven decisions." data-sn="Go fokotsa taelo ya morago ga kotulo kwa Botswana ka 30% mo dingwageng tse tharo ka go neela didirisiwa tse di fitlhelelwang, tse di beang mogala pele tse di thusang balemi le barekisi go tsaya ditshwetso tse di ikaegileng ka tshedimosetso.">To reduce post-harvest losses in Botswana by 30% within 3 years by providing accessible, mobile-first tools that help farmers and merchants make data-driven decisions.</p>
+                    </div>
+                </div>
+                
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Download Section -->
+    <section id="download" class="download">
+        <div class="container">
+            <div class="download-content">
+                <div class="download-text">
+                    <h2 data-en="Ready to Get Started?" data-sn="O Siametse go Simolola?">Ready to Get Started?</h2>
+                    <p data-en="Join farmers and merchants across Botswana who are using Agricola to reduce losses and grow their business." data-sn="Ikopanye le balemi le barekisi mo Botswana botlhe ba ba dirisang Agricola go fokotsa taelo le go godisa kgwebo ya bone.">Join farmers and merchants across Botswana who are using Agricola to reduce losses and grow their business.</p>
+                    
+                    <div class="download-buttons">
+                        <a href="https://play.google.com/store" class="download-btn google-play" target="_blank">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" alt="Get it on Google Play">
+                        </a>
+                        <div class="download-btn ios-coming">
+                            <div class="ios-icon">
+                                <span class="material-icons">phone_iphone</span>
+                            </div>
+                            <div class="ios-text">
+                                <div class="app-store-text" data-en="Coming Soon to" data-sn="E Tla ka Bonako mo">Coming Soon to</div>
+                                <div class="app-store-name">App Store</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="app-info">
+                        <div class="info-item">
+                            <span class="material-icons">smartphone</span>
+                            <span data-en="Works on Android 6.0+" data-sn="E dira mo Android 6.0+">Works on Android 6.0+</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="material-icons">cloud_off</span>
+                            <span data-en="Offline capable" data-sn="E kgona go dira ntle le inthanete">Offline capable</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="material-icons">security</span>
+                            <span data-en="Secure & Private" data-sn="Bolokesegile & Bosephiri">Secure & Private</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="download-visual">
+                    <div class="download-phones">
+                        <div class="phone farmer-phone">
+                            <div class="phone-frame">
+                                <div class="phone-content farmer-content">
+                                    <div class="content-header">
+                                        <span class="material-icons user-icon">person</span>
+                                        <span class="user-type">Farmer View</span>
+                                    </div>
+                                    <div class="content-features">
+                                        <div class="feature-item"><span class="material-icons check">check</span> Track Active Crops</div>
+                                        <div class="feature-item"><span class="material-icons check">check</span> Monitor Harvest</div>
+                                        <div class="feature-item"><span class="material-icons check">check</span> Reduce Losses</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="phone merchant-phone">
+                            <div class="phone-frame">
+                                <div class="phone-content merchant-content">
+                                    <div class="content-header">
+                                        <span class="material-icons user-icon">storefront</span>
+                                        <span class="user-type">Merchant View</span>
+                                    </div>
+                                    <div class="content-features">
+                                        <div class="feature-item"><span class="material-icons check">check</span> Stock Management</div>
+                                        <div class="feature-item"><span class="material-icons check">check</span> Purchase History</div>
+                                        <div class="feature-item"><span class="material-icons check">check</span> Loss Prevention</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="logo">
+                        <img src="../assets/icons/icon_square.jpg" alt="Agricola" class="logo-icon">
+                        <span>Agricola</span>
+                    </div>
+                    <p data-en="Empowering Botswana's agricultural community" data-sn="Re maatlafatsa setšhaba sa temothuo sa Botswana">Empowering Botswana's agricultural community</p>
+                </div>
+                
+                <div class="footer-links">
+                    <div class="link-column">
+                        <h4 data-en="App" data-sn="Aplikeishene">App</h4>
+                        <a href="#features" data-en="Features" data-sn="Dikarolo">Features</a>
+                        <a href="#download" data-en="Download" data-sn="Kopolola">Download</a>
+                        <a href="#" data-en="Support" data-sn="Tshegetso">Support</a>
+                    </div>
+                    <div class="link-column">
+                        <h4 data-en="Company" data-sn="Khamphani">Company</h4>
+                        <a href="#about" data-en="About" data-sn="Ka Rona">About</a>
+                        <a href="#" data-en="Contact" data-sn="Ikgolaganye">Contact</a>
+                        <a href="privacy.html" data-en="Privacy" data-sn="Bosephiri">Privacy</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2026 Agricola. <span data-en="All rights reserved." data-sn="Ditshwanelo tsotlhe di bolokesegile.">All rights reserved.</span></p>
+                <p data-en="Built with ❤️ for farmers in Botswana" data-sn="E agiwe ka ❤️ balemi ba Botswana">Built with ❤️ for farmers in Botswana</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
