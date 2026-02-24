@@ -252,9 +252,24 @@ class ProfileSetupNotifier extends StateNotifier<ProfileSetupState> {
 
   Future<void> _clearCacheAndSave() async {
     final prefs = await SharedPreferences.getInstance();
-    // Clear all previous profile data
-    await prefs.clear();
-    // Save new profile data
+    // Clear only profile-specific cached data.
+    // Do NOT use prefs.clear() — it would wipe app-wide flags like
+    // has_seen_welcome and has_seen_onboarding, causing redirect loops.
+    const profileKeys = [
+      'userType',
+      'merchantType',
+      'village',
+      'customVillage',
+      'selectedCrops',
+      'farmSize',
+      'businessName',
+      'location',
+      'selectedProducts',
+      'photoPath',
+    ];
+    for (final key in profileKeys) {
+      await prefs.remove(key);
+    }
     await saveProfile();
   }
 

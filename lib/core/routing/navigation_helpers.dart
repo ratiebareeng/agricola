@@ -14,8 +14,8 @@ class NavigationHelpers {
       return '/home';
     }
 
-    // Profile incomplete → profile setup
-    if (!user.isProfileComplete) {
+    // Profile incomplete and user hasn't explicitly skipped → profile setup
+    if (!user.isProfileComplete && !user.hasSkippedProfileSetup) {
       return '/profile-setup';
     }
 

@@ -38,12 +38,15 @@ class RouteGuards {
     }
 
     // 3. First time user - needs language selection
-    if (!hasSeenWelcome && path != '/') {
+    // Skip for authenticated users: they've already been through onboarding.
+    // Checking here for unauthenticated users guards against cleared prefs
+    // causing a redirect loop with /profile-setup on re-open.
+    if (!isAuthenticated && !isAnonymous && !hasSeenWelcome && path != '/') {
       return '/';
     }
 
-    // 4. Needs onboarding
-    if (hasSeenWelcome && !hasSeenOnboarding && path != '/onboarding') {
+    // 4. Needs onboarding (same guard: authenticated users skip this)
+    if (!isAuthenticated && !isAnonymous && hasSeenWelcome && !hasSeenOnboarding && path != '/onboarding') {
       return '/onboarding';
     }
 
