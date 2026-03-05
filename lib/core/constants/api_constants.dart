@@ -22,14 +22,13 @@ class ApiConstants {
 
   /// Get the base URL based on current environment
   ///
-  /// - Production: Uses Render backend (https://pandamatenga-api.onrender.com)
+  /// - Production: Uses GCP Cloud Run backend
   /// - Development: Uses local backend with platform-specific URLs
   ///   - Android Emulator: http://10.0.2.2:8080 (maps to host's localhost)
   ///   - iOS Simulator: http://localhost:8080
   ///   - Physical Device: Set localIpOverride in environment.dart
   static String get baseUrl {
     if (EnvironmentConfig.isProduction) {
-      // Production: Use Render backend
       return EnvironmentConfig.apiBaseUrl;
     }
 

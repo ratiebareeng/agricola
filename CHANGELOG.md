@@ -1,3 +1,11 @@
+## 0.4.1 - 2026-03-05
+
+### Changed
+- Migrated production backend from Render to GCP Cloud Run (europe-west2)
+- Updated production API URL to `https://pandamatenga-api-510300582302.europe-west2.run.app`
+- Added CLAUDE.md project context file for AI-assisted development
+- Added auto-commit skill for streamlined commit workflow
+
 ## 0.4.0 - 2026-02-15
 
 ### Added

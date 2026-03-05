@@ -2,7 +2,7 @@
 ///
 /// Automatically uses:
 /// - Development (localhost) for debug builds
-/// - Production (Render) for release builds
+/// - Production (GCP Cloud Run) for release builds
 ///
 /// You can override via environment variable:
 /// flutter run --dart-define=ENVIRONMENT=production
@@ -99,7 +99,7 @@ class _DevelopmentConfig {
 
 // Production configuration
 class _ProductionConfig {
-  final String apiBaseUrl = 'https://pandamatenga-api.onrender.com';
+  final String apiBaseUrl = 'https://pandamatenga-api-510300582302.europe-west2.run.app';
   final Duration apiTimeout = const Duration(
     seconds: 45,
   ); // Longer timeout for cold starts
