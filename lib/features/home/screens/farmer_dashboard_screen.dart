@@ -2,6 +2,7 @@ import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/providers/nav_provider.dart';
 import 'package:agricola/features/crops/crop_helpers.dart';
 import 'package:agricola/features/crops/models/crop_model.dart';
+import 'package:agricola/features/crops/providers/crop_catalog_provider.dart';
 import 'package:agricola/features/crops/providers/crop_providers.dart';
 import 'package:agricola/features/crops/screens/add_edit_crop_screen.dart';
 import 'package:agricola/features/crops/screens/crop_details_screen.dart';
@@ -17,6 +18,7 @@ class FarmerDashboardScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final currentLang = ref.watch(languageProvider);
     final cropsAsync = ref.watch(cropNotifierProvider);
+    final imageMap = ref.watch(cropImageUrlProvider).valueOrNull ?? {};
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
@@ -101,7 +103,7 @@ class FarmerDashboardScreen extends ConsumerWidget {
               // Crops List — from backend
               cropsAsync.when(
                 data: (crops) =>
-                    _buildCropsList(context, crops.take(3).toList()),
+                    _buildCropsList(context, crops.take(3).toList(), imageMap),
                 loading: () => const Center(
                   child: Padding(
                     padding: EdgeInsets.symmetric(vertical: 32),
@@ -134,7 +136,7 @@ class FarmerDashboardScreen extends ConsumerWidget {
   // ---------------------------------------------------------------------------
   // Crop cards from backend data
   // ---------------------------------------------------------------------------
-  Widget _buildCropsList(BuildContext context, List<CropModel> crops) {
+  Widget _buildCropsList(BuildContext context, List<CropModel> crops, Map<String, String> imageMap) {
     if (crops.isEmpty) {
       return Center(
         child: Padding(
@@ -175,7 +177,7 @@ class FarmerDashboardScreen extends ConsumerWidget {
                 stage: cropStage(crop),
                 plantedDate: formatCropDate(crop.plantingDate),
                 progress: cropProgress(crop),
-                imageUrl: imageUrlForCrop(crop.cropType),
+                imageUrl: imageUrlForCrop(crop.cropType, imageMap),
               ),
             ),
           )

@@ -1,3 +1,16 @@
+## 0.5.0 - 2026-03-05
+
+### Changed
+- Moved crop catalog data from hardcoded Flutter maps to backend API (`/api/v1/crop-catalog`)
+  - Added `CropCatalogEntry` model, `CropCatalogApiService`, and Riverpod providers
+  - Refactored `add_edit_crop_screen.dart` to load crop categories and harvest days from catalog
+  - Refactored `crop_helpers.dart` - `imageUrlForCrop()` now takes a server-provided image map
+  - Refactored `add_edit_inventory_screen.dart` - crop dropdown populated from catalog
+  - Refactored `farmer_inventory_screen.dart` - filter chips derived from catalog
+  - Refactored `step_content.dart` (profile setup) - crop selection from catalog
+  - Removed ~200 lines of hardcoded crop translations from `language_provider.dart`
+  - Category translations (`vegetables`, `field_crops`, `fruits`) kept as fallback
+
 ## 0.4.1 - 2026-03-05
 
 ### Changed

@@ -842,110 +842,18 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
   'edit': {AppLanguage.english: 'Edit', AppLanguage.setswana: 'Baakanya'},
   'delete': {AppLanguage.english: 'Delete', AppLanguage.setswana: 'Phimola'},
 
-  // Crop Categories
-  'cereals_grains': {
-    AppLanguage.english: 'Cereals & Grains',
-    AppLanguage.setswana: 'Dithoro',
-  },
+  // Crop categories and crop type translations are now served by the backend
+  // via the crop catalog API. Category keys ('vegetables', 'field_crops', 'fruits')
+  // are still needed for the t() fallback when catalog hasn't loaded yet.
   'vegetables': {
     AppLanguage.english: 'Vegetables',
     AppLanguage.setswana: 'Merogo',
   },
+  'field_crops': {
+    AppLanguage.english: 'Field Crops',
+    AppLanguage.setswana: 'Dijalo tsa Masimo',
+  },
   'fruits': {AppLanguage.english: 'Fruits', AppLanguage.setswana: 'Maungo'},
-  'legumes_pulses': {
-    AppLanguage.english: 'Legumes & Pulses',
-    AppLanguage.setswana: 'Dinawa',
-  },
-  'root_tubers': {
-    AppLanguage.english: 'Root & Tubers',
-    AppLanguage.setswana: 'Medi',
-  },
-  'cash_crops': {
-    AppLanguage.english: 'Cash Crops',
-    AppLanguage.setswana: 'Dijalo tsa Kgwebo',
-  },
-
-  // Crop Types - Cereals & Grains
-  'maize': {AppLanguage.english: 'Maize', AppLanguage.setswana: 'Mmidi'},
-  'sorghum': {AppLanguage.english: 'Sorghum', AppLanguage.setswana: 'Mabele'},
-  'wheat': {AppLanguage.english: 'Wheat', AppLanguage.setswana: 'Korong'},
-  'rice': {AppLanguage.english: 'Rice', AppLanguage.setswana: 'Raese'},
-  'millet': {
-    AppLanguage.english: 'Millet',
-    AppLanguage.setswana: 'Mabele a mannye',
-  },
-  'barley': {AppLanguage.english: 'Barley', AppLanguage.setswana: 'Bhari'},
-
-  // Vegetables
-  'tomatoes': {AppLanguage.english: 'Tomatoes', AppLanguage.setswana: 'Tamati'},
-  'onions': {AppLanguage.english: 'Onions', AppLanguage.setswana: 'Eie'},
-  'cabbage': {
-    AppLanguage.english: 'Cabbage',
-    AppLanguage.setswana: 'Khabetšhe',
-  },
-  'carrots': {
-    AppLanguage.english: 'Carrots',
-    AppLanguage.setswana: 'Dikerotse',
-  },
-  'peppers': {
-    AppLanguage.english: 'Peppers',
-    AppLanguage.setswana: 'Dipelepele',
-  },
-  'lettuce': {AppLanguage.english: 'Lettuce', AppLanguage.setswana: 'Letese'},
-  'spinach': {
-    AppLanguage.english: 'Spinach',
-    AppLanguage.setswana: 'Espinatšhe',
-  },
-
-  // Fruits
-  'watermelon': {
-    AppLanguage.english: 'Watermelon',
-    AppLanguage.setswana: 'Legapu',
-  },
-  'oranges': {AppLanguage.english: 'Oranges', AppLanguage.setswana: 'Dinamune'},
-  'bananas': {AppLanguage.english: 'Bananas', AppLanguage.setswana: 'Dipanana'},
-  'grapes': {AppLanguage.english: 'Grapes', AppLanguage.setswana: 'Morara'},
-  'mangoes': {AppLanguage.english: 'Mangoes', AppLanguage.setswana: 'Dimango'},
-  'apples': {AppLanguage.english: 'Apples', AppLanguage.setswana: 'Diapole'},
-
-  // Legumes & Pulses
-  'beans': {AppLanguage.english: 'Beans', AppLanguage.setswana: 'Dinawa'},
-  'cowpeas': {AppLanguage.english: 'Cowpeas', AppLanguage.setswana: 'Letlhodi'},
-  'peas': {
-    AppLanguage.english: 'Peas',
-    AppLanguage.setswana: 'Dinawa tse dinnye',
-  },
-  'lentils': {AppLanguage.english: 'Lentils', AppLanguage.setswana: 'Lentšhe'},
-  'groundnuts': {
-    AppLanguage.english: 'Groundnuts',
-    AppLanguage.setswana: 'Ditloo',
-  },
-  'soybeans': {
-    AppLanguage.english: 'Soybeans',
-    AppLanguage.setswana: 'Dinawa tsa soya',
-  },
-
-  // Root & Tubers
-  'potatoes': {
-    AppLanguage.english: 'Potatoes',
-    AppLanguage.setswana: 'Ditapole',
-  },
-  'cassava': {AppLanguage.english: 'Cassava', AppLanguage.setswana: 'Monyane'},
-  'sweet_potatoes': {
-    AppLanguage.english: 'Sweet Potatoes',
-    AppLanguage.setswana: 'Ditapole tse di monate',
-  },
-  'yams': {AppLanguage.english: 'Yams', AppLanguage.setswana: 'Diamu'},
-
-  // Cash Crops
-  'cotton': {AppLanguage.english: 'Cotton', AppLanguage.setswana: 'Kotonye'},
-  'tobacco': {AppLanguage.english: 'Tobacco', AppLanguage.setswana: 'Motsoko'},
-  'coffee': {AppLanguage.english: 'Coffee', AppLanguage.setswana: 'Kofi'},
-  'tea': {AppLanguage.english: 'Tea', AppLanguage.setswana: 'Tee'},
-  'sugarcane': {
-    AppLanguage.english: 'Sugarcane',
-    AppLanguage.setswana: 'Mooba',
-  },
 
   'other': {AppLanguage.english: 'Other', AppLanguage.setswana: 'Tse Dingwe'},
   // Units

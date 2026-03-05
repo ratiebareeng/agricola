@@ -1,4 +1,6 @@
 import 'package:agricola/core/providers/language_provider.dart';
+import 'package:agricola/features/crops/models/crop_catalog_entry.dart';
+import 'package:agricola/features/crops/providers/crop_catalog_provider.dart';
 import 'package:agricola/features/inventory/models/inventory_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -25,22 +27,6 @@ class _AddEditInventoryScreenState
   late String _condition;
   String? _notes;
 
-  final List<String> _cropTypes = [
-    'maize',
-    'sorghum',
-    'wheat',
-    'beans',
-    'cowpeas',
-    'groundnuts',
-    'sunflower',
-    'tomatoes',
-    'onions',
-    'cabbage',
-    'watermelon',
-    'potatoes',
-    'carrots',
-  ];
-
   final List<String> _units = ['kg', 'bags', 'tons'];
 
   final List<String> _conditions = [
@@ -63,6 +49,20 @@ class _AddEditInventoryScreenState
   @override
   Widget build(BuildContext context) {
     final currentLang = ref.watch(languageProvider);
+    final catalogAsync = ref.watch(cropCatalogProvider);
+    final cropKeys = catalogAsync.valueOrNull
+            ?.map((e) => e.key)
+            .toList() ??
+        [];
+    // Build a display name lookup from catalog
+    final catalogEntries = catalogAsync.valueOrNull ?? <CropCatalogEntry>[];
+    String cropLabel(String key) {
+      final entry = catalogEntries.cast<CropCatalogEntry?>().firstWhere(
+        (e) => e?.key == key,
+        orElse: () => null,
+      );
+      return entry?.displayName(currentLang) ?? t(key, currentLang);
+    }
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
@@ -96,12 +96,12 @@ class _AddEditInventoryScreenState
                     _buildSectionTitle(t('crop_type', currentLang)),
                     const SizedBox(height: 8),
                     _buildDropdownField(
-                      value: _cropType,
-                      items: _cropTypes,
+                      value: cropKeys.contains(_cropType) ? _cropType : (cropKeys.isNotEmpty ? cropKeys.first : _cropType),
+                      items: cropKeys.isEmpty ? [_cropType] : cropKeys,
                       onChanged: (value) {
                         if (value != null) setState(() => _cropType = value);
                       },
-                      labelBuilder: (item) => t(item, currentLang),
+                      labelBuilder: cropLabel,
                     ),
                     const SizedBox(height: 20),
                     _buildSectionTitle(t('quantity', currentLang)),
@@ -258,7 +258,7 @@ class _AddEditInventoryScreenState
       _condition = item.condition;
       _notes = item.notes;
     } else {
-      _cropType = _cropTypes.first;
+      _cropType = 'maize_corn';
       _quantity = 0;
       _unit = _units.first;
       _storageDate = DateTime.now();

@@ -4,6 +4,7 @@ import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/core/widgets/app_text_field.dart';
 import 'package:agricola/domain/profile/enum/merchant_type.dart';
+import 'package:agricola/features/crops/providers/crop_catalog_provider.dart';
 import 'package:agricola/features/profile_setup/providers/profile_setup_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -39,40 +40,10 @@ class StepContent extends ConsumerWidget {
   }
 
   Widget _buildCropsStep(WidgetRef ref) {
-    final cropCategories = {
-      'Grains': ['Maize', 'Sorghum', 'Millet', 'Wheat', 'Rice', 'Barley'],
-      'Legumes': [
-        'Beans',
-        'Cowpeas',
-        'Peas',
-        'Lentils',
-        'Groundnuts',
-        'Soybeans',
-      ],
-      'Vegetables': [
-        'Lettuce',
-        'Tomatoes',
-        'Onions',
-        'Cabbage',
-        'Spinach',
-        'Carrots',
-        'Peppers',
-      ],
-      'Fruits': [
-        'Watermelon',
-        'Oranges',
-        'Bananas',
-        'Grapes',
-        'Mangoes',
-        'Apples',
-      ],
-      'Root & Tubers': ['Potatoes', 'Cassava', 'Sweet Potatoes', 'Yams'],
-      'Cash Crops': ['Cotton', 'Tobacco', 'Coffee', 'Tea', 'Sugarcane'],
-    };
-
     final state = ref.watch(profileSetupProvider);
     final notifier = ref.read(profileSetupProvider.notifier);
     final currentLang = ref.watch(languageProvider);
+    final catalogByCategory = ref.watch(cropCatalogByCategoryProvider);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -86,47 +57,66 @@ class StepContent extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: 16),
-        ...cropCategories.entries.map((category) {
-          return Column(
+        catalogByCategory.when(
+          data: (categoryMap) => Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(top: 16, bottom: 8),
-                child: Text(
-                  category.key,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
+            children: categoryMap.entries.map((category) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(top: 16, bottom: 8),
+                    child: Text(
+                      t(category.key, currentLang),
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                    ),
                   ),
-                ),
-              ),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: category.value.map((crop) {
-                  final isSelected = state.selectedCrops.contains(crop);
-                  return FilterChip(
-                    label: Text(t(crop, currentLang)),
-                    selected: isSelected,
-                    onSelected: (_) => notifier.toggleCrop(crop),
-                    selectedColor: AppColors.green.withAlpha(20),
-                    checkmarkColor: AppColors.green,
-                    labelStyle: TextStyle(
-                      color: isSelected ? AppColors.green : Colors.black87,
-                      fontWeight: isSelected
-                          ? FontWeight.w600
-                          : FontWeight.normal,
-                    ),
-                    side: BorderSide(
-                      color: isSelected ? AppColors.green : Colors.grey[300]!,
-                    ),
-                  );
-                }).toList(),
-              ),
-            ],
-          );
-        }),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: category.value.map((entry) {
+                      final isSelected =
+                          state.selectedCrops.contains(entry.nameEn);
+                      return FilterChip(
+                        label: Text(entry.displayName(currentLang)),
+                        selected: isSelected,
+                        onSelected: (_) => notifier.toggleCrop(entry.nameEn),
+                        selectedColor: AppColors.green.withAlpha(20),
+                        checkmarkColor: AppColors.green,
+                        labelStyle: TextStyle(
+                          color:
+                              isSelected ? AppColors.green : Colors.black87,
+                          fontWeight: isSelected
+                              ? FontWeight.w600
+                              : FontWeight.normal,
+                        ),
+                        side: BorderSide(
+                          color: isSelected
+                              ? AppColors.green
+                              : Colors.grey[300]!,
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ],
+              );
+            }).toList(),
+          ),
+          loading: () => const Center(
+            child: Padding(
+              padding: EdgeInsets.all(20),
+              child: CircularProgressIndicator(color: AppColors.green),
+            ),
+          ),
+          error: (e, _) => Text(
+            'Failed to load crops',
+            style: TextStyle(color: Colors.red[700]),
+          ),
+        ),
       ],
     );
   }

@@ -1,7 +1,9 @@
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/widgets/info_tooltip.dart';
 import 'package:agricola/core/widgets/step_indicator.dart';
+import 'package:agricola/features/crops/models/crop_catalog_entry.dart';
 import 'package:agricola/features/crops/models/crop_model.dart';
+import 'package:agricola/features/crops/providers/crop_catalog_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -17,37 +19,6 @@ class AddEditCropScreen extends ConsumerStatefulWidget {
 class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
   final _formKey = GlobalKey<FormState>();
   int _currentStep = 0;
-
-  final Map<String, List<String>> _cropCategories = {
-    'cereals_grains': ['maize', 'sorghum', 'wheat', 'rice', 'millet', 'barley'],
-    'vegetables': [
-      'tomatoes',
-      'onions',
-      'cabbage',
-      'carrots',
-      'peppers',
-      'lettuce',
-      'spinach',
-    ],
-    'fruits': [
-      'watermelon',
-      'oranges',
-      'bananas',
-      'grapes',
-      'mangoes',
-      'apples',
-    ],
-    'legumes_pulses': [
-      'beans',
-      'cowpeas',
-      'peas',
-      'lentils',
-      'groundnuts',
-      'soybeans',
-    ],
-    'root_tubers': ['potatoes', 'cassava', 'sweet_potatoes', 'yams'],
-    'cash_crops': ['cotton', 'tobacco', 'coffee', 'tea', 'sugarcane'],
-  };
 
   final List<String> _sizeUnits = ['hectares', 'Metres (m\u00B2)'];
   final List<String> _yieldUnits = ['kg', 'bags', 'tons'];
@@ -191,55 +162,21 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
   }
 
   void _autoCalculateHarvestDate() {
-    final daysToHarvest = {
-      'maize': 120,
-      'sorghum': 110,
-      'wheat': 120,
-      'rice': 120,
-      'millet': 90,
-      'barley': 90,
-      'tomatoes': 85,
-      'onions': 120,
-      'cabbage': 70,
-      'carrots': 75,
-      'peppers': 80,
-      'lettuce': 50,
-      'spinach': 40,
-      'watermelon': 90,
-      'oranges': 365,
-      'bananas': 270,
-      'grapes': 150,
-      'mangoes': 365,
-      'apples': 180,
-      'beans': 90,
-      'cowpeas': 75,
-      'peas': 60,
-      'lentils': 100,
-      'groundnuts': 120,
-      'soybeans': 120,
-      'potatoes': 90,
-      'cassava': 270,
-      'sweet_potatoes': 120,
-      'yams': 240,
-      'cotton': 180,
-      'tobacco': 90,
-      'coffee': 365,
-      'tea': 365,
-      'sugarcane': 365,
-      'other': 90,
-    };
+    final harvestDaysMap = ref.read(harvestDaysProvider).valueOrNull ?? {};
 
     if (_selectedCropTypes.isNotEmpty) {
       setState(() {
         final firstCrop = _selectedCropTypes.first;
         _expectedHarvestDate = _plantingDate.add(
-          Duration(days: daysToHarvest[firstCrop] ?? 90),
+          Duration(days: harvestDaysMap[firstCrop] ?? 90),
         );
       });
     }
   }
 
   Widget _buildCropDetailsStep(AppLanguage lang) {
+    final catalogByCategory = ref.watch(cropCatalogByCategoryProvider);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -266,87 +203,87 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
               style: const TextStyle(fontSize: 12, color: Colors.red),
             ),
           ),
-        // Container(
-        //   padding: const EdgeInsets.all(12),
-        //   decoration: BoxDecoration(
-        //     color: Colors.blue.withAlpha(26),
-        //     borderRadius: BorderRadius.circular(8),
-        //     border: Border.all(color: Colors.blue.withAlpha(51)),
-        //   ),
-        //   child: Row(
-        //     children: [
-        //       const Icon(Icons.info_outline, color: Colors.blue, size: 20),
-        //       const SizedBox(width: 8),
-        //       Expanded(
-        //         child: Text(
-        //           t('select_multiple_crops_hint', lang),
-        //           style: const TextStyle(fontSize: 12, color: Colors.blue),
-        //         ),
-        //       ),
-        //     ],
-        //   ),
-        // ),
         const SizedBox(height: 12),
-        ..._cropCategories.entries.map((entry) {
-          final categoryKey = entry.key;
-          final crops = entry.value;
-
-          return Column(
+        catalogByCategory.when(
+          data: (categoryMap) => Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(bottom: 8, top: 8),
-                child: Text(
-                  t(categoryKey, lang),
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.grey[700],
+            children: categoryMap.entries.map((entry) {
+              final categoryKey = entry.key;
+              final crops = entry.value;
+
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8, top: 8),
+                    child: Text(
+                      t(categoryKey, lang),
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey[700],
+                      ),
+                    ),
                   ),
-                ),
-              ),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: crops.map((crop) {
-                  final isSelected = _selectedCropTypes.contains(crop);
-                  return FilterChip(
-                    label: Text(t(crop, lang)),
-                    selected: isSelected,
-                    onSelected: (selected) {
-                      setState(() {
-                        if (selected) {
-                          _selectedCropTypes = {crop};
-                          _otherCropSelected = false;
-                        } else {
-                          _selectedCropTypes.remove(crop);
-                        }
-                        _autoCalculateHarvestDate();
-                      });
-                    },
-                    selectedColor: const Color(0xFF2D6A4F).withAlpha(51),
-                    checkmarkColor: const Color(0xFF2D6A4F),
-                    backgroundColor: Colors.white,
-                    side: BorderSide(
-                      color: isSelected
-                          ? const Color(0xFF2D6A4F)
-                          : Colors.grey[300]!,
-                      width: isSelected ? 2 : 1,
-                    ),
-                    labelStyle: TextStyle(
-                      color: isSelected
-                          ? const Color(0xFF2D6A4F)
-                          : Colors.black87,
-                      fontWeight: isSelected
-                          ? FontWeight.w600
-                          : FontWeight.normal,
-                    ),
-                  );
-                }).toList(),
-              ),
-            ],
-          );
-        }),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: crops.map((catalogEntry) {
+                      final isSelected =
+                          _selectedCropTypes.contains(catalogEntry.key);
+                      return FilterChip(
+                        label: Text(catalogEntry.displayName(lang)),
+                        selected: isSelected,
+                        onSelected: (selected) {
+                          setState(() {
+                            if (selected) {
+                              _selectedCropTypes = {catalogEntry.key};
+                              _otherCropSelected = false;
+                            } else {
+                              _selectedCropTypes.remove(catalogEntry.key);
+                            }
+                            _autoCalculateHarvestDate();
+                          });
+                        },
+                        selectedColor:
+                            const Color(0xFF2D6A4F).withAlpha(51),
+                        checkmarkColor: const Color(0xFF2D6A4F),
+                        backgroundColor: Colors.white,
+                        side: BorderSide(
+                          color: isSelected
+                              ? const Color(0xFF2D6A4F)
+                              : Colors.grey[300]!,
+                          width: isSelected ? 2 : 1,
+                        ),
+                        labelStyle: TextStyle(
+                          color: isSelected
+                              ? const Color(0xFF2D6A4F)
+                              : Colors.black87,
+                          fontWeight: isSelected
+                              ? FontWeight.w600
+                              : FontWeight.normal,
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ],
+              );
+            }).toList(),
+          ),
+          loading: () => const Center(
+            child: Padding(
+              padding: EdgeInsets.all(20),
+              child: CircularProgressIndicator(color: Color(0xFF2D6A4F)),
+            ),
+          ),
+          error: (e, _) => Padding(
+            padding: const EdgeInsets.all(12),
+            child: Text(
+              'Failed to load crop catalog',
+              style: TextStyle(color: Colors.red[700]),
+            ),
+          ),
+        ),
         const SizedBox(height: 16),
         FilterChip(
           label: Text(t('other', lang)),
@@ -456,26 +393,15 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
                       ),
                     ],
                   ),
-                  // Only show chips for custom "other" crops
                   if (_selectedCropTypes.any(
-                    (crop) =>
-                        !_cropCategories.values.any(
-                          (list) => list.contains(crop),
-                        ) &&
-                        crop != 'other',
+                    (crop) => _isCustomCrop(crop),
                   )) ...[
                     const SizedBox(height: 12),
                     Wrap(
                       spacing: 8,
                       runSpacing: 8,
                       children: _selectedCropTypes
-                          .where(
-                            (cropType) =>
-                                !_cropCategories.values.any(
-                                  (list) => list.contains(cropType),
-                                ) &&
-                                cropType != 'other',
-                          )
+                          .where((cropType) => _isCustomCrop(cropType))
                           .map((cropType) {
                             return Chip(
                               label: Text(cropType),
@@ -539,8 +465,6 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
             ),
           ),
           validator: (value) {
-            // Field name is now optional for both single and multiple crops
-            // as we auto-generate names when empty
             return null;
           },
         ),
@@ -1032,6 +956,12 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
     }
   }
 
+  /// Check if a crop key is a custom "other" crop (not in the catalog)
+  bool _isCustomCrop(String cropKey) {
+    final catalog = ref.read(cropCatalogProvider).valueOrNull ?? [];
+    return !catalog.any((e) => e.key == cropKey) && cropKey != 'other';
+  }
+
   void _loadExistingCrop() {
     final crop = widget.existingCrop!;
     _selectedCropTypes = {crop.cropType};
@@ -1073,6 +1003,7 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
   void _saveCrop() {
     if (_formKey.currentState!.validate() && _selectedCropTypes.isNotEmpty) {
       final lang = ref.watch(languageProvider);
+      final catalog = ref.read(cropCatalogProvider).valueOrNull ?? [];
 
       final cropType = _selectedCropTypes.first;
       final cropName =
@@ -1080,10 +1011,16 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
           ? _otherCropNameController.text
           : cropType;
 
-      final displayName =
-          cropType == 'other' && _otherCropNameController.text.isNotEmpty
-          ? _otherCropNameController.text
-          : t(cropType, lang);
+      // Try to get display name from catalog, fall back to t() for custom crops
+      final catalogEntry = catalog.cast<CropCatalogEntry?>().firstWhere(
+        (e) => e?.key == cropType,
+        orElse: () => null,
+      );
+      final displayName = catalogEntry != null
+          ? catalogEntry.displayName(lang)
+          : (cropType == 'other' && _otherCropNameController.text.isNotEmpty
+              ? _otherCropNameController.text
+              : t(cropType, lang));
 
       final crop = CropModel(
         id: widget.existingCrop?.id,

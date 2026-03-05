@@ -1,4 +1,6 @@
 import 'package:agricola/core/providers/language_provider.dart';
+import 'package:agricola/features/crops/models/crop_catalog_entry.dart';
+import 'package:agricola/features/crops/providers/crop_catalog_provider.dart';
 import 'package:agricola/features/inventory/models/inventory_model.dart';
 import 'package:agricola/features/inventory/providers/inventory_providers.dart';
 import 'package:agricola/features/inventory/screens/add_edit_inventory_screen.dart';
@@ -419,33 +421,34 @@ class _FarmerInventoryScreenState extends ConsumerState<FarmerInventoryScreen> {
                 ),
               ),
               const SizedBox(height: 12),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children:
-                    [
-                          'maize',
-                          'sorghum',
-                          'wheat',
-                          'beans',
-                          'cowpeas',
-                          'tomatoes',
-                          'onions',
-                          'cabbage',
-                          'watermelon',
-                        ]
+              Builder(
+                builder: (context) {
+                  final catalogAsync = ref.watch(cropCatalogByCategoryProvider);
+                  final filterCrops = catalogAsync.whenData((categoryMap) {
+                    final crops = <CropCatalogEntry>[];
+                    for (final entries in categoryMap.values) {
+                      crops.addAll(entries.take(4));
+                    }
+                    return crops;
+                  });
+                  return Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: (filterCrops.valueOrNull ?? [])
                         .map(
-                          (crop) => FilterChip(
-                            label: Text(t(crop, lang)),
-                            selected: tempCropFilter == crop,
+                          (entry) => FilterChip(
+                            label: Text(entry.displayName(lang)),
+                            selected: tempCropFilter == entry.key,
                             onSelected: (selected) {
                               setModalState(() {
-                                tempCropFilter = selected ? crop : null;
+                                tempCropFilter = selected ? entry.key : null;
                               });
                             },
                           ),
                         )
                         .toList(),
+                  );
+                },
               ),
               const SizedBox(height: 20),
               Text(
