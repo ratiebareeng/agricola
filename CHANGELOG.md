@@ -1,3 +1,12 @@
+## 0.6.0 - 2026-03-05
+
+### Added
+- Firebase Crashlytics for production error monitoring
+  - Global error handling in `main.dart` via `runZonedGuarded`, `FlutterError.onError`, and `PlatformDispatcher.onError`
+  - Non-fatal API error logging in Dio interceptor (logs method, path, and status code)
+  - User identifier set on auth state change for error attribution
+  - Android Gradle plugins configured for Crashlytics
+
 ## 0.5.0 - 2026-03-05
 
 ### Changed

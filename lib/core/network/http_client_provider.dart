@@ -2,6 +2,7 @@ import 'package:agricola/core/constants/api_constants.dart';
 import 'package:agricola/core/network/auth_interceptor.dart';
 import 'package:agricola/core/network/interceptors/retry_interceptor.dart';
 import 'package:dio/dio.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Provides configured Dio instance with auth interceptor
@@ -20,6 +21,23 @@ final httpClientProvider = Provider<Dio>((ref) {
 
   // Add auth interceptor
   dio.interceptors.add(AuthInterceptor(ref));
+
+  // Log all API errors to Crashlytics (works in release builds)
+  dio.interceptors.add(
+    InterceptorsWrapper(
+      onError: (error, handler) {
+        FirebaseCrashlytics.instance.recordError(
+          error,
+          error.stackTrace,
+          reason:
+              'API ${error.requestOptions.method} ${error.requestOptions.path} '
+              '[${error.response?.statusCode ?? 'no status'}]',
+          fatal: false,
+        );
+        handler.next(error);
+      },
+    ),
+  );
 
   // Add logging interceptor in debug mode
   if (const bool.fromEnvironment('dart.vm.product') == false) {

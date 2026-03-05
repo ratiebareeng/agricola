@@ -2,6 +2,7 @@ import 'package:agricola/data/data.dart';
 import 'package:agricola/domain/domain.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
@@ -26,7 +27,12 @@ final currentUserProvider = Provider<UserModel?>((ref) {
   final authState = ref.watch(authStateProvider);
 
   return authState.when(
-    data: (user) => user,
+    data: (user) {
+      // Set Crashlytics user identifier for error attribution
+      FirebaseCrashlytics.instance
+          .setUserIdentifier(user?.uid ?? '');
+      return user;
+    },
     loading: () => null,
     error: (_, __) => null,
   );
