@@ -99,7 +99,7 @@ class _DevelopmentConfig {
 
 // Production configuration
 class _ProductionConfig {
-  final String apiBaseUrl = 'https://pandamatenga-api-510300582302.europe-west2.run.app';
+  final String apiBaseUrl = 'https://pandamatenga-api-510300582302.africa-south1.run.app';
   final Duration apiTimeout = const Duration(
     seconds: 45,
   ); // Longer timeout for cold starts
