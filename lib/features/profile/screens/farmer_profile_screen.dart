@@ -559,7 +559,8 @@ class _FarmerProfileScreenState extends ConsumerState<FarmerProfileScreen> {
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         border: Border.all(color: Colors.white, width: 3),
-                        image: profile.photoUrl != null
+                        image: profile.photoUrl != null &&
+                                profile.photoUrl!.startsWith('http')
                             ? DecorationImage(
                                 image: NetworkImage(profile.photoUrl!),
                                 fit: BoxFit.cover,

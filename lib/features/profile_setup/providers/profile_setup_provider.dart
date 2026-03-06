@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:agricola/domain/profile/enum/merchant_type.dart';
 import 'package:agricola/features/auth/providers/auth_controller.dart';
 import 'package:agricola/features/auth/providers/auth_provider.dart';
@@ -34,6 +36,27 @@ class ProfileSetupNotifier extends StateNotifier<ProfileSetupState> {
     }
 
     try {
+      // Upload photo to Firebase Storage if a local photo was selected
+      String? photoUrl;
+      if (state.photoPath != null) {
+        final photoFile = File(state.photoPath!);
+        if (await photoFile.exists()) {
+          photoUrl = await _ref
+              .read(profileControllerProvider.notifier)
+              .uploadProfilePhoto(
+                userId: user.uid,
+                photoFile: photoFile,
+              );
+          if (photoUrl == null) {
+            state = state.copyWith(
+              isCreatingProfile: false,
+              errorMessage: 'Failed to upload profile photo. Please try again.',
+            );
+            return false;
+          }
+        }
+      }
+
       if (state.userType == UserType.farmer) {
         // Create farmer profile model
         final farmerProfile = FarmerProfileModel(
@@ -45,7 +68,7 @@ class ProfileSetupNotifier extends StateNotifier<ProfileSetupState> {
               : null,
           primaryCrops: state.selectedCrops,
           farmSize: state.farmSize,
-          photoUrl: state.photoPath,
+          photoUrl: photoUrl,
           createdAt: DateTime.now(),
           updatedAt: DateTime.now(),
         );
@@ -103,7 +126,7 @@ class ProfileSetupNotifier extends StateNotifier<ProfileSetupState> {
               ? state.customVillage
               : null,
           productsOffered: state.selectedProducts,
-          photoUrl: state.photoPath,
+          photoUrl: photoUrl,
           createdAt: DateTime.now(),
           updatedAt: DateTime.now(),
         );

@@ -185,7 +185,8 @@ class _EditFarmerProfileScreenState
                           image: FileImage(_newPhoto!),
                           fit: BoxFit.cover,
                         )
-                      : widget.profile.photoUrl != null
+                      : widget.profile.photoUrl != null &&
+                              widget.profile.photoUrl!.startsWith('http')
                       ? DecorationImage(
                           image: NetworkImage(widget.profile.photoUrl!),
                           fit: BoxFit.cover,
