@@ -1,3 +1,22 @@
+## 0.8.0 - 2026-03-06
+
+### Added
+- Post-Harvest Loss Calculator (Phase 4)
+  - 3-step form: crop/harvest selection, loss-by-stage inputs, results with prevention tips
+  - `LossCalculation` model with stage breakdown, monetary loss, and severity classification
+  - `LossResultsCard` widget: total loss %, monetary impact, stage progress bars, regional comparison
+  - `PreventionTipsCard` widget: context-aware tips based on highest-loss stage and storage method
+  - Regional average comparison using FAO Sub-Saharan Africa data
+  - Loss causes per stage (field, transport, storage, processing) with Setswana translations
+  - 13 bilingual prevention tips covering all loss stages
+- Access points: farmer dashboard stat card tap, "Calculate Losses" quick action, crop details bottom bar
+- `StatCard.onTap` callback for tappable stat cards
+
+### Changed
+- Farmer dashboard: added "Calculate Losses" quick action button below stats grid
+- Crop details screen: bottom bar now shows "Calculate Losses" + "Record Harvest" side by side
+- ~40 new EN/SW translation keys for loss calculator UI
+
 ## 0.7.0 - 2026-03-06
 
 ### Added

@@ -1411,6 +1411,274 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
     AppLanguage.english: 'Record purchases from farmers',
     AppLanguage.setswana: 'Kwala ditheko go tswa go balemi',
   },
+  // Loss Calculator
+  'crop_harvest': {
+    AppLanguage.english: 'Crop & Harvest',
+    AppLanguage.setswana: 'Sejalo & Thobo',
+  },
+  'loss_details': {
+    AppLanguage.english: 'Loss Details',
+    AppLanguage.setswana: 'Dintlha tsa Ditshenyegelo',
+  },
+  'results': {
+    AppLanguage.english: 'Results',
+    AppLanguage.setswana: 'Dipholo',
+  },
+  'select_crop': {
+    AppLanguage.english: 'Select Crop',
+    AppLanguage.setswana: 'Tlhopha Sejalo',
+  },
+  'select_crop_for_calculation': {
+    AppLanguage.english: 'Choose a crop to calculate post-harvest losses',
+    AppLanguage.setswana: 'Tlhopha sejalo go bala ditshenyegelo tsa morago ga thobo',
+  },
+  'no_crops_add_first': {
+    AppLanguage.english: 'No crops found. Add a crop first to use the calculator.',
+    AppLanguage.setswana: 'Ga go na dijalo. Tsenya sejalo pele go dirisa sekala-ditshenyegelo.',
+  },
+  'choose_crop': {
+    AppLanguage.english: 'Choose a crop',
+    AppLanguage.setswana: 'Tlhopha sejalo',
+  },
+  'harvest_amount': {
+    AppLanguage.english: 'Harvest Amount',
+    AppLanguage.setswana: 'Selekanyo sa Thobo',
+  },
+  'market_price_per_unit': {
+    AppLanguage.english: 'Market Price per Unit',
+    AppLanguage.setswana: 'Tlhwatlhwa ya Mmaraka ka Selekanyo',
+  },
+  'enter_valid_number': {
+    AppLanguage.english: 'Enter a valid number',
+    AppLanguage.setswana: 'Tsenya nomoro e e nepagetseng',
+  },
+  'enter_losses_by_stage': {
+    AppLanguage.english: 'Enter Losses by Stage',
+    AppLanguage.setswana: 'Tsenya Ditshenyegelo ka Mogato',
+  },
+  'enter_losses_description': {
+    AppLanguage.english: 'Enter the amount lost at each stage. Leave blank if none.',
+    AppLanguage.setswana: 'Tsenya selekanyo se se latlhegileng mo mogatong mongwe le mongwe. Tlogela go se na sepe fa go se na.',
+  },
+  'select_cause': {
+    AppLanguage.english: 'Select cause (optional)',
+    AppLanguage.setswana: 'Tlhopha lebaka (ka boithaopo)',
+  },
+  'loss_stage_field': {
+    AppLanguage.english: 'Field Losses',
+    AppLanguage.setswana: 'Ditshenyegelo tsa Tshimo',
+  },
+  'loss_stage_transport': {
+    AppLanguage.english: 'Transport Losses',
+    AppLanguage.setswana: 'Ditshenyegelo tsa Dipalangwa',
+  },
+  'loss_stage_storage': {
+    AppLanguage.english: 'Storage Losses',
+    AppLanguage.setswana: 'Ditshenyegelo tsa Polokelo',
+  },
+  'loss_stage_processing': {
+    AppLanguage.english: 'Processing Losses',
+    AppLanguage.setswana: 'Ditshenyegelo tsa Tiragatso',
+  },
+  'running_total': {
+    AppLanguage.english: 'Running Total',
+    AppLanguage.setswana: 'Palogotlhe e e Tswelelang',
+  },
+  'calculate': {
+    AppLanguage.english: 'Calculate',
+    AppLanguage.setswana: 'Bala',
+  },
+  'done': {
+    AppLanguage.english: 'Done',
+    AppLanguage.setswana: 'Go Fedile',
+  },
+  'next': {
+    AppLanguage.english: 'Next',
+    AppLanguage.setswana: 'E e Latelang',
+  },
+  'back': {
+    AppLanguage.english: 'Back',
+    AppLanguage.setswana: 'Morago',
+  },
+  'total_loss': {
+    AppLanguage.english: 'Total Loss',
+    AppLanguage.setswana: 'Ditshenyegelo Tsotlhe',
+  },
+  'total_harvest_value': {
+    AppLanguage.english: 'Total Harvest Value',
+    AppLanguage.setswana: 'Boleng Jotlhe jwa Thobo',
+  },
+  'value_lost': {
+    AppLanguage.english: 'Value Lost',
+    AppLanguage.setswana: 'Boleng jo bo Latlhegileng',
+  },
+  'remaining_value': {
+    AppLanguage.english: 'Remaining Value',
+    AppLanguage.setswana: 'Boleng jo bo Setseng',
+  },
+  'loss_by_stage': {
+    AppLanguage.english: 'Loss by Stage',
+    AppLanguage.setswana: 'Ditshenyegelo ka Mogato',
+  },
+  'loss_severity_low': {
+    AppLanguage.english: 'Low Loss',
+    AppLanguage.setswana: 'Ditshenyegelo Tse Dinnye',
+  },
+  'loss_severity_moderate': {
+    AppLanguage.english: 'Moderate Loss',
+    AppLanguage.setswana: 'Ditshenyegelo Tse di Magareng',
+  },
+  'loss_severity_high': {
+    AppLanguage.english: 'High Loss',
+    AppLanguage.setswana: 'Ditshenyegelo Tse Dikgolo',
+  },
+  'loss_severity_critical': {
+    AppLanguage.english: 'Critical Loss',
+    AppLanguage.setswana: 'Ditshenyegelo Tse di Masisi',
+  },
+  'below_regional_average': {
+    AppLanguage.english: 'Below regional average — well done!',
+    AppLanguage.setswana: 'Ka fa tlase ga palogare ya tikologo — o dirile sentle!',
+  },
+  'above_regional_average': {
+    AppLanguage.english: 'Above regional average — room for improvement',
+    AppLanguage.setswana: 'Ka fa godimo ga palogare ya tikologo — go na le sebaka sa tokafatso',
+  },
+  'regional_average': {
+    AppLanguage.english: 'Regional average',
+    AppLanguage.setswana: 'Palogare ya tikologo',
+  },
+  'prevention_tips': {
+    AppLanguage.english: 'Prevention Tips',
+    AppLanguage.setswana: 'Dikgakololo tsa Thibelo',
+  },
+  'based_on_highest_loss': {
+    AppLanguage.english: 'Based on your highest loss stage',
+    AppLanguage.setswana: 'Go ya ka mogato wa gago o o nang le ditshenyegelo tse dintsi',
+  },
+  'no_losses_recorded': {
+    AppLanguage.english: 'No losses recorded — great job!',
+    AppLanguage.setswana: 'Ga go na ditshenyegelo — o dirile sentle!',
+  },
+  'calculate_losses': {
+    AppLanguage.english: 'Calculate Losses',
+    AppLanguage.setswana: 'Bala Ditshenyegelo',
+  },
+  'estimate_post_harvest_losses': {
+    AppLanguage.english: 'Estimate post-harvest losses',
+    AppLanguage.setswana: 'Akanya ditshenyegelo tsa morago ga thobo',
+  },
+  // Loss causes
+  'mechanical_damage': {
+    AppLanguage.english: 'Mechanical Damage',
+    AppLanguage.setswana: 'Tshenyegelo ya Motšhine',
+  },
+  'late_harvest': {
+    AppLanguage.english: 'Late Harvest',
+    AppLanguage.setswana: 'Thobo e e Latelang',
+  },
+  'spillage': {
+    AppLanguage.english: 'Spillage',
+    AppLanguage.setswana: 'Go Tshologa',
+  },
+  'heat_exposure': {
+    AppLanguage.english: 'Heat Exposure',
+    AppLanguage.setswana: 'Go Amiwa ke Mogote',
+  },
+  'poor_packaging': {
+    AppLanguage.english: 'Poor Packaging',
+    AppLanguage.setswana: 'Pakeji e e Sa Siamang',
+  },
+  'moisture_damage': {
+    AppLanguage.english: 'Moisture Damage',
+    AppLanguage.setswana: 'Tshenyegelo ya Monola',
+  },
+  'rodent_damage': {
+    AppLanguage.english: 'Rodent Damage',
+    AppLanguage.setswana: 'Tshenyegelo ya Dipeba',
+  },
+  'threshing_loss': {
+    AppLanguage.english: 'Threshing Loss',
+    AppLanguage.setswana: 'Tshenyegelo ya go Photha',
+  },
+  'cleaning_loss': {
+    AppLanguage.english: 'Cleaning Loss',
+    AppLanguage.setswana: 'Tshenyegelo ya go Phepafatsa',
+  },
+  'drying_loss': {
+    AppLanguage.english: 'Drying Loss',
+    AppLanguage.setswana: 'Tshenyegelo ya go Omisa',
+  },
+  // Storage methods
+  'traditional': {
+    AppLanguage.english: 'Traditional Storage',
+    AppLanguage.setswana: 'Polokelo ya Setso',
+  },
+  'cold_storage': {
+    AppLanguage.english: 'Cold Storage',
+    AppLanguage.setswana: 'Polokelo ya Tsididi',
+  },
+  'open_air': {
+    AppLanguage.english: 'Open Air',
+    AppLanguage.setswana: 'Mo Phaposing e e Butsweng',
+  },
+  // Prevention tips
+  'tip_field_timely_harvest': {
+    AppLanguage.english: 'Harvest at the right time — delays increase field losses by up to 10%.',
+    AppLanguage.setswana: 'Roba ka nako e e siameng — go diega go oketsa ditshenyegelo tsa tshimo ka 10%.',
+  },
+  'tip_field_pest_management': {
+    AppLanguage.english: 'Use integrated pest management before and during harvest to reduce crop damage.',
+    AppLanguage.setswana: 'Dirisa taolo ya disenyi pele le ka nako ya thobo go fokotsa tshenyegelo ya dijalo.',
+  },
+  'tip_field_proper_handling': {
+    AppLanguage.english: 'Handle produce gently during harvest — avoid dropping or throwing.',
+    AppLanguage.setswana: 'Tshwara dijalo ka kelotlhoko ka nako ya thobo — tila go latlhela kgotsa go tshola.',
+  },
+  'tip_transport_proper_containers': {
+    AppLanguage.english: 'Use clean, rigid containers (crates, baskets) instead of sacks to prevent crushing.',
+    AppLanguage.setswana: 'Dirisa ditshipi tse di phepa (dikerese, ditlatla) go na le mekotla go thibela go pitlagana.',
+  },
+  'tip_transport_minimize_distance': {
+    AppLanguage.english: 'Minimize transport time and distance. Sell or process closer to the farm.',
+    AppLanguage.setswana: 'Fokotsa nako le sebaka sa dipalangwa. Rekisa kgotsa dirisa gaufi le polasa.',
+  },
+  'tip_transport_avoid_heat': {
+    AppLanguage.english: 'Transport during cooler hours (early morning or evening) to reduce spoilage.',
+    AppLanguage.setswana: 'Rwala ka dinako tse di tsididi (phakela kgotsa mantsiboa) go fokotsa go bolela.',
+  },
+  'tip_storage_dry_before_storing': {
+    AppLanguage.english: 'Dry crops to safe moisture levels before storing (e.g., 13% for grains).',
+    AppLanguage.setswana: 'Omisa dijalo go ya maemong a a babalesegileng a monola pele ga polokelo (sekao, 13% go mabele).',
+  },
+  'tip_storage_use_hermetic': {
+    AppLanguage.english: 'Use hermetic (airtight) storage bags or containers to prevent pests and mould.',
+    AppLanguage.setswana: 'Dirisa mekotla kgotsa ditshipi tse di tswalwang ka botlalo go thibela disenyi le mofufutso.',
+  },
+  'tip_storage_check_regularly': {
+    AppLanguage.english: 'Inspect stored produce regularly for signs of pests, mould, or moisture.',
+    AppLanguage.setswana: 'Tlhola dithoto tse di bolokwileng ka metlha go bona matshwao a disenyi, mofufutso, kgotsa monola.',
+  },
+  'tip_storage_upgrade_method': {
+    AppLanguage.english: 'Consider upgrading from open-air/traditional to improved or hermetic storage.',
+    AppLanguage.setswana: 'Akanya go tokafatsa go tswa mo polokelong ya setso go ya go e e tokafaditsweng kgotsa ya hermetic.',
+  },
+  'tip_processing_calibrate_equipment': {
+    AppLanguage.english: 'Calibrate threshing and milling equipment to minimize grain breakage.',
+    AppLanguage.setswana: 'Rulaganya didirisiwa tsa go photha le go sila go fokotsa go thubega ga mabele.',
+  },
+  'tip_processing_proper_drying': {
+    AppLanguage.english: 'Ensure proper drying before processing — wet grain shatters more easily.',
+    AppLanguage.setswana: 'Netefatsa go omisa sentle pele ga tiragatso — mabele a a metsi a thubega bonolo.',
+  },
+  'tip_processing_train_workers': {
+    AppLanguage.english: 'Train workers on gentle handling techniques to reduce spillage and waste.',
+    AppLanguage.setswana: 'Katisa badiri ka mekgwa ya go tshwara ka kelotlhoko go fokotsa go tshologa le mosenyi.',
+  },
+  'tip_general_record_losses': {
+    AppLanguage.english: 'Recording losses regularly helps identify patterns and areas for improvement.',
+    AppLanguage.setswana: 'Go kwala ditshenyegelo ka metlha go thusa go lemoga mekgwa le mafelo a tokafatso.',
+  },
 };
 
 String t(String key, AppLanguage lang) {

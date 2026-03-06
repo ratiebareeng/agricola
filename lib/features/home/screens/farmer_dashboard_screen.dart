@@ -8,6 +8,7 @@ import 'package:agricola/features/crops/screens/add_edit_crop_screen.dart';
 import 'package:agricola/features/crops/screens/crop_details_screen.dart';
 import 'package:agricola/features/home/widgets/crop_card.dart';
 import 'package:agricola/features/home/widgets/stat_card.dart';
+import 'package:agricola/features/loss_calculator/screens/loss_calculator_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -51,11 +52,30 @@ class FarmerDashboardScreen extends ConsumerWidget {
 
               // Quick Stats — derived from backend crops
               cropsAsync.when(
-                data: (crops) => _buildStatsGrid(crops, currentLang),
+                data: (crops) => _buildStatsGrid(context, crops, currentLang),
                 loading: () => _buildStatsPlaceholder(),
-                error: (_, __) => _buildStatsGrid([], currentLang),
+                error: (_, __) => _buildStatsGrid(context, [], currentLang),
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 20),
+
+              // Loss Calculator quick action
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: () => _openLossCalculator(context),
+                  icon: const Icon(Icons.calculate_outlined),
+                  label: Text(t('calculate_losses', currentLang)),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: const Color(0xFF2D6A4F),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    side: const BorderSide(color: Color(0xFF2D6A4F)),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
 
               // My Crops Section header
               Row(
@@ -188,7 +208,7 @@ class FarmerDashboardScreen extends ConsumerWidget {
   // ---------------------------------------------------------------------------
   // Stats grid built from real crop data
   // ---------------------------------------------------------------------------
-  Widget _buildStatsGrid(List<CropModel> crops, AppLanguage lang) {
+  Widget _buildStatsGrid(BuildContext context, List<CropModel> crops, AppLanguage lang) {
     final now = DateTime.now();
     final upcomingCount = crops
         .where(
@@ -229,6 +249,7 @@ class FarmerDashboardScreen extends ConsumerWidget {
           value: '—',
           icon: Icons.warning_amber,
           color: Colors.red,
+          onTap: () => _openLossCalculator(context),
         ),
       ],
     );
@@ -259,6 +280,13 @@ class FarmerDashboardScreen extends ConsumerWidget {
           ),
         ),
       ),
+    );
+  }
+
+  void _openLossCalculator(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const LossCalculatorScreen()),
     );
   }
 

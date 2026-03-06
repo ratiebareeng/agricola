@@ -8,6 +8,7 @@ import 'package:agricola/features/crops/screens/record_harvest_screen.dart';
 import 'package:agricola/features/crops/widgets/harvest_history_card.dart';
 import 'package:agricola/features/crops/widgets/info_card.dart';
 import 'package:agricola/features/crops/widgets/timeline_view.dart';
+import 'package:agricola/features/loss_calculator/screens/loss_calculator_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -379,39 +380,70 @@ class CropDetailsScreen extends ConsumerWidget {
             ),
           ],
         ),
-        child: ElevatedButton.icon(
-          onPressed: () async {
-            final result = await Navigator.push<HarvestModel>(
-              context,
-              MaterialPageRoute(
-                builder: (context) => RecordHarvestScreen(crop: crop),
-              ),
-            );
-            if (result != null && context.mounted) {
-              final error = await ref
-                  .read(harvestNotifierProvider(crop.id!).notifier)
-                  .addHarvest(result);
-              if (error != null && context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Failed to save harvest: $error'),
-                    backgroundColor: Colors.red,
+        child: Row(
+          children: [
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) =>
+                          LossCalculatorScreen(preselectedCrop: crop),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.calculate_outlined, size: 18),
+                label: Text(t('calculate_losses', currentLang)),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: const Color(0xFF2D6A4F),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                );
-              }
-            }
-          },
-          icon: const Icon(Icons.agriculture),
-          label: Text(t('record_harvest', currentLang)),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF2D6A4F),
-            foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+                  side: const BorderSide(color: Color(0xFF2D6A4F)),
+                ),
+              ),
             ),
-            elevation: 0,
-          ),
+            const SizedBox(width: 12),
+            Expanded(
+              flex: 2,
+              child: ElevatedButton.icon(
+                onPressed: () async {
+                  final result = await Navigator.push<HarvestModel>(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => RecordHarvestScreen(crop: crop),
+                    ),
+                  );
+                  if (result != null && context.mounted) {
+                    final error = await ref
+                        .read(harvestNotifierProvider(crop.id!).notifier)
+                        .addHarvest(result);
+                    if (error != null && context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Failed to save harvest: $error'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
+                  }
+                },
+                icon: const Icon(Icons.agriculture),
+                label: Text(t('record_harvest', currentLang)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF2D6A4F),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  elevation: 0,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
