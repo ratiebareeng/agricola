@@ -1,0 +1,324 @@
+tests:
+  - displayName: Select language and complete onboarding
+    id: onboarding
+    steps:
+      - goal: Select English language
+        hint: Tap the English button on the welcome screen
+        finalScreenAssertion: Onboarding carousel is displayed with dot indicators
+      - goal: Complete the onboarding slides
+        hint: Tap Next to advance through all 4 slides, then tap Get Started on the last slide
+        finalScreenAssertion: Registration screen is shown with Create Account title
+
+  - displayName: Register as a Farmer
+    id: register_farmer
+    prerequisiteTestCaseId: onboarding
+    steps:
+      - goal: Select the Farmer account type
+        hint: Tap the Farmer card
+        finalScreenAssertion: Farmer card is highlighted and Continue button is enabled
+      - goal: Tap Continue
+        hint: Tap the green Continue button
+        finalScreenAssertion: Sign Up screen is shown with email and password fields
+
+  - displayName: Register as an AgriShop
+    id: register_agrishop
+    prerequisiteTestCaseId: onboarding
+    steps:
+      - goal: Select AgriShop account type
+        hint: Tap the AgriShop card
+        finalScreenAssertion: AgriShop card is selected
+      - goal: Tap Continue
+        hint: Tap the green Continue button
+        finalScreenAssertion: Sign Up screen is displayed
+
+  - displayName: Sign up with email and password then delete account
+    id: sign_up_email
+    prerequisiteTestCaseId: register_farmer
+    steps:
+      - goal: Fill in sign-up form and submit
+        hint: Enter an email in the email field, a password in both password fields, then tap Sign Up
+        finalScreenAssertion: App proceeds to profile setup or shows a loading indicator
+      - goal: Skip profile setup
+        hint: Tap Skip in the app bar to skip the profile setup flow
+        finalScreenAssertion: App navigates to the home dashboard
+      - goal: Navigate to the Profile tab
+        hint: Tap Profile in the bottom navigation bar
+        finalScreenAssertion: Profile screen is shown
+      - goal: Delete the account
+        hint: Scroll down on the profile screen and tap Delete Account
+        finalScreenAssertion: A confirmation dialog appears asking if you are sure you want to delete your account
+      - goal: Confirm account deletion
+        hint: Tap DELETE ACCOUNT in the confirmation dialog
+        finalScreenAssertion: Account is deleted and app navigates to the welcome or sign-in screen
+
+  - displayName: Navigate to Sign In from registration
+    id: navigate_sign_in
+    prerequisiteTestCaseId: onboarding
+    steps:
+      - goal: Navigate to the Sign In screen
+        hint: Tap the Sign In link at the bottom of the registration screen
+        finalScreenAssertion: Sign In screen is shown with email and password fields
+
+  - displayName: Continue as Guest
+    id: guest_flow
+    prerequisiteTestCaseId: onboarding
+    steps:
+      - goal: Continue without creating an account
+        hint: Tap the Continue as Guest button below the account type selection
+        finalScreenAssertion: Home screen is shown with a message about signing in to access features and a Sign In button
+
+  - displayName: Skip onboarding
+    id: skip_onboarding
+    steps:
+      - goal: Select a language
+        hint: Tap English
+        finalScreenAssertion: Onboarding screen appears
+      - goal: Skip the onboarding
+        hint: Tap the Skip text at the bottom
+        finalScreenAssertion: Registration screen is shown
+
+  - displayName: Farmer profile setup - Select village
+    id: setup_farmer_location
+    steps:
+      - goal: Select a village for farm location
+        hint: Tap the village dropdown and select a village from the list
+        finalScreenAssertion: A village is selected and the Continue button is enabled
+
+  - displayName: Farmer profile setup - Custom village
+    id: setup_farmer_custom_village
+    steps:
+      - goal: Enter a custom village name
+        hint: Select Other from the village dropdown, then type a village name in the text field that appears
+        finalScreenAssertion: Custom village name is entered and Continue is enabled
+
+  - displayName: Farmer profile setup - Select crops
+    id: setup_farmer_crops
+    steps:
+      - goal: Select crops you grow
+        hint: Tap on crop chips to select them
+        finalScreenAssertion: Selected crop count is shown and Continue is enabled
+
+  - displayName: Farmer profile setup - Skip setup
+    id: setup_farmer_skip
+    steps:
+      - goal: Skip the profile setup
+        hint: Tap Skip in the app bar
+        finalScreenAssertion: App navigates to the home dashboard
+
+  - displayName: Log in with test account
+    id: login
+    prerequisiteTestCaseId: onboarding
+    steps:
+      - goal: Navigate to the Sign In screen
+        hint: Tap the Sign In link at the bottom of the registration screen
+        finalScreenAssertion: Sign In screen is shown with email and password fields
+      - goal: Enter email address
+        hint: Tap the email field and type testlab@email.com
+        finalScreenAssertion: Email field shows testlab@email.com
+      - goal: Enter password and sign in
+        hint: Tap the password field, type t3stL@b, then tap the Sign In button
+        finalScreenAssertion: App navigates to the home dashboard
+
+  - displayName: View farmer dashboard
+    id: farmer_dashboard
+    prerequisiteTestCaseId: login
+    steps:
+      - goal: Verify the farmer dashboard loads correctly
+        hint: The dashboard should show Welcome Farmer and quick stats
+        finalScreenAssertion: Dashboard is visible with stat cards for Total Fields, Upcoming Harvests, Inventory Value, and Estimated Losses
+
+  - displayName: Navigate between all tabs
+    id: tab_navigation
+    prerequisiteTestCaseId: login
+    steps:
+      - goal: Navigate to the Marketplace tab
+        hint: Tap Marketplace in the bottom navigation
+        finalScreenAssertion: Marketplace screen with search bar is shown
+      - goal: Navigate to the Crops tab
+        hint: Tap Crops in the bottom nav
+        finalScreenAssertion: My Crops screen is displayed
+      - goal: Navigate to Inventory
+        hint: Tap Inventory in the bottom nav
+        finalScreenAssertion: Inventory screen is displayed
+      - goal: Navigate to Profile
+        hint: Tap Profile in the bottom nav
+        finalScreenAssertion: Profile screen with user info is shown
+
+  - displayName: Dashboard View All crops link
+    id: dashboard_view_all
+    prerequisiteTestCaseId: login
+    steps:
+      - goal: Tap View All on the crops section
+        hint: Find the View All link next to My Crops heading and tap it
+        finalScreenAssertion: The Crops tab is now active showing the full crop list
+
+  - displayName: Add a new crop - full flow
+    id: add_crop
+    prerequisiteTestCaseId: login
+    steps:
+      - goal: Start adding a crop
+        hint: Tap Add New Crop button on the Crops screen
+        finalScreenAssertion: Add Crop screen appears with Step 1 Crop Details
+      - goal: Select a crop type
+        hint: Tap a crop chip from the catalog list such as Sorghum
+        finalScreenAssertion: Crop is selected with green highlight
+      - goal: Proceed to field info
+        hint: Tap Next button
+        finalScreenAssertion: Step 2 Field Info is shown with field size and date pickers
+      - goal: Set planting date
+        hint: Tap the planting date field and select a date
+        finalScreenAssertion: Date is shown in the planting date field
+      - goal: Proceed to yield and storage
+        hint: Tap Next
+        finalScreenAssertion: Step 3 with yield and storage fields is shown
+      - goal: Save the crop
+        hint: Tap Save button
+        finalScreenAssertion: Returns to Crops screen and new crop appears in the list
+
+  - displayName: View crop details
+    id: view_crop
+    prerequisiteTestCaseId: login
+    steps:
+      - goal: Open a crop details
+        hint: Tap on any crop card in the crops list
+        finalScreenAssertion: Crop details screen shows the crop name, status badge, and timeline
+
+  - displayName: Edit an existing crop
+    id: edit_crop
+    prerequisiteTestCaseId: view_crop
+    steps:
+      - goal: Edit the crop
+        hint: Tap the edit icon in the app bar
+        finalScreenAssertion: Edit Crop form opens pre-filled with crop data
+
+  - displayName: Delete a crop
+    id: delete_crop
+    prerequisiteTestCaseId: view_crop
+    steps:
+      - goal: Delete the crop
+        hint: Tap the delete icon in the app bar
+        finalScreenAssertion: Confirmation dialog appears
+      - goal: Confirm deletion
+        hint: Tap Delete in the dialog
+        finalScreenAssertion: Returns to crops list and the crop is removed
+
+  - displayName: Browse marketplace listings
+    id: browse_marketplace
+    prerequisiteTestCaseId: login
+    steps:
+      - goal: View marketplace listings
+        hint: Navigate to the Marketplace tab
+        finalScreenAssertion: Marketplace screen shows a search bar and listing cards or empty state message
+
+  - displayName: Search marketplace
+    id: search_marketplace
+    prerequisiteTestCaseId: login
+    steps:
+      - goal: Search for a product
+        hint: Tap the search bar and type a product name
+        finalScreenAssertion: Listings are filtered based on search text
+
+  - displayName: View marketplace listing details
+    id: view_listing
+    prerequisiteTestCaseId: login
+    steps:
+      - goal: Open a listing details
+        hint: Tap on any marketplace listing card
+        finalScreenAssertion: Detail screen shows product image, title, price, and seller info
+
+  - displayName: Filter marketplace listings
+    id: filter_marketplace
+    prerequisiteTestCaseId: login
+    steps:
+      - goal: Open filters
+        hint: Tap the filter icon in the marketplace app bar
+        finalScreenAssertion: Filter options are displayed
+      - goal: Apply a filter
+        hint: Select a category or price range filter
+        finalScreenAssertion: Listings are filtered and active filter chips are shown below the search bar
+
+  - displayName: Remove marketplace filter
+    id: remove_marketplace_filter
+    prerequisiteTestCaseId: filter_marketplace
+    steps:
+      - goal: Remove an active filter
+        hint: Tap the X on a filter chip
+        finalScreenAssertion: Filter is removed and full listing results are restored
+
+  - displayName: View inventory screen
+    id: view_inventory
+    prerequisiteTestCaseId: login
+    steps:
+      - goal: Navigate to the inventory tab
+        hint: Tap Inventory in the bottom nav
+        finalScreenAssertion: Inventory screen shows Total Value and Items Needing Attention stats
+
+  - displayName: Add an inventory item
+    id: add_inventory
+    prerequisiteTestCaseId: login
+    steps:
+      - goal: Start adding inventory
+        hint: Tap Add New Item button
+        finalScreenAssertion: Add Inventory form is shown
+      - goal: Fill out inventory details
+        hint: Select a crop type, enter quantity, choose a storage location and condition
+        finalScreenAssertion: All fields are filled
+      - goal: Save the item
+        hint: Tap Save
+        finalScreenAssertion: Returns to inventory list with the new item visible
+
+  - displayName: Filter inventory by crop type
+    id: filter_inventory
+    prerequisiteTestCaseId: login
+    steps:
+      - goal: Filter inventory items
+        hint: Tap the crop type dropdown and select a specific crop
+        finalScreenAssertion: Only inventory items of that crop type are shown
+
+  - displayName: View profile
+    id: view_profile
+    prerequisiteTestCaseId: login
+    steps:
+      - goal: View your profile
+        hint: Tap Profile in the bottom nav
+        finalScreenAssertion: Profile screen shows your name, location, and email
+
+  - displayName: Edit profile
+    id: edit_profile
+    prerequisiteTestCaseId: login
+    steps:
+      - goal: Edit your profile
+        hint: Tap Edit Profile button on the profile screen
+        finalScreenAssertion: Edit profile form appears with pre-filled fields
+
+  - displayName: Switch language
+    id: switch_language
+    prerequisiteTestCaseId: login
+    steps:
+      - goal: Switch the app language
+        hint: On the profile screen, find the language selection option and switch to Setswana
+        finalScreenAssertion: App labels and text change to Setswana
+
+  - displayName: Sign out
+    id: sign_out
+    prerequisiteTestCaseId: login
+    steps:
+      - goal: Sign out of the app
+        hint: Scroll to the bottom of the profile screen and tap the Sign Out button
+        finalScreenAssertion: App navigates to the welcome or sign-in screen
+
+  - displayName: Refresh crops list
+    id: refresh_crops
+    prerequisiteTestCaseId: login
+    steps:
+      - goal: Refresh the crops data
+        hint: Pull down on the crops list
+        finalScreenAssertion: Loading indicator appears and data refreshes
+
+  - displayName: Refresh marketplace
+    id: refresh_marketplace
+    prerequisiteTestCaseId: login
+    steps:
+      - goal: Refresh marketplace listings
+        hint: Pull down on the marketplace screen
+        finalScreenAssertion: Loading indicator appears and listings refresh
