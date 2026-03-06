@@ -22,6 +22,7 @@ class MarketplaceListing {
   final String? sellerPhone;
   final String? sellerEmail;
   final List<String>? additionalImages;
+  final String? inventoryId;
   final DateTime createdAt;
 
   MarketplaceListing({
@@ -42,6 +43,7 @@ class MarketplaceListing {
     this.sellerPhone,
     this.sellerEmail,
     this.additionalImages,
+    this.inventoryId,
     DateTime? createdAt,
   }) : createdAt = createdAt ?? DateTime.now();
 
@@ -74,6 +76,7 @@ class MarketplaceListing {
       additionalImages: (json['additionalImages'] as List<dynamic>?)
           ?.map((e) => e as String)
           .toList(),
+      inventoryId: json.optionalString('inventoryId'),
       createdAt: json['createdAt'] != null
           ? DateTime.parse(json['createdAt'] as String)
           : DateTime.now(),
@@ -99,6 +102,7 @@ class MarketplaceListing {
       'sellerPhone': sellerPhone,
       'sellerEmail': sellerEmail,
       'additionalImages': additionalImages,
+      'inventoryId': inventoryId,
       'createdAt': createdAt.toIso8601String(),
     };
   }
@@ -121,6 +125,7 @@ class MarketplaceListing {
     String? sellerPhone,
     String? sellerEmail,
     List<String>? additionalImages,
+    String? inventoryId,
     DateTime? createdAt,
   }) {
     return MarketplaceListing(
@@ -141,6 +146,7 @@ class MarketplaceListing {
       sellerPhone: sellerPhone ?? this.sellerPhone,
       sellerEmail: sellerEmail ?? this.sellerEmail,
       additionalImages: additionalImages ?? this.additionalImages,
+      inventoryId: inventoryId ?? this.inventoryId,
       createdAt: createdAt ?? this.createdAt,
     );
   }

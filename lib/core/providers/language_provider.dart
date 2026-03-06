@@ -1679,6 +1679,46 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
     AppLanguage.english: 'Recording losses regularly helps identify patterns and areas for improvement.',
     AppLanguage.setswana: 'Go kwala ditshenyegelo ka metlha go thusa go lemoga mekgwa le mafelo a tokafatso.',
   },
+  'list_on_marketplace': {
+    AppLanguage.english: 'List on Marketplace',
+    AppLanguage.setswana: 'Romela mo Marketplace',
+  },
+  'listed_on_marketplace': {
+    AppLanguage.english: 'Listed on Marketplace',
+    AppLanguage.setswana: 'E romeletswe mo Marketplace',
+  },
+  'unlist': {
+    AppLanguage.english: 'Unlist',
+    AppLanguage.setswana: 'Ntsha',
+  },
+  'unlist_confirm': {
+    AppLanguage.english: 'Are you sure you want to remove this item from the marketplace?',
+    AppLanguage.setswana: 'A o tlhomamisegile gore o batla go ntsha seno mo marketplace?',
+  },
+  'listing_from_inventory': {
+    AppLanguage.english: 'Pre-filled from your inventory. Review and set a price.',
+    AppLanguage.setswana: 'E tladitswe go tswa mo inventory ya gago. Sekaseka o bo o beye tlhwatlhwa.',
+  },
+  'listed': {
+    AppLanguage.english: 'Listed',
+    AppLanguage.setswana: 'E romeletswe',
+  },
+  'unlisted_success': {
+    AppLanguage.english: 'Item removed from marketplace',
+    AppLanguage.setswana: 'Seno se ntshitswe mo marketplace',
+  },
+  'manage_store_products': {
+    AppLanguage.english: 'Manage your store products',
+    AppLanguage.setswana: 'Laola ditlhagiso tsa lebenkele la gago',
+  },
+  'track_produce_stock': {
+    AppLanguage.english: 'Track your produce stock',
+    AppLanguage.setswana: 'Latela ditlhagiso tsa gago',
+  },
+  'total_items': {
+    AppLanguage.english: 'Total Items',
+    AppLanguage.setswana: 'Palogotlhe',
+  },
 };
 
 String t(String key, AppLanguage lang) {

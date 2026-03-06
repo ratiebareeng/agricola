@@ -10,6 +10,7 @@ class InventoryItemCard extends StatelessWidget {
   final String condition;
   final AppLanguage language;
   final VoidCallback? onTap;
+  final bool isListed;
 
   const InventoryItemCard({
     super.key,
@@ -21,6 +22,7 @@ class InventoryItemCard extends StatelessWidget {
     required this.condition,
     required this.language,
     this.onTap,
+    this.isListed = false,
   });
 
   @override
@@ -88,34 +90,71 @@ class InventoryItemCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: conditionColor.withAlpha(10),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        _getConditionIcon(),
-                        size: 14,
-                        color: conditionColor,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
                       ),
-                      const SizedBox(width: 4),
-                      Text(
-                        t(condition, language),
-                        style: TextStyle(
-                          color: conditionColor,
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold,
+                      decoration: BoxDecoration(
+                        color: conditionColor.withAlpha(10),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            _getConditionIcon(),
+                            size: 14,
+                            color: conditionColor,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            t(condition, language),
+                            style: TextStyle(
+                              color: conditionColor,
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (isListed) ...[
+                      const SizedBox(height: 6),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF2D6A4F).withAlpha(15),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.storefront,
+                              size: 12,
+                              color: Color(0xFF2D6A4F),
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              t('listed', language),
+                              style: const TextStyle(
+                                color: Color(0xFF2D6A4F),
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
-                  ),
+                  ],
                 ),
               ],
             ),

@@ -537,7 +537,9 @@ class CropDetailsScreen extends ConsumerWidget {
                   return;
                 }
               }
-              if (context.mounted) Navigator.pop(context); // close details
+              if (context.mounted) {
+                Navigator.pop(context);
+              } // close details
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,

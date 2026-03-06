@@ -1,7 +1,11 @@
 import 'package:agricola/core/providers/language_provider.dart';
+import 'package:agricola/features/home/providers/dashboard_stats_provider.dart';
 import 'package:agricola/features/inventory/models/inventory_model.dart';
 import 'package:agricola/features/inventory/providers/inventory_providers.dart';
 import 'package:agricola/features/inventory/screens/add_edit_inventory_screen.dart';
+import 'package:agricola/features/marketplace/models/marketplace_listing.dart';
+import 'package:agricola/features/marketplace/providers/marketplace_provider.dart';
+import 'package:agricola/features/marketplace/screens/add_product_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -26,10 +30,23 @@ class _InventoryDetailScreenState extends ConsumerState<InventoryDetailScreen> {
     _item = widget.item;
   }
 
+  MarketplaceListing? _findLinkedListing(List<MarketplaceListing> listings) {
+    if (_item.id == null) return null;
+    for (final listing in listings) {
+      if (listing.inventoryId == _item.id) return listing;
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     final language = ref.watch(languageProvider);
     final dateFormat = DateFormat.yMMMd();
+    final myListingsAsync = ref.watch(myListingsNotifierProvider);
+    final linkedListing = myListingsAsync.whenData(
+      (listings) => _findLinkedListing(listings),
+    );
+    final isListed = linkedListing.valueOrNull != null;
 
     return Scaffold(
       appBar: AppBar(
@@ -51,53 +68,169 @@ class _InventoryDetailScreenState extends ConsumerState<InventoryDetailScreen> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildImageSection(context),
-            const SizedBox(height: 24),
-            _buildHeader(context, language),
-            const SizedBox(height: 24),
-            _buildDetailSection(
-              context,
-              title: t('storage_info', language),
-              children: [
-                _buildDetailRow(
-                  context,
-                  icon: Icons.calendar_today,
-                  label: t('storage_date', language),
-                  value: dateFormat.format(_item.storageDate),
-                ),
-                _buildDetailRow(
-                  context,
-                  icon: Icons.location_on,
-                  label: t('location', language),
-                  value: _item.storageLocation,
-                ),
-                _buildDetailRow(
-                  context,
-                  icon: Icons.info_outline,
-                  label: t('condition', language),
-                  value: t(_item.condition, language),
+      body: Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildImageSection(context),
+                  const SizedBox(height: 24),
+                  _buildHeader(context, language),
+                  const SizedBox(height: 24),
+                  _buildDetailSection(
+                    context,
+                    title: t('storage_info', language),
+                    children: [
+                      _buildDetailRow(
+                        context,
+                        icon: Icons.calendar_today,
+                        label: t('storage_date', language),
+                        value: dateFormat.format(_item.storageDate),
+                      ),
+                      _buildDetailRow(
+                        context,
+                        icon: Icons.location_on,
+                        label: t('location', language),
+                        value: _item.storageLocation,
+                      ),
+                      _buildDetailRow(
+                        context,
+                        icon: Icons.info_outline,
+                        label: t('condition', language),
+                        value: t(_item.condition, language),
+                      ),
+                    ],
+                  ),
+                  if (_item.notes != null && _item.notes!.isNotEmpty) ...[
+                    const SizedBox(height: 24),
+                    _buildDetailSection(
+                      context,
+                      title: t('notes', language),
+                      children: [
+                        Text(_item.notes!, style: const TextStyle(fontSize: 16)),
+                      ],
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withAlpha(10),
+                  blurRadius: 10,
+                  offset: const Offset(0, -2),
                 ),
               ],
             ),
-            if (_item.notes != null && _item.notes!.isNotEmpty) ...[
-              const SizedBox(height: 24),
-              _buildDetailSection(
-                context,
-                title: t('notes', language),
-                children: [
-                  Text(_item.notes!, style: const TextStyle(fontSize: 16)),
-                ],
+            child: SafeArea(
+              child: SizedBox(
+                width: double.infinity,
+                child: isListed
+                    ? OutlinedButton.icon(
+                        onPressed: () => _confirmUnlist(
+                          context,
+                          language,
+                          linkedListing.valueOrNull!,
+                        ),
+                        icon: const Icon(Icons.remove_shopping_cart),
+                        label: Text(t('unlist', language)),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Colors.red,
+                          side: const BorderSide(color: Colors.red),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      )
+                    : ElevatedButton.icon(
+                        onPressed: () => _listOnMarketplace(context),
+                        icon: const Icon(Icons.storefront),
+                        label: Text(t('list_on_marketplace', language)),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF2D6A4F),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      ),
               ),
-            ],
-          ],
-        ),
+            ),
+          ),
+        ],
       ),
     );
+  }
+
+  Future<void> _listOnMarketplace(BuildContext context) async {
+    final result = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AddProductScreen(sourceInventory: _item),
+      ),
+    );
+    if (result == true && context.mounted) {
+      ref.read(myListingsNotifierProvider.notifier).loadMyListings();
+    }
+  }
+
+  Future<void> _confirmUnlist(
+    BuildContext context,
+    AppLanguage language,
+    MarketplaceListing listing,
+  ) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(t('unlist', language)),
+        content: Text(t('unlist_confirm', language)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(t('cancel', language)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: Text(t('unlist', language)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && context.mounted) {
+      final error = await ref
+          .read(marketplaceNotifierProvider.notifier)
+          .deleteListing(listing.id);
+      if (context.mounted) {
+        if (error != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('${t('error', language)}: $error'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        } else {
+          ref.read(myListingsNotifierProvider.notifier).loadMyListings();
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(t('unlisted_success', language)),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      }
+    }
   }
 
   Future<void> _editItem(BuildContext context, AppLanguage language) async {

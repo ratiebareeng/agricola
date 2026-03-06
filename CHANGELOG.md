@@ -1,3 +1,26 @@
+## 0.9.0 - 2026-03-06
+
+### Added
+- List Inventory on Marketplace feature
+  - Inventory items can be listed on the marketplace with pre-filled product details
+  - "List on Marketplace" button on inventory detail screen navigates to AddProductScreen
+  - "Unlist" button with confirmation dialog removes marketplace listing
+  - "Listed" badge on inventory item cards shows marketplace status
+  - `inventoryId` field on `MarketplaceListing` model links listings to inventory items
+
+### Changed
+- Rewrote `MerchantInventoryScreen` to use real backend data via `inventoryNotifierProvider`
+  - Summary stats computed from real data (total items, low stock count)
+  - FAB navigates to real `AddEditInventoryScreen`
+  - Item tap navigates to real `InventoryDetailScreen` with edit/delete
+- Extended `AddProductScreen` with `sourceInventory` parameter for pre-filling from inventory
+- `InventoryDetailScreen` now shows marketplace list/unlist action at bottom
+- `InventoryItemCard` accepts optional `isListed` flag for "Listed" badge
+- Farmer and merchant inventory screens pass `isListed` status to cards
+
+### Removed
+- Deleted `MerchantInventoryDetailScreen` (hardcoded stub replaced by real `InventoryDetailScreen`)
+
 ## 0.8.0 - 2026-03-06
 
 ### Added

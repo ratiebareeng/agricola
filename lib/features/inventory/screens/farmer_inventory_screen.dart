@@ -1,6 +1,7 @@
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/features/crops/models/crop_catalog_entry.dart';
 import 'package:agricola/features/crops/providers/crop_catalog_provider.dart';
+import 'package:agricola/features/home/providers/dashboard_stats_provider.dart';
 import 'package:agricola/features/inventory/models/inventory_model.dart';
 import 'package:agricola/features/inventory/providers/inventory_providers.dart';
 import 'package:agricola/features/inventory/screens/add_edit_inventory_screen.dart';
@@ -59,6 +60,17 @@ class _FarmerInventoryScreenState extends ConsumerState<FarmerInventoryScreen> {
   Widget build(BuildContext context) {
     final currentLang = ref.watch(languageProvider);
     final inventoryAsync = ref.watch(inventoryNotifierProvider);
+    final myListingsAsync = ref.watch(myListingsNotifierProvider);
+
+    // Build set of listed inventory IDs
+    final listedIds = <String>{};
+    myListingsAsync.whenData((listings) {
+      for (final listing in listings) {
+        if (listing.inventoryId != null) {
+          listedIds.add(listing.inventoryId!);
+        }
+      }
+    });
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
@@ -297,6 +309,7 @@ class _FarmerInventoryScreenState extends ConsumerState<FarmerInventoryScreen> {
                               storageLocation: item.storageLocation,
                               condition: item.condition,
                               language: currentLang,
+                              isListed: listedIds.contains(item.id),
                               onTap: () async {
                                 final result = await Navigator.push<bool>(
                                   context,
@@ -307,6 +320,7 @@ class _FarmerInventoryScreenState extends ConsumerState<FarmerInventoryScreen> {
                                 );
                                 if (result == true && context.mounted) {
                                   ref.read(inventoryNotifierProvider.notifier).loadInventory();
+                                  ref.read(myListingsNotifierProvider.notifier).loadMyListings();
                                 }
                               },
                             );

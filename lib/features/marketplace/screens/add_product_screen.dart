@@ -1,6 +1,7 @@
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/features/auth/providers/auth_provider.dart';
+import 'package:agricola/features/inventory/models/inventory_model.dart';
 import 'package:agricola/features/marketplace/models/marketplace_listing.dart';
 import 'package:agricola/features/marketplace/providers/marketplace_provider.dart';
 import 'package:agricola/features/profile_setup/providers/profile_setup_provider.dart';
@@ -9,8 +10,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class AddProductScreen extends ConsumerStatefulWidget {
   final MarketplaceListing? existingProduct;
+  final InventoryModel? sourceInventory;
 
-  const AddProductScreen({super.key, this.existingProduct});
+  const AddProductScreen({
+    super.key,
+    this.existingProduct,
+    this.sourceInventory,
+  });
 
   @override
   ConsumerState<AddProductScreen> createState() => _AddProductScreenState();
@@ -43,21 +49,40 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
 
   bool get _isEditing => widget.existingProduct != null;
 
+  bool get _isFromInventory =>
+      widget.sourceInventory != null && !_isEditing;
+
   @override
   void initState() {
     super.initState();
     final product = widget.existingProduct;
-    _titleController = TextEditingController(text: product?.title ?? '');
-    _descriptionController =
-        TextEditingController(text: product?.description ?? '');
-    _priceController =
-        TextEditingController(text: product?.price?.toString() ?? '');
-    _quantityController =
-        TextEditingController(text: product?.quantity ?? '');
+    final source = widget.sourceInventory;
 
     if (product != null) {
+      // Editing existing listing
+      _titleController = TextEditingController(text: product.title);
+      _descriptionController =
+          TextEditingController(text: product.description);
+      _priceController =
+          TextEditingController(text: product.price?.toString() ?? '');
+      _quantityController =
+          TextEditingController(text: product.quantity ?? '');
       _category = product.category;
       _unit = product.unit ?? 'kg';
+    } else if (source != null) {
+      // Pre-fill from inventory
+      _titleController = TextEditingController(text: source.cropType);
+      _descriptionController =
+          TextEditingController(text: source.notes ?? '');
+      _priceController = TextEditingController();
+      _quantityController =
+          TextEditingController(text: source.quantity.toString());
+      _unit = _units.contains(source.unit) ? source.unit : 'kg';
+    } else {
+      _titleController = TextEditingController();
+      _descriptionController = TextEditingController();
+      _priceController = TextEditingController();
+      _quantityController = TextEditingController();
     }
   }
 
@@ -101,6 +126,39 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    if (_isFromInventory) ...[
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF2D6A4F).withAlpha(20),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: const Color(0xFF2D6A4F).withAlpha(50),
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.inventory_2,
+                              color: Color(0xFF2D6A4F),
+                              size: 20,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                t('listing_from_inventory', currentLang),
+                                style: const TextStyle(
+                                  color: Color(0xFF2D6A4F),
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                    ],
                     _buildSectionTitle(t('product_name', currentLang)),
                     const SizedBox(height: 8),
                     _buildTextField(
@@ -354,6 +412,7 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
         sellerId: user.uid,
         location: profile.location.isNotEmpty ? profile.location : 'Botswana',
         sellerEmail: user.email,
+        inventoryId: widget.sourceInventory?.id,
       );
 
       String? error;
