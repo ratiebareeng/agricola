@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/core/utils/image_utils.dart';
+import 'package:agricola/core/utils/url_utils.dart';
 import 'package:agricola/core/widgets/app_buttons.dart';
 import 'package:agricola/core/widgets/app_text_field.dart';
 import 'package:agricola/features/profile/providers/profile_controller_provider.dart';
@@ -185,8 +186,7 @@ class _EditFarmerProfileScreenState
                           image: FileImage(_newPhoto!),
                           fit: BoxFit.cover,
                         )
-                      : widget.profile.photoUrl != null &&
-                              widget.profile.photoUrl!.startsWith('http')
+                      : isNetworkUrl(widget.profile.photoUrl)
                       ? DecorationImage(
                           image: NetworkImage(widget.profile.photoUrl!),
                           fit: BoxFit.cover,

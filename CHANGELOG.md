@@ -1,3 +1,16 @@
+## 0.6.1 - 2026-03-06
+
+### Added
+- `isNetworkUrl()` utility to guard against file:// URIs crashing `NetworkImage`
+- 32 new tests: URL validation, crop helpers, CropCard widget, profile photo display
+- `MockHttpOverrides` test helper for widget tests with `NetworkImage`
+
+### Fixed
+- Marketplace detail screen missing URL guard on `listing.imagePath`
+
+### Changed
+- Refactored 5 screens to use shared `isNetworkUrl()` instead of inline `.startsWith('http')`
+
 ## 0.6.0 - 2026-03-05
 
 ### Added

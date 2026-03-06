@@ -1,5 +1,6 @@
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
+import 'package:agricola/core/utils/url_utils.dart';
 import 'package:agricola/features/marketplace/models/marketplace_listing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -34,7 +35,7 @@ class MarketplaceDetailScreen extends ConsumerWidget {
               onPressed: () => Navigator.pop(context),
             ),
             flexibleSpace: FlexibleSpaceBar(
-              background: listing.imagePath != null
+              background: isNetworkUrl(listing.imagePath)
                   ? Image.network(
                       listing.imagePath!,
                       fit: BoxFit.cover,

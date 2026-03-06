@@ -1,4 +1,5 @@
 import 'package:agricola/core/providers/language_provider.dart';
+import 'package:agricola/core/utils/url_utils.dart';
 import 'package:agricola/core/routing/route_guard_helpers.dart';
 import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/core/widgets/language_select_content.dart';
@@ -559,8 +560,7 @@ class _FarmerProfileScreenState extends ConsumerState<FarmerProfileScreen> {
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         border: Border.all(color: Colors.white, width: 3),
-                        image: profile.photoUrl != null &&
-                                profile.photoUrl!.startsWith('http')
+                        image: isNetworkUrl(profile.photoUrl)
                             ? DecorationImage(
                                 image: NetworkImage(profile.photoUrl!),
                                 fit: BoxFit.cover,
