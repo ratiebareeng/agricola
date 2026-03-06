@@ -7,6 +7,7 @@ import 'package:agricola/features/home/widgets/stat_card.dart';
 import 'package:agricola/features/marketplace/screens/add_product_screen.dart';
 import 'package:agricola/features/orders/models/order_model.dart';
 import 'package:agricola/features/profile_setup/providers/profile_setup_provider.dart';
+import 'package:agricola/features/purchases/screens/add_purchase_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -151,32 +152,32 @@ class MerchantDashboardScreen extends ConsumerWidget {
           ),
         ] else ...[
           StatCard(
-            title: t('total_suppliers', lang),
-            value: '0',
-            icon: Icons.people,
+            title: t('total_products', lang),
+            value: '${stats.totalProducts}',
+            icon: Icons.inventory_2,
             color: const Color(0xFF2D6A4F),
-            subtitle: t('coming_soon', lang),
+            subtitle: stats.totalProducts == 1 ? 'listing' : 'listings',
           ),
           StatCard(
             title: t('monthly_purchases', lang),
-            value: 'P 0.00',
+            value: 'P ${stats.monthlyPurchases.toStringAsFixed(2)}',
             icon: Icons.shopping_bag,
             color: const Color(0xFFFF6B35),
-            subtitle: t('coming_soon', lang),
+            subtitle: 'this month',
           ),
           StatCard(
-            title: t('pending_orders', lang),
-            value: '0',
-            icon: Icons.pending_actions,
+            title: t('total_suppliers', lang),
+            value: '${stats.totalSuppliers}',
+            icon: Icons.people,
             color: const Color(0xFF4ECDC4),
-            subtitle: t('coming_soon', lang),
+            subtitle: stats.totalSuppliers == 1 ? 'supplier' : 'suppliers',
           ),
           StatCard(
-            title: t('available_produce', lang),
-            value: '0 kg',
-            icon: Icons.eco,
+            title: t('low_stock_items', lang),
+            value: '${stats.lowStockItems}',
+            icon: Icons.warning_amber_rounded,
             color: const Color(0xFFFFBE0B),
-            subtitle: t('coming_soon', lang),
+            subtitle: stats.lowStockItems == 0 ? 'all good' : 'need attention',
           ),
         ],
       ],
@@ -261,6 +262,24 @@ class MerchantDashboardScreen extends ConsumerWidget {
                   ref.read(selectedTabProvider.notifier).state = isAgriShop ? 1 : 2;
                 },
               ),
+              if (!isAgriShop) ...[
+                const Divider(height: 24),
+                _buildQuickActionTile(
+                  context,
+                  icon: Icons.shopping_bag_outlined,
+                  iconColor: const Color(0xFFFF6B35),
+                  title: t('record_purchase', lang),
+                  subtitle: t('record_from_farmers', lang),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const AddPurchaseScreen(),
+                      ),
+                    );
+                  },
+                ),
+              ],
               const Divider(height: 24),
               _buildQuickActionTile(
                 context,

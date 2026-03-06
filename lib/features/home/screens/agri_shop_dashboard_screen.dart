@@ -2,7 +2,10 @@ import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/providers/nav_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/features/auth/providers/auth_provider.dart';
+import 'package:agricola/features/home/providers/dashboard_stats_provider.dart';
+import 'package:agricola/features/home/widgets/stat_card.dart';
 import 'package:agricola/features/marketplace/screens/add_product_screen.dart';
+import 'package:agricola/features/orders/models/order_model.dart';
 import 'package:agricola/features/profile/domain/models/displayable_profile.dart';
 import 'package:agricola/features/profile/providers/profile_controller_provider.dart';
 import 'package:flutter/material.dart';
@@ -17,10 +20,11 @@ class AgriShopDashboardScreen extends ConsumerWidget {
     final profileState = ref.watch(profileControllerProvider);
     final user = ref.watch(currentUserProvider);
     final displayableProfile = profileState.displayableProfile;
+    final stats = ref.watch(merchantDashboardStatsProvider);
 
-    // Get business name from profile or use default
     String businessName = 'Business';
-    if (displayableProfile != null && displayableProfile is CompleteMerchantProfile) {
+    if (displayableProfile != null &&
+        displayableProfile is CompleteMerchantProfile) {
       businessName = displayableProfile.merchantData.businessName;
     }
 
@@ -34,6 +38,8 @@ class AgriShopDashboardScreen extends ConsumerWidget {
                   .read(profileControllerProvider.notifier)
                   .loadProfile(userId: user.uid, forceRefresh: true);
             }
+            ref.invalidate(myListingsNotifierProvider);
+            ref.invalidate(merchantDashboardStatsProvider);
           },
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
@@ -42,20 +48,13 @@ class AgriShopDashboardScreen extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Welcome Header
-                  _buildWelcomeHeader(businessName, currentLang),
+                  _WelcomeHeader(businessName: businessName, lang: currentLang),
                   const SizedBox(height: 24),
-
-                  // Quick Stats Cards
-                  _buildQuickStatsGrid(currentLang),
+                  _StatsGrid(stats: stats, lang: currentLang),
                   const SizedBox(height: 24),
-
-                  // Quick Actions
-                  _buildQuickActionsSection(context, ref, currentLang),
+                  _QuickActionsSection(lang: currentLang),
                   const SizedBox(height: 24),
-
-                  // Recent Activity
-                  _buildRecentActivitySection(context, currentLang),
+                  _RecentActivitySection(stats: stats, lang: currentLang),
                   const SizedBox(height: 80),
                 ],
               ),
@@ -65,8 +64,16 @@ class AgriShopDashboardScreen extends ConsumerWidget {
       ),
     );
   }
+}
 
-  Widget _buildWelcomeHeader(String businessName, AppLanguage lang) {
+class _WelcomeHeader extends StatelessWidget {
+  final String businessName;
+  final AppLanguage lang;
+
+  const _WelcomeHeader({required this.businessName, required this.lang});
+
+  @override
+  Widget build(BuildContext context) {
     final hour = DateTime.now().hour;
     String greeting;
     if (hour < 12) {
@@ -100,8 +107,42 @@ class AgriShopDashboardScreen extends ConsumerWidget {
       ],
     );
   }
+}
 
-  Widget _buildQuickStatsGrid(AppLanguage lang) {
+class _StatsGrid extends StatelessWidget {
+  final MerchantDashboardStats stats;
+  final AppLanguage lang;
+
+  const _StatsGrid({required this.stats, required this.lang});
+
+  @override
+  Widget build(BuildContext context) {
+    if (stats.isLoading) {
+      return GridView.count(
+        crossAxisCount: 2,
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        mainAxisSpacing: 16,
+        crossAxisSpacing: 16,
+        childAspectRatio: 1.5,
+        children: List.generate(
+          4,
+          (_) => Container(
+            decoration: BoxDecoration(
+              color: Colors.grey[200],
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: const Center(
+              child: CircularProgressIndicator(
+                color: AppColors.green,
+                strokeWidth: 2,
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
     return GridView.count(
       crossAxisCount: 2,
       crossAxisSpacing: 16,
@@ -110,93 +151,44 @@ class AgriShopDashboardScreen extends ConsumerWidget {
       physics: const NeverScrollableScrollPhysics(),
       childAspectRatio: 1.5,
       children: [
-        _buildStatCard(
+        StatCard(
+          title: t('total_products', lang),
+          value: '${stats.totalProducts}',
           icon: Icons.inventory_2,
-          iconColor: AppColors.green,
-          label: t('total_products', lang),
-          value: '0',
+          color: AppColors.green,
         ),
-        _buildStatCard(
+        StatCard(
+          title: t('active_orders', lang),
+          value: '${stats.activeOrders}',
           icon: Icons.shopping_cart,
-          iconColor: Colors.orange,
-          label: t('orders_today', lang),
-          value: '0',
+          color: const Color(0xFF4ECDC4),
         ),
-        _buildStatCard(
+        StatCard(
+          title: t('monthly_revenue', lang),
+          value: 'P ${stats.monthlyRevenue.toStringAsFixed(2)}',
           icon: Icons.attach_money,
-          iconColor: Colors.blue,
-          label: t('revenue_month', lang),
-          value: 'P 0.00',
+          color: const Color(0xFFFF6B35),
         ),
-        _buildStatCard(
-          icon: Icons.warning,
-          iconColor: Colors.red,
-          label: t('low_stock', lang),
-          value: '0',
+        StatCard(
+          title: t('low_stock_items', lang),
+          value: '${stats.lowStockItems}',
+          icon: Icons.warning_amber_rounded,
+          color: stats.lowStockItems == 0
+              ? const Color(0xFFFFBE0B)
+              : Colors.red,
         ),
       ],
     );
   }
+}
 
-  Widget _buildStatCard({
-    required IconData icon,
-    required Color iconColor,
-    required String label,
-    required String value,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withAlpha(25),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              color: iconColor.withAlpha(20),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(icon, color: iconColor, size: 18),
-          ),
-          const Spacer(),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: 2),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 11,
-              color: Colors.grey[600],
-              fontWeight: FontWeight.w500,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
-      ),
-    );
-  }
+class _QuickActionsSection extends ConsumerWidget {
+  final AppLanguage lang;
 
-  Widget _buildQuickActionsSection(BuildContext context, WidgetRef ref, AppLanguage lang) {
+  const _QuickActionsSection({required this.lang});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -224,8 +216,7 @@ class AgriShopDashboardScreen extends ConsumerWidget {
           ),
           child: Column(
             children: [
-              _buildQuickActionTile(
-                context,
+              _QuickActionTile(
                 icon: Icons.add_circle_outline,
                 iconColor: AppColors.green,
                 title: t('add_new_product', lang),
@@ -236,31 +227,30 @@ class AgriShopDashboardScreen extends ConsumerWidget {
                 ),
               ),
               const Divider(height: 24),
-              _buildQuickActionTile(
-                context,
+              _QuickActionTile(
                 icon: Icons.receipt_long_outlined,
                 iconColor: Colors.orange,
                 title: t('view_orders', lang),
                 subtitle: t('manage_customer_orders', lang),
-                onTap: () => ref.read(selectedTabProvider.notifier).state = 2,
+                onTap: () =>
+                    ref.read(selectedTabProvider.notifier).state = 2,
               ),
               const Divider(height: 24),
-              _buildQuickActionTile(
-                context,
+              _QuickActionTile(
                 icon: Icons.inventory_outlined,
                 iconColor: Colors.blue,
                 title: t('check_inventory', lang),
                 subtitle: t('manage_stock_levels', lang),
-                onTap: () => ref.read(selectedTabProvider.notifier).state = 1,
+                onTap: () =>
+                    ref.read(selectedTabProvider.notifier).state = 1,
               ),
               const Divider(height: 24),
-              _buildQuickActionTile(
-                context,
+              _QuickActionTile(
                 icon: Icons.analytics_outlined,
                 iconColor: Colors.purple,
                 title: t('view_analytics', lang),
                 subtitle: t('business_insights', lang),
-                onTap: () => _showComingSoonDialog(context, lang),
+                onTap: () => _showComingSoonDialog(context),
               ),
             ],
           ),
@@ -269,14 +259,49 @@ class AgriShopDashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildQuickActionTile(
-    BuildContext context, {
-    required IconData icon,
-    required Color iconColor,
-    required String title,
-    required String subtitle,
-    required VoidCallback onTap,
-  }) {
+  void _showComingSoonDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: [
+            const Icon(Icons.construction, color: AppColors.green),
+            const SizedBox(width: 12),
+            Text(t('coming_soon', lang)),
+          ],
+        ),
+        content: Text(
+          t('feature_under_development', lang),
+          style: const TextStyle(fontSize: 15),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(t('okay', lang)),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _QuickActionTile extends StatelessWidget {
+  final IconData icon;
+  final Color iconColor;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  const _QuickActionTile({
+    required this.icon,
+    required this.iconColor,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
@@ -322,8 +347,16 @@ class AgriShopDashboardScreen extends ConsumerWidget {
       ),
     );
   }
+}
 
-  Widget _buildRecentActivitySection(BuildContext context, AppLanguage lang) {
+class _RecentActivitySection extends ConsumerWidget {
+  final MerchantDashboardStats stats;
+  final AppLanguage lang;
+
+  const _RecentActivitySection({required this.stats, required this.lang});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -337,7 +370,6 @@ class AgriShopDashboardScreen extends ConsumerWidget {
         ),
         const SizedBox(height: 16),
         Container(
-          padding: const EdgeInsets.all(32),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
@@ -349,42 +381,90 @@ class AgriShopDashboardScreen extends ConsumerWidget {
               ),
             ],
           ),
-          child: Center(
-            child: Column(
+          child: stats.isLoading
+              ? const Padding(
+                  padding: EdgeInsets.all(32),
+                  child: Center(
+                    child: CircularProgressIndicator(color: AppColors.green),
+                  ),
+                )
+              : stats.recentOrders.isEmpty
+                  ? _buildEmptyState()
+                  : _buildOrdersList(context, ref),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Padding(
+      padding: const EdgeInsets.all(32),
+      child: Center(
+        child: Column(
+          children: [
+            Icon(Icons.receipt_long_outlined, size: 64, color: Colors.grey[300]),
+            const SizedBox(height: 16),
+            Text(
+              t('no_recent_orders', lang),
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Colors.grey[700],
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              t('orders_will_appear_here', lang),
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 14, color: Colors.grey[500]),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              t('add_products_to_start', lang),
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 13,
+                color: Colors.grey[400],
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildOrdersList(BuildContext context, WidgetRef ref) {
+    return Column(
+      children: [
+        ...stats.recentOrders.asMap().entries.map((entry) {
+          final index = entry.key;
+          final order = entry.value;
+          return Column(
+            children: [
+              _OrderTile(order: order),
+              if (index < stats.recentOrders.length - 1)
+                Divider(height: 1, color: Colors.grey[200]),
+            ],
+          );
+        }),
+        Divider(height: 1, color: Colors.grey[200]),
+        InkWell(
+          onTap: () => ref.read(selectedTabProvider.notifier).state = 2,
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
-                  Icons.receipt_long_outlined,
-                  size: 64,
-                  color: Colors.grey[300],
-                ),
-                const SizedBox(height: 16),
                 Text(
-                  t('no_recent_orders', lang),
-                  style: TextStyle(
-                    fontSize: 16,
+                  t('view_all_orders', lang),
+                  style: const TextStyle(
+                    color: AppColors.green,
                     fontWeight: FontWeight.w600,
-                    color: Colors.grey[700],
                   ),
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  t('orders_will_appear_here', lang),
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[500],
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  t('add_products_to_start', lang),
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: Colors.grey[400],
-                    fontStyle: FontStyle.italic,
-                  ),
-                ),
+                const SizedBox(width: 4),
+                const Icon(Icons.arrow_forward, size: 16, color: AppColors.green),
               ],
             ),
           ),
@@ -392,29 +472,92 @@ class AgriShopDashboardScreen extends ConsumerWidget {
       ],
     );
   }
+}
 
-  void _showComingSoonDialog(BuildContext context, AppLanguage lang) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Row(
-          children: [
-            const Icon(Icons.construction, color: AppColors.green),
-            const SizedBox(width: 12),
-            Text(t('coming_soon', lang)),
-          ],
-        ),
-        content: Text(
-          t('feature_under_development', lang),
-          style: const TextStyle(fontSize: 15),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(t('okay', lang)),
+class _OrderTile extends StatelessWidget {
+  final OrderModel order;
+
+  const _OrderTile({required this.order});
+
+  @override
+  Widget build(BuildContext context) {
+    final config = _statusConfig(order.status);
+
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: config.color.withAlpha(20),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(config.icon, color: config.color, size: 20),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Order #${order.id}',
+                  style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  '${order.items.length} ${order.items.length == 1 ? 'item' : 'items'} • ${_formatDate(order.createdAt)}',
+                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                ),
+              ],
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                'P ${order.totalAmount.toStringAsFixed(2)}',
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+              ),
+              const SizedBox(height: 2),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: config.color.withAlpha(20),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  config.label,
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: config.color,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
     );
+  }
+
+  static ({String label, Color color, IconData icon}) _statusConfig(String status) {
+    return switch (status) {
+      'pending' => (label: 'Pending', color: Colors.orange, icon: Icons.schedule),
+      'confirmed' => (label: 'Confirmed', color: Colors.blue, icon: Icons.check_circle),
+      'shipped' => (label: 'Shipped', color: Colors.purple, icon: Icons.local_shipping),
+      'delivered' => (label: 'Delivered', color: Colors.green, icon: Icons.done_all),
+      'cancelled' => (label: 'Cancelled', color: Colors.grey, icon: Icons.cancel),
+      _ => (label: status, color: Colors.grey, icon: Icons.help_outline),
+    };
+  }
+
+  static String _formatDate(DateTime date) {
+    final diff = DateTime.now().difference(date);
+    if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
+    if (diff.inHours < 24) return '${diff.inHours}h ago';
+    if (diff.inDays < 7) return '${diff.inDays}d ago';
+    return '${date.day}/${date.month}/${date.year}';
   }
 }

@@ -1292,10 +1292,6 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
     AppLanguage.english: 'Quantity Available',
     AppLanguage.setswana: 'Palo e e Leng Teng',
   },
-  'enter_quantity': {
-    AppLanguage.english: 'Enter quantity',
-    AppLanguage.setswana: 'Tsenya palo',
-  },
   'view_orders': {
     AppLanguage.english: 'View Orders',
     AppLanguage.setswana: 'Bona Ditaelo',
@@ -1366,6 +1362,54 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
         'Orders are purchase requests from farmers who want to buy your products. Once you add products to your catalog, farmers can place orders through the marketplace.',
     AppLanguage.setswana:
         'Ditaelo ke dikopo tsa go reka go tswa go balemi ba ba batlang go reka dithoto tsa gago. Fa o tsenya dithoto mo lenaneong la gago, balemi ba ka dira ditaelo go ralala mmaraka.',
+  },
+  'record_purchase': {
+    AppLanguage.english: 'Record Purchase',
+    AppLanguage.setswana: 'Kwala Theko',
+  },
+  'record_new_purchase': {
+    AppLanguage.english: 'Record New Purchase',
+    AppLanguage.setswana: 'Kwala Theko e Ntšhwa',
+  },
+  'seller_name': {
+    AppLanguage.english: 'Seller Name',
+    AppLanguage.setswana: 'Leina la Morekisi',
+  },
+  'seller_name_hint': {
+    AppLanguage.english: 'e.g. Thabo Modise',
+    AppLanguage.setswana: 'sekao Thabo Modise',
+  },
+  'price_per_unit': {
+    AppLanguage.english: 'Price per Unit',
+    AppLanguage.setswana: 'Tlhwatlhwa ka Selekanyo',
+  },
+  'total_amount': {
+    AppLanguage.english: 'Total Amount',
+    AppLanguage.setswana: 'Palogotlhe',
+  },
+  'purchase_date': {
+    AppLanguage.english: 'Purchase Date',
+    AppLanguage.setswana: 'Letlha la Theko',
+  },
+  'purchase_saved': {
+    AppLanguage.english: 'Purchase recorded successfully',
+    AppLanguage.setswana: 'Theko e kwalilwe sentle',
+  },
+  'purchase_save_failed': {
+    AppLanguage.english: 'Failed to save purchase',
+    AppLanguage.setswana: 'Go boloka theko go paletse',
+  },
+  'purchases': {
+    AppLanguage.english: 'Purchases',
+    AppLanguage.setswana: 'Ditheko',
+  },
+  'no_purchases': {
+    AppLanguage.english: 'No purchases yet',
+    AppLanguage.setswana: 'Ga go na ditheko',
+  },
+  'record_from_farmers': {
+    AppLanguage.english: 'Record purchases from farmers',
+    AppLanguage.setswana: 'Kwala ditheko go tswa go balemi',
   },
 };
 

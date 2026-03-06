@@ -157,9 +157,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     } else if (isAgriShop) {
       return [
         const AgriShopDashboardScreen(),
-        const MarketplaceScreen(),
         const MerchantInventoryScreen(),
         const AgriShopOrdersScreen(),
+        const MarketplaceScreen(),
         const ProfileScreen(),
       ];
     } else {

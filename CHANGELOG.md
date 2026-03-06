@@ -1,3 +1,23 @@
+## 0.7.0 - 2026-03-06
+
+### Added
+- Purchase record feature for merchants
+  - `PurchaseModel`, `PurchasesApiService`, `PurchasesNotifier` provider
+  - `AddPurchaseScreen` with catalog-driven crop dropdown, auto-calculated total
+  - "Record Purchase" quick action on non-AgriShop merchant dashboard
+- Setswana translations for all purchase-related strings
+
+### Fixed
+- AgriShop tab order bug: widget options now match nav labels (Products=1, Orders=2, Marketplace=3)
+- AgriShop dashboard now uses `merchantDashboardStatsProvider` for live stats instead of hardcoded zeros
+- Non-AgriShop merchant dashboard stats connected to real data (products, purchases, suppliers, low stock)
+- Removed duplicate `enter_quantity` translation key
+
+### Changed
+- `MerchantDashboardStats` extended with `monthlyPurchases` and `totalSuppliers` fields
+- `merchantDashboardStatsProvider` now watches `purchasesNotifierProvider` for purchase data
+- `AgriShopDashboardScreen` refactored into small modular widget classes
+
 ## 0.6.1 - 2026-03-06
 
 ### Added
