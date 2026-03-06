@@ -229,8 +229,9 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
                     spacing: 8,
                     runSpacing: 8,
                     children: crops.map((catalogEntry) {
-                      final isSelected =
-                          _selectedCropTypes.contains(catalogEntry.key);
+                      final isSelected = _selectedCropTypes.contains(
+                        catalogEntry.key,
+                      );
                       return FilterChip(
                         label: Text(catalogEntry.displayName(lang)),
                         selected: isSelected,
@@ -245,8 +246,7 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
                             _autoCalculateHarvestDate();
                           });
                         },
-                        selectedColor:
-                            const Color(0xFF2D6A4F).withAlpha(51),
+                        selectedColor: const Color(0xFF2D6A4F).withAlpha(51),
                         checkmarkColor: const Color(0xFF2D6A4F),
                         backgroundColor: Colors.white,
                         side: BorderSide(
@@ -1019,8 +1019,8 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
       final displayName = catalogEntry != null
           ? catalogEntry.displayName(lang)
           : (cropType == 'other' && _otherCropNameController.text.isNotEmpty
-              ? _otherCropNameController.text
-              : t(cropType, lang));
+                ? _otherCropNameController.text
+                : t(cropType, lang));
 
       final crop = CropModel(
         id: widget.existingCrop?.id,

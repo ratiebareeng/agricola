@@ -27,7 +27,9 @@ class CropCatalogEntry {
 
   factory CropCatalogEntry.fromJson(Map<String, dynamic> json) {
     return CropCatalogEntry(
-      id: json['id'] as int,
+      id: json['id'] is int
+          ? json['id'] as int
+          : int.parse(json['id'].toString()),
       key: json['key'] as String,
       category: json['category'] as String,
       nameEn: json['nameEn'] as String,

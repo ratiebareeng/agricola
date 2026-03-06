@@ -1,9 +1,9 @@
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/features/crops/models/crop_model.dart';
-import 'package:agricola/features/crops/providers/crop_providers.dart';
-import 'package:agricola/features/crops/screens/add_edit_crop_screen.dart';
 import 'package:agricola/features/crops/models/harvest_model.dart';
+import 'package:agricola/features/crops/providers/crop_providers.dart';
 import 'package:agricola/features/crops/providers/harvest_providers.dart';
+import 'package:agricola/features/crops/screens/add_edit_crop_screen.dart';
 import 'package:agricola/features/crops/screens/record_harvest_screen.dart';
 import 'package:agricola/features/crops/widgets/harvest_history_card.dart';
 import 'package:agricola/features/crops/widgets/info_card.dart';
@@ -44,8 +44,7 @@ class CropDetailsScreen extends ConsumerWidget {
               final result = await Navigator.push<CropModel>(
                 context,
                 MaterialPageRoute(
-                  builder: (context) =>
-                      AddEditCropScreen(existingCrop: crop),
+                  builder: (context) => AddEditCropScreen(existingCrop: crop),
                 ),
               );
               if (result != null && context.mounted) {
@@ -142,9 +141,36 @@ class CropDetailsScreen extends ConsumerWidget {
             const SizedBox(height: 16),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: TimelineView(
-                plantingDate: crop.plantingDate,
-                expectedHarvestDate: crop.expectedHarvestDate,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TimelineView(
+                    plantingDate: crop.plantingDate,
+                    expectedHarvestDate: crop.expectedHarvestDate,
+                  ),
+                  const SizedBox(height: 12),
+                  OutlinedButton.icon(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              LossCalculatorScreen(preselectedCrop: crop),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.calculate_outlined, size: 18),
+                    label: Text(t('calculate_losses', currentLang)),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: const Color(0xFF2D6A4F),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      side: const BorderSide(color: Color(0xFF2D6A4F)),
+                    ),
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 20),
@@ -194,45 +220,46 @@ class CropDetailsScreen extends ConsumerWidget {
                     ],
                   ),
                   const SizedBox(height: 20),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.blue.withAlpha(10),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.blue.withAlpha(30)),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(Icons.wb_sunny, color: Colors.blue[700], size: 24),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                t('weather', currentLang),
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.blue[900],
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                '28°C • Partly Cloudy • 60% Humidity',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.blue[800],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 20),
+                  // TODO: Add real weather data integration here in the future
+                  // Container(
+                  //   width: double.infinity,
+                  //   padding: const EdgeInsets.all(16),
+                  //   decoration: BoxDecoration(
+                  //     color: Colors.blue.withAlpha(10),
+                  //     borderRadius: BorderRadius.circular(12),
+                  //     border: Border.all(color: Colors.blue.withAlpha(30)),
+                  //   ),
+                  //   child: Row(
+                  //     children: [
+                  //       Icon(Icons.wb_sunny, color: Colors.blue[700], size: 24),
+                  //       const SizedBox(width: 12),
+                  //       Expanded(
+                  //         child: Column(
+                  //           crossAxisAlignment: CrossAxisAlignment.start,
+                  //           children: [
+                  //             Text(
+                  //               t('weather', currentLang),
+                  //               style: TextStyle(
+                  //                 fontSize: 12,
+                  //                 color: Colors.blue[900],
+                  //                 fontWeight: FontWeight.w600,
+                  //               ),
+                  //             ),
+                  //             const SizedBox(height: 4),
+                  //             Text(
+                  //               '28°C • Partly Cloudy • 60% Humidity',
+                  //               style: TextStyle(
+                  //                 fontSize: 14,
+                  //                 color: Colors.blue[800],
+                  //               ),
+                  //             ),
+                  //           ],
+                  //         ),
+                  //       ),
+                  //     ],
+                  //   ),
+                  // ),
+                  // const SizedBox(height: 20),
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(16),
@@ -331,9 +358,8 @@ class CropDetailsScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 16),
                   harvestsState.when(
-                    loading: () => const Center(
-                      child: CircularProgressIndicator(),
-                    ),
+                    loading: () =>
+                        const Center(child: CircularProgressIndicator()),
                     error: (error, _) => Text(
                       'Failed to load harvests: $error',
                       style: const TextStyle(color: Colors.red),
@@ -354,7 +380,8 @@ class CropDetailsScreen extends ConsumerWidget {
                               '${_monthName(harvest.harvestDate.month)} ${harvest.harvestDate.day}, ${harvest.harvestDate.year}';
                           return HarvestHistoryCard(
                             date: date,
-                            yield: '${harvest.actualYield} ${harvest.yieldUnit}',
+                            yield:
+                                '${harvest.actualYield} ${harvest.yieldUnit}',
                             quality: harvest.quality,
                           );
                         }).toList(),
@@ -380,70 +407,39 @@ class CropDetailsScreen extends ConsumerWidget {
             ),
           ],
         ),
-        child: Row(
-          children: [
-            Expanded(
-              child: OutlinedButton.icon(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) =>
-                          LossCalculatorScreen(preselectedCrop: crop),
-                    ),
-                  );
-                },
-                icon: const Icon(Icons.calculate_outlined, size: 18),
-                label: Text(t('calculate_losses', currentLang)),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: const Color(0xFF2D6A4F),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  side: const BorderSide(color: Color(0xFF2D6A4F)),
-                ),
+        child: ElevatedButton.icon(
+          onPressed: () async {
+            final result = await Navigator.push<HarvestModel>(
+              context,
+              MaterialPageRoute(
+                builder: (context) => RecordHarvestScreen(crop: crop),
               ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              flex: 2,
-              child: ElevatedButton.icon(
-                onPressed: () async {
-                  final result = await Navigator.push<HarvestModel>(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => RecordHarvestScreen(crop: crop),
-                    ),
-                  );
-                  if (result != null && context.mounted) {
-                    final error = await ref
-                        .read(harvestNotifierProvider(crop.id!).notifier)
-                        .addHarvest(result);
-                    if (error != null && context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Failed to save harvest: $error'),
-                          backgroundColor: Colors.red,
-                        ),
-                      );
-                    }
-                  }
-                },
-                icon: const Icon(Icons.agriculture),
-                label: Text(t('record_harvest', currentLang)),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF2D6A4F),
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+            );
+            if (result != null && context.mounted) {
+              final error = await ref
+                  .read(harvestNotifierProvider(crop.id!).notifier)
+                  .addHarvest(result);
+              if (error != null && context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Failed to save harvest: $error'),
+                    backgroundColor: Colors.red,
                   ),
-                  elevation: 0,
-                ),
-              ),
+                );
+              }
+            }
+          },
+          icon: const Icon(Icons.agriculture),
+          label: Text(t('record_harvest', currentLang)),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF2D6A4F),
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
             ),
-          ],
+            elevation: 0,
+          ),
         ),
       ),
     );
@@ -508,7 +504,11 @@ class CropDetailsScreen extends ConsumerWidget {
     return months[month];
   }
 
-  void _showDeleteDialog(BuildContext context, AppLanguage lang, WidgetRef ref) {
+  void _showDeleteDialog(
+    BuildContext context,
+    AppLanguage lang,
+    WidgetRef ref,
+  ) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
