@@ -5,6 +5,7 @@ import 'package:agricola/core/widgets/language_select_content.dart';
 import 'package:agricola/domain/profile/enum/merchant_type.dart';
 import 'package:agricola/features/auth/providers/auth_controller.dart';
 import 'package:agricola/features/auth/providers/auth_provider.dart';
+import 'package:agricola/features/feedback/feedback_helper.dart';
 import 'package:agricola/features/profile/domain/models/displayable_profile.dart';
 import 'package:agricola/features/profile/providers/profile_controller_provider.dart';
 import 'package:agricola/features/profile/providers/profile_provider.dart';
@@ -836,6 +837,13 @@ class _MerchantProfileScreenState extends ConsumerState<MerchantProfileScreen> {
                 Icons.lock_outline,
                 t('change_password', currentLang),
                 () => _showChangePasswordDialog(context, ref),
+              ),
+              const Divider(height: 1),
+              _buildSettingsTile(
+                context,
+                Icons.bug_report_outlined,
+                t('report_bug', currentLang),
+                () => showFeedbackOverlay(context, ref),
               ),
               const Divider(height: 1),
               _buildSettingsTile(

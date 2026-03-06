@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:agricola/core/routing/app_router.dart';
 import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/features/profile/providers/profile_providers.dart';
+import 'package:feedback/feedback.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
@@ -36,7 +37,7 @@ void main() async {
         overrides: [
           sharedPreferencesProvider.overrideWithValue(sharedPreferences),
         ],
-        child: const AgricolaApp(),
+        child: const BetterFeedback(child: AgricolaApp()),
       ),
     );
   }, (error, stack) {

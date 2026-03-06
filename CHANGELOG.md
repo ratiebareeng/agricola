@@ -1,3 +1,17 @@
+## 0.10.0 - 2026-03-06
+
+### Added
+- Tester feedback / bug reporting feature
+  - Integrated `feedback` package — screenshot annotation + text overlay
+  - Integrated `flutter_email_sender` — sends annotated screenshot to developer@agricola-app.com
+  - `FeedbackApiService` — silent POST to `/api/v1/feedback` backend endpoint
+  - `showFeedbackOverlay()` helper — shared by both farmer and merchant profile screens
+  - "Report Bug" settings tile in farmer and merchant profile screens (above Help & Support)
+  - Dual delivery: email for immediate visibility, backend for historical record
+  - `report_bug` translation key (EN: "Report Bug", SW: "Bega Bothata")
+  - `feedbackEndpoint` added to `ApiConstants`
+  - `BetterFeedback` widget wraps app in `main.dart`
+
 ## 0.9.0 - 2026-03-06
 
 ### Added

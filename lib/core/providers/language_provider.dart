@@ -665,6 +665,10 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
     AppLanguage.english: 'Notifications',
     AppLanguage.setswana: 'Dikitsiso',
   },
+  'report_bug': {
+    AppLanguage.english: 'Report Bug',
+    AppLanguage.setswana: 'Bega Bothata',
+  },
   'help_support': {
     AppLanguage.english: 'Help & Support',
     AppLanguage.setswana: 'Thuso le Tshegetso',
