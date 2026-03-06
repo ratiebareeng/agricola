@@ -1,3 +1,4 @@
+import 'package:agricola/core/utils/json_extensions.dart';
 import 'package:equatable/equatable.dart';
 
 class FarmerProfileModel extends Equatable {
@@ -25,7 +26,7 @@ class FarmerProfileModel extends Equatable {
 
   factory FarmerProfileModel.fromJson(Map<String, dynamic> json) {
     return FarmerProfileModel(
-      id: json['id']?.toString() ?? '', // Convert to string (server returns int)
+      id: json.requiredString('id'),
       userId: (json['userId'] as String?) ?? '',
       village: (json['village'] as String?) ?? '',
       customVillage: json['customVillage'] as String?,

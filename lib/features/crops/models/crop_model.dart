@@ -1,3 +1,5 @@
+import 'package:agricola/core/utils/json_extensions.dart';
+
 class CropModel {
   final String? id;
   final String cropType;
@@ -32,7 +34,7 @@ class CropModel {
 
   factory CropModel.fromJson(Map<String, dynamic> json) {
     return CropModel(
-      id: json['id']?.toString(),
+      id: json.optionalString('id'),
       cropType: json['cropType'],
       fieldName: json['fieldName'],
       fieldSize: (json['fieldSize'] as num).toDouble(),

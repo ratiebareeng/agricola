@@ -1,3 +1,5 @@
+import 'package:agricola/core/utils/json_extensions.dart';
+
 class HarvestModel {
   final String? id;
   final String cropId;
@@ -27,8 +29,8 @@ class HarvestModel {
 
   factory HarvestModel.fromJson(Map<String, dynamic> json) {
     return HarvestModel(
-      id: json['id']?.toString(),
-      cropId: json['cropId'].toString(),
+      id: json.optionalString('id'),
+      cropId: json.requiredString('cropId'),
       harvestDate: DateTime.parse(json['harvestDate']),
       actualYield: (json['actualYield'] as num).toDouble(),
       yieldUnit: json['yieldUnit'],

@@ -1,3 +1,5 @@
+import 'package:agricola/core/utils/json_extensions.dart';
+
 class InventoryModel {
   final String? id;
   final String cropType;
@@ -26,7 +28,7 @@ class InventoryModel {
 
   factory InventoryModel.fromJson(Map<String, dynamic> json) {
     return InventoryModel(
-      id: json['id'],
+      id: json.optionalString('id'),
       cropType: json['cropType'],
       quantity: (json['quantity'] as num).toDouble(),
       unit: json['unit'],

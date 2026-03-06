@@ -1,3 +1,5 @@
+import 'package:agricola/core/utils/json_extensions.dart';
+
 enum CropStatus { planted, growing, readyToHarvest, harvested }
 
 enum ListingType { produce, supplies }
@@ -45,7 +47,7 @@ class MarketplaceListing {
 
   factory MarketplaceListing.fromJson(Map<String, dynamic> json) {
     return MarketplaceListing(
-      id: json['id']?.toString() ?? '',
+      id: json.requiredString('id'),
       title: json['title'] as String,
       description: json['description'] as String,
       type: ListingType.values.firstWhere(

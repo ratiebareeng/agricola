@@ -1,3 +1,5 @@
+import 'package:agricola/core/utils/json_extensions.dart';
+
 /// Represents a single item within an order
 class OrderItem {
   final String listingId;
@@ -70,7 +72,7 @@ class OrderModel {
 
   factory OrderModel.fromJson(Map<String, dynamic> json) {
     return OrderModel(
-      id: json['id']?.toString(),
+      id: json.optionalString('id'),
       userId: json['userId'] as String,
       sellerId: json['sellerId'] as String,
       status: json['status'] as String,

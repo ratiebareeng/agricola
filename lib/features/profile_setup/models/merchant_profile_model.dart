@@ -1,3 +1,4 @@
+import 'package:agricola/core/utils/json_extensions.dart';
 import 'package:agricola/domain/profile/enum/merchant_type.dart';
 import 'package:equatable/equatable.dart';
 
@@ -28,7 +29,7 @@ class MerchantProfileModel extends Equatable {
 
   factory MerchantProfileModel.fromJson(Map<String, dynamic> json) {
     return MerchantProfileModel(
-      id: json['id']?.toString() ?? '', // Convert to string (server returns int)
+      id: json.requiredString('id'),
       userId: (json['userId'] as String?) ?? '',
       merchantType: MerchantType.fromString((json['merchantType'] as String?) ?? 'market_vendor'),
       businessName: (json['businessName'] as String?) ?? '',

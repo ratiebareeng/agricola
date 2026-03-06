@@ -100,11 +100,20 @@ Each type gets a different set of dashboard + nav tabs.
 
 ---
 
+## Problem-solving approach
+
+- **Fix at the source, not the symptom.** If a bug is caused by a data mismatch between backend and frontend, fix where the bad data originates — don't just patch the consumer.
+- **Build generic, not narrow.** When creating a utility/extension, design it for the general case (e.g. type-safe JSON parsing for any field) not just the specific bug at hand (e.g. ID parsing only).
+- **Both repos are in scope.** Agricola (Flutter) and Pandamatenga (backend) are the same workspace. Always consider cross-stack fixes.
+
+---
+
 ## Shared code conventions
 
 - **Don't duplicate helpers.** If a utility is used by more than one screen, extract it to a shared location. Example: `lib/features/crops/crop_helpers.dart` has `cropStage()`, `cropProgress()`, `formatCropDate()`, `imageUrlForCrop()` — used by both the dashboard and the crops screen.
 - **Theme colour**: primary green is `const Color(0xFF2D6A4F)` everywhere. Also available as `AppColors.green` from `lib/core/theme/app_theme.dart`.
 - **Card layout pattern**: sticky-button screens use `Column` + `Expanded(SingleChildScrollView(...))` + `Padding(button)` — not `Stack`/`Positioned`.
+- **JSON parsing**: Use the `JsonParsing` extension from `lib/core/utils/json_extensions.dart` in all model `fromJson` methods. It safely handles type mismatches (e.g. backend `int` → Flutter `String`). Methods: `optionalString`, `requiredString`, `optionalInt`, `requiredInt`, `optionalDouble`, `requiredDouble`. Backend `toJson()` always returns `id.toString()` for IDs.
 
 ---
 
