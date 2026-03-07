@@ -3,6 +3,9 @@ import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/core/widgets/app_buttons.dart';
 import 'package:agricola/core/widgets/selection_card.dart';
 import 'package:agricola/features/auth/providers/auth_controller.dart';
+import 'package:agricola/features/auth/widgets/auth_footer_link.dart';
+import 'package:agricola/features/auth/widgets/auth_layout.dart';
+import 'package:agricola/features/auth/widgets/or_divider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -23,135 +26,78 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
   Widget build(BuildContext context) {
     final currentLang = ref.watch(languageProvider);
 
-    return Scaffold(
-      backgroundColor: AppColors.white,
-      appBar: AppBar(
-        backgroundColor: AppColors.white,
-        elevation: 0,
-        // Only show back button if there's navigation history
-        automaticallyImplyLeading: false,
-        leading: context.canPop()
-            ? IconButton(
-                icon: const Icon(Icons.arrow_back, color: AppColors.darkGray),
-                onPressed: () => context.pop(),
-              )
-            : null,
-        title: Text(
-          t('create_account', currentLang),
-          style: const TextStyle(
-            color: AppColors.darkGray,
-            fontWeight: FontWeight.bold,
+    return AuthLayout(
+      title: t('create_account', currentLang),
+      showBackButton: true,
+      onBack: context.canPop() ? () => context.pop() : null,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            t('select_account_type', currentLang),
+            style: const TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: AppColors.darkGray,
+            ),
           ),
-        ),
-        centerTitle: true,
-      ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                t('select_account_type', currentLang),
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.darkGray,
-                ),
-              ),
-              const SizedBox(height: 32),
-              SelectionCard(
-                title: t('farmer', currentLang),
-                description: t('farmer_desc', currentLang),
-                icon: Icons.agriculture,
-                isSelected: _selectedUserType == UserType.farmer,
-                onTap: () {
-                  setState(() {
-                    _selectedUserType = UserType.farmer;
-                  });
-                },
-              ),
-              const SizedBox(height: 16),
-              SelectionCard(
-                title: t('agri_shop', currentLang),
-                description: t('agri_shop_desc', currentLang),
-                icon: Icons.store,
-                isSelected: _selectedUserType == UserType.agriShop,
-                onTap: () {
-                  setState(() {
-                    _selectedUserType = UserType.agriShop;
-                  });
-                },
-              ),
-              const SizedBox(height: 16),
-              SelectionCard(
-                title: t('supermarket_vendor', currentLang),
-                description: t('supermarket_vendor_desc', currentLang),
-                icon: Icons.storefront,
-                isSelected: _selectedUserType == UserType.supermarketVendor,
-                onTap: () {
-                  setState(() {
-                    _selectedUserType = UserType.supermarketVendor;
-                  });
-                },
-              ),
-              const SizedBox(height: 32),
-              AppPrimaryButton(
-                label: t('continue', currentLang),
-                onTap: _selectedUserType != null ? _onContinue : null,
-              ),
-              const SizedBox(height: 24),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    t('already_have_account', currentLang),
-                    style: const TextStyle(
-                      color: AppColors.darkGray,
-                      fontSize: 16,
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () => context.push('/sign-in'),
-                    child: Text(
-                      t('sign_in', currentLang),
-                      style: const TextStyle(
-                        color: AppColors.green,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
-              // Divider
-              Row(
-                children: [
-                  const Expanded(child: Divider()),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Text(
-                      t('or', currentLang),
-                      style: const TextStyle(
-                        color: AppColors.mediumGray,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ),
-                  const Expanded(child: Divider()),
-                ],
-              ),
-              const SizedBox(height: 24),
-              // Continue as Guest button
-              AppSecondaryButton(
-                label: t('continue_as_guest', currentLang),
-                onTap: _onContinueAsGuest,
-              ),
-              const SizedBox(height: 16),
-            ],
+          const SizedBox(height: 32),
+          SelectionCard(
+            title: t('farmer', currentLang),
+            description: t('farmer_desc', currentLang),
+            icon: Icons.agriculture,
+            isSelected: _selectedUserType == UserType.farmer,
+            onTap: () {
+              setState(() {
+                _selectedUserType = UserType.farmer;
+              });
+            },
           ),
-        ),
+          const SizedBox(height: 16),
+          SelectionCard(
+            title: t('agri_shop', currentLang),
+            description: t('agri_shop_desc', currentLang),
+            icon: Icons.store,
+            isSelected: _selectedUserType == UserType.agriShop,
+            onTap: () {
+              setState(() {
+                _selectedUserType = UserType.agriShop;
+              });
+            },
+          ),
+          const SizedBox(height: 16),
+          SelectionCard(
+            title: t('supermarket_vendor', currentLang),
+            description: t('supermarket_vendor_desc', currentLang),
+            icon: Icons.storefront,
+            isSelected: _selectedUserType == UserType.supermarketVendor,
+            onTap: () {
+              setState(() {
+                _selectedUserType = UserType.supermarketVendor;
+              });
+            },
+          ),
+          const SizedBox(height: 32),
+          AppPrimaryButton(
+            label: t('continue', currentLang),
+            onTap: _selectedUserType != null ? _onContinue : null,
+          ),
+          const SizedBox(height: 24),
+          AuthFooterLink(
+            text: t('already_have_account', currentLang),
+            linkText: t('sign_in', currentLang),
+            onTap: () => context.push('/sign-in'),
+          ),
+          const SizedBox(height: 24),
+          OrDivider(text: t('or', currentLang)),
+          const SizedBox(height: 24),
+          // Continue as Guest button
+          AppSecondaryButton(
+            label: t('continue_as_guest', currentLang),
+            onTap: _onContinueAsGuest,
+          ),
+          const SizedBox(height: 16),
+        ],
       ),
     );
   }

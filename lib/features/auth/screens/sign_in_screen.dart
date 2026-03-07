@@ -3,6 +3,10 @@ import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/core/widgets/app_buttons.dart';
 import 'package:agricola/core/widgets/app_text_field.dart';
 import 'package:agricola/features/auth/providers/sign_in_provider.dart';
+import 'package:agricola/features/auth/widgets/auth_footer_link.dart';
+import 'package:agricola/features/auth/widgets/auth_layout.dart';
+import 'package:agricola/features/auth/widgets/auth_title.dart';
+import 'package:agricola/features/auth/widgets/social_login_buttons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -25,160 +29,86 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     final signInState = ref.watch(signInProvider);
     final signInNotifier = ref.read(signInProvider.notifier);
 
-    // Show error or success message if present
-    if (signInState.errorMessage != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
+    ref.listen(signInProvider, (previous, next) {
+      if (next.errorMessage != null &&
+          next.errorMessage != previous?.errorMessage) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(signInState.errorMessage!),
-            backgroundColor: signInState.errorMessage!.contains('sent')
+            content: Text(next.errorMessage!),
+            backgroundColor: next.errorMessage!.contains('sent')
                 ? Colors.green
                 : Colors.red,
             behavior: SnackBarBehavior.floating,
           ),
         );
         signInNotifier.clearError();
-      });
-    }
+      }
+    });
 
-    return Scaffold(
-      backgroundColor: AppColors.white,
-      appBar: AppBar(
-        backgroundColor: AppColors.white,
-        elevation: 0,
-        // Only show back button if there's navigation history
-        automaticallyImplyLeading: false,
-        leading: context.canPop()
-            ? IconButton(
-                icon: const Icon(Icons.arrow_back, color: AppColors.darkGray),
-                onPressed: () => context.pop(),
-              )
-            : null,
-      ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+    return AuthLayout(
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            AuthTitle(title: t('sign_in', currentLang)),
+            const SizedBox(height: 32),
+            AppTextField(
+              label: t('email', currentLang),
+              hint: 'example@email.com',
+              controller: _emailController,
+              keyboardType: TextInputType.emailAddress,
+              validator: (_) => signInNotifier.validateEmail(),
+            ),
+            const SizedBox(height: 24),
+            AppTextField(
+              label: t('password', currentLang),
+              hint: '********',
+              controller: _passwordController,
+              obscureText: true,
+              validator: (_) => signInNotifier.validatePassword(),
+            ),
+            const SizedBox(height: 32),
+            AppPrimaryButton(
+              label: t('sign_in', currentLang),
+              onTap: () => _onSignIn(signInNotifier),
+              isLoading: signInState.isLoading,
+            ),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  t('sign_in', currentLang),
-                  style: const TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.darkGray,
+                TextButton(
+                  onPressed: signInState.isLoading
+                      ? null
+                      : () => signInNotifier.sendPasswordResetEmail(),
+                  child: Text(
+                    'Forgot Password?',
+                    style: TextStyle(
+                      color: signInState.isLoading
+                          ? AppColors.mediumGray
+                          : AppColors.green,
+                      fontSize: 16,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 32),
-                AppTextField(
-                  label: t('email', currentLang),
-                  hint: 'example@email.com',
-                  controller: _emailController,
-                  keyboardType: TextInputType.emailAddress,
-                  validator: (_) => signInNotifier.validateEmail(),
-                ),
-                const SizedBox(height: 24),
-                AppTextField(
-                  label: t('password', currentLang),
-                  hint: '********',
-                  controller: _passwordController,
-                  obscureText: true,
-                  validator: (_) => signInNotifier.validatePassword(),
-                ),
-                const SizedBox(height: 32),
-                AppPrimaryButton(
-                  label: t('sign_in', currentLang),
-                  onTap: () => _onSignIn(signInNotifier),
-                  isLoading: signInState.isLoading,
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    TextButton(
-                      onPressed: signInState.isLoading
-                          ? null
-                          : () => signInNotifier.sendPasswordResetEmail(),
-                      child: Text(
-                        'Forgot Password?',
-                        style: TextStyle(
-                          color: signInState.isLoading
-                              ? AppColors.mediumGray
-                              : AppColors.green,
-                          fontSize: 16,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 32),
-                Row(
-                  children: [
-                    const Expanded(child: Divider()),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Text(
-                        t('or_continue_with', currentLang),
-                        style: const TextStyle(
-                          color: AppColors.mediumGray,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ),
-                    const Expanded(child: Divider()),
-                  ],
-                ),
-                const SizedBox(height: 24),
-                Row(
-                  children: [
-                    Expanded(
-                      child: AppSecondaryButton(
-                        label: t('google', currentLang),
-                        icon: Icons.g_mobiledata,
-                        onTap: () => signInNotifier.signInWithGoogle(context),
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: AppSecondaryButton(
-                        label: t('facebook', currentLang),
-                        icon: Icons.facebook,
-                        onTap: () {
-                          // TODO: Implement Facebook sign-in
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 32),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      t('dont_have_account', currentLang),
-                      style: const TextStyle(
-                        color: AppColors.darkGray,
-                        fontSize: 16,
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () => context.push('/sign-up'),
-                      child: Text(
-                        t('sign_up', currentLang),
-                        style: const TextStyle(
-                          color: AppColors.green,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                    ),
-                  ],
                 ),
               ],
             ),
-          ),
+            const SizedBox(height: 32),
+            SocialLoginButtons(
+              isLoading: signInState.isLoading,
+              onGoogleTap: () => signInNotifier.signInWithGoogle(context),
+              onFacebookTap: () {
+                // TODO: Implement Facebook sign-in
+              },
+            ),
+            const SizedBox(height: 32),
+            AuthFooterLink(
+              text: t('dont_have_account', currentLang),
+              linkText: t('sign_up', currentLang),
+              onTap: () => context.push('/sign-up'),
+            ),
+          ],
         ),
       ),
     );

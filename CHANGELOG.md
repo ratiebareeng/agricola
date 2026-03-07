@@ -1,3 +1,18 @@
+## 0.13.0 - 2026-03-07
+
+### Added
+- **Reusable Auth Widgets** — new modular components for consistent auth UI
+  - `AuthLayout`: Standardized scaffold for auth screens with title and back navigation
+  - `AuthTitle`: Large title with optional subtitle
+  - `SocialLoginButtons`: Shared Google/Facebook login buttons with divider
+  - `AuthFooterLink`: Consistent link style for "Already have an account?" or "Sign Up" links
+  - `OrDivider`: Simple centered text divider
+
+### Refactored
+- **Auth Screens** — simplified `RegistrationScreen`, `SignInScreen`, and `SignUpScreen` using the new reusable components
+- Improved error handling in `SignInScreen` and `SignUpScreen` using `ref.listen` for SnackBars
+- Streamlined navigation logic in `SignUpScreen`
+
 ## 0.12.0 - 2026-03-07
 
 ### Added
