@@ -1,3 +1,41 @@
+## 0.11.0 - 2026-03-07
+
+### Added
+- **Settings Screen** (`lib/features/settings/screens/settings_screen.dart`)
+  - Dedicated settings screen accessible from both farmer and merchant profiles
+  - Language toggle (English / Setswana) with current language display
+  - Account section: change password, delete account (2-step confirmation)
+  - Support section: report bug (BetterFeedback), help & support (contact info dialog)
+  - About section: app version via `package_info_plus`, Agricola description
+  - Logout button with confirmation dialog
+  - All dialogs fully bilingual (EN/SW)
+
+- **Reports Screen** (`lib/features/reports/`)
+  - Farmer reports: farm overview stats (total/active/harvested crops, upcoming harvests), field summary (total size, estimated yield, inventory items, items needing attention, marketplace listings)
+  - Merchant reports: business overview stats (products, orders, purchases, suppliers), financial summary (monthly/total revenue, monthly/total purchases), inventory summary
+  - Activity timeline: recent activities across crops, inventory, purchases, and listings sorted by date
+  - Both screens use real data from existing providers (no new backend endpoints)
+  - Replaced hardcoded `BusinessStatisticsScreen` stub
+
+- **Notifications Screen** (`lib/features/notifications/`)
+  - Client-side notification system derived from existing crop and inventory data
+  - Harvest reminders: overdue (high priority), upcoming within 7 days, approaching within 14 days
+  - Inventory alerts: critical condition (high priority), needs attention (medium priority)
+  - Notification bell with badge count on all 3 dashboard screens (farmer, merchant, AgriShop)
+  - Priority-based sorting (high first, then by date)
+  - Bilingual notification content (EN/SW)
+
+- New dependency: `package_info_plus` ^9.0.0
+- 30+ new translation keys for settings, reports, and notifications
+
+### Changed
+- Profile screens (farmer + merchant): replaced inline settings section with single "Settings" tile navigating to dedicated SettingsScreen
+- Profile screens: removed ~250 lines of duplicated dialog code (change password, delete account, logout) now centralized in SettingsScreen
+- Merchant profile: "Business Statistics" quick action now opens real MerchantReportsScreen
+- Farmer profile: "View Reports" quick action now opens real ReportsScreen
+- All 3 dashboard screens: "View Analytics" now navigates to reports instead of showing "coming soon"
+- Removed `BusinessStatisticsScreen` (hardcoded stub)
+
 ## 0.10.0 - 2026-03-06
 
 ### Added

@@ -3,13 +3,12 @@ import 'package:agricola/core/utils/url_utils.dart';
 import 'package:agricola/core/routing/route_guard_helpers.dart';
 import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/core/widgets/language_select_content.dart';
-import 'package:agricola/features/auth/providers/auth_controller.dart';
 import 'package:agricola/features/auth/providers/auth_provider.dart';
-import 'package:agricola/features/feedback/feedback_helper.dart';
 import 'package:agricola/features/profile/domain/models/displayable_profile.dart';
 import 'package:agricola/features/profile/providers/profile_controller_provider.dart';
-import 'package:agricola/features/profile/providers/profile_provider.dart';
 import 'package:agricola/features/profile_setup/models/farmer_profile_model.dart';
+import 'package:agricola/features/reports/screens/reports_screen.dart';
+import 'package:agricola/features/settings/screens/settings_screen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -737,23 +736,10 @@ class _FarmerProfileScreenState extends ConsumerState<FarmerProfileScreen> {
             Icons.analytics_outlined,
             t('view_reports', currentLang),
             t('view_reports_desc', currentLang),
-            () {},
-          ),
-          const SizedBox(height: 12),
-          _buildActionButton(
-            context,
-            Icons.history,
-            t('activity_history', currentLang),
-            t('activity_history_desc', currentLang),
-            () {},
-          ),
-          const SizedBox(height: 12),
-          _buildActionButton(
-            context,
-            Icons.download_outlined,
-            t('export_data', currentLang),
-            t('export_data_desc', currentLang),
-            () {},
+            () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ReportsScreen()),
+            ),
           ),
         ],
       ),
@@ -789,99 +775,20 @@ class _FarmerProfileScreenState extends ConsumerState<FarmerProfileScreen> {
               ),
             ],
           ),
-          child: Column(
-            children: [
-              _buildSettingsTile(
-                context,
-                Icons.lock_outline,
-                t('change_password', currentLang),
-                () => _showChangePasswordDialog(context, ref),
-              ),
-              const Divider(height: 1),
-              _buildSettingsTile(
-                context,
-                Icons.bug_report_outlined,
-                t('report_bug', currentLang),
-                () => showFeedbackOverlay(context, ref),
-              ),
-              const Divider(height: 1),
-              _buildSettingsTile(
-                context,
-                Icons.help_outline,
-                t('help_support', currentLang),
-                () => _showComingSoonSnackbar(context),
-              ),
-              const Divider(height: 1),
-              _buildSettingsTile(
-                context,
-                Icons.info_outline,
-                t('about', currentLang),
-                () => _showComingSoonSnackbar(context),
-              ),
-              const Divider(height: 1),
-              _buildSettingsTile(
-                context,
-                Icons.logout,
-                t('logout', currentLang),
-                () => _showLogoutDialog(context, ref),
-                isDestructive: true,
-              ),
-              const Divider(height: 1),
-              _buildSettingsTile(
-                context,
-                Icons.delete_forever,
-                'Delete Account',
-                () => _showDeleteAccountDialog(context, ref),
-                isDestructive: true,
-              ),
-            ],
+          child: ListTile(
+            leading: const Icon(Icons.settings_outlined, color: AppColors.green),
+            title: Text(
+              t('settings', currentLang),
+              style: const TextStyle(fontWeight: FontWeight.w500),
+            ),
+            trailing: Icon(Icons.chevron_right, color: Colors.grey[400]),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const SettingsScreen()),
+            ),
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildSettingsTile(
-    BuildContext context,
-    IconData icon,
-    String title,
-    VoidCallback onTap, {
-    bool showBadge = false,
-    bool isDestructive = false,
-  }) {
-    return ListTile(
-      leading: Icon(icon, color: isDestructive ? Colors.red : AppColors.green),
-      title: Text(
-        title,
-        style: TextStyle(
-          color: isDestructive ? Colors.red : Colors.black87,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (showBadge)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-              decoration: BoxDecoration(
-                color: Colors.red,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: const Text(
-                '3',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          if (showBadge) const SizedBox(width: 8),
-          Icon(Icons.chevron_right, color: Colors.grey[400]),
-        ],
-      ),
-      onTap: onTap,
     );
   }
 
@@ -892,196 +799,6 @@ class _FarmerProfileScreenState extends ConsumerState<FarmerProfileScreen> {
     context.push('/profile/edit', extra: profile);
   }
 
-  void _showChangePasswordDialog(BuildContext context, WidgetRef ref) {
-    final currentLang = ref.watch(languageProvider);
-    final user = ref.read(currentUserProvider);
-    final email = user?.email;
-
-    if (email == null || email.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('No email address associated with this account'),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-      return;
-    }
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(t('change_password', currentLang)),
-        content: Text(
-          'We will send a password reset link to your email address:\n\n$email',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              t('cancel', currentLang),
-              style: const TextStyle(color: Colors.grey),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              final authController = ref.read(authControllerProvider.notifier);
-              final result = await authController.sendPasswordResetEmail(email);
-              if (context.mounted) {
-                result.fold(
-                  (failure) => ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        'Failed to send reset email: ${failure.message}',
-                      ),
-                      backgroundColor: Colors.red,
-                      behavior: SnackBarBehavior.floating,
-                    ),
-                  ),
-                  (_) => ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text(
-                        'Password reset email sent! Check your inbox.',
-                      ),
-                      backgroundColor: Colors.green,
-                      behavior: SnackBarBehavior.floating,
-                    ),
-                  ),
-                );
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.green,
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('Send Reset Link'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showComingSoonSnackbar(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('This feature is coming soon'),
-        behavior: SnackBarBehavior.floating,
-        duration: Duration(seconds: 2),
-      ),
-    );
-  }
-
-  void _showDeleteAccountDialog(BuildContext context, WidgetRef ref) {
-    final currentLang = ref.watch(languageProvider);
-    final profileState = ref.watch(profileProvider);
-
-    showDialog(
-      context: context,
-      barrierDismissible: !profileState.isLoading,
-      builder: (context) => AlertDialog(
-        title: const Row(
-          children: [
-            Icon(Icons.warning, color: Colors.red, size: 24),
-            SizedBox(width: 8),
-            Text('Delete Account'),
-          ],
-        ),
-        content: const Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'This action cannot be undone. Deleting your account will:',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 12),
-            Text('• Remove all your personal information'),
-            Text('• Delete all your crop and farm data'),
-            Text('• Cancel any active subscriptions'),
-            Text('• Remove access to all features'),
-            SizedBox(height: 16),
-            Text(
-              'Are you absolutely sure you want to delete your account?',
-              style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: profileState.isLoading
-                ? null
-                : () => Navigator.pop(context),
-            child: Text(t('cancel', currentLang)),
-          ),
-          TextButton(
-            onPressed: profileState.isLoading
-                ? null
-                : () => _showFinalDeleteConfirmation(context, ref),
-            style: TextButton.styleFrom(
-              foregroundColor: profileState.isLoading
-                  ? Colors.grey
-                  : Colors.red,
-            ),
-            child: const Text('Continue'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showFinalDeleteConfirmation(BuildContext context, WidgetRef ref) {
-    Navigator.pop(context); // Close first dialog
-
-    final currentLang = ref.watch(languageProvider);
-    final profileState = ref.watch(profileProvider);
-
-    showDialog(
-      context: context,
-      barrierDismissible: !profileState.isLoading,
-      builder: (context) => AlertDialog(
-        title: const Text(
-          'Final Confirmation',
-          style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
-        ),
-        content: const Text(
-          'This will permanently delete your account and all associated data. This action cannot be undone.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: profileState.isLoading
-                ? null
-                : () => Navigator.pop(context),
-            child: Text(t('cancel', currentLang)),
-          ),
-          TextButton(
-            onPressed: profileState.isLoading
-                ? null
-                : () async {
-                    final success = await ref
-                        .read(profileProvider.notifier)
-                        .deleteAccount(context);
-                    if (success && context.mounted) {
-                      Navigator.pop(context);
-                    }
-                  },
-            style: TextButton.styleFrom(
-              foregroundColor: profileState.isLoading
-                  ? Colors.grey
-                  : Colors.red,
-            ),
-            child: profileState.isLoading
-                ? const SizedBox(
-                    width: 16,
-                    height: 16,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : const Text('DELETE ACCOUNT'),
-          ),
-        ],
-      ),
-    );
-  }
 
   void _showLanguageDialog(BuildContext context, WidgetRef ref) {
     final currentLang = ref.watch(languageProvider);
@@ -1099,48 +816,4 @@ class _FarmerProfileScreenState extends ConsumerState<FarmerProfileScreen> {
     );
   }
 
-  void _showLogoutDialog(BuildContext context, WidgetRef ref) {
-    final currentLang = ref.watch(languageProvider);
-    final profileState = ref.watch(profileProvider);
-    final profileNotifier = ref.read(profileProvider.notifier);
-
-    showDialog(
-      context: context,
-      barrierDismissible: !profileState.isLoading,
-      builder: (context) => AlertDialog(
-        title: Text(t('logout', currentLang)),
-        content: Text(t('logout_confirmation', currentLang)),
-        actions: [
-          TextButton(
-            onPressed: profileState.isLoading
-                ? null
-                : () => Navigator.pop(context),
-            child: Text(t('cancel', currentLang)),
-          ),
-          TextButton(
-            onPressed: profileState.isLoading
-                ? null
-                : () async {
-                    // signOut already navigates to '/' via context.go('/'),
-                    // so we don't need to pop the dialog - it's dismissed
-                    // automatically when the navigation stack is replaced
-                    await profileNotifier.signOut(context);
-                  },
-            style: TextButton.styleFrom(
-              foregroundColor: profileState.isLoading
-                  ? Colors.grey
-                  : Colors.red,
-            ),
-            child: profileState.isLoading
-                ? const SizedBox(
-                    width: 16,
-                    height: 16,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : Text(t('logout', currentLang)),
-          ),
-        ],
-      ),
-    );
-  }
 }

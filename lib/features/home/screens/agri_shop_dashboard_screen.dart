@@ -5,9 +5,12 @@ import 'package:agricola/features/auth/providers/auth_provider.dart';
 import 'package:agricola/features/home/providers/dashboard_stats_provider.dart';
 import 'package:agricola/features/home/widgets/stat_card.dart';
 import 'package:agricola/features/marketplace/screens/add_product_screen.dart';
+import 'package:agricola/features/notifications/providers/notifications_provider.dart';
+import 'package:agricola/features/notifications/screens/notifications_screen.dart';
 import 'package:agricola/features/orders/models/order_model.dart';
 import 'package:agricola/features/profile/domain/models/displayable_profile.dart';
 import 'package:agricola/features/profile/providers/profile_controller_provider.dart';
+import 'package:agricola/features/reports/screens/reports_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -48,7 +51,15 @@ class AgriShopDashboardScreen extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _WelcomeHeader(businessName: businessName, lang: currentLang),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: _WelcomeHeader(businessName: businessName, lang: currentLang),
+                      ),
+                      _AgriShopNotificationBell(),
+                    ],
+                  ),
                   const SizedBox(height: 24),
                   _StatsGrid(stats: stats, lang: currentLang),
                   const SizedBox(height: 24),
@@ -250,7 +261,10 @@ class _QuickActionsSection extends ConsumerWidget {
                 iconColor: Colors.purple,
                 title: t('view_analytics', lang),
                 subtitle: t('business_insights', lang),
-                onTap: () => _showComingSoonDialog(context),
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const MerchantReportsScreen()),
+                ),
               ),
             ],
           ),
@@ -259,30 +273,6 @@ class _QuickActionsSection extends ConsumerWidget {
     );
   }
 
-  void _showComingSoonDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Row(
-          children: [
-            const Icon(Icons.construction, color: AppColors.green),
-            const SizedBox(width: 12),
-            Text(t('coming_soon', lang)),
-          ],
-        ),
-        content: Text(
-          t('feature_under_development', lang),
-          style: const TextStyle(fontSize: 15),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(t('okay', lang)),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
 class _QuickActionTile extends StatelessWidget {
@@ -559,5 +549,49 @@ class _OrderTile extends StatelessWidget {
     if (diff.inHours < 24) return '${diff.inHours}h ago';
     if (diff.inDays < 7) return '${diff.inDays}d ago';
     return '${date.day}/${date.month}/${date.year}';
+  }
+}
+
+class _AgriShopNotificationBell extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final count = ref.watch(unreadNotificationCountProvider);
+
+    return Stack(
+      children: [
+        IconButton(
+          icon: const Icon(
+            Icons.notifications_outlined,
+            color: Color(0xFF1A1A1A),
+          ),
+          onPressed: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const NotificationsScreen()),
+          ),
+        ),
+        if (count > 0)
+          Positioned(
+            right: 6,
+            top: 6,
+            child: Container(
+              padding: const EdgeInsets.all(4),
+              decoration: const BoxDecoration(
+                color: Colors.red,
+                shape: BoxShape.circle,
+              ),
+              constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
+              child: Text(
+                '$count',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+      ],
+    );
   }
 }

@@ -1,0 +1,538 @@
+import 'package:agricola/core/providers/language_provider.dart';
+import 'package:agricola/core/theme/app_theme.dart';
+import 'package:agricola/core/widgets/language_select_content.dart';
+import 'package:agricola/features/auth/providers/auth_controller.dart';
+import 'package:agricola/features/auth/providers/auth_provider.dart';
+import 'package:agricola/features/feedback/feedback_helper.dart';
+import 'package:agricola/features/profile/providers/profile_provider.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+
+class SettingsScreen extends ConsumerWidget {
+  const SettingsScreen({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currentLang = ref.watch(languageProvider);
+
+    return Scaffold(
+      backgroundColor: Colors.grey[50],
+      appBar: AppBar(
+        title: Text(t('settings', currentLang)),
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black87,
+        elevation: 0,
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Language section
+            _SectionHeader(title: t('language', currentLang)),
+            _SettingsCard(
+              children: [
+                _LanguageTile(lang: currentLang),
+              ],
+            ),
+
+            const SizedBox(height: 24),
+
+            // Account section
+            _SectionHeader(title: t('account', currentLang)),
+            _SettingsCard(
+              children: [
+                _SettingsTile(
+                  icon: Icons.lock_outline,
+                  title: t('change_password', currentLang),
+                  onTap: () => _showChangePasswordDialog(context, ref),
+                ),
+                const Divider(height: 1),
+                _SettingsTile(
+                  icon: Icons.delete_forever,
+                  title: t('delete_account', currentLang),
+                  isDestructive: true,
+                  onTap: () => _showDeleteAccountDialog(context, ref),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 24),
+
+            // Support section
+            _SectionHeader(title: t('support', currentLang)),
+            _SettingsCard(
+              children: [
+                _SettingsTile(
+                  icon: Icons.bug_report_outlined,
+                  title: t('report_bug', currentLang),
+                  onTap: () => showFeedbackOverlay(context, ref),
+                ),
+                const Divider(height: 1),
+                _SettingsTile(
+                  icon: Icons.help_outline,
+                  title: t('help_support', currentLang),
+                  onTap: () => _showHelpDialog(context, currentLang),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 24),
+
+            // About section
+            _SectionHeader(title: t('about', currentLang)),
+            _SettingsCard(
+              children: [
+                _AboutTile(lang: currentLang),
+              ],
+            ),
+
+            const SizedBox(height: 32),
+
+            // Logout
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () => _showLogoutDialog(context, ref),
+                icon: const Icon(Icons.logout, color: Colors.red),
+                label: Text(
+                  t('logout', currentLang),
+                  style: const TextStyle(color: Colors.red),
+                ),
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  side: const BorderSide(color: Colors.red),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 80),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // -------------------------------------------------------------------------
+  // Dialogs (moved from profile screens, shared for all user types)
+  // -------------------------------------------------------------------------
+
+  void _showChangePasswordDialog(BuildContext context, WidgetRef ref) {
+    final currentLang = ref.read(languageProvider);
+    final user = ref.read(currentUserProvider);
+    final email = user?.email;
+
+    if (email == null || email.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(t('no_email_error', currentLang)),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(t('change_password', currentLang)),
+        content: Text(
+          '${t('password_reset_message', currentLang)}\n\n$email',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              t('cancel', currentLang),
+              style: const TextStyle(color: Colors.grey),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              final authController = ref.read(authControllerProvider.notifier);
+              final result = await authController.sendPasswordResetEmail(email);
+              if (context.mounted) {
+                result.fold(
+                  (failure) => ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        '${t('reset_failed', currentLang)}: ${failure.message}',
+                      ),
+                      backgroundColor: Colors.red,
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  ),
+                  (_) => ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(t('reset_email_sent', currentLang)),
+                      backgroundColor: Colors.green,
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  ),
+                );
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.green,
+              foregroundColor: Colors.white,
+            ),
+            child: Text(t('send_reset_link', currentLang)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showDeleteAccountDialog(BuildContext context, WidgetRef ref) {
+    final currentLang = ref.read(languageProvider);
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: [
+            const Icon(Icons.warning, color: Colors.red, size: 24),
+            const SizedBox(width: 8),
+            Text(t('delete_account', currentLang)),
+          ],
+        ),
+        content: Text(t('delete_account_warning', currentLang)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(t('cancel', currentLang)),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _showFinalDeleteConfirmation(context, ref);
+            },
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: Text(t('continue_text', currentLang)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showFinalDeleteConfirmation(BuildContext context, WidgetRef ref) {
+    final currentLang = ref.read(languageProvider);
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(
+          t('final_confirmation', currentLang),
+          style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+        ),
+        content: Text(t('delete_permanent_warning', currentLang)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(t('cancel', currentLang)),
+          ),
+          TextButton(
+            onPressed: () async {
+              final success = await ref
+                  .read(profileProvider.notifier)
+                  .deleteAccount(context);
+              if (success && context.mounted) {
+                Navigator.pop(context);
+              }
+            },
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: Text(t('delete_account_confirm', currentLang)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showLogoutDialog(BuildContext context, WidgetRef ref) {
+    final currentLang = ref.read(languageProvider);
+    final profileNotifier = ref.read(profileProvider.notifier);
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(t('logout', currentLang)),
+        content: Text(t('logout_confirmation', currentLang)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(t('cancel', currentLang)),
+          ),
+          TextButton(
+            onPressed: () async {
+              await profileNotifier.signOut(context);
+            },
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: Text(t('logout', currentLang)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showHelpDialog(BuildContext context, AppLanguage lang) {
+    final isEn = lang == AppLanguage.english;
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(t('help_support', lang)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              isEn
+                  ? 'Need help with Agricola? Contact us:'
+                  : 'A o tlhoka thuso ka Agricola? Ikgolaganye le rona:',
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                const Icon(Icons.email_outlined, size: 18, color: AppColors.green),
+                const SizedBox(width: 8),
+                const Text('developer@agricola-app.com'),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Text(
+              isEn
+                  ? 'You can also use the Report Bug feature to send feedback with a screenshot.'
+                  : 'O ka dirisa Report Bug go romela maikutlo ka setshwantsho.',
+              style: TextStyle(fontSize: 13, color: Colors.grey[600]),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(t('okay', lang)),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Reusable settings widgets
+// ---------------------------------------------------------------------------
+
+class _SectionHeader extends StatelessWidget {
+  final String title;
+  const _SectionHeader({required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 4, bottom: 8),
+      child: Text(
+        title,
+        style: TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+          color: Colors.grey[600],
+        ),
+      ),
+    );
+  }
+}
+
+class _SettingsCard extends StatelessWidget {
+  final List<Widget> children;
+  const _SettingsCard({required this.children});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withAlpha(15),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(children: children),
+    );
+  }
+}
+
+class _SettingsTile extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final bool isDestructive;
+  final VoidCallback onTap;
+
+  const _SettingsTile({
+    required this.icon,
+    required this.title,
+    this.isDestructive = false,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      leading: Icon(
+        icon,
+        color: isDestructive ? Colors.red : AppColors.green,
+      ),
+      title: Text(
+        title,
+        style: TextStyle(
+          color: isDestructive ? Colors.red : Colors.black87,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+      trailing: Icon(Icons.chevron_right, color: Colors.grey[400]),
+      onTap: onTap,
+    );
+  }
+}
+
+class _LanguageTile extends ConsumerWidget {
+  final AppLanguage lang;
+  const _LanguageTile({required this.lang});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currentLabel = lang == AppLanguage.english ? 'English' : 'Setswana';
+
+    return ListTile(
+      leading: const Icon(Icons.language, color: AppColors.green),
+      title: Text(
+        t('language', lang),
+        style: const TextStyle(fontWeight: FontWeight.w500),
+      ),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            currentLabel,
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey[600],
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(width: 4),
+          Icon(Icons.chevron_right, color: Colors.grey[400]),
+        ],
+      ),
+      onTap: () {
+        final notifier = ref.read(languageProvider.notifier);
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text(t('select_language', lang)),
+            content: LanguageSelectContent(
+              currentLang: lang,
+              notifier: notifier,
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _AboutTile extends StatelessWidget {
+  final AppLanguage lang;
+  const _AboutTile({required this.lang});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      leading: const Icon(Icons.info_outline, color: AppColors.green),
+      title: Text(
+        t('about', lang),
+        style: const TextStyle(fontWeight: FontWeight.w500),
+      ),
+      trailing: Icon(Icons.chevron_right, color: Colors.grey[400]),
+      onTap: () async {
+        final info = await PackageInfo.fromPlatform();
+        if (!context.mounted) return;
+        final isEn = lang == AppLanguage.english;
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            title: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppColors.green.withAlpha(20),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(
+                    Icons.agriculture,
+                    color: AppColors.green,
+                    size: 24,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                const Text('Agricola'),
+              ],
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  isEn
+                      ? 'Empowering smallholder farmers in Botswana with modern tools for crop management, marketplace access, and business growth.'
+                      : 'Re thusa balemi ba bannye mo Botswana ka didirisiwa tsa segompieno tsa go laola dijalo, phitlhelelo ya mmaraka, le kgolo ya kgwebo.',
+                  style: TextStyle(fontSize: 14, color: Colors.grey[700]),
+                ),
+                const SizedBox(height: 16),
+                _aboutRow(
+                  isEn ? 'Version' : 'Phetolelo',
+                  '${info.version} (${info.buildNumber})',
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text(t('okay', lang)),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  static Widget _aboutRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: TextStyle(fontSize: 13, color: Colors.grey[600])),
+          Text(
+            value,
+            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+          ),
+        ],
+      ),
+    );
+  }
+}

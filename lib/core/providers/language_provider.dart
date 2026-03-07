@@ -479,10 +479,6 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
     AppLanguage.english: 'Check back later for new listings',
     AppLanguage.setswana: 'Boa moragonyana go bona dilisti tse dintsha',
   },
-  'harvested': {
-    AppLanguage.english: 'Harvested',
-    AppLanguage.setswana: 'E Kobilwe',
-  },
   'ready_soon': {
     AppLanguage.english: 'Ready Soon',
     AppLanguage.setswana: 'E Tlile',
@@ -1496,14 +1492,6 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
     AppLanguage.english: 'Done',
     AppLanguage.setswana: 'Go Fedile',
   },
-  'next': {
-    AppLanguage.english: 'Next',
-    AppLanguage.setswana: 'E e Latelang',
-  },
-  'back': {
-    AppLanguage.english: 'Back',
-    AppLanguage.setswana: 'Morago',
-  },
   'total_loss': {
     AppLanguage.english: 'Total Loss',
     AppLanguage.setswana: 'Ditshenyegelo Tsotlhe',
@@ -1622,10 +1610,6 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
     AppLanguage.english: 'Cold Storage',
     AppLanguage.setswana: 'Polokelo ya Tsididi',
   },
-  'open_air': {
-    AppLanguage.english: 'Open Air',
-    AppLanguage.setswana: 'Mo Phaposing e e Butsweng',
-  },
   // Prevention tips
   'tip_field_timely_harvest': {
     AppLanguage.english: 'Harvest at the right time — delays increase field losses by up to 10%.',
@@ -1722,6 +1706,120 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
   'total_items': {
     AppLanguage.english: 'Total Items',
     AppLanguage.setswana: 'Palogotlhe',
+  },
+  // Settings Screen
+  'language': {
+    AppLanguage.english: 'Language',
+    AppLanguage.setswana: 'Puo',
+  },
+  'account': {
+    AppLanguage.english: 'Account',
+    AppLanguage.setswana: 'Akhaonto',
+  },
+  'support': {
+    AppLanguage.english: 'Support',
+    AppLanguage.setswana: 'Tshegetso',
+  },
+  'delete_account': {
+    AppLanguage.english: 'Delete Account',
+    AppLanguage.setswana: 'Phimola Akhaonto',
+  },
+  'delete_account_warning': {
+    AppLanguage.english:
+        'This action cannot be undone. Deleting your account will permanently remove all your data, crops, inventory, and marketplace listings.',
+    AppLanguage.setswana:
+        'Tiro eno e ka se boelwe morago. Go phimola akhaonto ya gago go tla ntsha data yotlhe ya gago, dijalo, dithoto, le dilenaneo tsa mmaraka.',
+  },
+  'delete_permanent_warning': {
+    AppLanguage.english:
+        'This will permanently delete your account and all associated data. This action cannot be undone.',
+    AppLanguage.setswana:
+        'Se se tla phimola akhaonto ya gago le data yotlhe e e amanang. Tiro eno e ka se boelwe morago.',
+  },
+  'delete_account_confirm': {
+    AppLanguage.english: 'DELETE ACCOUNT',
+    AppLanguage.setswana: 'PHIMOLA AKHAONTO',
+  },
+  'continue_text': {
+    AppLanguage.english: 'Continue',
+    AppLanguage.setswana: 'Tswelela',
+  },
+  'final_confirmation': {
+    AppLanguage.english: 'Final Confirmation',
+    AppLanguage.setswana: 'Tlhomamiso ya Bofelo',
+  },
+  'no_email_error': {
+    AppLanguage.english: 'No email address associated with this account',
+    AppLanguage.setswana: 'Ga go na imeile e e amanang le akhaonto eno',
+  },
+  'password_reset_message': {
+    AppLanguage.english: 'We will send a password reset link to your email address:',
+    AppLanguage.setswana: 'Re tla romela linki ya go fetola phasewete go imeile ya gago:',
+  },
+  'reset_failed': {
+    AppLanguage.english: 'Failed to send reset email',
+    AppLanguage.setswana: 'Go padile go romela imeile ya go fetola',
+  },
+  'reset_email_sent': {
+    AppLanguage.english: 'Password reset email sent! Check your inbox.',
+    AppLanguage.setswana: 'Imeile ya go fetola phasewete e rometswe! Tlhola inbox ya gago.',
+  },
+  'send_reset_link': {
+    AppLanguage.english: 'Send Reset Link',
+    AppLanguage.setswana: 'Romela Linki ya go Fetola',
+  },
+  // Reports Screen
+  'farm_overview': {
+    AppLanguage.english: 'Farm Overview',
+    AppLanguage.setswana: 'Kakaretso ya Polasa',
+  },
+  'business_overview': {
+    AppLanguage.english: 'Business Overview',
+    AppLanguage.setswana: 'Kakaretso ya Kgwebo',
+  },
+  'active_crops': {
+    AppLanguage.english: 'Active Crops',
+    AppLanguage.setswana: 'Dijalo tse di Dirang',
+  },
+  'harvested': {
+    AppLanguage.english: 'Harvested',
+    AppLanguage.setswana: 'Tse di Roobilweng',
+  },
+  'field_summary': {
+    AppLanguage.english: 'Field Summary',
+    AppLanguage.setswana: 'Kakaretso ya Masimo',
+  },
+  'total_field_size': {
+    AppLanguage.english: 'Total Field Size',
+    AppLanguage.setswana: 'Bogolo Jotlhe jwa Masimo',
+  },
+  'inventory_items': {
+    AppLanguage.english: 'Inventory Items',
+    AppLanguage.setswana: 'Dithoto tsa Polokelo',
+  },
+  'items_need_attention': {
+    AppLanguage.english: 'Items Need Attention',
+    AppLanguage.setswana: 'Dilo tse di Tlhokang Tlhokomelo',
+  },
+  'marketplace_listings': {
+    AppLanguage.english: 'Marketplace Listings',
+    AppLanguage.setswana: 'Dilenaneo tsa Mmaraka',
+  },
+  'financial_summary': {
+    AppLanguage.english: 'Financial Summary',
+    AppLanguage.setswana: 'Kakaretso ya Madi',
+  },
+  'total_revenue': {
+    AppLanguage.english: 'Total Revenue',
+    AppLanguage.setswana: 'Lotseno Lotlhe',
+  },
+  'total_purchase_value': {
+    AppLanguage.english: 'Total Purchase Value',
+    AppLanguage.setswana: 'Boleng Jotlhe jwa Ditheko',
+  },
+  'inventory_summary': {
+    AppLanguage.english: 'Inventory Summary',
+    AppLanguage.setswana: 'Kakaretso ya Dithoto',
   },
 };
 

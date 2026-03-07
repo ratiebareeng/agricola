@@ -5,9 +5,12 @@ import 'package:agricola/domain/profile/enum/merchant_type.dart';
 import 'package:agricola/features/home/providers/dashboard_stats_provider.dart';
 import 'package:agricola/features/home/widgets/stat_card.dart';
 import 'package:agricola/features/marketplace/screens/add_product_screen.dart';
+import 'package:agricola/features/notifications/providers/notifications_provider.dart';
+import 'package:agricola/features/notifications/screens/notifications_screen.dart';
 import 'package:agricola/features/orders/models/order_model.dart';
 import 'package:agricola/features/profile_setup/providers/profile_setup_provider.dart';
 import 'package:agricola/features/purchases/screens/add_purchase_screen.dart';
+import 'package:agricola/features/reports/screens/reports_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -57,13 +60,7 @@ class MerchantDashboardScreen extends ConsumerWidget {
                     ],
                   ),
 
-                  IconButton(
-                    icon: const Icon(
-                      Icons.notifications_outlined,
-                      color: Color(0xFF1A1A1A),
-                    ),
-                    onPressed: () {},
-                  ),
+                  _NotificationBell(),
                 ],
               ),
               const SizedBox(height: 24),
@@ -287,7 +284,10 @@ class MerchantDashboardScreen extends ConsumerWidget {
                 iconColor: Colors.purple,
                 title: t('view_analytics', lang),
                 subtitle: t('business_insights', lang),
-                onTap: () => _showComingSoonDialog(context, lang),
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const MerchantReportsScreen()),
+                ),
               ),
             ],
           ),
@@ -626,4 +626,48 @@ class _StatusConfig {
   final IconData icon;
 
   _StatusConfig(this.label, this.color, this.icon);
+}
+
+class _NotificationBell extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final count = ref.watch(unreadNotificationCountProvider);
+
+    return Stack(
+      children: [
+        IconButton(
+          icon: const Icon(
+            Icons.notifications_outlined,
+            color: Color(0xFF1A1A1A),
+          ),
+          onPressed: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const NotificationsScreen()),
+          ),
+        ),
+        if (count > 0)
+          Positioned(
+            right: 6,
+            top: 6,
+            child: Container(
+              padding: const EdgeInsets.all(4),
+              decoration: const BoxDecoration(
+                color: Colors.red,
+                shape: BoxShape.circle,
+              ),
+              constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
+              child: Text(
+                '$count',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+      ],
+    );
+  }
 }
