@@ -1,4 +1,5 @@
 import 'package:agricola/core/network/http_client_provider.dart';
+import 'package:agricola/features/auth/providers/auth_provider.dart';
 import 'package:agricola/features/crops/models/crop_model.dart';
 import 'package:agricola/features/crops/providers/crop_providers.dart';
 import 'package:agricola/features/home/providers/dashboard_stats_provider.dart';
@@ -19,6 +20,8 @@ final analyticsApiServiceProvider = Provider<AnalyticsApiService>((ref) {
 
 final analyticsProvider =
     FutureProvider.family<AnalyticsModel, String>((ref, period) async {
+  // Re-fetch analytics when user changes
+  ref.watch(currentUserProvider);
   final service = ref.watch(analyticsApiServiceProvider);
   return service.getAnalytics(period: period);
 });

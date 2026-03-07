@@ -6,6 +6,7 @@ import 'package:agricola/core/providers/offline_settings_provider.dart';
 import 'package:agricola/features/crops/data/crop_api_service.dart';
 import 'package:agricola/features/crops/data/crop_offline_repository.dart';
 import 'package:agricola/features/crops/models/crop_model.dart';
+import 'package:agricola/features/auth/providers/auth_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final cropApiServiceProvider = Provider<CropApiService>((ref) {
@@ -28,6 +29,8 @@ final cropOfflineRepositoryProvider = Provider<CropOfflineRepository>((ref) {
 
 final cropNotifierProvider =
     StateNotifierProvider<CropNotifier, AsyncValue<List<CropModel>>>((ref) {
+      // Re-fetch crops when user changes
+      ref.watch(currentUserProvider);
       return CropNotifier(ref.watch(cropOfflineRepositoryProvider));
     });
 

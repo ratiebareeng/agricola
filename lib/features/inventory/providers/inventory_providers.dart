@@ -6,6 +6,7 @@ import 'package:agricola/core/providers/offline_settings_provider.dart';
 import 'package:agricola/features/inventory/data/inventory_api_service.dart';
 import 'package:agricola/features/inventory/data/inventory_offline_repository.dart';
 import 'package:agricola/features/inventory/models/inventory_model.dart';
+import 'package:agricola/features/auth/providers/auth_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final inventoryApiServiceProvider = Provider<InventoryApiService>((ref) {
@@ -29,6 +30,8 @@ final inventoryOfflineRepositoryProvider =
 
 final inventoryNotifierProvider =
     StateNotifierProvider<InventoryNotifier, AsyncValue<List<InventoryModel>>>((ref) {
+      // Re-fetch inventory when user changes
+      ref.watch(currentUserProvider);
       return InventoryNotifier(ref.watch(inventoryOfflineRepositoryProvider));
     });
 

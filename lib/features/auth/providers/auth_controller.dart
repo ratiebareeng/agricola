@@ -173,7 +173,14 @@ class AuthController extends StateNotifier<AsyncValue<void>> {
       if (kDebugMode) {
         print('Sign out error: ${failure.message}');
       }
-    }, (_) => state = const AsyncValue.data(null));
+    }, (_) {
+      state = const AsyncValue.data(null);
+
+      // Invalidate cached user-data providers so the next sign-in
+      // starts with a clean slate instead of stale data.
+      _ref.invalidate(profileSetupProvider);
+      _ref.invalidate(profileControllerProvider);
+    });
   }
 
   Future<Either<AuthFailure, UserModel>> signUpWithEmailPassword({

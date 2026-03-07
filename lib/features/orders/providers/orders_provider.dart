@@ -5,6 +5,7 @@ import 'package:agricola/core/providers/database_provider.dart';
 import 'package:agricola/core/providers/offline_settings_provider.dart';
 import 'package:agricola/features/orders/data/orders_api_service.dart';
 import 'package:agricola/features/orders/models/order_model.dart';
+import 'package:agricola/features/auth/providers/auth_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Provides the OrdersApiService with auto-wired Dio client
@@ -19,6 +20,9 @@ final ordersLocalDaoProvider = Provider<OrdersLocalDao>((ref) {
 /// Provides the OrdersNotifier for managing order state
 final ordersNotifierProvider =
     StateNotifierProvider<OrdersNotifier, AsyncValue<List<OrderModel>>>((ref) {
+  // Re-fetch orders when user changes
+  ref.watch(currentUserProvider);
+  
   return OrdersNotifier(
     service: ref.watch(ordersApiServiceProvider),
     localDao: ref.watch(ordersLocalDaoProvider),

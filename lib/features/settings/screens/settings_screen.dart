@@ -251,12 +251,10 @@ class SettingsScreen extends ConsumerWidget {
           ),
           TextButton(
             onPressed: () async {
-              final success = await ref
+              Navigator.pop(context);
+              await ref
                   .read(profileProvider.notifier)
-                  .deleteAccount(context);
-              if (success && context.mounted) {
-                Navigator.pop(context);
-              }
+                  .deleteAccount();
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
             child: Text(t('delete_account_confirm', currentLang)),
@@ -272,17 +270,20 @@ class SettingsScreen extends ConsumerWidget {
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: Text(t('logout', currentLang)),
         content: Text(t('logout_confirmation', currentLang)),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext),
             child: Text(t('cancel', currentLang)),
           ),
           TextButton(
-            onPressed: () async {
-              await profileNotifier.signOut(context);
+            onPressed: () {
+              // Dismiss dialog first to avoid context issues during navigation
+              Navigator.pop(dialogContext);
+              // Sign out — go_router route guards handle navigation automatically
+              profileNotifier.signOut();
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
             child: Text(t('logout', currentLang)),

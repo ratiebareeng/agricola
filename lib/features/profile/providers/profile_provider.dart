@@ -1,7 +1,5 @@
 import 'package:agricola/features/auth/providers/auth_controller.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 final profileProvider = StateNotifierProvider<ProfileNotifier, ProfileState>((
   ref,
@@ -19,8 +17,9 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
     state = state.copyWith(errorMessage: null);
   }
 
-  /// Delete the current user account
-  Future<bool> deleteAccount(BuildContext context) async {
+  /// Delete the current user account.
+  /// Navigation is handled declaratively by go_router's route guards.
+  Future<bool> deleteAccount() async {
     state = state.copyWith(isLoading: true, errorMessage: null);
 
     try {
@@ -36,12 +35,6 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
         },
         (_) {
           state = state.copyWith(isLoading: false);
-
-          // Navigate to welcome screen after successful deletion
-          if (context.mounted) {
-            context.go('/');
-          }
-
           return true;
         },
       );
@@ -54,20 +47,15 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
     }
   }
 
-  /// Sign out the current user
-  Future<bool> signOut(BuildContext context) async {
+  /// Sign out the current user.
+  /// Navigation is handled declaratively by go_router's route guards
+  /// which redirect unauthenticated users to /sign-in.
+  Future<bool> signOut() async {
     state = state.copyWith(isLoading: true, errorMessage: null);
 
     try {
       await _authController.signOut();
       state = state.copyWith(isLoading: false);
-
-      // Navigate to welcome screen after successful sign out
-      // This ensures a clean slate for the next user to log in
-      if (context.mounted) {
-        context.go('/');
-      }
-
       return true;
     } catch (e) {
       state = state.copyWith(

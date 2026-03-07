@@ -7,6 +7,7 @@ import 'package:agricola/features/marketplace/data/marketplace_api_service.dart'
 import 'package:agricola/features/marketplace/models/marketplace_filter.dart';
 import 'package:agricola/features/marketplace/models/marketplace_listing.dart';
 import 'package:agricola/features/profile_setup/providers/profile_setup_provider.dart';
+import 'package:agricola/features/auth/providers/auth_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 // API Service provider
@@ -26,6 +27,8 @@ final marketplaceFilterProvider = StateProvider<MarketplaceFilter>((ref) {
 // Main data provider with AsyncValue
 final marketplaceNotifierProvider = StateNotifierProvider<MarketplaceNotifier,
     AsyncValue<List<MarketplaceListing>>>((ref) {
+  // Re-fetch marketplace when user changes
+  ref.watch(currentUserProvider);
   return MarketplaceNotifier(
     ref: ref,
     service: ref.watch(marketplaceApiServiceProvider),

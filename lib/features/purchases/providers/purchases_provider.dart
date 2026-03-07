@@ -6,6 +6,7 @@ import 'package:agricola/core/providers/offline_settings_provider.dart';
 import 'package:agricola/features/purchases/data/purchases_api_service.dart';
 import 'package:agricola/features/purchases/data/purchases_offline_repository.dart';
 import 'package:agricola/features/purchases/models/purchase_model.dart';
+import 'package:agricola/features/auth/providers/auth_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final purchasesApiServiceProvider = Provider<PurchasesApiService>((ref) {
@@ -29,6 +30,8 @@ final purchasesOfflineRepositoryProvider =
 
 final purchasesNotifierProvider = StateNotifierProvider<PurchasesNotifier,
     AsyncValue<List<PurchaseModel>>>((ref) {
+  // Re-fetch purchases when user changes
+  ref.watch(currentUserProvider);
   return PurchasesNotifier(ref.watch(purchasesOfflineRepositoryProvider));
 });
 

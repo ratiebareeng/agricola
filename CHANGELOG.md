@@ -1,3 +1,13 @@
+## 0.20.1 - 2026-03-07
+
+### Fixed
+- **Sign-out/sign-in stale state** — switching accounts no longer shows previous user's data or wrong tab
+  - Removed imperative `context.go('/')` from sign-out/delete-account; navigation now driven declaratively by go_router route guards
+  - Dismiss dialogs before triggering sign-out to prevent context issues
+  - All user-data providers (crops, inventory, marketplace, orders, purchases, analytics) watch `currentUserProvider` and auto-rebuild on user change
+  - `selectedTabProvider` resets to dashboard (index 0) when user changes
+  - Explicitly invalidate `profileSetupProvider` and `profileControllerProvider` on sign-out
+
 ## 0.20.0 - 2026-03-07
 
 ### Added
