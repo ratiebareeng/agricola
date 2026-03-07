@@ -1826,6 +1826,14 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
     AppLanguage.english: 'Total Field Size',
     AppLanguage.setswana: 'Bogolo Jotlhe jwa Masimo',
   },
+  'total_harvests': {
+    AppLanguage.english: 'Total Harvests',
+    AppLanguage.setswana: 'Kotulo Yotlhe',
+  },
+  'total_yield': {
+    AppLanguage.english: 'Total Yield',
+    AppLanguage.setswana: 'Kotulo Yotlhe e e Bonweng',
+  },
   'inventory_items': {
     AppLanguage.english: 'Inventory Items',
     AppLanguage.setswana: 'Dithoto tsa Polokelo',

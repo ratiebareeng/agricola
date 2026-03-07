@@ -1,10 +1,27 @@
+import 'package:agricola/core/network/http_client_provider.dart';
 import 'package:agricola/features/crops/models/crop_model.dart';
 import 'package:agricola/features/crops/providers/crop_providers.dart';
 import 'package:agricola/features/home/providers/dashboard_stats_provider.dart';
 import 'package:agricola/features/inventory/providers/inventory_providers.dart';
 import 'package:agricola/features/orders/providers/orders_provider.dart';
 import 'package:agricola/features/purchases/providers/purchases_provider.dart';
+import 'package:agricola/features/reports/data/analytics_api_service.dart';
+import 'package:agricola/features/reports/models/analytics_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+// ---------------------------------------------------------------------------
+// Analytics API — server-side aggregated stats
+// ---------------------------------------------------------------------------
+
+final analyticsApiServiceProvider = Provider<AnalyticsApiService>((ref) {
+  return AnalyticsApiService(ref.watch(httpClientProvider));
+});
+
+final analyticsProvider =
+    FutureProvider.family<AnalyticsModel, String>((ref, period) async {
+  final service = ref.watch(analyticsApiServiceProvider);
+  return service.getAnalytics(period: period);
+});
 
 // ---------------------------------------------------------------------------
 // Farmer reports — computed from crops + inventory

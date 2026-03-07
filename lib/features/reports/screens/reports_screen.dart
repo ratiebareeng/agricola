@@ -4,6 +4,7 @@ import 'package:agricola/features/crops/providers/crop_providers.dart';
 import 'package:agricola/features/inventory/providers/inventory_providers.dart';
 import 'package:agricola/features/orders/providers/orders_provider.dart';
 import 'package:agricola/features/purchases/providers/purchases_provider.dart';
+import 'package:agricola/features/reports/models/analytics_model.dart';
 import 'package:agricola/features/reports/providers/reports_provider.dart';
 import 'package:agricola/features/reports/services/export_service.dart';
 import 'package:flutter/material.dart';
@@ -95,6 +96,69 @@ class _FarmerStatsSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final analyticsAsync = ref.watch(analyticsProvider('month'));
+
+    return analyticsAsync.when(
+      loading: () => const Center(
+        child: Padding(
+          padding: EdgeInsets.all(32),
+          child: CircularProgressIndicator(color: AppColors.green),
+        ),
+      ),
+      error: (_, __) => _FarmerStatsFallback(lang: lang),
+      data: (analytics) => _buildFarmerStats(analytics),
+    );
+  }
+
+  Widget _buildFarmerStats(AnalyticsModel analytics) {
+    final crops = analytics.crops;
+    final inv = analytics.inventory;
+    final mkt = analytics.marketplace;
+    final harvests = analytics.harvests;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          t('farm_overview', lang),
+          style: const TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.black87,
+          ),
+        ),
+        const SizedBox(height: 16),
+        _buildStatsGrid([
+          _StatData(t('total_fields', lang), '${crops.total}', Icons.landscape, AppColors.green),
+          _StatData(t('active_crops', lang), '${crops.active}', Icons.grass, Colors.teal),
+          _StatData(t('harvested', lang), '${crops.harvested}', Icons.agriculture, Colors.orange),
+          _StatData(t('upcoming_harvests', lang), '${crops.upcomingHarvests}', Icons.schedule, Colors.blue),
+        ]),
+        const SizedBox(height: 16),
+        _ReportCard(
+          title: t('field_summary', lang),
+          items: [
+            _ReportRow(t('total_field_size', lang), '${crops.totalFieldSize.toStringAsFixed(1)} ha'),
+            _ReportRow(t('estimated_yield', lang), '${crops.totalEstimatedYield.toStringAsFixed(1)} kg'),
+            _ReportRow(t('total_harvests', lang), '${harvests.total}'),
+            _ReportRow(t('total_yield', lang), '${harvests.totalYield.toStringAsFixed(1)} kg'),
+            _ReportRow(t('inventory_items', lang), '${inv.total}'),
+            _ReportRow(t('items_need_attention', lang), '${inv.criticalItems}', isWarning: inv.criticalItems > 0),
+            _ReportRow(t('marketplace_listings', lang), '${mkt.activeListings}'),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+/// Fallback: uses client-side providers when analytics API is unavailable
+class _FarmerStatsFallback extends ConsumerWidget {
+  final AppLanguage lang;
+  const _FarmerStatsFallback({required this.lang});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
     final stats = ref.watch(farmerReportStatsProvider);
 
     if (stats.isLoading) {
@@ -119,56 +183,20 @@ class _FarmerStatsSection extends ConsumerWidget {
         ),
         const SizedBox(height: 16),
         _buildStatsGrid([
-          _StatData(
-            t('total_fields', lang),
-            '${stats.totalCrops}',
-            Icons.landscape,
-            AppColors.green,
-          ),
-          _StatData(
-            t('active_crops', lang),
-            '${stats.activeCrops}',
-            Icons.grass,
-            Colors.teal,
-          ),
-          _StatData(
-            t('harvested', lang),
-            '${stats.harvestedCrops}',
-            Icons.agriculture,
-            Colors.orange,
-          ),
-          _StatData(
-            t('upcoming_harvests', lang),
-            '${stats.upcomingHarvests}',
-            Icons.schedule,
-            Colors.blue,
-          ),
+          _StatData(t('total_fields', lang), '${stats.totalCrops}', Icons.landscape, AppColors.green),
+          _StatData(t('active_crops', lang), '${stats.activeCrops}', Icons.grass, Colors.teal),
+          _StatData(t('harvested', lang), '${stats.harvestedCrops}', Icons.agriculture, Colors.orange),
+          _StatData(t('upcoming_harvests', lang), '${stats.upcomingHarvests}', Icons.schedule, Colors.blue),
         ]),
         const SizedBox(height: 16),
         _ReportCard(
           title: t('field_summary', lang),
           items: [
-            _ReportRow(
-              t('total_field_size', lang),
-              '${stats.totalFieldSize.toStringAsFixed(1)} ha',
-            ),
-            _ReportRow(
-              t('estimated_yield', lang),
-              '${stats.totalEstimatedYield.toStringAsFixed(1)} kg',
-            ),
-            _ReportRow(
-              t('inventory_items', lang),
-              '${stats.inventoryItems}',
-            ),
-            _ReportRow(
-              t('items_need_attention', lang),
-              '${stats.criticalItems}',
-              isWarning: stats.criticalItems > 0,
-            ),
-            _ReportRow(
-              t('marketplace_listings', lang),
-              '${stats.marketplaceListings}',
-            ),
+            _ReportRow(t('total_field_size', lang), '${stats.totalFieldSize.toStringAsFixed(1)} ha'),
+            _ReportRow(t('estimated_yield', lang), '${stats.totalEstimatedYield.toStringAsFixed(1)} kg'),
+            _ReportRow(t('inventory_items', lang), '${stats.inventoryItems}'),
+            _ReportRow(t('items_need_attention', lang), '${stats.criticalItems}', isWarning: stats.criticalItems > 0),
+            _ReportRow(t('marketplace_listings', lang), '${stats.marketplaceListings}'),
           ],
         ),
       ],
@@ -183,6 +211,75 @@ class _FarmerStatsSection extends ConsumerWidget {
 class _MerchantStatsSection extends ConsumerWidget {
   final AppLanguage lang;
   const _MerchantStatsSection({required this.lang});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final analyticsAsync = ref.watch(analyticsProvider('month'));
+
+    return analyticsAsync.when(
+      loading: () => const Center(
+        child: Padding(
+          padding: EdgeInsets.all(32),
+          child: CircularProgressIndicator(color: AppColors.green),
+        ),
+      ),
+      error: (_, __) => _MerchantStatsFallback(lang: lang),
+      data: (analytics) => _buildMerchantStats(analytics),
+    );
+  }
+
+  Widget _buildMerchantStats(AnalyticsModel analytics) {
+    final orders = analytics.orders;
+    final purchases = analytics.purchases;
+    final inv = analytics.inventory;
+    final mkt = analytics.marketplace;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          t('business_overview', lang),
+          style: const TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.black87,
+          ),
+        ),
+        const SizedBox(height: 16),
+        _buildStatsGrid([
+          _StatData(t('total_products', lang), '${mkt.activeListings}', Icons.inventory_2, AppColors.green),
+          _StatData(t('active_orders', lang), '${orders.active}', Icons.shopping_cart, Colors.blue),
+          _StatData(t('total_purchases', lang), '${purchases.total}', Icons.shopping_bag, Colors.orange),
+          _StatData(t('suppliers', lang), '${purchases.uniqueSuppliers}', Icons.people, Colors.teal),
+        ]),
+        const SizedBox(height: 16),
+        _ReportCard(
+          title: t('financial_summary', lang),
+          items: [
+            _ReportRow(t('monthly_revenue', lang), 'P ${orders.periodRevenue.toStringAsFixed(2)}'),
+            _ReportRow(t('total_revenue', lang), 'P ${orders.totalRevenue.toStringAsFixed(2)}'),
+            _ReportRow(t('monthly_purchases', lang), 'P ${purchases.periodValue.toStringAsFixed(2)}'),
+            _ReportRow(t('total_purchase_value', lang), 'P ${purchases.totalValue.toStringAsFixed(2)}'),
+          ],
+        ),
+        const SizedBox(height: 16),
+        _ReportCard(
+          title: t('inventory_summary', lang),
+          items: [
+            _ReportRow(t('inventory_items', lang), '${inv.total}'),
+            _ReportRow(t('low_stock_items', lang), '${inv.criticalItems}', isWarning: inv.criticalItems > 0),
+            _ReportRow(t('marketplace_listings', lang), '${mkt.activeListings}'),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+/// Fallback: uses client-side providers when analytics API is unavailable
+class _MerchantStatsFallback extends ConsumerWidget {
+  final AppLanguage lang;
+  const _MerchantStatsFallback({required this.lang});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -210,70 +307,28 @@ class _MerchantStatsSection extends ConsumerWidget {
         ),
         const SizedBox(height: 16),
         _buildStatsGrid([
-          _StatData(
-            t('total_products', lang),
-            '${stats.totalProducts}',
-            Icons.inventory_2,
-            AppColors.green,
-          ),
-          _StatData(
-            t('active_orders', lang),
-            '${stats.activeOrders}',
-            Icons.shopping_cart,
-            Colors.blue,
-          ),
-          _StatData(
-            t('total_purchases', lang),
-            '${stats.totalPurchases}',
-            Icons.shopping_bag,
-            Colors.orange,
-          ),
-          _StatData(
-            t('suppliers', lang),
-            '${stats.totalSuppliers}',
-            Icons.people,
-            Colors.teal,
-          ),
+          _StatData(t('total_products', lang), '${stats.totalProducts}', Icons.inventory_2, AppColors.green),
+          _StatData(t('active_orders', lang), '${stats.activeOrders}', Icons.shopping_cart, Colors.blue),
+          _StatData(t('total_purchases', lang), '${stats.totalPurchases}', Icons.shopping_bag, Colors.orange),
+          _StatData(t('suppliers', lang), '${stats.totalSuppliers}', Icons.people, Colors.teal),
         ]),
         const SizedBox(height: 16),
         _ReportCard(
           title: t('financial_summary', lang),
           items: [
-            _ReportRow(
-              t('monthly_revenue', lang),
-              'P ${stats.monthlyRevenue.toStringAsFixed(2)}',
-            ),
-            _ReportRow(
-              t('total_revenue', lang),
-              'P ${stats.totalRevenue.toStringAsFixed(2)}',
-            ),
-            _ReportRow(
-              t('monthly_purchases', lang),
-              'P ${stats.monthlyPurchaseValue.toStringAsFixed(2)}',
-            ),
-            _ReportRow(
-              t('total_purchase_value', lang),
-              'P ${stats.totalPurchaseValue.toStringAsFixed(2)}',
-            ),
+            _ReportRow(t('monthly_revenue', lang), 'P ${stats.monthlyRevenue.toStringAsFixed(2)}'),
+            _ReportRow(t('total_revenue', lang), 'P ${stats.totalRevenue.toStringAsFixed(2)}'),
+            _ReportRow(t('monthly_purchases', lang), 'P ${stats.monthlyPurchaseValue.toStringAsFixed(2)}'),
+            _ReportRow(t('total_purchase_value', lang), 'P ${stats.totalPurchaseValue.toStringAsFixed(2)}'),
           ],
         ),
         const SizedBox(height: 16),
         _ReportCard(
           title: t('inventory_summary', lang),
           items: [
-            _ReportRow(
-              t('inventory_items', lang),
-              '${stats.inventoryItems}',
-            ),
-            _ReportRow(
-              t('low_stock_items', lang),
-              '${stats.lowStockItems}',
-              isWarning: stats.lowStockItems > 0,
-            ),
-            _ReportRow(
-              t('marketplace_listings', lang),
-              '${stats.marketplaceListings}',
-            ),
+            _ReportRow(t('inventory_items', lang), '${stats.inventoryItems}'),
+            _ReportRow(t('low_stock_items', lang), '${stats.lowStockItems}', isWarning: stats.lowStockItems > 0),
+            _ReportRow(t('marketplace_listings', lang), '${stats.marketplaceListings}'),
           ],
         ),
       ],

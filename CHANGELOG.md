@@ -1,3 +1,17 @@
+## 0.19.0 - 2026-03-07
+
+### Added
+- **Analytics API Integration** — server-side aggregated stats for reports
+  - `AnalyticsModel` with typed sub-models: `CropAnalytics`, `HarvestAnalytics`, `InventoryAnalytics`, `MarketplaceAnalytics`, `OrderAnalytics`, `PurchaseAnalytics`
+  - `AnalyticsApiService`: GET `/api/v1/analytics?period=month|week|year|all`
+  - `analyticsProvider`: `FutureProvider.family` parameterized by period
+  - Reports screen now fetches stats from backend in a single request instead of aggregating from 4-5 raw data endpoints
+  - Graceful fallback: if analytics API fails, falls back to existing client-side providers
+  - Farmer reports now include harvest stats (total harvests, total yield)
+  - 2 new bilingual translation keys: `total_harvests`, `total_yield`
+
+---
+
 ## 0.18.0 - 2026-03-07
 
 ### Added
