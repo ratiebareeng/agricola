@@ -43,6 +43,33 @@ class FirebaseStorageService {
     return downloadUrl;
   }
 
+  /// Upload a marketplace listing image.
+  /// Returns the download URL.
+  Future<String> uploadMarketplaceImage(
+    File file,
+    String userId, {
+    String? listingId,
+    int index = 0,
+  }) async {
+    final folder = listingId ?? DateTime.now().millisecondsSinceEpoch.toString();
+    final fileName = 'image_$index${path.extension(file.path)}';
+    final ref = _storage.ref().child('marketplace/$userId/$folder/$fileName');
+
+    final uploadTask = ref.putFile(
+      file,
+      SettableMetadata(
+        contentType: _getContentType(file.path),
+        customMetadata: {
+          'uploadedBy': userId,
+          'uploadedAt': DateTime.now().toIso8601String(),
+        },
+      ),
+    );
+
+    final snapshot = await uploadTask;
+    return await snapshot.ref.getDownloadURL();
+  }
+
   String _getContentType(String filePath) {
     final ext = path.extension(filePath).toLowerCase();
     switch (ext) {
@@ -51,12 +78,9 @@ class FirebaseStorageService {
         return 'image/jpeg';
       case '.png':
         return 'image/png';
-      case '.gif':
-        return 'image/gif';
-      case '.webp':
-        return 'image/webp';
       default:
-        return 'application/octet-stream';
+        // After compression, files are always JPEG
+        return 'image/jpeg';
     }
   }
 }

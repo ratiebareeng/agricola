@@ -1,3 +1,25 @@
+## 0.20.0 - 2026-03-07
+
+### Added
+- **Marketplace image upload** — product listings now support real images via Firebase Storage
+  - Image picker (camera/gallery) on Add/Edit Product screen with preview and remove
+  - `compressProductImage`: JPEG re-encoding at 1200x1200, 80% quality
+  - `uploadMarketplaceImage` in `FirebaseStorageService` (path: `marketplace/{userId}/{listingId}/`)
+  - Removed dummy `picsum.photos` images from inventory detail screen
+- **Marketplace owner controls** — listing owners can now edit and delete their own listings
+  - `MarketplaceDetailScreen`: detects ownership via `sellerId == currentUser.uid`
+  - Owner sees edit/delete icons in app bar and "Edit Listing" button; others see "Contact Seller"
+  - `InventoryDetailScreen`: listed items now show "View Listing" + "Unlist" buttons (was only "Unlist")
+
+### Security
+- **Image upload hardening** — three-layer validation before upload
+  - Magic bytes check: verifies JPEG (`FF D8 FF`) / PNG (`89 50 4E 47`) file signatures
+  - Compression failure = rejection: `FormatException` thrown instead of uploading the original file
+  - Content type restricted to `image/jpeg` and `image/png` only
+- 10 new bilingual translation keys
+
+---
+
 ## 0.19.0 - 2026-03-07
 
 ### Added

@@ -6,6 +6,7 @@ import 'package:agricola/features/inventory/screens/add_edit_inventory_screen.da
 import 'package:agricola/features/marketplace/models/marketplace_listing.dart';
 import 'package:agricola/features/marketplace/providers/marketplace_provider.dart';
 import 'package:agricola/features/marketplace/screens/add_product_screen.dart';
+import 'package:agricola/features/marketplace/screens/marketplace_detail_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -131,27 +132,61 @@ class _InventoryDetailScreenState extends ConsumerState<InventoryDetailScreen> {
               ],
             ),
             child: SafeArea(
-              child: SizedBox(
-                width: double.infinity,
-                child: isListed
-                    ? OutlinedButton.icon(
-                        onPressed: () => _confirmUnlist(
-                          context,
-                          language,
-                          linkedListing.valueOrNull!,
-                        ),
-                        icon: const Icon(Icons.remove_shopping_cart),
-                        label: Text(t('unlist', language)),
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: Colors.red,
-                          side: const BorderSide(color: Colors.red),
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+              child: isListed
+                  ? Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              final linked = linkedListing.valueOrNull;
+                              if (linked != null) {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        MarketplaceDetailScreen(
+                                            listing: linked),
+                                  ),
+                                );
+                              }
+                            },
+                            icon: const Icon(Icons.storefront),
+                            label: Text(t('view_listing', language)),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF2D6A4F),
+                              foregroundColor: Colors.white,
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 14),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
                           ),
                         ),
-                      )
-                    : ElevatedButton.icon(
+                        const SizedBox(width: 12),
+                        OutlinedButton.icon(
+                          onPressed: () => _confirmUnlist(
+                            context,
+                            language,
+                            linkedListing.valueOrNull!,
+                          ),
+                          icon: const Icon(Icons.remove_shopping_cart),
+                          label: Text(t('unlist', language)),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: Colors.red,
+                            side: const BorderSide(color: Colors.red),
+                            padding:
+                                const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        ),
+                      ],
+                    )
+                  : SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
                         onPressed: () => _listOnMarketplace(context),
                         icon: const Icon(Icons.storefront),
                         label: Text(t('list_on_marketplace', language)),
@@ -164,7 +199,7 @@ class _InventoryDetailScreenState extends ConsumerState<InventoryDetailScreen> {
                           ),
                         ),
                       ),
-              ),
+                    ),
             ),
           ),
         ],
@@ -452,54 +487,19 @@ class _InventoryDetailScreenState extends ConsumerState<InventoryDetailScreen> {
   }
 
   Widget _buildImageSection(BuildContext context) {
-    return SizedBox(
-      height: 200,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: 3,
-        itemBuilder: (context, index) {
-          return Container(
-            width: 300,
-            margin: const EdgeInsets.only(right: 16),
-            decoration: BoxDecoration(
-              color: Colors.grey[200],
-              borderRadius: BorderRadius.circular(16),
-              image: DecorationImage(
-                image: NetworkImage(
-                  'https://picsum.photos/seed/${_item.id ?? 'default'}$index/600/400',
-                ),
-                fit: BoxFit.cover,
-              ),
-            ),
-            child: Stack(
-              children: [
-                if (index == 0)
-                  Positioned(
-                    top: 12,
-                    left: 12,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withAlpha(60),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Text(
-                        'Primary',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          );
-        },
+    return Container(
+      height: 180,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: Colors.grey[100],
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Center(
+        child: Icon(
+          Icons.inventory_2,
+          size: 64,
+          color: Colors.grey[400],
+        ),
       ),
     );
   }

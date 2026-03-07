@@ -1,12 +1,18 @@
+import 'dart:io';
+
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
+import 'package:agricola/core/utils/image_utils.dart';
+import 'package:agricola/core/utils/url_utils.dart';
 import 'package:agricola/features/auth/providers/auth_provider.dart';
 import 'package:agricola/features/inventory/models/inventory_model.dart';
 import 'package:agricola/features/marketplace/models/marketplace_listing.dart';
 import 'package:agricola/features/marketplace/providers/marketplace_provider.dart';
+import 'package:agricola/features/profile/providers/profile_providers.dart';
 import 'package:agricola/features/profile_setup/providers/profile_setup_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 
 class AddProductScreen extends ConsumerStatefulWidget {
   final MarketplaceListing? existingProduct;
@@ -24,7 +30,11 @@ class AddProductScreen extends ConsumerStatefulWidget {
 
 class _AddProductScreenState extends ConsumerState<AddProductScreen> {
   final _formKey = GlobalKey<FormState>();
+  final _imagePicker = ImagePicker();
   bool _isLoading = false;
+
+  File? _selectedImage;
+  String? _existingImageUrl;
 
   late TextEditingController _titleController;
   late TextEditingController _descriptionController;
@@ -69,6 +79,7 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
           TextEditingController(text: product.quantity ?? '');
       _category = product.category;
       _unit = product.unit ?? 'kg';
+      _existingImageUrl = product.imagePath;
     } else if (source != null) {
       // Pre-fill from inventory
       _titleController = TextEditingController(text: source.cropType);
@@ -126,6 +137,8 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    _buildImagePicker(currentLang),
+                    const SizedBox(height: 20),
                     if (_isFromInventory) ...[
                       Container(
                         padding: const EdgeInsets.all(12),
@@ -302,6 +315,177 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
     );
   }
 
+  Widget _buildImagePicker(AppLanguage lang) {
+    final hasImage = _selectedImage != null ||
+        (_existingImageUrl != null && isNetworkUrl(_existingImageUrl));
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionTitle(t('product_image', lang)),
+        const SizedBox(height: 8),
+        GestureDetector(
+          onTap: _showImageSourcePicker,
+          child: Container(
+            height: 180,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.grey[300]!),
+            ),
+            child: hasImage
+                ? ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        if (_selectedImage != null)
+                          Image.file(_selectedImage!, fit: BoxFit.cover)
+                        else
+                          Image.network(
+                            _existingImageUrl!,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) =>
+                                _buildImagePlaceholder(lang),
+                          ),
+                        Positioned(
+                          top: 8,
+                          right: 8,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              _buildImageActionButton(
+                                icon: Icons.edit,
+                                onTap: _showImageSourcePicker,
+                              ),
+                              const SizedBox(width: 8),
+                              _buildImageActionButton(
+                                icon: Icons.close,
+                                onTap: () => setState(() {
+                                  _selectedImage = null;
+                                  _existingImageUrl = null;
+                                }),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                : _buildImagePlaceholder(lang),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildImagePlaceholder(AppLanguage lang) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(Icons.add_a_photo, size: 40, color: Colors.grey[400]),
+        const SizedBox(height: 8),
+        Text(
+          t('tap_to_add_image', lang),
+          style: TextStyle(fontSize: 14, color: Colors.grey[500]),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildImageActionButton({
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(6),
+        decoration: BoxDecoration(
+          color: Colors.black.withAlpha(120),
+          shape: BoxShape.circle,
+        ),
+        child: Icon(icon, size: 18, color: Colors.white),
+      ),
+    );
+  }
+
+  void _showImageSourcePicker() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) {
+        final lang = ref.read(languageProvider);
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.camera_alt, color: AppColors.green),
+                  title: Text(t('take_photo', lang)),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _pickImage(ImageSource.camera);
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.photo_library, color: AppColors.green),
+                  title: Text(t('choose_from_gallery', lang)),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _pickImage(ImageSource.gallery);
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _pickImage(ImageSource source) async {
+    try {
+      final picked = await _imagePicker.pickImage(
+        source: source,
+        maxWidth: 1200,
+        maxHeight: 1200,
+      );
+      if (picked != null) {
+        final file = File(picked.path);
+        final isValid = await ImageUtils.validateImage(file);
+        if (!isValid && mounted) {
+          final lang = ref.read(languageProvider);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(t('image_too_large', lang)),
+              backgroundColor: Colors.red,
+            ),
+          );
+          return;
+        }
+        setState(() {
+          _selectedImage = file;
+          _existingImageUrl = null;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error picking image: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
   Widget _buildSectionTitle(String title) {
     return Text(
       title,
@@ -399,6 +583,19 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
 
       final price = double.tryParse(_priceController.text);
 
+      // Upload image if a new one was selected
+      String? imageUrl = _existingImageUrl;
+      if (_selectedImage != null) {
+        final compressed =
+            await ImageUtils.compressProductImage(_selectedImage!);
+        final storageService = ref.read(firebaseStorageServiceProvider);
+        imageUrl = await storageService.uploadMarketplaceImage(
+          compressed,
+          user.uid,
+          listingId: widget.existingProduct?.id,
+        );
+      }
+
       final listing = MarketplaceListing(
         id: widget.existingProduct?.id ?? '',
         title: _titleController.text.trim(),
@@ -413,6 +610,7 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
         location: profile.location.isNotEmpty ? profile.location : 'Botswana',
         sellerEmail: user.email,
         inventoryId: widget.sourceInventory?.id,
+        imagePath: imageUrl,
       );
 
       String? error;

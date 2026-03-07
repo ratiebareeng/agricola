@@ -1,7 +1,10 @@
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/core/utils/url_utils.dart';
+import 'package:agricola/features/auth/providers/auth_provider.dart';
 import 'package:agricola/features/marketplace/models/marketplace_listing.dart';
+import 'package:agricola/features/marketplace/providers/marketplace_provider.dart';
+import 'package:agricola/features/marketplace/screens/add_product_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,6 +17,8 @@ class MarketplaceDetailScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentLang = ref.watch(languageProvider);
+    final currentUser = ref.watch(currentUserProvider);
+    final isOwner = currentUser != null && listing.sellerId == currentUser.uid;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -34,6 +39,33 @@ class MarketplaceDetailScreen extends ConsumerWidget {
               ),
               onPressed: () => Navigator.pop(context),
             ),
+            actions: isOwner
+                ? [
+                    IconButton(
+                      icon: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.9),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.edit, color: AppColors.green),
+                      ),
+                      onPressed: () => _editListing(context, ref),
+                    ),
+                    IconButton(
+                      icon: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.9),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.delete, color: Colors.red),
+                      ),
+                      onPressed: () =>
+                          _confirmDelete(context, ref, currentLang),
+                    ),
+                  ]
+                : null,
             flexibleSpace: FlexibleSpaceBar(
               background: isNetworkUrl(listing.imagePath)
                   ? Image.network(
@@ -356,38 +388,65 @@ class MarketplaceDetailScreen extends ConsumerWidget {
           child: Row(
             children: [
               Expanded(
-                child: ElevatedButton(
-                  onPressed: listing.sellerPhone != null
-                      ? () => _copyToClipboard(
-                          context,
-                          listing.sellerPhone!,
-                          t('phone_copied', currentLang),
-                        )
-                      : null,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.green,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    elevation: 0,
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.phone),
-                      const SizedBox(width: 8),
-                      Text(
-                        t('contact_seller', currentLang),
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
+                child: isOwner
+                    ? ElevatedButton(
+                        onPressed: () => _editListing(context, ref),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.green,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 0,
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(Icons.edit),
+                            const SizedBox(width: 8),
+                            Text(
+                              t('edit_listing', currentLang),
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    : ElevatedButton(
+                        onPressed: listing.sellerPhone != null
+                            ? () => _copyToClipboard(
+                                context,
+                                listing.sellerPhone!,
+                                t('phone_copied', currentLang),
+                              )
+                            : null,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.green,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 0,
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(Icons.phone),
+                            const SizedBox(width: 8),
+                            Text(
+                              t('contact_seller', currentLang),
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ],
-                  ),
-                ),
               ),
             ],
           ),
@@ -515,6 +574,68 @@ class MarketplaceDetailScreen extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  void _editListing(BuildContext context, WidgetRef ref) async {
+    final result = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AddProductScreen(existingProduct: listing),
+      ),
+    );
+    if (result == true && context.mounted) {
+      ref.read(marketplaceNotifierProvider.notifier).refresh();
+      Navigator.pop(context, true);
+    }
+  }
+
+  void _confirmDelete(
+    BuildContext context,
+    WidgetRef ref,
+    AppLanguage currentLang,
+  ) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(t('delete', currentLang)),
+        content: Text(t('delete_listing_confirm', currentLang)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(t('cancel', currentLang)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: Text(t('delete', currentLang)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && context.mounted) {
+      final error = await ref
+          .read(marketplaceNotifierProvider.notifier)
+          .deleteListing(listing.id);
+      if (context.mounted) {
+        if (error != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error: $error'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(t('listing_deleted', currentLang)),
+              backgroundColor: AppColors.green,
+            ),
+          );
+          Navigator.pop(context, true);
+        }
+      }
+    }
   }
 
   void _copyToClipboard(BuildContext context, String text, String message) {

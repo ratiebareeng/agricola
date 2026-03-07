@@ -1267,6 +1267,42 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
     AppLanguage.english: 'Edit Product',
     AppLanguage.setswana: 'Fetola Selo',
   },
+  'edit_listing': {
+    AppLanguage.english: 'Edit Listing',
+    AppLanguage.setswana: 'Fetola Lenaneo',
+  },
+  'delete_listing_confirm': {
+    AppLanguage.english: 'Are you sure you want to delete this listing?',
+    AppLanguage.setswana: 'A o tlhomamisegile gore o batla go phimola lenaneo leno?',
+  },
+  'listing_deleted': {
+    AppLanguage.english: 'Listing deleted successfully',
+    AppLanguage.setswana: 'Lenaneo le phimolilwe ka katlego',
+  },
+  'view_listing': {
+    AppLanguage.english: 'View Listing',
+    AppLanguage.setswana: 'Bona Lenaneo',
+  },
+  'product_image': {
+    AppLanguage.english: 'Product Image',
+    AppLanguage.setswana: 'Setshwantsho sa Selo',
+  },
+  'tap_to_add_image': {
+    AppLanguage.english: 'Tap to add an image',
+    AppLanguage.setswana: 'Tobetsa go tsenya setshwantsho',
+  },
+  'take_photo': {
+    AppLanguage.english: 'Take Photo',
+    AppLanguage.setswana: 'Tshwara Setshwantsho',
+  },
+  'choose_from_gallery': {
+    AppLanguage.english: 'Choose from Gallery',
+    AppLanguage.setswana: 'Tlhopha mo Galaring',
+  },
+  'image_too_large': {
+    AppLanguage.english: 'Image must be less than 5MB and JPG/PNG format',
+    AppLanguage.setswana: 'Setshwantsho se tshwanetse go nna ka fa tlase ga 5MB le formate ya JPG/PNG',
+  },
   'update_product': {
     AppLanguage.english: 'Update Product',
     AppLanguage.setswana: 'Ntšhafatsa Selo',
