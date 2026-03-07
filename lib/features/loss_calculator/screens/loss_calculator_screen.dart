@@ -3,6 +3,8 @@ import 'package:agricola/features/crops/models/crop_model.dart';
 import 'package:agricola/features/crops/providers/crop_catalog_provider.dart';
 import 'package:agricola/features/crops/providers/crop_providers.dart';
 import 'package:agricola/features/loss_calculator/models/loss_calculation.dart';
+import 'package:agricola/features/loss_calculator/providers/loss_calculator_provider.dart';
+import 'package:agricola/features/loss_calculator/screens/loss_history_screen.dart';
 import 'package:agricola/features/loss_calculator/widgets/loss_results_card.dart';
 import 'package:agricola/features/loss_calculator/widgets/loss_stage_input.dart';
 import 'package:agricola/features/loss_calculator/widgets/prevention_tips_card.dart';
@@ -43,6 +45,8 @@ class _LossCalculatorScreenState extends ConsumerState<LossCalculatorScreen> {
 
   // Step 3 — Results
   LossCalculation? _result;
+  bool _isSaving = false;
+  bool _isSaved = false;
 
   final _units = ['kg', 'bags', 'tons'];
   final _storageMethods = [
@@ -86,6 +90,18 @@ class _LossCalculatorScreenState extends ConsumerState<LossCalculatorScreen> {
         backgroundColor: Colors.white,
         foregroundColor: Colors.black87,
         elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.history),
+            tooltip: t('history', lang),
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const LossHistoryScreen(),
+              ),
+            ),
+          ),
+        ],
       ),
       body: Form(
         key: _formKey,
@@ -508,6 +524,39 @@ class _LossCalculatorScreenState extends ConsumerState<LossCalculatorScreen> {
           cropCategory: cropCategory,
           lang: lang,
         ),
+        const SizedBox(height: 16),
+        // Save button
+        SizedBox(
+          width: double.infinity,
+          child: OutlinedButton.icon(
+            onPressed: _isSaving || _isSaved
+                ? null
+                : () => _saveCalculation(cropCategory),
+            icon: _isSaving
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : Icon(_isSaved ? Icons.check : Icons.save_outlined),
+            label: Text(
+              _isSaved ? t('saved', lang) : t('save_results', lang),
+            ),
+            style: OutlinedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              side: BorderSide(
+                color: _isSaved
+                    ? const Color(0xFF2D6A4F)
+                    : Colors.grey[400]!,
+              ),
+              foregroundColor:
+                  _isSaved ? const Color(0xFF2D6A4F) : Colors.grey[700],
+            ),
+          ),
+        ),
         const SizedBox(height: 24),
         PreventionTipsCard(
           calculation: _result!,
@@ -539,7 +588,10 @@ class _LossCalculatorScreenState extends ConsumerState<LossCalculatorScreen> {
           if (_currentStep > 0)
             Expanded(
               child: OutlinedButton(
-                onPressed: () => setState(() => _currentStep--),
+                onPressed: () => setState(() {
+                  _currentStep--;
+                  _isSaved = false;
+                }),
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
@@ -622,6 +674,39 @@ class _LossCalculatorScreenState extends ConsumerState<LossCalculatorScreen> {
       storageMethod: _storageMethod,
       stages: stages,
     );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Save to backend
+  // ---------------------------------------------------------------------------
+  Future<void> _saveCalculation(String cropCategory) async {
+    if (_result == null) return;
+    setState(() => _isSaving = true);
+
+    final toSave = _result!.copyWith(
+      cropCategory: cropCategory,
+      calculationDate: DateTime.now(),
+    );
+
+    final error = await ref
+        .read(lossCalculatorNotifierProvider.notifier)
+        .saveCalculation(toSave);
+
+    if (!mounted) return;
+    setState(() {
+      _isSaving = false;
+      _isSaved = error == null;
+    });
+
+    if (error != null) {
+      final lang = ref.read(languageProvider);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(t('save_failed', lang)),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   // ---------------------------------------------------------------------------

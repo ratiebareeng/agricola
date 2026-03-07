@@ -1,3 +1,18 @@
+## 0.17.0 - 2026-03-07
+
+### Added
+- **Loss Calculator Backend Integration** — save, view history, and delete loss calculations
+  - `LossCalculation` model: added `id`, `userId`, `cropCategory`, `calculationDate`, `createdAt` fields + `toJson()`/`fromJson()`/`copyWith()`
+  - `LossStage` model: added `toJson()`/`fromJson()`
+  - `LossCalculatorApiService`: POST (save), GET (list), GET/:id, DELETE via `/api/v1/loss-calculator`
+  - `lossCalculatorNotifierProvider`: `StateNotifierProvider` for saved calculations list
+  - "Save Results" button on step 3 of loss calculator (optional — calculator still works fully client-side)
+  - `LossHistoryScreen`: view saved calculations with delete, accessible via history icon in app bar
+  - `lossCalculatorEndpoint` added to `ApiConstants`
+  - 8 new bilingual translation keys (history, save, delete confirmation)
+
+---
+
 ## 0.16.0 - 2026-03-07
 
 ### Added

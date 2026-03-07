@@ -1969,6 +1969,39 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
     AppLanguage.english: 'Order ID',
     AppLanguage.setswana: 'Nomoro ya Odara',
   },
+  // Loss Calculator — history & save
+  'history': {
+    AppLanguage.english: 'History',
+    AppLanguage.setswana: 'Hisitori',
+  },
+  'loss_history': {
+    AppLanguage.english: 'Loss History',
+    AppLanguage.setswana: 'Hisitori ya Ditshenyegelo',
+  },
+  'no_saved_calculations': {
+    AppLanguage.english: 'No saved calculations yet',
+    AppLanguage.setswana: 'Ga go na dipalo tse di bolokilweng',
+  },
+  'save_results': {
+    AppLanguage.english: 'Save Results',
+    AppLanguage.setswana: 'Boloka Dipholo',
+  },
+  'saved': {
+    AppLanguage.english: 'Saved',
+    AppLanguage.setswana: 'E Bolokilwe',
+  },
+  'save_failed': {
+    AppLanguage.english: 'Failed to save. Please try again.',
+    AppLanguage.setswana: 'Go boloka go paletse. Leka gape.',
+  },
+  'delete_calculation': {
+    AppLanguage.english: 'Delete Calculation',
+    AppLanguage.setswana: 'Phimola Palo',
+  },
+  'delete_calculation_confirm': {
+    AppLanguage.english: 'Are you sure you want to delete this calculation?',
+    AppLanguage.setswana: 'A o tlhomamisegile gore o batla go phimola palo e?',
+  },
 };
 
 String t(String key, AppLanguage lang) {
