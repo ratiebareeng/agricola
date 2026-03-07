@@ -23,60 +23,111 @@ class LossResultsCard extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Summary card
-        Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                const Color(0xFF2D6A4F),
-                const Color(0xFF2D6A4F).withAlpha(200),
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Column(
+        // Summary + Regional comparison side by side
+        IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(
-                t('total_loss', lang),
-                style: const TextStyle(
-                  color: Colors.white70,
-                  fontSize: 14,
+              // Loss percentage card
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF2D6A4F),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        t('your_loss', lang),
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 13,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '${calculation.totalLossPercentage.toStringAsFixed(1)}%',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 40,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        '${calculation.totalLoss.toStringAsFixed(1)} ${t(calculation.unit, lang)}',
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 14,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withAlpha(40),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          t(severityKey, lang),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 13,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-              const SizedBox(height: 8),
-              Text(
-                '${calculation.totalLossPercentage.toStringAsFixed(1)}%',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 48,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Text(
-                '${calculation.totalLoss.toStringAsFixed(1)} ${t(calculation.unit, lang)}',
-                style: const TextStyle(
-                  color: Colors.white70,
-                  fontSize: 16,
-                ),
-              ),
-              const SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.white.withAlpha(50),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  t(severityKey, lang),
-                  style: const TextStyle(
+              const SizedBox(width: 12),
+              // Regional comparison card
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 20),
+                  decoration: BoxDecoration(
                     color: Colors.white,
-                    fontWeight: FontWeight.w600,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.grey[200]!),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        t('region_avg', lang),
+                        style: TextStyle(
+                          color: Colors.grey[500],
+                          fontSize: 13,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          '${comparison.regionalAverage.toStringAsFixed(1)}%',
+                          style: TextStyle(
+                            color: Colors.grey[800],
+                            fontSize: 40,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          maxLines: 1,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        t('based_on_crop', lang),
+                        style: TextStyle(
+                          color: Colors.grey[400],
+                          fontSize: 11,
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -132,59 +183,6 @@ class LossResultsCard extends StatelessWidget {
               (stage) => _stageBreakdownRow(stage),
             ),
 
-        // Regional comparison
-        const SizedBox(height: 16),
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: comparison.isBelowAverage
-                ? Colors.green.withAlpha(20)
-                : Colors.orange.withAlpha(20),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: comparison.isBelowAverage
-                  ? Colors.green.withAlpha(60)
-                  : Colors.orange.withAlpha(60),
-            ),
-          ),
-          child: Row(
-            children: [
-              Icon(
-                comparison.isBelowAverage
-                    ? Icons.trending_down
-                    : Icons.trending_up,
-                color: comparison.isBelowAverage ? Colors.green : Colors.orange,
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      comparison.isBelowAverage
-                          ? t('below_regional_average', lang)
-                          : t('above_regional_average', lang),
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        color: comparison.isBelowAverage
-                            ? Colors.green[800]
-                            : Colors.orange[800],
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '${t('regional_average', lang)}: ${comparison.regionalAverage.toStringAsFixed(1)}%',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: Colors.grey[700],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
       ],
     );
   }

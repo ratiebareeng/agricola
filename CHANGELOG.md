@@ -1,3 +1,18 @@
+## 0.18.0 - 2026-03-07
+
+### Added
+- **Loss Detail View** — new screen to view details of a saved loss calculation
+  - `LossDetailScreen`: shows calculation results and prevention tips for a specific record
+  - Added navigation from `LossHistoryScreen` to `LossDetailScreen`
+
+### Changed
+- **Simplified Loss Comparison UI** — removed confusing +/- signed differences
+  - `LossResultsCard`: now shows "Your Loss" and "Region Avg" side-by-side as plain numbers
+  - Improved visual clarity for farmers to compare their performance with regional data
+  - Added new translation keys: `your_loss`, `region_avg`, `based_on_crop`
+
+---
+
 ## 0.17.0 - 2026-03-07
 
 ### Added

@@ -1488,6 +1488,18 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
     AppLanguage.english: 'Total Loss',
     AppLanguage.setswana: 'Ditshenyegelo Tsotlhe',
   },
+  'your_loss': {
+    AppLanguage.english: 'Your Loss',
+    AppLanguage.setswana: 'Tshenyegelo ya Gago',
+  },
+  'region_avg': {
+    AppLanguage.english: 'Region Avg',
+    AppLanguage.setswana: 'Palogare ya Kgaolo',
+  },
+  'based_on_crop': {
+    AppLanguage.english: 'Based on crop',
+    AppLanguage.setswana: 'Go ya ka sejalo',
+  },
   'total_harvest_value': {
     AppLanguage.english: 'Total Harvest Value',
     AppLanguage.setswana: 'Boleng Jotlhe jwa Thobo',
@@ -2001,6 +2013,26 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
   'delete_calculation_confirm': {
     AppLanguage.english: 'Are you sure you want to delete this calculation?',
     AppLanguage.setswana: 'A o tlhomamisegile gore o batla go phimola palo e?',
+  },
+  'vs_region': {
+    AppLanguage.english: 'vs. Region',
+    AppLanguage.setswana: 'vs. Kgaolo',
+  },
+  'less_than_average': {
+    AppLanguage.english: 'less than average',
+    AppLanguage.setswana: 'ka tlase ga average',
+  },
+  'more_than_average': {
+    AppLanguage.english: 'more than average',
+    AppLanguage.setswana: 'ka godimo ga average',
+  },
+  'avg': {
+    AppLanguage.english: 'Avg',
+    AppLanguage.setswana: 'Avg',
+  },
+  'region': {
+    AppLanguage.english: 'Region',
+    AppLanguage.setswana: 'Kgaolo',
   },
 };
 

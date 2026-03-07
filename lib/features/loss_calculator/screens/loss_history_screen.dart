@@ -2,6 +2,7 @@ import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/features/loss_calculator/loss_calculator_helpers.dart';
 import 'package:agricola/features/loss_calculator/models/loss_calculation.dart';
 import 'package:agricola/features/loss_calculator/providers/loss_calculator_provider.dart';
+import 'package:agricola/features/loss_calculator/screens/loss_detail_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -50,6 +51,14 @@ class LossHistoryScreen extends ConsumerWidget {
               return _CalculationCard(
                 calculation: calculations[index],
                 lang: lang,
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => LossDetailScreen(
+                      calculation: calculations[index],
+                    ),
+                  ),
+                ),
                 onDelete: () => _confirmDelete(
                   context,
                   ref,
@@ -122,11 +131,13 @@ class LossHistoryScreen extends ConsumerWidget {
 class _CalculationCard extends StatelessWidget {
   final LossCalculation calculation;
   final AppLanguage lang;
+  final VoidCallback onTap;
   final VoidCallback onDelete;
 
   const _CalculationCard({
     required this.calculation,
     required this.lang,
+    required this.onTap,
     required this.onDelete,
   });
 
@@ -138,7 +149,9 @@ class _CalculationCard extends StatelessWidget {
     final severityKey = lossSeverityKey(calculation.totalLossPercentage);
     final severityColor = _severityColor(calculation.totalLossPercentage);
 
-    return Container(
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -202,6 +215,7 @@ class _CalculationCard extends StatelessWidget {
           ],
         ),
       ),
+    ),
     );
   }
 
