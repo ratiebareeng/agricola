@@ -3,7 +3,10 @@ import 'dart:io';
 import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/core/utils/image_utils.dart';
 import 'package:agricola/core/utils/url_utils.dart';
-import 'package:agricola/core/widgets/app_buttons.dart';
+import 'package:agricola/core/widgets/app_filter_chip_group.dart';
+import 'package:agricola/core/widgets/app_form_layout.dart';
+import 'package:agricola/core/widgets/app_form_section.dart';
+import 'package:agricola/core/widgets/app_radio_group.dart';
 import 'package:agricola/core/widgets/app_text_field.dart';
 import 'package:agricola/features/profile/providers/profile_controller_provider.dart';
 import 'package:agricola/features/profile_setup/models/farmer_profile_model.dart';
@@ -54,30 +57,66 @@ class _EditFarmerProfileScreenState
     final isLoading = profileState.isLoading;
     final uploadProgress = profileState.uploadProgress;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Edit Profile'),
-        backgroundColor: AppColors.green,
-        foregroundColor: Colors.white,
-      ),
-      body: Form(
+    return AppFormLayout(
+      title: 'Edit Profile',
+      submitLabel: isLoading ? 'Saving...' : 'Save Changes',
+      isLoading: isLoading,
+      onSubmit: isLoading ? null : _saveProfile,
+      child: Form(
         key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.all(16),
+        child: Column(
           children: [
             _buildPhotoSection(isLoading, uploadProgress),
             const SizedBox(height: 32),
-            _buildVillageField(),
-            const SizedBox(height: 24),
-            _buildFarmSizeSection(isLoading),
-            const SizedBox(height: 24),
-            _buildCropsSection(isLoading),
-            const SizedBox(height: 32),
-            AppPrimaryButton(
-              label: isLoading ? 'Saving...' : 'Save Changes',
-              onPressed: isLoading ? null : _saveProfile,
-              isLoading: isLoading,
+            AppFormSection(
+              title: 'Village/Location',
+              isRequired: true,
+              child: AppTextField(
+                label: '',
+                controller: _villageController,
+                hint: 'Enter village or location',
+                prefixIcon: Icons.location_on_outlined,
+                validator: (value) {
+                  if (value == null || value.isEmpty) return 'Village is required';
+                  if (value.length < 2) return 'Village name is too short';
+                  return null;
+                },
+              ),
             ),
+            const SizedBox(height: 24),
+            AppFormSection(
+              title: 'Farm Size',
+              child: AppRadioGroup<String>(
+                items: _farmSizes,
+                selectedItem: _farmSize,
+                itemLabelBuilder: (item) => item,
+                onSelected: (value) {
+                  if (!isLoading) setState(() => _farmSize = value);
+                },
+              ),
+            ),
+            const SizedBox(height: 24),
+            AppFormSection(
+              title: 'Primary Crops',
+              description: 'Select up to 5 crops',
+              child: AppFilterChipGroup<String>(
+                items: _availableCrops,
+                selectedItems: _selectedCrops,
+                maxSelection: 5,
+                itemLabelBuilder: (item) => item,
+                onSelected: (crop, selected) {
+                  if (isLoading) return;
+                  setState(() {
+                    if (selected) {
+                      _selectedCrops.add(crop);
+                    } else {
+                      _selectedCrops.remove(crop);
+                    }
+                  });
+                },
+              ),
+            ),
+            const SizedBox(height: 32),
           ],
         ),
       ),
@@ -98,74 +137,6 @@ class _EditFarmerProfileScreenState
     );
     _selectedCrops = List.from(widget.profile.primaryCrops);
     _farmSize = widget.profile.farmSize;
-  }
-
-  Widget _buildCropsSection(bool isLoading) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Primary Crops (Select up to 5)',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-        ),
-        const SizedBox(height: 12),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: _availableCrops.map((crop) {
-            final isSelected = _selectedCrops.contains(crop);
-            return FilterChip(
-              label: Text(crop),
-              selected: isSelected,
-              onSelected: isLoading
-                  ? null
-                  : (selected) {
-                      setState(() {
-                        if (selected && _selectedCrops.length < 5) {
-                          _selectedCrops.add(crop);
-                        } else {
-                          _selectedCrops.remove(crop);
-                        }
-                      });
-                    },
-              selectedColor: AppColors.green.withAlpha(50),
-              checkmarkColor: AppColors.green,
-              backgroundColor: Colors.grey[200],
-            );
-          }).toList(),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildFarmSizeSection(bool isLoading) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Farm Size',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-        ),
-        const SizedBox(height: 12),
-        ..._farmSizes.map((size) {
-          return ListTile(
-            contentPadding: EdgeInsets.zero,
-            title: Text(size),
-            leading: Radio<String>(
-              value: size,
-              groupValue: _farmSize,
-              onChanged: isLoading
-                  ? null
-                  : (value) {
-                      if (value != null) setState(() => _farmSize = value);
-                    },
-              activeColor: AppColors.green,
-            ),
-            onTap: isLoading ? null : () => setState(() => _farmSize = size),
-          );
-        }),
-      ],
-    );
   }
 
   Widget _buildPhotoSection(bool isLoading, double? uploadProgress) {
@@ -192,17 +163,17 @@ class _EditFarmerProfileScreenState
                           fit: BoxFit.cover,
                         )
                       : null,
-                  color: Colors.grey[200],
+                  color: AppColors.lightGray.withAlpha(50),
                 ),
                 child: (_newPhoto == null && widget.profile.photoUrl == null)
-                    ? const Icon(Icons.person, size: 60, color: Colors.grey)
+                    ? const Icon(Icons.person, size: 60, color: AppColors.mediumGray)
                     : null,
               ),
               if (uploadProgress != null && uploadProgress > 0)
                 Positioned.fill(
                   child: CircularProgressIndicator(
                     value: uploadProgress,
-                    backgroundColor: Colors.grey[300],
+                    backgroundColor: AppColors.lightGray,
                     color: AppColors.green,
                   ),
                 ),
@@ -228,25 +199,12 @@ class _EditFarmerProfileScreenState
             ],
           ),
         ),
-        const SizedBox(height: 8),
-        Text(
+        const SizedBox(height: 12),
+        const Text(
           'Tap to change photo',
-          style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+          style: TextStyle(fontSize: 14, color: AppColors.mediumGray),
         ),
       ],
-    );
-  }
-
-  Widget _buildVillageField() {
-    return AppTextField(
-      controller: _villageController,
-      label: 'Village/Location',
-      prefixIcon: Icons.location_on_outlined,
-      validator: (value) {
-        if (value == null || value.isEmpty) return 'Village is required';
-        if (value.length < 2) return 'Village name is too short';
-        return null;
-      },
     );
   }
 
@@ -306,13 +264,13 @@ class _EditFarmerProfileScreenState
 
   void _showErrorSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.red),
+      SnackBar(content: Text(message), backgroundColor: AppColors.alertRed, behavior: SnackBarBehavior.floating),
     );
   }
 
   void _showSuccessSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: AppColors.green),
+      SnackBar(content: Text(message), backgroundColor: AppColors.green, behavior: SnackBarBehavior.floating),
     );
   }
 }

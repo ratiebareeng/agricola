@@ -1,4 +1,10 @@
 import 'package:agricola/core/providers/language_provider.dart';
+import 'package:agricola/core/theme/app_theme.dart';
+import 'package:agricola/core/widgets/app_date_field.dart';
+import 'package:agricola/core/widgets/app_dropdown_field.dart';
+import 'package:agricola/core/widgets/app_form_layout.dart';
+import 'package:agricola/core/widgets/app_form_section.dart';
+import 'package:agricola/core/widgets/app_text_field.dart';
 import 'package:agricola/features/crops/models/crop_catalog_entry.dart';
 import 'package:agricola/features/crops/providers/crop_catalog_provider.dart';
 import 'package:agricola/features/inventory/models/inventory_model.dart';
@@ -54,7 +60,7 @@ class _AddEditInventoryScreenState
             ?.map((e) => e.key)
             .toList() ??
         [];
-    // Build a display name lookup from catalog
+    
     final catalogEntries = catalogAsync.valueOrNull ?? <CropCatalogEntry>[];
     String cropLabel(String key) {
       final entry = catalogEntries.cast<CropCatalogEntry?>().firstWhere(
@@ -64,183 +70,113 @@ class _AddEditInventoryScreenState
       return entry?.displayName(currentLang) ?? t(key, currentLang);
     }
 
-    return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF1A1A1A)),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Text(
-          _isEditing
-              ? t('edit_inventory', currentLang)
-              : t('add_inventory', currentLang),
-          style: const TextStyle(
-            color: Color(0xFF1A1A1A),
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildSectionTitle(t('crop_type', currentLang)),
-                    const SizedBox(height: 8),
-                    _buildDropdownField(
-                      value: cropKeys.contains(_cropType) ? _cropType : (cropKeys.isNotEmpty ? cropKeys.first : _cropType),
-                      items: cropKeys.isEmpty ? [_cropType] : cropKeys,
-                      onChanged: (value) {
-                        if (value != null) setState(() => _cropType = value);
+    return AppFormLayout(
+      title: _isEditing
+          ? t('edit_inventory', currentLang)
+          : t('add_inventory', currentLang),
+      submitLabel: _isEditing
+          ? t('update_inventory', currentLang)
+          : t('save_inventory', currentLang),
+      onSubmit: _saveInventory,
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            AppFormSection(
+              title: t('crop_type', currentLang),
+              child: AppDropdownField<String>(
+                value: cropKeys.contains(_cropType) ? _cropType : (cropKeys.isNotEmpty ? cropKeys.first : _cropType),
+                items: cropKeys.isEmpty ? [_cropType] : cropKeys,
+                itemLabelBuilder: cropLabel,
+                onChanged: (value) {
+                  if (value != null) setState(() => _cropType = value);
+                },
+              ),
+            ),
+            const SizedBox(height: 24),
+            AppFormSection(
+              title: t('quantity', currentLang),
+              child: Row(
+                children: [
+                  Expanded(
+                    flex: 2,
+                    child: AppTextField(
+                      label: '', // Label is handled by AppFormSection
+                      initialValue: _isEditing ? _quantity.toString() : '',
+                      keyboardType: TextInputType.number,
+                      hint: t('enter_quantity', currentLang),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return t('quantity_required', currentLang);
+                        }
+                        final parsed = double.tryParse(value);
+                        if (parsed == null || parsed <= 0) {
+                          return t('quantity_invalid', currentLang);
+                        }
+                        return null;
                       },
-                      labelBuilder: cropLabel,
+                      onSaved: (value) => _quantity = double.parse(value!),
                     ),
-                    const SizedBox(height: 20),
-                    _buildSectionTitle(t('quantity', currentLang)),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Expanded(
-                          flex: 2,
-                          child: TextFormField(
-                            initialValue: _isEditing
-                                ? _quantity.toString()
-                                : '',
-                            keyboardType: TextInputType.number,
-                            decoration: InputDecoration(
-                              hintText: t('enter_quantity', currentLang),
-                              filled: true,
-                              fillColor: Colors.white,
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(
-                                  color: Colors.grey[300]!,
-                                ),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(
-                                  color: Colors.grey[300]!,
-                                ),
-                              ),
-                            ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return t('quantity_required', currentLang);
-                              }
-                              final parsed = double.tryParse(value);
-                              if (parsed == null || parsed <= 0) {
-                                return t('quantity_invalid', currentLang);
-                              }
-                              return null;
-                            },
-                            onSaved: (value) {
-                              _quantity = double.parse(value!);
-                            },
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: _buildDropdownField(
-                            value: _unit,
-                            items: _units,
-                            onChanged: (value) {
-                              if (value != null) setState(() => _unit = value);
-                            },
-                            labelBuilder: (item) => item,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                    _buildSectionTitle(t('storage_date', currentLang)),
-                    const SizedBox(height: 8),
-                    _buildDateField(currentLang),
-                    const SizedBox(height: 20),
-                    _buildSectionTitle(t('storage_location', currentLang)),
-                    const SizedBox(height: 8),
-                    _buildDropdownField(
-                      value: _storageLocation,
-                      items: _storageLocations,
-                      onChanged: (value) {
-                        if (value != null)
-                          setState(() => _storageLocation = value);
-                      },
-                      labelBuilder: (item) => item,
-                    ),
-                    const SizedBox(height: 20),
-                    _buildSectionTitle(t('condition', currentLang)),
-                    const SizedBox(height: 8),
-                    _buildConditionSelector(currentLang),
-                    const SizedBox(height: 20),
-                    _buildSectionTitle(
-                      '${t('notes', currentLang)} (${t('optional', currentLang)})',
-                    ),
-                    const SizedBox(height: 8),
-                    TextFormField(
-                      initialValue: _notes,
-                      maxLines: 3,
-                      decoration: InputDecoration(
-                        hintText: t('add_notes', currentLang),
-                        filled: true,
-                        fillColor: Colors.white,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: Colors.grey[300]!),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: Colors.grey[300]!),
-                        ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 22), // Align with text field
+                      child: AppDropdownField<String>(
+                        value: _unit,
+                        items: _units,
+                        itemLabelBuilder: (item) => item,
+                        onChanged: (value) {
+                          if (value != null) setState(() => _unit = value);
+                        },
                       ),
-                      onSaved: (value) {
-                        _notes = value?.isEmpty == true ? null : value;
-                      },
-                    ),
-                    const SizedBox(height: 20),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.all(20),
-            color: Colors.white,
-            child: SafeArea(
-              child: SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _saveInventory,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF2D6A4F),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: Text(
-                    _isEditing
-                        ? t('update_inventory', currentLang)
-                        : t('save_inventory', currentLang),
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
+                ],
               ),
             ),
-          ),
-        ],
+            const SizedBox(height: 24),
+            AppFormSection(
+              title: t('storage_date', currentLang),
+              child: AppDateField(
+                value: _storageDate,
+                onChanged: (picked) => setState(() => _storageDate = picked),
+                lastDate: DateTime.now(),
+              ),
+            ),
+            const SizedBox(height: 24),
+            AppFormSection(
+              title: t('storage_location', currentLang),
+              child: AppDropdownField<String>(
+                value: _storageLocation,
+                items: _storageLocations,
+                itemLabelBuilder: (item) => item,
+                onChanged: (value) {
+                  if (value != null) setState(() => _storageLocation = value);
+                },
+              ),
+            ),
+            const SizedBox(height: 24),
+            AppFormSection(
+              title: t('condition', currentLang),
+              child: _buildConditionSelector(currentLang),
+            ),
+            const SizedBox(height: 24),
+            AppFormSection(
+              title: t('notes', currentLang),
+              description: t('optional', currentLang),
+              child: AppTextField(
+                label: '',
+                initialValue: _notes,
+                maxLines: 3,
+                hint: t('add_notes', currentLang),
+                onSaved: (value) => _notes = value?.isEmpty == true ? null : value,
+              ),
+            ),
+            const SizedBox(height: 32),
+          ],
+        ),
       ),
     );
   }
@@ -280,10 +216,10 @@ class _AddEditInventoryScreenState
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             decoration: BoxDecoration(
-              color: isSelected ? color.withAlpha(30) : Colors.white,
+              color: isSelected ? color.withAlpha(30) : AppColors.white,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: isSelected ? color : Colors.grey[300]!,
+                color: isSelected ? color : AppColors.lightGray,
                 width: isSelected ? 2 : 1,
               ),
             ),
@@ -293,17 +229,15 @@ class _AddEditInventoryScreenState
                 Icon(
                   _getConditionIcon(condition),
                   size: 16,
-                  color: isSelected ? color : Colors.grey[600],
+                  color: isSelected ? color : AppColors.mediumGray,
                 ),
                 const SizedBox(width: 6),
                 Text(
                   t(condition, lang),
                   style: TextStyle(
                     fontSize: 13,
-                    fontWeight: isSelected
-                        ? FontWeight.bold
-                        : FontWeight.normal,
-                    color: isSelected ? color : Colors.grey[700],
+                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                    color: isSelected ? color : AppColors.darkGray,
                   ),
                 ),
               ],
@@ -314,118 +248,20 @@ class _AddEditInventoryScreenState
     );
   }
 
-  Widget _buildDateField(AppLanguage lang) {
-    return GestureDetector(
-      onTap: () async {
-        final picked = await showDatePicker(
-          context: context,
-          initialDate: _storageDate,
-          firstDate: DateTime(2020),
-          lastDate: DateTime.now(),
-        );
-        if (picked != null) {
-          setState(() => _storageDate = picked);
-        }
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey[300]!),
-        ),
-        child: Row(
-          children: [
-            const Icon(
-              Icons.calendar_today,
-              size: 20,
-              color: Color(0xFF2D6A4F),
-            ),
-            const SizedBox(width: 12),
-            Text(
-              _formatDate(_storageDate),
-              style: const TextStyle(fontSize: 16),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDropdownField({
-    required String value,
-    required List<String> items,
-    required void Function(String?) onChanged,
-    required String Function(String) labelBuilder,
-  }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey[300]!),
-      ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-          value: value,
-          isExpanded: true,
-          items: items
-              .map(
-                (item) => DropdownMenuItem(
-                  value: item,
-                  child: Text(labelBuilder(item)),
-                ),
-              )
-              .toList(),
-          onChanged: onChanged,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSectionTitle(String title) {
-    return Text(
-      title,
-      style: const TextStyle(
-        fontSize: 14,
-        fontWeight: FontWeight.w600,
-        color: Color(0xFF1A1A1A),
-      ),
-    );
-  }
-
-  String _formatDate(DateTime date) {
-    final months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ];
-    return '${months[date.month - 1]} ${date.day}, ${date.year}';
-  }
-
   Color _getConditionColor(String condition) {
     switch (condition) {
       case 'excellent':
         return Colors.green[700]!;
       case 'good':
-        return Colors.green[500]!;
+        return AppColors.green;
       case 'fair':
         return Colors.orange[600]!;
       case 'needs_attention':
         return Colors.orange[800]!;
       case 'critical':
-        return Colors.red[700]!;
+        return AppColors.alertRed;
       default:
-        return Colors.grey[600]!;
+        return AppColors.mediumGray;
     }
   }
 

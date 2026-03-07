@@ -11,7 +11,9 @@ class AppTextField extends StatelessWidget {
   final IconData? prefixIcon;
   final String? Function(String?)? validator;
   final void Function(String)? onChanged;
+  final void Function(String?)? onSaved;
   final String? initialValue;
+  final int? maxLines;
 
   const AppTextField({
     super.key,
@@ -24,7 +26,9 @@ class AppTextField extends StatelessWidget {
     this.prefixIcon,
     this.validator,
     this.onChanged,
+    this.onSaved,
     this.initialValue,
+    this.maxLines = 1,
   });
 
   @override
@@ -45,8 +49,10 @@ class AppTextField extends StatelessWidget {
           initialValue: initialValue,
           controller: controller,
           onChanged: onChanged,
+          onSaved: onSaved,
           obscureText: obscureText,
           keyboardType: keyboardType,
+          maxLines: maxLines,
           validator: validator,
           style: const TextStyle(fontSize: 16, color: AppColors.darkGray),
           decoration: InputDecoration(

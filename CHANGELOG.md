@@ -1,3 +1,21 @@
+## 0.14.0 - 2026-03-07
+
+### Added
+- **Reusable Form Widgets** — new modular components for consistent and simplified data entry
+  - `AppFormLayout`: Shared scaffold with scrollable body and pinned bottom button
+  - `AppFormSection`: Standardized headers with optional description and info tooltips
+  - `AppDropdownField`: Consistent dropdown styling across all forms
+  - `AppDateField`: Simplified date picker with standardized icon and formatting
+  - `AppFilterChipGroup`: Reusable multi-select chip groups with max selection limit
+  - `AppRadioGroup`: Standardized single-select list items
+
+### Refactored
+- **Forms Architecture** — refactored several screens to use the new standardized components:
+  - `AddEditInventoryScreen`: Simplified inventory CRUD forms
+  - `EditFarmerProfileScreen`: Refactored profile update with new selection widgets
+  - `AddEditCropScreen`: Reorganized complex multi-step crop form using form layout and sections
+- **AppTextField** — enhanced with `onSaved`, `maxLines`, and `initialValue` for better form integration
+
 ## 0.13.0 - 2026-03-07
 
 ### Added

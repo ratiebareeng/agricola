@@ -1,5 +1,11 @@
 import 'package:agricola/core/providers/language_provider.dart';
-import 'package:agricola/core/widgets/info_tooltip.dart';
+import 'package:agricola/core/theme/app_theme.dart';
+import 'package:agricola/core/widgets/app_buttons.dart';
+import 'package:agricola/core/widgets/app_date_field.dart';
+import 'package:agricola/core/widgets/app_dropdown_field.dart';
+import 'package:agricola/core/widgets/app_form_layout.dart';
+import 'package:agricola/core/widgets/app_form_section.dart';
+import 'package:agricola/core/widgets/app_text_field.dart';
 import 'package:agricola/core/widgets/step_indicator.dart';
 import 'package:agricola/features/crops/models/crop_catalog_entry.dart';
 import 'package:agricola/features/crops/models/crop_model.dart';
@@ -50,93 +56,32 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
     final currentLang = ref.watch(languageProvider);
     final isEditing = widget.existingCrop != null;
 
-    return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
-      appBar: AppBar(
-        title: Text(t(isEditing ? 'edit_crop' : 'add_crop', currentLang)),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black87,
-        elevation: 0,
-      ),
-      body: Form(
+    return AppFormLayout(
+      title: t(isEditing ? 'edit_crop' : 'add_crop', currentLang),
+      bottomWidget: _buildBottomNavigationBar(currentLang),
+      child: Form(
         key: _formKey,
         child: Column(
           children: [
             Container(
-              padding: const EdgeInsets.all(20),
-              color: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 16),
               child: Column(
                 children: [
                   StepIndicator(currentStep: _currentStep, totalSteps: 3),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 16),
                   Text(
                     _getStepTitle(currentLang),
                     style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF1A1A1A),
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.darkGray,
                     ),
                   ),
                 ],
               ),
             ),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(20),
-                child: _buildStepContent(currentLang),
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withAlpha(25),
-                    blurRadius: 10,
-                    offset: const Offset(0, -4),
-                  ),
-                ],
-              ),
-              child: Row(
-                children: [
-                  if (_currentStep > 0)
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: _previousStep,
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          side: const BorderSide(color: Color(0xFF2D6A4F)),
-                        ),
-                        child: Text(t('back', currentLang)),
-                      ),
-                    ),
-                  if (_currentStep > 0) const SizedBox(width: 16),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: _currentStep < 2 ? _nextStep : _saveCrop,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF2D6A4F),
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        elevation: 0,
-                      ),
-                      child: Text(
-                        _currentStep < 2
-                            ? t('next', currentLang)
-                            : t('save', currentLang),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            const SizedBox(height: 16),
+            _buildStepContent(currentLang),
           ],
         ),
       ),
@@ -161,17 +106,41 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
     }
   }
 
-  void _autoCalculateHarvestDate() {
-    final harvestDaysMap = ref.read(harvestDaysProvider).valueOrNull ?? {};
-
-    if (_selectedCropTypes.isNotEmpty) {
-      setState(() {
-        final firstCrop = _selectedCropTypes.first;
-        _expectedHarvestDate = _plantingDate.add(
-          Duration(days: harvestDaysMap[firstCrop] ?? 90),
-        );
-      });
-    }
+  Widget _buildBottomNavigationBar(AppLanguage lang) {
+    return Container(
+      padding: const EdgeInsets.all(24.0),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withAlpha(13),
+            blurRadius: 10,
+            offset: const Offset(0, -4),
+          ),
+        ],
+      ),
+      child: SafeArea(
+        child: Row(
+          children: [
+            if (_currentStep > 0) ...[
+              Expanded(
+                child: AppSecondaryButton(
+                  label: t('back', lang),
+                  onTap: _previousStep,
+                ),
+              ),
+              const SizedBox(width: 16),
+            ],
+            Expanded(
+              child: AppPrimaryButton(
+                label: _currentStep < 2 ? t('next', lang) : t('save', lang),
+                onTap: _currentStep < 2 ? _nextStep : _saveCrop,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildCropDetailsStep(AppLanguage lang) {
@@ -180,293 +149,158 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            Text(
-              t('crop_type', lang),
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF1A1A1A),
-              ),
-            ),
-            const SizedBox(width: 8),
-            const InfoTooltip(message: 'Select the crop you are planting'),
-          ],
-        ),
-        const SizedBox(height: 8),
-        if (_selectedCropTypes.isEmpty)
-          Padding(
-            padding: const EdgeInsets.only(top: 8),
-            child: Text(
-              t('required', lang),
-              style: const TextStyle(fontSize: 12, color: Colors.red),
-            ),
-          ),
-        const SizedBox(height: 12),
-        catalogByCategory.when(
-          data: (categoryMap) => Column(
+        AppFormSection(
+          title: t('crop_type', lang),
+          tooltip: 'Select the crop you are planting',
+          isRequired: true,
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: categoryMap.entries.map((entry) {
-              final categoryKey = entry.key;
-              final crops = entry.value;
+            children: [
+              catalogByCategory.when(
+                data: (categoryMap) => Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: categoryMap.entries.map((entry) {
+                    final categoryKey = entry.key;
+                    final crops = entry.value;
 
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 8, top: 8),
-                    child: Text(
-                      t(categoryKey, lang),
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.grey[700],
-                      ),
-                    ),
-                  ),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: crops.map((catalogEntry) {
-                      final isSelected = _selectedCropTypes.contains(
-                        catalogEntry.key,
-                      );
-                      return FilterChip(
-                        label: Text(catalogEntry.displayName(lang)),
-                        selected: isSelected,
-                        onSelected: (selected) {
-                          setState(() {
-                            if (selected) {
-                              _selectedCropTypes = {catalogEntry.key};
-                              _otherCropSelected = false;
-                            } else {
-                              _selectedCropTypes.remove(catalogEntry.key);
-                            }
-                            _autoCalculateHarvestDate();
-                          });
-                        },
-                        selectedColor: const Color(0xFF2D6A4F).withAlpha(51),
-                        checkmarkColor: const Color(0xFF2D6A4F),
-                        backgroundColor: Colors.white,
-                        side: BorderSide(
-                          color: isSelected
-                              ? const Color(0xFF2D6A4F)
-                              : Colors.grey[300]!,
-                          width: isSelected ? 2 : 1,
-                        ),
-                        labelStyle: TextStyle(
-                          color: isSelected
-                              ? const Color(0xFF2D6A4F)
-                              : Colors.black87,
-                          fontWeight: isSelected
-                              ? FontWeight.w600
-                              : FontWeight.normal,
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                ],
-              );
-            }).toList(),
-          ),
-          loading: () => const Center(
-            child: Padding(
-              padding: EdgeInsets.all(20),
-              child: CircularProgressIndicator(color: Color(0xFF2D6A4F)),
-            ),
-          ),
-          error: (e, _) => Padding(
-            padding: const EdgeInsets.all(12),
-            child: Text(
-              'Failed to load crop catalog',
-              style: TextStyle(color: Colors.red[700]),
-            ),
-          ),
-        ),
-        const SizedBox(height: 16),
-        FilterChip(
-          label: Text(t('other', lang)),
-          selected: _otherCropSelected,
-          onSelected: (selected) {
-            setState(() {
-              _otherCropSelected = selected;
-              if (selected) {
-                _selectedCropTypes.clear();
-              } else {
-                _otherCropNameController.clear();
-              }
-            });
-          },
-          selectedColor: const Color(0xFF2D6A4F).withAlpha(51),
-          checkmarkColor: const Color(0xFF2D6A4F),
-          backgroundColor: Colors.white,
-          side: BorderSide(
-            color: _otherCropSelected
-                ? const Color(0xFF2D6A4F)
-                : Colors.grey[300]!,
-            width: _otherCropSelected ? 2 : 1,
-          ),
-          labelStyle: TextStyle(
-            color: _otherCropSelected
-                ? const Color(0xFF2D6A4F)
-                : Colors.black87,
-            fontWeight: _otherCropSelected
-                ? FontWeight.w600
-                : FontWeight.normal,
-          ),
-        ),
-        if (_otherCropSelected)
-          Padding(
-            padding: const EdgeInsets.only(top: 12),
-            child: TextFormField(
-              controller: _otherCropNameController,
-              decoration: InputDecoration(
-                labelText: t('specify_other_crop', lang),
-                hintText: t('enter_crop_name', lang),
-                filled: true,
-                fillColor: Colors.white,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.grey[300]!),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.grey[300]!),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(
-                    color: Color(0xFF2D6A4F),
-                    width: 2,
-                  ),
-                ),
-              ),
-              validator: (value) {
-                if (!_otherCropSelected) {
-                  return null;
-                }
-                return value?.isEmpty ?? true ? t('required', lang) : null;
-              },
-              onEditingComplete: () {},
-              onFieldSubmitted: (newValue) {
-                if (newValue.isEmpty || _selectedCropTypes.contains(newValue)) {
-                  return;
-                }
-
-                setState(() {
-                  _selectedCropTypes = {newValue};
-                  _autoCalculateHarvestDate();
-                });
-              },
-            ),
-          ),
-
-        if (_selectedCropTypes.isNotEmpty)
-          Padding(
-            padding: const EdgeInsets.only(top: 12),
-            child: Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: const Color(0xFF2D6A4F).withAlpha(26),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.check_circle,
-                        color: Color(0xFF2D6A4F),
-                        size: 20,
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          '${_selectedCropTypes.length} ${t(_selectedCropTypes.length == 1 ? "crop_selected" : "crops_selected", lang)}',
-                          style: const TextStyle(
-                            color: Color(0xFF2D6A4F),
-                            fontWeight: FontWeight.w600,
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 8, top: 8),
+                          child: Text(
+                            t(categoryKey, lang),
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.mediumGray,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                  if (_selectedCropTypes.any(
-                    (crop) => _isCustomCrop(crop),
-                  )) ...[
-                    const SizedBox(height: 12),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: _selectedCropTypes
-                          .where((cropType) => _isCustomCrop(cropType))
-                          .map((cropType) {
-                            return Chip(
-                              label: Text(cropType),
-                              deleteIcon: const Icon(Icons.close, size: 18),
-                              onDeleted: () {
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: crops.map((catalogEntry) {
+                            final isSelected = _selectedCropTypes.contains(
+                              catalogEntry.key,
+                            );
+                            return FilterChip(
+                              label: Text(catalogEntry.displayName(lang)),
+                              selected: isSelected,
+                              onSelected: (selected) {
                                 setState(() {
-                                  _selectedCropTypes.remove(cropType);
+                                  if (selected) {
+                                    _selectedCropTypes = {catalogEntry.key};
+                                    _otherCropSelected = false;
+                                  } else {
+                                    _selectedCropTypes.remove(catalogEntry.key);
+                                  }
                                   _autoCalculateHarvestDate();
                                 });
                               },
-                              backgroundColor: const Color(
-                                0xFF2D6A4F,
-                              ).withAlpha(51),
-                              labelStyle: const TextStyle(
-                                color: Color(0xFF2D6A4F),
-                                fontWeight: FontWeight.w600,
+                              selectedColor: AppColors.green.withAlpha(50),
+                              checkmarkColor: AppColors.green,
+                              backgroundColor: AppColors.white,
+                              side: BorderSide(
+                                color: isSelected
+                                    ? AppColors.green
+                                    : AppColors.lightGray,
+                                width: isSelected ? 2 : 1,
                               ),
-                              deleteIconColor: const Color(0xFF2D6A4F),
+                              labelStyle: TextStyle(
+                                color: isSelected
+                                    ? AppColors.green
+                                    : AppColors.darkGray,
+                                fontWeight: isSelected
+                                    ? FontWeight.bold
+                                    : FontWeight.normal,
+                              ),
                             );
-                          })
-                          .toList(),
-                    ),
-                  ],
-                ],
+                          }).toList(),
+                        ),
+                      ],
+                    );
+                  }).toList(),
+                ),
+                loading: () => const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(20),
+                    child: CircularProgressIndicator(color: AppColors.green),
+                  ),
+                ),
+                error: (e, _) => Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Text(
+                    'Failed to load crop catalog',
+                    style: TextStyle(color: AppColors.alertRed),
+                  ),
+                ),
               ),
-            ),
+              const SizedBox(height: 16),
+              FilterChip(
+                label: Text(t('other', lang)),
+                selected: _otherCropSelected,
+                onSelected: (selected) {
+                  setState(() {
+                    _otherCropSelected = selected;
+                    if (selected) {
+                      _selectedCropTypes.clear();
+                    } else {
+                      _otherCropNameController.clear();
+                    }
+                  });
+                },
+                selectedColor: AppColors.green.withAlpha(50),
+                checkmarkColor: AppColors.green,
+                backgroundColor: AppColors.white,
+                side: BorderSide(
+                  color: _otherCropSelected
+                      ? AppColors.green
+                      : AppColors.lightGray,
+                  width: _otherCropSelected ? 2 : 1,
+                ),
+                labelStyle: TextStyle(
+                  color: _otherCropSelected
+                      ? AppColors.green
+                      : AppColors.darkGray,
+                  fontWeight: _otherCropSelected
+                      ? FontWeight.bold
+                      : FontWeight.normal,
+                ),
+              ),
+              if (_otherCropSelected)
+                Padding(
+                  padding: const EdgeInsets.only(top: 12),
+                  child: AppTextField(
+                    label: t('specify_other_crop', lang),
+                    hint: t('enter_crop_name', lang),
+                    controller: _otherCropNameController,
+                    validator: (value) {
+                      if (!_otherCropSelected) return null;
+                      return value?.isEmpty ?? true ? t('required', lang) : null;
+                    },
+                    onChanged: (newValue) {
+                      if (newValue.isNotEmpty) {
+                        setState(() {
+                          _selectedCropTypes = {newValue};
+                          _autoCalculateHarvestDate();
+                        });
+                      }
+                    },
+                  ),
+                ),
+            ],
           ),
-        const SizedBox(height: 24),
-        Row(
-          children: [
-            Text(
-              t('field_name', lang),
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF1A1A1A),
-              ),
-            ),
-            const SizedBox(width: 8),
-            InfoTooltip(message: 'Optional - will auto-generate name if empty'),
-          ],
         ),
-        const SizedBox(height: 12),
-        TextFormField(
-          controller: _fieldNameController,
-          decoration: InputDecoration(
-            hintText: t('enter_field_name', lang),
-            filled: true,
-            fillColor: Colors.white,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.grey[300]!),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.grey[300]!),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFF2D6A4F), width: 2),
-            ),
+        const SizedBox(height: 24),
+        AppFormSection(
+          title: t('field_name', lang),
+          tooltip: 'Optional - will auto-generate name if empty',
+          child: AppTextField(
+            label: '',
+            controller: _fieldNameController,
+            hint: t('enter_field_name', lang),
           ),
-          validator: (value) {
-            return null;
-          },
         ),
       ],
     );
@@ -476,198 +310,69 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            Text(
-              t('field_size', lang),
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF1A1A1A),
+        AppFormSection(
+          title: t('field_size', lang),
+          isRequired: true,
+          child: Row(
+            children: [
+              Expanded(
+                flex: 2,
+                child: AppTextField(
+                  label: '',
+                  controller: _fieldSizeController,
+                  keyboardType: TextInputType.number,
+                  hint: '0.0',
+                  validator: (value) {
+                    if (value?.isEmpty ?? true) return t('required', lang);
+                    if (double.tryParse(value!) == null) {
+                      return 'Enter a valid number';
+                    }
+                    return null;
+                  },
+                ),
               ),
-            ),
-            const SizedBox(width: 8),
-            const InfoTooltip(message: 'Enter the size of your field'),
-          ],
-        ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(
-              flex: 2,
-              child: TextFormField(
-                controller: _fieldSizeController,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  hintText: '0.0',
-                  filled: true,
-                  fillColor: Colors.white,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: Colors.grey[300]!),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: Colors.grey[300]!),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(
-                      color: Color(0xFF2D6A4F),
-                      width: 2,
-                    ),
+              const SizedBox(width: 12),
+              Expanded(
+                flex: 2,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 22),
+                  child: AppDropdownField<String>(
+                    value: _selectedSizeUnit,
+                    items: _sizeUnits,
+                    itemLabelBuilder: (unit) => t(unit, lang),
+                    onChanged: (value) {
+                      setState(() => _selectedSizeUnit = value!);
+                    },
                   ),
                 ),
-                validator: (value) {
-                  if (value?.isEmpty ?? true) return t('required', lang);
-                  if (double.tryParse(value!) == null) {
-                    return 'Enter a valid number';
-                  }
-                  return null;
-                },
               ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              flex: 2,
-              child: DropdownButtonFormField<String>(
-                initialValue: _selectedSizeUnit,
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: Colors.white,
-                  isDense: true,
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 16,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: Colors.grey[300]!),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: Colors.grey[300]!),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(
-                      color: Color(0xFF2D6A4F),
-                      width: 2,
-                    ),
-                  ),
-                ),
-                items: _sizeUnits.map((unit) {
-                  return DropdownMenuItem(
-                    value: unit,
-                    child: Text(
-                      t(unit, lang),
-                      style: const TextStyle(fontSize: 14),
-                    ),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  setState(() => _selectedSizeUnit = value!);
-                },
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 24),
-        Text(
-          t('planting_date', lang),
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: Color(0xFF1A1A1A),
+            ],
           ),
         ),
-        const SizedBox(height: 12),
-        InkWell(
-          onTap: () async {
-            final date = await showDatePicker(
-              context: context,
-              initialDate: _plantingDate,
-              firstDate: DateTime(2020),
-              lastDate: DateTime.now(),
-            );
-            if (date != null) {
+        const SizedBox(height: 24),
+        AppFormSection(
+          title: t('planting_date', lang),
+          isRequired: true,
+          child: AppDateField(
+            value: _plantingDate,
+            onChanged: (date) {
               setState(() {
                 _plantingDate = date;
                 _autoCalculateHarvestDate();
               });
-            }
-          },
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.grey[300]!),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.calendar_today, color: Color(0xFF2D6A4F)),
-                const SizedBox(width: 12),
-                Text(
-                  '${_plantingDate.day}/${_plantingDate.month}/${_plantingDate.year}',
-                  style: const TextStyle(fontSize: 16),
-                ),
-              ],
-            ),
+            },
+            lastDate: DateTime.now(),
           ),
         ),
         const SizedBox(height: 24),
-        Row(
-          children: [
-            Text(
-              t('expected_harvest_date', lang),
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF1A1A1A),
-              ),
-            ),
-            const SizedBox(width: 8),
-            const InfoTooltip(message: 'Auto-calculated based on crop type'),
-          ],
-        ),
-        const SizedBox(height: 12),
-        InkWell(
-          onTap: () async {
-            final date = await showDatePicker(
-              context: context,
-              initialDate: _expectedHarvestDate ?? DateTime.now(),
-              firstDate: _plantingDate,
-              lastDate: DateTime(2030),
-            );
-            if (date != null) {
-              setState(() => _expectedHarvestDate = date);
-            }
-          },
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.grey[300]!),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.calendar_today, color: Color(0xFF2D6A4F)),
-                const SizedBox(width: 12),
-                Text(
-                  _expectedHarvestDate != null
-                      ? '${_expectedHarvestDate!.day}/${_expectedHarvestDate!.month}/${_expectedHarvestDate!.year}'
-                      : t('auto_calculate_harvest', lang),
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: _expectedHarvestDate != null
-                        ? Colors.black87
-                        : Colors.grey[600],
-                  ),
-                ),
-              ],
-            ),
+        AppFormSection(
+          title: t('expected_harvest_date', lang),
+          tooltip: 'Auto-calculated based on crop type',
+          child: AppDateField(
+            value: _expectedHarvestDate ?? DateTime.now(),
+            onChanged: (date) => setState(() => _expectedHarvestDate = date),
+            firstDate: _plantingDate,
+            hint: t('auto_calculate_harvest', lang),
           ),
         ),
       ],
@@ -688,259 +393,157 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
   }
 
   Widget _buildYieldStorageStep(AppLanguage lang) {
+    final yieldText = _estimatedYieldController.text;
+    final hasValidYield = yieldText.isNotEmpty && double.tryParse(yieldText) != null;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            Text(
-              t('estimated_yield', lang),
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF1A1A1A),
+        AppFormSection(
+          title: t('estimated_yield', lang),
+          tooltip: 'Estimate your expected yield',
+          isRequired: true,
+          child: Row(
+            children: [
+              Expanded(
+                flex: 2,
+                child: AppTextField(
+                  label: '',
+                  controller: _estimatedYieldController,
+                  keyboardType: TextInputType.number,
+                  hint: '0.0',
+                  validator: (value) {
+                    if (value?.isEmpty ?? true) return t('required', lang);
+                    if (double.tryParse(value!) == null) {
+                      return 'Enter a valid number';
+                    }
+                    return null;
+                  },
+                  onChanged: (_) => setState(() {}),
+                ),
               ),
-            ),
-            const SizedBox(width: 8),
-            const InfoTooltip(message: 'Estimate your expected yield'),
-          ],
-        ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(
-              flex: 2,
-              child: TextFormField(
-                controller: _estimatedYieldController,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  hintText: '0.0',
-                  filled: true,
-                  fillColor: Colors.white,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: Colors.grey[300]!),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: Colors.grey[300]!),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(
-                      color: Color(0xFF2D6A4F),
-                      width: 2,
-                    ),
+              const SizedBox(width: 12),
+              Expanded(
+                flex: 2,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 22),
+                  child: AppDropdownField<String>(
+                    value: _selectedYieldUnit,
+                    items: _yieldUnits,
+                    itemLabelBuilder: (unit) => t(unit, lang),
+                    onChanged: (value) {
+                      setState(() => _selectedYieldUnit = value!);
+                    },
                   ),
                 ),
-                validator: (value) {
-                  if (value?.isEmpty ?? true) return t('required', lang);
-                  if (double.tryParse(value!) == null) {
-                    return 'Enter a valid number';
-                  }
-                  return null;
-                },
-                onChanged: (_) => setState(() {}),
               ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              flex: 2,
-              child: DropdownButtonFormField<String>(
-                initialValue: _selectedYieldUnit,
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: Colors.white,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: Colors.grey[300]!),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: Colors.grey[300]!),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(
-                      color: Color(0xFF2D6A4F),
-                      width: 2,
-                    ),
-                  ),
-                ),
-                items: _yieldUnits.map((unit) {
-                  return DropdownMenuItem(
-                    value: unit,
-                    child: Text(t(unit, lang)),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  setState(() => _selectedYieldUnit = value!);
-                },
-              ),
-            ),
-          ],
-        ),
-        if (_estimatedYieldController.text.isNotEmpty &&
-            double.tryParse(_estimatedYieldController.text) != null) ...[
-          const SizedBox(height: 16),
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.orange.withAlpha(26),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.orange.withAlpha(51)),
-            ),
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    const Icon(
-                      Icons.warning_amber,
-                      color: Colors.orange,
-                      size: 20,
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      t('post_harvest_loss', lang),
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.orange,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      t('estimated_loss_15', lang),
-                      style: TextStyle(fontSize: 13, color: Colors.grey[700]),
-                    ),
-                    Text(
-                      '${(double.parse(_estimatedYieldController.text) * 0.15).toStringAsFixed(1)} ${t(_selectedYieldUnit, lang)}',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.orange,
-                      ),
-                    ),
-                  ],
-                ),
-                const Divider(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      t('expected_after_loss', lang),
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      '${(double.parse(_estimatedYieldController.text) * 0.85).toStringAsFixed(1)} ${t(_selectedYieldUnit, lang)}',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF2D6A4F),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+            ],
           ),
+        ),
+        if (hasValidYield) ...[
+          const SizedBox(height: 16),
+          _buildLossCalculationCard(lang, double.parse(yieldText)),
         ],
         const SizedBox(height: 24),
-        Row(
-          children: [
-            Text(
-              t('storage_method', lang),
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF1A1A1A),
-              ),
-            ),
-            const SizedBox(width: 8),
-            const InfoTooltip(message: 'How will you store your harvest?'),
-          ],
-        ),
-        const SizedBox(height: 12),
-        DropdownButtonFormField<String>(
-          initialValue: _selectedStorageMethod,
-          decoration: InputDecoration(
-            hintText: 'Select storage method',
-            filled: true,
-            fillColor: Colors.white,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.grey[300]!),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.grey[300]!),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFF2D6A4F), width: 2),
-            ),
+        AppFormSection(
+          title: t('storage_method', lang),
+          tooltip: 'How will you store your harvest?',
+          isRequired: true,
+          child: AppDropdownField<String>(
+            value: _selectedStorageMethod,
+            items: _storageMethods,
+            itemLabelBuilder: (method) => t(method, lang),
+            hint: 'Select storage method',
+            onChanged: (value) => setState(() => _selectedStorageMethod = value),
+            validator: (value) => value == null ? t('required', lang) : null,
           ),
-          items: _storageMethods.map((method) {
-            return DropdownMenuItem(
-              value: method,
-              child: Text(t(method, lang)),
-            );
-          }).toList(),
-          onChanged: (value) {
-            setState(() => _selectedStorageMethod = value);
-          },
-          validator: (value) => value == null ? t('required', lang) : null,
         ),
         const SizedBox(height: 24),
-        Row(
-          children: [
-            Text(
-              t('notes', lang),
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF1A1A1A),
-              ),
-            ),
-            const SizedBox(width: 8),
-            Text(
-              '(${t('optional', lang)})',
-              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        TextFormField(
-          controller: _notesController,
-          maxLines: 4,
-          decoration: InputDecoration(
-            hintText: 'Add any additional information...',
-            filled: true,
-            fillColor: Colors.white,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.grey[300]!),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.grey[300]!),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFF2D6A4F), width: 2),
-            ),
+        AppFormSection(
+          title: t('notes', lang),
+          description: t('optional', lang),
+          child: AppTextField(
+            label: '',
+            controller: _notesController,
+            maxLines: 4,
+            hint: 'Add any additional information...',
           ),
         ),
       ],
     );
+  }
+
+  Widget _buildLossCalculationCard(AppLanguage lang, double yieldValue) {
+    final loss = yieldValue * 0.15;
+    final afterLoss = yieldValue * 0.85;
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.orange.withAlpha(26),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.orange.withAlpha(51)),
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.warning_amber, color: Colors.orange, size: 20),
+              const SizedBox(width: 8),
+              Text(
+                t('post_harvest_loss', lang),
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.orange,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          _buildLossRow(t('estimated_loss_15', lang), '${loss.toStringAsFixed(1)} ${t(_selectedYieldUnit, lang)}', Colors.orange),
+          const Divider(height: 20),
+          _buildLossRow(t('expected_after_loss', lang), '${afterLoss.toStringAsFixed(1)} ${t(_selectedYieldUnit, lang)}', AppColors.green, isBold: true),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLossRow(String label, String value, Color valueColor, {bool isBold = false}) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+            color: isBold ? AppColors.darkGray : AppColors.mediumGray,
+          ),
+        ),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: isBold ? 16 : 14,
+            fontWeight: FontWeight.bold,
+            color: valueColor,
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _autoCalculateHarvestDate() {
+    final harvestDaysMap = ref.read(harvestDaysProvider).valueOrNull ?? {};
+
+    if (_selectedCropTypes.isNotEmpty) {
+      setState(() {
+        final firstCrop = _selectedCropTypes.first;
+        _expectedHarvestDate = _plantingDate.add(
+          Duration(days: harvestDaysMap[firstCrop] ?? 90),
+        );
+      });
+    }
   }
 
   String _getStepTitle(AppLanguage lang) {
@@ -954,12 +557,6 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
       default:
         return '';
     }
-  }
-
-  /// Check if a crop key is a custom "other" crop (not in the catalog)
-  bool _isCustomCrop(String cropKey) {
-    final catalog = ref.read(cropCatalogProvider).valueOrNull ?? [];
-    return !catalog.any((e) => e.key == cropKey) && cropKey != 'other';
   }
 
   void _loadExistingCrop() {
@@ -980,10 +577,9 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
     if (_currentStep == 0 && _selectedCropTypes.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            t('select_at_least_one_crop', ref.watch(languageProvider)),
-          ),
-          backgroundColor: Colors.red,
+          content: Text(t('select_at_least_one_crop', ref.watch(languageProvider))),
+          backgroundColor: AppColors.alertRed,
+          behavior: SnackBarBehavior.floating,
         ),
       );
       return;
@@ -1011,7 +607,6 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
           ? _otherCropNameController.text
           : cropType;
 
-      // Try to get display name from catalog, fall back to t() for custom crops
       final catalogEntry = catalog.cast<CropCatalogEntry?>().firstWhere(
         (e) => e?.key == cropType,
         orElse: () => null,
