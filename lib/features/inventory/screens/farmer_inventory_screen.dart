@@ -1,5 +1,6 @@
 import 'package:agricola/core/providers/database_provider.dart';
 import 'package:agricola/core/providers/language_provider.dart';
+import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/core/providers/offline_settings_provider.dart';
 import 'package:agricola/features/crops/models/crop_catalog_entry.dart';
 import 'package:agricola/features/crops/providers/crop_catalog_provider.dart';
@@ -180,7 +181,7 @@ class _FarmerInventoryScreenState extends ConsumerState<FarmerInventoryScreen> {
                             child: Container(
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
-                                color: Colors.orange.withAlpha(10),
+                                color: AppColors.warmYellow.withAlpha(10),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Column(
@@ -188,18 +189,18 @@ class _FarmerInventoryScreenState extends ConsumerState<FarmerInventoryScreen> {
                                 children: [
                                   Row(
                                     children: [
-                                      Icon(
+                                      const Icon(
                                         Icons.warning_amber,
                                         size: 18,
-                                        color: Colors.orange[700],
+                                        color: AppColors.warmYellow,
                                       ),
                                       const SizedBox(width: 6),
                                       Expanded(
                                         child: Text(
                                           t('items_needing_attention', currentLang),
-                                          style: TextStyle(
+                                          style: const TextStyle(
                                             fontSize: 12,
-                                            color: Colors.orange[700],
+                                            color: AppColors.warmYellow,
                                           ),
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
@@ -210,10 +211,10 @@ class _FarmerInventoryScreenState extends ConsumerState<FarmerInventoryScreen> {
                                   const SizedBox(height: 8),
                                   Text(
                                     '$itemsNeedingAttention',
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       fontSize: 22,
                                       fontWeight: FontWeight.bold,
-                                      color: Colors.orange[800],
+                                      color: AppColors.warmYellow,
                                     ),
                                   ),
                                 ],

@@ -9,6 +9,7 @@ import 'package:agricola/features/crops/widgets/harvest_history_card.dart';
 import 'package:agricola/features/crops/widgets/info_card.dart';
 import 'package:agricola/features/crops/widgets/timeline_view.dart';
 import 'package:agricola/features/loss_calculator/screens/loss_calculator_screen.dart';
+import 'package:agricola/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -475,13 +476,13 @@ class CropDetailsScreen extends ConsumerWidget {
   Color _getStatusColor(String status) {
     switch (status) {
       case 'growing':
-        return Colors.orange;
+        return AppColors.green;
       case 'ready':
-        return Colors.green;
+        return AppColors.green;
       case 'harvested':
-        return Colors.blue;
+        return AppColors.mediumGray;
       default:
-        return Colors.grey;
+        return AppColors.mediumGray;
     }
   }
 

@@ -251,13 +251,11 @@ class _AddEditInventoryScreenState
   Color _getConditionColor(String condition) {
     switch (condition) {
       case 'excellent':
-        return Colors.green[700]!;
       case 'good':
         return AppColors.green;
       case 'fair':
-        return Colors.orange[600]!;
       case 'needs_attention':
-        return Colors.orange[800]!;
+        return AppColors.warmYellow;
       case 'critical':
         return AppColors.alertRed;
       default:

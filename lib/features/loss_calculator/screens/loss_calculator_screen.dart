@@ -8,6 +8,7 @@ import 'package:agricola/features/loss_calculator/screens/loss_history_screen.da
 import 'package:agricola/features/loss_calculator/widgets/loss_results_card.dart';
 import 'package:agricola/features/loss_calculator/widgets/loss_stage_input.dart';
 import 'package:agricola/features/loss_calculator/widgets/prevention_tips_card.dart';
+import 'package:agricola/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -50,10 +51,11 @@ class _LossCalculatorScreenState extends ConsumerState<LossCalculatorScreen> {
 
   final _units = ['kg', 'bags', 'tons'];
   final _storageMethods = [
-    'traditional',
+    'traditional_granary',
     'improved_storage',
+    'bags_in_room',
     'open_air',
-    'cold_storage',
+    'warehouse',
   ];
 
   @override
@@ -236,18 +238,18 @@ class _LossCalculatorScreenState extends ConsumerState<LossCalculatorScreen> {
               return Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.orange.withAlpha(15),
+                  color: AppColors.warmYellow.withAlpha(15),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.orange.withAlpha(50)),
+                  border: Border.all(color: AppColors.warmYellow.withAlpha(50)),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.info_outline, color: Colors.orange),
+                    const Icon(Icons.info_outline, color: AppColors.warmYellow),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
                         t('no_crops_add_first', lang),
-                        style: TextStyle(color: Colors.orange[800]),
+                        style: const TextStyle(color: AppColors.warmYellow),
                       ),
                     ),
                   ],
@@ -411,7 +413,7 @@ class _LossCalculatorScreenState extends ConsumerState<LossCalculatorScreen> {
           selectedCause: _fieldCause,
           onCauseChanged: (v) => setState(() => _fieldCause = v),
           icon: Icons.grass,
-          color: Colors.amber,
+          color: AppColors.green,
         ),
         LossStageInput(
           stage: 'transport',
@@ -421,7 +423,7 @@ class _LossCalculatorScreenState extends ConsumerState<LossCalculatorScreen> {
           selectedCause: _transportCause,
           onCauseChanged: (v) => setState(() => _transportCause = v),
           icon: Icons.local_shipping,
-          color: Colors.blue,
+          color: AppColors.green,
         ),
         LossStageInput(
           stage: 'storage',
@@ -431,7 +433,7 @@ class _LossCalculatorScreenState extends ConsumerState<LossCalculatorScreen> {
           selectedCause: _storageCause,
           onCauseChanged: (v) => setState(() => _storageCause = v),
           icon: Icons.warehouse,
-          color: Colors.purple,
+          color: AppColors.green,
         ),
         LossStageInput(
           stage: 'processing',
@@ -441,7 +443,7 @@ class _LossCalculatorScreenState extends ConsumerState<LossCalculatorScreen> {
           selectedCause: _processingCause,
           onCauseChanged: (v) => setState(() => _processingCause = v),
           icon: Icons.precision_manufacturing,
-          color: Colors.teal,
+          color: AppColors.green,
         ),
 
         // Running total
@@ -463,17 +465,17 @@ class _LossCalculatorScreenState extends ConsumerState<LossCalculatorScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: pct > 25
-            ? Colors.red.withAlpha(15)
+            ? AppColors.alertRed.withAlpha(15)
             : pct > 15
-                ? Colors.orange.withAlpha(15)
-                : Colors.green.withAlpha(15),
+                ? AppColors.warmYellow.withAlpha(15)
+                : AppColors.green.withAlpha(15),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: pct > 25
-              ? Colors.red.withAlpha(50)
+              ? AppColors.alertRed.withAlpha(50)
               : pct > 15
-                  ? Colors.orange.withAlpha(50)
-                  : Colors.green.withAlpha(50),
+                  ? AppColors.warmYellow.withAlpha(50)
+                  : AppColors.green.withAlpha(50),
         ),
       ),
       child: Row(
@@ -488,10 +490,10 @@ class _LossCalculatorScreenState extends ConsumerState<LossCalculatorScreen> {
             style: TextStyle(
               fontWeight: FontWeight.bold,
               color: pct > 25
-                  ? Colors.red
+                  ? AppColors.alertRed
                   : pct > 15
-                      ? Colors.orange
-                      : const Color(0xFF2D6A4F),
+                      ? AppColors.warmYellow
+                      : AppColors.green,
             ),
           ),
         ],

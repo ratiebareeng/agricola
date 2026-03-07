@@ -1,4 +1,5 @@
 import 'package:agricola/core/providers/language_provider.dart';
+import 'package:agricola/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 class InventoryItemCard extends StatelessWidget {
@@ -103,7 +104,7 @@ class InventoryItemCard extends StatelessWidget {
                           child: Icon(
                             Icons.cloud_upload_outlined,
                             size: 16,
-                            color: Colors.orange.shade600,
+                            color: AppColors.warmYellow,
                           ),
                         ),
                       ),
@@ -231,15 +232,15 @@ class InventoryItemCard extends StatelessWidget {
     switch (condition.toLowerCase()) {
       case 'excellent':
       case 'good':
-        return Colors.green;
+        return AppColors.green;
       case 'fair':
       case 'needs_attention':
-        return Colors.orange;
+        return AppColors.warmYellow;
       case 'poor':
       case 'critical':
-        return Colors.red;
+        return AppColors.alertRed;
       default:
-        return Colors.grey;
+        return AppColors.mediumGray;
     }
   }
 

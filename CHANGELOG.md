@@ -1,3 +1,14 @@
+## 0.20.2 - 2026-03-07
+
+### Changed
+- **Standardize app color palette** — replace ad-hoc Colors.orange/blue/purple/teal/amber with AppColors constants across 25 files
+  - All stat card icons use `AppColors.green` (primary accent)
+  - Warning/attention states use `AppColors.warmYellow`
+  - Error/loss/cancelled states use `AppColors.alertRed`
+  - Neutral/inactive states use `AppColors.mediumGray`
+  - Order statuses, crop statuses, condition colors, notification priorities all follow the same 4-color palette
+  - Quick action icons unified to primary green instead of rainbow colors
+
 ## 0.20.1 - 2026-03-07
 
 ### Fixed

@@ -504,22 +504,22 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
 
     switch (status) {
       case CropStatus.harvested:
-        color = Colors.green;
+        color = AppColors.green;
         label = t('harvested', lang);
         icon = Icons.check_circle;
         break;
       case CropStatus.readyToHarvest:
-        color = Colors.orange;
+        color = AppColors.warmYellow;
         label = t('ready_soon', lang);
         icon = Icons.schedule;
         break;
       case CropStatus.growing:
-        color = Colors.blue;
+        color = AppColors.green;
         label = t('growing', lang);
         icon = Icons.grass;
         break;
       case CropStatus.planted:
-        color = Colors.grey;
+        color = AppColors.mediumGray;
         label = t('planted', lang);
         icon = Icons.spa;
         break;

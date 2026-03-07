@@ -1,3 +1,4 @@
+import 'package:agricola/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 class QualitySelector extends StatelessWidget {
@@ -28,7 +29,7 @@ class QualitySelector extends StatelessWidget {
           child: _QualityOption(
             label: 'Fair',
             icon: Icons.sentiment_neutral,
-            color: Colors.orange,
+            color: AppColors.warmYellow,
             isSelected: selectedQuality == 'fair',
             onTap: () => onQualitySelected('fair'),
           ),

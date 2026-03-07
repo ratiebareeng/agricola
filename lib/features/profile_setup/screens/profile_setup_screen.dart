@@ -1,4 +1,5 @@
 import 'package:agricola/core/providers/language_provider.dart';
+import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/core/widgets/app_buttons.dart';
 import 'package:agricola/domain/profile/enum/merchant_type.dart';
 import 'package:agricola/features/auth/providers/auth_controller.dart';
@@ -197,19 +198,19 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
                       child: Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: Colors.red.shade50,
+                          color: AppColors.alertRed.withAlpha(15),
                           borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.red.shade200),
+                          border: Border.all(color: AppColors.alertRed.withAlpha(50)),
                         ),
                         child: Row(
                           children: [
-                            Icon(Icons.error_outline,
-                                color: Colors.red.shade700),
+                            const Icon(Icons.error_outline,
+                                color: AppColors.alertRed),
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(
                                 state.errorMessage!,
-                                style: TextStyle(color: Colors.red.shade700),
+                                style: const TextStyle(color: AppColors.alertRed),
                               ),
                             ),
                           ],

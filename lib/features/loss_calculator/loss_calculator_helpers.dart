@@ -88,7 +88,7 @@ List<String> preventionTipKeys(String stage, String storageMethod) {
         'tip_storage_use_hermetic',
         'tip_storage_check_regularly',
       ];
-      if (storageMethod == 'open_air' || storageMethod == 'traditional') {
+      if (storageMethod == 'open_air' || storageMethod == 'traditional_granary') {
         tips.insert(0, 'tip_storage_upgrade_method');
       }
       return tips;

@@ -1,3 +1,4 @@
+import 'package:agricola/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 class CropCard extends StatelessWidget {
@@ -75,7 +76,7 @@ class CropCard extends StatelessWidget {
                               child: Icon(
                                 Icons.cloud_upload_outlined,
                                 size: 14,
-                                color: Colors.orange.shade600,
+                                color: AppColors.warmYellow,
                               ),
                             ),
                           ),
@@ -85,13 +86,13 @@ class CropCard extends StatelessWidget {
                             vertical: 4,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.green.withAlpha(10),
+                            color: AppColors.green.withAlpha(10),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
                             stage,
                             style: const TextStyle(
-                              color: Colors.green,
+                              color: AppColors.green,
                               fontSize: 10,
                               fontWeight: FontWeight.bold,
                             ),
@@ -113,7 +114,7 @@ class CropCard extends StatelessWidget {
                     value: progress,
                     backgroundColor: Colors.grey[200],
                     valueColor: const AlwaysStoppedAnimation<Color>(
-                      Colors.green,
+                      AppColors.green,
                     ),
                     minHeight: 6,
                   ),

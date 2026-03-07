@@ -1,4 +1,5 @@
 import 'package:agricola/core/providers/language_provider.dart';
+import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/features/crops/models/crop_model.dart';
 import 'package:agricola/features/crops/models/harvest_model.dart';
 import 'package:agricola/features/crops/widgets/quality_selector.dart';
@@ -250,13 +251,13 @@ class _RecordHarvestScreenState extends ConsumerState<RecordHarvestScreen> {
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
                           color: difference >= 0
-                              ? Colors.green.withAlpha(10)
-                              : Colors.orange.withAlpha(10),
+                              ? AppColors.green.withAlpha(10)
+                              : AppColors.warmYellow.withAlpha(10),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
                             color: difference >= 0
-                                ? Colors.green.withAlpha(30)
-                                : Colors.orange.withAlpha(30),
+                                ? AppColors.green.withAlpha(30)
+                                : AppColors.warmYellow.withAlpha(30),
                           ),
                         ),
                         child: Column(
@@ -317,8 +318,8 @@ class _RecordHarvestScreenState extends ConsumerState<RecordHarvestScreen> {
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
                                     color: difference >= 0
-                                        ? Colors.green
-                                        : Colors.orange,
+                                        ? AppColors.green
+                                        : AppColors.warmYellow,
                                   ),
                                 ),
                               ],

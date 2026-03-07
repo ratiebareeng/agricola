@@ -1,6 +1,7 @@
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/features/loss_calculator/loss_calculator_helpers.dart';
 import 'package:agricola/features/loss_calculator/models/loss_calculation.dart';
+import 'package:agricola/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 class LossResultsCard extends StatelessWidget {
@@ -33,7 +34,7 @@ class LossResultsCard extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF2D6A4F),
+                    color: AppColors.green,
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Column(
@@ -155,13 +156,13 @@ class LossResultsCard extends StatelessWidget {
               _monetaryRow(
                 t('value_lost', lang),
                 '- ${formatBWP(calculation.monetaryLoss)}',
-                Colors.red,
+                AppColors.alertRed,
               ),
               const Divider(height: 24),
               _monetaryRow(
                 t('remaining_value', lang),
                 formatBWP(calculation.remainingValue),
-                const Color(0xFF2D6A4F),
+                AppColors.green,
                 bold: true,
               ),
             ],
@@ -214,13 +215,7 @@ class LossResultsCard extends StatelessWidget {
 
   Widget _stageBreakdownRow(LossStage stage) {
     final pct = stage.percentage(calculation.harvestAmount);
-    final stageColors = {
-      'field': Colors.amber,
-      'transport': Colors.blue,
-      'storage': Colors.purple,
-      'processing': Colors.teal,
-    };
-    final color = stageColors[stage.stage] ?? Colors.grey;
+    final color = AppColors.green;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 8),

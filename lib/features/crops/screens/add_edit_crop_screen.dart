@@ -480,28 +480,28 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.orange.withAlpha(26),
+        color: AppColors.warmYellow.withAlpha(26),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.orange.withAlpha(51)),
+        border: Border.all(color: AppColors.warmYellow.withAlpha(51)),
       ),
       child: Column(
         children: [
           Row(
             children: [
-              const Icon(Icons.warning_amber, color: Colors.orange, size: 20),
+              const Icon(Icons.warning_amber, color: AppColors.warmYellow, size: 20),
               const SizedBox(width: 8),
               Text(
                 t('post_harvest_loss', lang),
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
-                  color: Colors.orange,
+                  color: AppColors.warmYellow,
                 ),
               ),
             ],
           ),
           const SizedBox(height: 12),
-          _buildLossRow(t('estimated_loss_15', lang), '${loss.toStringAsFixed(1)} ${t(_selectedYieldUnit, lang)}', Colors.orange),
+          _buildLossRow(t('estimated_loss_15', lang), '${loss.toStringAsFixed(1)} ${t(_selectedYieldUnit, lang)}', AppColors.warmYellow),
           const Divider(height: 20),
           _buildLossRow(t('expected_after_loss', lang), '${afterLoss.toStringAsFixed(1)} ${t(_selectedYieldUnit, lang)}', AppColors.green, isBold: true),
         ],

@@ -123,28 +123,28 @@ class MerchantDashboardScreen extends ConsumerWidget {
             title: t('total_products', lang),
             value: '${stats.totalProducts}',
             icon: Icons.inventory_2,
-            color: const Color(0xFF2D6A4F),
+            color: AppColors.green,
             subtitle: stats.totalProducts == 1 ? 'product' : 'products',
           ),
           StatCard(
             title: t('monthly_revenue', lang),
             value: 'P ${stats.monthlyRevenue.toStringAsFixed(2)}',
             icon: Icons.attach_money,
-            color: const Color(0xFFFF6B35),
+            color: AppColors.green,
             subtitle: 'this month',
           ),
           StatCard(
             title: t('active_orders', lang),
             value: '${stats.activeOrders}',
             icon: Icons.shopping_cart,
-            color: const Color(0xFF4ECDC4),
+            color: AppColors.green,
             subtitle: stats.activeOrders == 1 ? 'order' : 'orders',
           ),
           StatCard(
             title: t('low_stock_items', lang),
             value: '${stats.lowStockItems}',
             icon: Icons.warning_amber_rounded,
-            color: const Color(0xFFFFBE0B),
+            color: AppColors.warmYellow,
             subtitle: stats.lowStockItems == 0 ? 'all good' : 'need attention',
           ),
         ] else ...[
@@ -152,28 +152,28 @@ class MerchantDashboardScreen extends ConsumerWidget {
             title: t('total_products', lang),
             value: '${stats.totalProducts}',
             icon: Icons.inventory_2,
-            color: const Color(0xFF2D6A4F),
+            color: AppColors.green,
             subtitle: stats.totalProducts == 1 ? 'listing' : 'listings',
           ),
           StatCard(
             title: t('monthly_purchases', lang),
             value: 'P ${stats.monthlyPurchases.toStringAsFixed(2)}',
             icon: Icons.shopping_bag,
-            color: const Color(0xFFFF6B35),
+            color: AppColors.green,
             subtitle: 'this month',
           ),
           StatCard(
             title: t('total_suppliers', lang),
             value: '${stats.totalSuppliers}',
             icon: Icons.people,
-            color: const Color(0xFF4ECDC4),
+            color: AppColors.green,
             subtitle: stats.totalSuppliers == 1 ? 'supplier' : 'suppliers',
           ),
           StatCard(
             title: t('low_stock_items', lang),
             value: '${stats.lowStockItems}',
             icon: Icons.warning_amber_rounded,
-            color: const Color(0xFFFFBE0B),
+            color: AppColors.warmYellow,
             subtitle: stats.lowStockItems == 0 ? 'all good' : 'need attention',
           ),
         ],
@@ -233,7 +233,7 @@ class MerchantDashboardScreen extends ConsumerWidget {
               _buildQuickActionTile(
                 context,
                 icon: Icons.receipt_long_outlined,
-                iconColor: Colors.orange,
+                iconColor: AppColors.green,
                 title: t('view_orders', lang),
                 subtitle: t('manage_customer_orders', lang),
                 onTap: () {
@@ -250,7 +250,7 @@ class MerchantDashboardScreen extends ConsumerWidget {
               _buildQuickActionTile(
                 context,
                 icon: Icons.inventory_outlined,
-                iconColor: Colors.blue,
+                iconColor: AppColors.green,
                 title: t('check_inventory', lang),
                 subtitle: t('manage_stock_levels', lang),
                 onTap: () {
@@ -264,7 +264,7 @@ class MerchantDashboardScreen extends ConsumerWidget {
                 _buildQuickActionTile(
                   context,
                   icon: Icons.shopping_bag_outlined,
-                  iconColor: const Color(0xFFFF6B35),
+                  iconColor: AppColors.green,
                   title: t('record_purchase', lang),
                   subtitle: t('record_from_farmers', lang),
                   onTap: () {
@@ -281,7 +281,7 @@ class MerchantDashboardScreen extends ConsumerWidget {
               _buildQuickActionTile(
                 context,
                 icon: Icons.analytics_outlined,
-                iconColor: Colors.purple,
+                iconColor: AppColors.green,
                 title: t('view_analytics', lang),
                 subtitle: t('business_insights', lang),
                 onTap: () => Navigator.push(
@@ -590,17 +590,17 @@ class MerchantDashboardScreen extends ConsumerWidget {
   _StatusConfig _getStatusConfig(String status) {
     switch (status) {
       case 'pending':
-        return _StatusConfig('Pending', Colors.orange, Icons.schedule);
+        return _StatusConfig('Pending', AppColors.warmYellow, Icons.schedule);
       case 'confirmed':
-        return _StatusConfig('Confirmed', Colors.blue, Icons.check_circle);
+        return _StatusConfig('Confirmed', AppColors.green, Icons.check_circle);
       case 'shipped':
-        return _StatusConfig('Shipped', Colors.purple, Icons.local_shipping);
+        return _StatusConfig('Shipped', AppColors.mediumGray, Icons.local_shipping);
       case 'delivered':
-        return _StatusConfig('Delivered', Colors.green, Icons.done_all);
+        return _StatusConfig('Delivered', AppColors.green, Icons.done_all);
       case 'cancelled':
-        return _StatusConfig('Cancelled', Colors.grey, Icons.cancel);
+        return _StatusConfig('Cancelled', AppColors.alertRed, Icons.cancel);
       default:
-        return _StatusConfig(status, Colors.grey, Icons.help_outline);
+        return _StatusConfig(status, AppColors.mediumGray, Icons.help_outline);
     }
   }
 
@@ -652,7 +652,7 @@ class _NotificationBell extends ConsumerWidget {
             child: Container(
               padding: const EdgeInsets.all(4),
               decoration: const BoxDecoration(
-                color: Colors.red,
+                color: AppColors.alertRed,
                 shape: BoxShape.circle,
               ),
               constraints: const BoxConstraints(minWidth: 18, minHeight: 18),

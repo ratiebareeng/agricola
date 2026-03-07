@@ -368,17 +368,17 @@ class AgriShopOrdersScreen extends ConsumerWidget {
   _StatusConfig _getStatusConfig(String status) {
     switch (status) {
       case 'pending':
-        return _StatusConfig('Pending', Colors.orange, Icons.schedule);
+        return _StatusConfig('Pending', AppColors.warmYellow, Icons.schedule);
       case 'confirmed':
-        return _StatusConfig('Confirmed', Colors.blue, Icons.check_circle);
+        return _StatusConfig('Confirmed', AppColors.green, Icons.check_circle);
       case 'shipped':
-        return _StatusConfig('Shipped', Colors.purple, Icons.local_shipping);
+        return _StatusConfig('Shipped', AppColors.mediumGray, Icons.local_shipping);
       case 'delivered':
-        return _StatusConfig('Delivered', Colors.green, Icons.done_all);
+        return _StatusConfig('Delivered', AppColors.green, Icons.done_all);
       case 'cancelled':
-        return _StatusConfig('Cancelled', Colors.grey, Icons.cancel);
+        return _StatusConfig('Cancelled', AppColors.alertRed, Icons.cancel);
       default:
-        return _StatusConfig(status, Colors.grey, Icons.help_outline);
+        return _StatusConfig(status, AppColors.mediumGray, Icons.help_outline);
     }
   }
 

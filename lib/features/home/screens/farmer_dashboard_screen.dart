@@ -11,6 +11,7 @@ import 'package:agricola/features/home/widgets/stat_card.dart';
 import 'package:agricola/features/loss_calculator/screens/loss_calculator_screen.dart';
 import 'package:agricola/features/notifications/providers/notifications_provider.dart';
 import 'package:agricola/features/notifications/screens/notifications_screen.dart';
+import 'package:agricola/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -240,25 +241,25 @@ class FarmerDashboardScreen extends ConsumerWidget {
           title: t('total_fields', lang),
           value: '${crops.length}',
           icon: Icons.landscape,
-          color: Colors.green,
+          color: AppColors.green,
         ),
         StatCard(
           title: t('upcoming_harvests', lang),
           value: '$upcomingCount',
           icon: Icons.agriculture,
-          color: Colors.orange,
+          color: AppColors.green,
         ),
         StatCard(
           title: t('inventory_value', lang),
           value: '—',
           icon: Icons.inventory_2,
-          color: Colors.blue,
+          color: AppColors.green,
         ),
         StatCard(
           title: t('estimated_losses', lang),
           value: '—',
           icon: Icons.warning_amber,
-          color: Colors.red,
+          color: AppColors.alertRed,
           onTap: () => _openLossCalculator(context),
         ),
       ],
@@ -319,7 +320,7 @@ class FarmerDashboardScreen extends ConsumerWidget {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Failed to save crop: $error'),
-              backgroundColor: Colors.red,
+              backgroundColor: AppColors.alertRed,
             ),
           );
           return;
@@ -353,7 +354,7 @@ class _FarmerNotificationBell extends ConsumerWidget {
             child: Container(
               padding: const EdgeInsets.all(4),
               decoration: const BoxDecoration(
-                color: Colors.red,
+                color: AppColors.alertRed,
                 shape: BoxShape.circle,
               ),
               constraints: const BoxConstraints(minWidth: 18, minHeight: 18),

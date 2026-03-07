@@ -130,9 +130,9 @@ class _FarmerStatsSection extends ConsumerWidget {
         const SizedBox(height: 16),
         _buildStatsGrid([
           _StatData(t('total_fields', lang), '${crops.total}', Icons.landscape, AppColors.green),
-          _StatData(t('active_crops', lang), '${crops.active}', Icons.grass, Colors.teal),
-          _StatData(t('harvested', lang), '${crops.harvested}', Icons.agriculture, Colors.orange),
-          _StatData(t('upcoming_harvests', lang), '${crops.upcomingHarvests}', Icons.schedule, Colors.blue),
+          _StatData(t('active_crops', lang), '${crops.active}', Icons.grass, AppColors.green),
+          _StatData(t('harvested', lang), '${crops.harvested}', Icons.agriculture, AppColors.green),
+          _StatData(t('upcoming_harvests', lang), '${crops.upcomingHarvests}', Icons.schedule, AppColors.green),
         ]),
         const SizedBox(height: 16),
         _ReportCard(
@@ -184,9 +184,9 @@ class _FarmerStatsFallback extends ConsumerWidget {
         const SizedBox(height: 16),
         _buildStatsGrid([
           _StatData(t('total_fields', lang), '${stats.totalCrops}', Icons.landscape, AppColors.green),
-          _StatData(t('active_crops', lang), '${stats.activeCrops}', Icons.grass, Colors.teal),
-          _StatData(t('harvested', lang), '${stats.harvestedCrops}', Icons.agriculture, Colors.orange),
-          _StatData(t('upcoming_harvests', lang), '${stats.upcomingHarvests}', Icons.schedule, Colors.blue),
+          _StatData(t('active_crops', lang), '${stats.activeCrops}', Icons.grass, AppColors.green),
+          _StatData(t('harvested', lang), '${stats.harvestedCrops}', Icons.agriculture, AppColors.green),
+          _StatData(t('upcoming_harvests', lang), '${stats.upcomingHarvests}', Icons.schedule, AppColors.green),
         ]),
         const SizedBox(height: 16),
         _ReportCard(
@@ -248,9 +248,9 @@ class _MerchantStatsSection extends ConsumerWidget {
         const SizedBox(height: 16),
         _buildStatsGrid([
           _StatData(t('total_products', lang), '${mkt.activeListings}', Icons.inventory_2, AppColors.green),
-          _StatData(t('active_orders', lang), '${orders.active}', Icons.shopping_cart, Colors.blue),
-          _StatData(t('total_purchases', lang), '${purchases.total}', Icons.shopping_bag, Colors.orange),
-          _StatData(t('suppliers', lang), '${purchases.uniqueSuppliers}', Icons.people, Colors.teal),
+          _StatData(t('active_orders', lang), '${orders.active}', Icons.shopping_cart, AppColors.green),
+          _StatData(t('total_purchases', lang), '${purchases.total}', Icons.shopping_bag, AppColors.green),
+          _StatData(t('suppliers', lang), '${purchases.uniqueSuppliers}', Icons.people, AppColors.green),
         ]),
         const SizedBox(height: 16),
         _ReportCard(
@@ -308,9 +308,9 @@ class _MerchantStatsFallback extends ConsumerWidget {
         const SizedBox(height: 16),
         _buildStatsGrid([
           _StatData(t('total_products', lang), '${stats.totalProducts}', Icons.inventory_2, AppColors.green),
-          _StatData(t('active_orders', lang), '${stats.activeOrders}', Icons.shopping_cart, Colors.blue),
-          _StatData(t('total_purchases', lang), '${stats.totalPurchases}', Icons.shopping_bag, Colors.orange),
-          _StatData(t('suppliers', lang), '${stats.totalSuppliers}', Icons.people, Colors.teal),
+          _StatData(t('active_orders', lang), '${stats.activeOrders}', Icons.shopping_cart, AppColors.green),
+          _StatData(t('total_purchases', lang), '${stats.totalPurchases}', Icons.shopping_bag, AppColors.green),
+          _StatData(t('suppliers', lang), '${stats.totalSuppliers}', Icons.people, AppColors.green),
         ]),
         const SizedBox(height: 16),
         _ReportCard(
@@ -475,9 +475,9 @@ class _ActivityTile extends StatelessWidget {
   static ({IconData icon, Color color}) _activityConfig(ActivityType type) {
     return switch (type) {
       ActivityType.crop => (icon: Icons.grass, color: AppColors.green),
-      ActivityType.inventory => (icon: Icons.inventory_2, color: Colors.blue),
-      ActivityType.purchase => (icon: Icons.shopping_bag, color: Colors.orange),
-      ActivityType.listing => (icon: Icons.store, color: Colors.purple),
+      ActivityType.inventory => (icon: Icons.inventory_2, color: AppColors.green),
+      ActivityType.purchase => (icon: Icons.shopping_bag, color: AppColors.green),
+      ActivityType.listing => (icon: Icons.store, color: AppColors.green),
     };
   }
 
@@ -801,7 +801,7 @@ class _ReportCard extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          color: row.isWarning ? Colors.red : Colors.black87,
+                          color: row.isWarning ? AppColors.alertRed : Colors.black87,
                         ),
                       ),
                     ],

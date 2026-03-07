@@ -106,18 +106,18 @@ class ProfileSetupCompleteScreen extends ConsumerWidget {
                 child: Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.red.shade50,
+                    color: AppColors.alertRed.withAlpha(15),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.red.shade200),
+                    border: Border.all(color: AppColors.alertRed.withAlpha(50)),
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.error_outline, color: Colors.red.shade700),
+                      const Icon(Icons.error_outline, color: AppColors.alertRed),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
                           errorMessage,
-                          style: TextStyle(color: Colors.red.shade700),
+                          style: const TextStyle(color: AppColors.alertRed),
                         ),
                       ),
                     ],

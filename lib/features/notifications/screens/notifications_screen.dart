@@ -167,8 +167,8 @@ class _NotificationCard extends StatelessWidget {
     NotificationPriority priority,
   ) {
     final color = switch (priority) {
-      NotificationPriority.high => Colors.red,
-      NotificationPriority.medium => Colors.orange,
+      NotificationPriority.high => AppColors.alertRed,
+      NotificationPriority.medium => AppColors.warmYellow,
       NotificationPriority.low => AppColors.green,
     };
     final icon = switch (type) {

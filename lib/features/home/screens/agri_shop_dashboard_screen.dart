@@ -172,21 +172,21 @@ class _StatsGrid extends StatelessWidget {
           title: t('active_orders', lang),
           value: '${stats.activeOrders}',
           icon: Icons.shopping_cart,
-          color: const Color(0xFF4ECDC4),
+          color: AppColors.green,
         ),
         StatCard(
           title: t('monthly_revenue', lang),
           value: 'P ${stats.monthlyRevenue.toStringAsFixed(2)}',
           icon: Icons.attach_money,
-          color: const Color(0xFFFF6B35),
+          color: AppColors.green,
         ),
         StatCard(
           title: t('low_stock_items', lang),
           value: '${stats.lowStockItems}',
           icon: Icons.warning_amber_rounded,
           color: stats.lowStockItems == 0
-              ? const Color(0xFFFFBE0B)
-              : Colors.red,
+              ? AppColors.warmYellow
+              : AppColors.alertRed,
         ),
       ],
     );
@@ -240,7 +240,7 @@ class _QuickActionsSection extends ConsumerWidget {
               const Divider(height: 24),
               _QuickActionTile(
                 icon: Icons.receipt_long_outlined,
-                iconColor: Colors.orange,
+                iconColor: AppColors.green,
                 title: t('view_orders', lang),
                 subtitle: t('manage_customer_orders', lang),
                 onTap: () =>
@@ -249,7 +249,7 @@ class _QuickActionsSection extends ConsumerWidget {
               const Divider(height: 24),
               _QuickActionTile(
                 icon: Icons.inventory_outlined,
-                iconColor: Colors.blue,
+                iconColor: AppColors.green,
                 title: t('check_inventory', lang),
                 subtitle: t('manage_stock_levels', lang),
                 onTap: () =>
@@ -258,7 +258,7 @@ class _QuickActionsSection extends ConsumerWidget {
               const Divider(height: 24),
               _QuickActionTile(
                 icon: Icons.analytics_outlined,
-                iconColor: Colors.purple,
+                iconColor: AppColors.green,
                 title: t('view_analytics', lang),
                 subtitle: t('business_insights', lang),
                 onTap: () => Navigator.push(
@@ -534,12 +534,12 @@ class _OrderTile extends StatelessWidget {
 
   static ({String label, Color color, IconData icon}) _statusConfig(String status) {
     return switch (status) {
-      'pending' => (label: 'Pending', color: Colors.orange, icon: Icons.schedule),
-      'confirmed' => (label: 'Confirmed', color: Colors.blue, icon: Icons.check_circle),
-      'shipped' => (label: 'Shipped', color: Colors.purple, icon: Icons.local_shipping),
-      'delivered' => (label: 'Delivered', color: Colors.green, icon: Icons.done_all),
-      'cancelled' => (label: 'Cancelled', color: Colors.grey, icon: Icons.cancel),
-      _ => (label: status, color: Colors.grey, icon: Icons.help_outline),
+      'pending' => (label: 'Pending', color: AppColors.warmYellow, icon: Icons.schedule),
+      'confirmed' => (label: 'Confirmed', color: AppColors.green, icon: Icons.check_circle),
+      'shipped' => (label: 'Shipped', color: AppColors.mediumGray, icon: Icons.local_shipping),
+      'delivered' => (label: 'Delivered', color: AppColors.green, icon: Icons.done_all),
+      'cancelled' => (label: 'Cancelled', color: AppColors.alertRed, icon: Icons.cancel),
+      _ => (label: status, color: AppColors.mediumGray, icon: Icons.help_outline),
     };
   }
 
@@ -576,7 +576,7 @@ class _AgriShopNotificationBell extends ConsumerWidget {
             child: Container(
               padding: const EdgeInsets.all(4),
               decoration: const BoxDecoration(
-                color: Colors.red,
+                color: AppColors.alertRed,
                 shape: BoxShape.circle,
               ),
               constraints: const BoxConstraints(minWidth: 18, minHeight: 18),

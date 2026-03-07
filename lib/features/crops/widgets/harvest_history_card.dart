@@ -1,3 +1,4 @@
+import 'package:agricola/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 class HarvestHistoryCard extends StatelessWidget {
@@ -17,16 +18,16 @@ class HarvestHistoryCard extends StatelessWidget {
     Color qualityColor;
     switch (quality.toLowerCase()) {
       case 'good':
-        qualityColor = Colors.green;
+        qualityColor = AppColors.green;
         break;
       case 'fair':
-        qualityColor = Colors.orange;
+        qualityColor = AppColors.warmYellow;
         break;
       case 'poor':
-        qualityColor = Colors.red;
+        qualityColor = AppColors.alertRed;
         break;
       default:
-        qualityColor = Colors.grey;
+        qualityColor = AppColors.mediumGray;
     }
 
     return Container(
@@ -43,10 +44,10 @@ class HarvestHistoryCard extends StatelessWidget {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: Colors.green.withAlpha(10),
+              color: AppColors.green.withAlpha(10),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(Icons.agriculture, color: Colors.green),
+            child: const Icon(Icons.agriculture, color: AppColors.green),
           ),
           const SizedBox(width: 16),
           Expanded(

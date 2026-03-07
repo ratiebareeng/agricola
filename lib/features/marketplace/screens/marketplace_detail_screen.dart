@@ -230,17 +230,17 @@ class MarketplaceDetailScreen extends ConsumerWidget {
                         Container(
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: Colors.orange.withValues(alpha: 0.1),
+                            color: AppColors.warmYellow.withAlpha(25),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: Colors.orange.withValues(alpha: 0.3),
+                              color: AppColors.warmYellow.withAlpha(75),
                             ),
                           ),
                           child: Row(
                             children: [
                               const Icon(
                                 Icons.calendar_today,
-                                color: Colors.orange,
+                                color: AppColors.warmYellow,
                               ),
                               const SizedBox(width: 12),
                               Column(
@@ -259,7 +259,7 @@ class MarketplaceDetailScreen extends ConsumerWidget {
                                     style: const TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w600,
-                                      color: Colors.orange,
+                                      color: AppColors.warmYellow,
                                     ),
                                   ),
                                 ],
@@ -530,22 +530,22 @@ class MarketplaceDetailScreen extends ConsumerWidget {
 
     switch (status) {
       case CropStatus.harvested:
-        color = Colors.green;
+        color = AppColors.green;
         label = t('harvested', lang);
         icon = Icons.check_circle;
         break;
       case CropStatus.readyToHarvest:
-        color = Colors.orange;
+        color = AppColors.warmYellow;
         label = t('ready_soon', lang);
         icon = Icons.schedule;
         break;
       case CropStatus.growing:
-        color = Colors.blue;
+        color = AppColors.green;
         label = t('growing', lang);
         icon = Icons.grass;
         break;
       case CropStatus.planted:
-        color = Colors.grey;
+        color = AppColors.mediumGray;
         label = t('planted', lang);
         icon = Icons.spa;
         break;

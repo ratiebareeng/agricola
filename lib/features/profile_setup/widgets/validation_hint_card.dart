@@ -1,4 +1,5 @@
 import 'package:agricola/core/providers/language_provider.dart';
+import 'package:agricola/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -22,13 +23,13 @@ class StepValidationHelper extends ConsumerWidget {
           return ValidationHintCard(
             message: t('select_at_least_one_crop', currentLang),
             icon: Icons.agriculture,
-            color: Colors.green[700],
+            color: AppColors.green,
           );
         case 2:
           return ValidationHintCard(
             message: t('select_farm_size_hint', currentLang),
             icon: Icons.landscape,
-            color: Colors.amber[700],
+            color: AppColors.warmYellow,
           );
         case 3:
           return ValidationHintCard(
@@ -59,13 +60,13 @@ class ValidationHintCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final displayColor = color ?? Colors.blue[600];
+    final displayColor = color ?? AppColors.green;
 
     return Container(
       padding: const EdgeInsets.all(12),
       margin: const EdgeInsets.only(top: 8),
       decoration: BoxDecoration(
-        color: displayColor!.withAlpha(10),
+        color: displayColor.withAlpha(10),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: displayColor.withAlpha(30)),
       ),

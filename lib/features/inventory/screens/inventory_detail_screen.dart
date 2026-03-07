@@ -7,6 +7,7 @@ import 'package:agricola/features/marketplace/models/marketplace_listing.dart';
 import 'package:agricola/features/marketplace/providers/marketplace_provider.dart';
 import 'package:agricola/features/marketplace/screens/add_product_screen.dart';
 import 'package:agricola/features/marketplace/screens/marketplace_detail_screen.dart';
+import 'package:agricola/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -437,9 +438,9 @@ class _InventoryDetailScreenState extends ConsumerState<InventoryDetailScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.green.shade50,
+        color: AppColors.green.withAlpha(15),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.green.shade100),
+        border: Border.all(color: AppColors.green.withAlpha(30)),
       ),
       child: Row(
         children: [
@@ -447,12 +448,12 @@ class _InventoryDetailScreenState extends ConsumerState<InventoryDetailScreen> {
             width: 64,
             height: 64,
             decoration: BoxDecoration(
-              color: Colors.green.shade100,
+              color: AppColors.green.withAlpha(25),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(
+            child: const Icon(
               Icons.inventory_2,
-              color: Colors.green.shade800,
+              color: AppColors.green,
               size: 32,
             ),
           ),

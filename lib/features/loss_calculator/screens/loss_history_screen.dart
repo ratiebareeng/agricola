@@ -1,4 +1,5 @@
 import 'package:agricola/core/providers/language_provider.dart';
+import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/features/loss_calculator/loss_calculator_helpers.dart';
 import 'package:agricola/features/loss_calculator/models/loss_calculation.dart';
 import 'package:agricola/features/loss_calculator/providers/loss_calculator_provider.dart';
@@ -243,9 +244,9 @@ class _CalculationCard extends StatelessWidget {
   }
 
   Color _severityColor(double pct) {
-    if (pct <= 5) return const Color(0xFF2D6A4F);
-    if (pct <= 15) return Colors.orange;
-    if (pct <= 25) return Colors.deepOrange;
-    return Colors.red;
+    if (pct <= 5) return AppColors.green;
+    if (pct <= 15) return AppColors.warmYellow;
+    if (pct <= 25) return AppColors.warmYellow;
+    return AppColors.alertRed;
   }
 }
