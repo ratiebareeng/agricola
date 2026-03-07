@@ -1821,6 +1821,54 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
     AppLanguage.english: 'Inventory Summary',
     AppLanguage.setswana: 'Kakaretso ya Dithoto',
   },
+  'offlineModeTitle': {
+    AppLanguage.english: 'Offline Mode',
+    AppLanguage.setswana: 'Mokgwa wa go sa Golagana',
+  },
+  'offlineModeToggle': {
+    AppLanguage.english: 'Enable offline mode',
+    AppLanguage.setswana: 'Dumela mokgwa wa go sa golagana',
+  },
+  'offlineModeDesc': {
+    AppLanguage.english: 'Save data locally to work without internet. Uses a small amount of phone storage.',
+    AppLanguage.setswana: 'Boloka data mono go dira ntle le inthanete. E dirisa bogolo bo bonnye jwa polokelo.',
+  },
+  'cacheSize': {
+    AppLanguage.english: 'Cached data size',
+    AppLanguage.setswana: 'Bogolo jwa data e e bolokilweng',
+  },
+  'clearCache': {
+    AppLanguage.english: 'Clear cached data',
+    AppLanguage.setswana: 'Tlosa data e e bolokilweng',
+  },
+  'clearCacheWarning': {
+    AppLanguage.english: 'This will delete all locally saved data. Any unsynced changes will be lost.',
+    AppLanguage.setswana: 'Se se tla tlosa data yotlhe e e bolokilweng mono. Diphetogo tse di sa romelelwang di tla latlhega.',
+  },
+  'cacheCleared': {
+    AppLanguage.english: 'Cached data cleared',
+    AppLanguage.setswana: 'Data e e bolokilweng e tlositswe',
+  },
+  'offlineMode': {
+    AppLanguage.english: 'You are offline',
+    AppLanguage.setswana: 'Ga o a golagana le inthanete',
+  },
+  'pendingChanges': {
+    AppLanguage.english: 'pending changes',
+    AppLanguage.setswana: 'diphetogo tse di emetseng',
+  },
+  'checkingConnection': {
+    AppLanguage.english: 'Checking connection...',
+    AppLanguage.setswana: 'Go lekola kgolagano...',
+  },
+  'offlineNotAvailable': {
+    AppLanguage.english: 'This action requires an internet connection',
+    AppLanguage.setswana: 'Tiro eno e tlhoka kgolagano ya inthanete',
+  },
+  'changesSaved': {
+    AppLanguage.english: 'Changes saved locally, will sync when online',
+    AppLanguage.setswana: 'Diphetogo di boloketswe mono, di tla romelwa fa o golagana',
+  },
 };
 
 String t(String key, AppLanguage lang) {

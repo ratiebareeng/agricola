@@ -1,3 +1,53 @@
+## 0.12.0 - 2026-03-07
+
+### Added
+- **Offline Support Foundation** — local SQLite database using drift for offline caching and sync
+  - `AppDatabase` with 9 tables: cache tables for crops, inventory, harvests, marketplace, orders, purchases, crop catalog + sync queue + sync metadata
+  - Automatic cache eviction (90-day TTL) on app startup
+
+- **Connectivity Detection** — two-layer approach using `connectivity_plus`
+  - `connectivityProvider` (online/offline/checking states) with server reachability ping to `/health`
+  - `isOnlineProvider` (simple bool) for guards in repositories
+  - 30-second debounce on reachability checks
+  - `OfflineBanner` widget shown on HomeScreen when offline, with pending sync count and retry button
+
+- **Crop Catalog Cache** (Phase 2) — read-only local cache with 7-day TTL
+  - `CropCatalogLocalDao` for cache operations
+  - `cropCatalogProvider` updated: serves from cache when fresh or offline, fetches from API when stale
+  - Added `toJson()` to `CropCatalogEntry` for serialization
+
+- **Crops Offline CRUD** (Phase 3) — full offline create/edit/delete for crops
+  - `CropOfflineRepository` wraps `CropApiService` + `CropLocalDao`
+  - Online: normal API call + cache result locally
+  - Offline: assign local UUID, cache optimistically, queue to sync queue
+  - `CropNotifier` now uses `CropOfflineRepository` (screens unchanged)
+
+- **Inventory Offline CRUD** (Phase 4) — full offline create/edit/delete for inventory
+  - `InventoryOfflineRepository` wraps `InventoryApiService` + `InventoryLocalDao`
+  - Same online/offline pattern as crops
+
+- **Harvests Offline CRUD** (Phase 4) — full offline create/delete for harvests
+  - `HarvestOfflineRepository` wraps `HarvestApiService` + `HarvestLocalDao`
+  - Handles crop-scoped harvest caching
+
+- **Sync Service** — automatic queue replay when connectivity returns
+  - `SyncService` processes pending mutations FIFO, handles local ID → server ID replacement
+  - `syncTriggerProvider` auto-triggers sync on connectivity change
+  - Client errors (4xx) marked as failed, server errors retry later
+
+- **User-configurable offline mode** — toggle in Settings (default: off)
+  - `offlineModeEnabledProvider` persisted via SharedPreferences
+  - When disabled: pure API calls, no caching, no sync, no connectivity checks
+  - When enabled: full offline CRUD + sync + cache + offline banner
+  - Settings UI: toggle switch, cache size display, clear cache button with confirmation
+  - All repositories, sync service, and offline banner respect the toggle
+
+- **Bilingual offline strings** — 12 new translation keys (EN/SW): offlineMode, pendingChanges, checkingConnection, offlineNotAvailable, changesSaved, offlineModeTitle, offlineModeToggle, offlineModeDesc, cacheSize, clearCache, clearCacheWarning, cacheCleared
+
+### Dependencies
+- Added: `drift`, `drift_flutter`, `connectivity_plus`, `uuid`
+- Added (dev): `drift_dev`, `build_runner`
+
 ## 0.11.1 - 2026-03-07
 
 ### Fixed

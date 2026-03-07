@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:agricola/core/routing/app_router.dart';
 import 'package:agricola/core/theme/app_theme.dart';
+import 'package:agricola/core/database/app_database.dart';
+import 'package:agricola/core/providers/database_provider.dart';
 import 'package:agricola/features/profile/providers/profile_providers.dart';
 import 'package:feedback/feedback.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -31,11 +33,16 @@ void main() async {
     };
 
     final sharedPreferences = await SharedPreferences.getInstance();
+    final database = AppDatabase();
+
+    // Evict stale cache on startup
+    database.evictOldCache();
 
     runApp(
       ProviderScope(
         overrides: [
           sharedPreferencesProvider.overrideWithValue(sharedPreferences),
+          databaseProvider.overrideWithValue(database),
         ],
         child: const BetterFeedback(child: AgricolaApp()),
       ),

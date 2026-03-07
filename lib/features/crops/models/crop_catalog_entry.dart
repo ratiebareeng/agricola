@@ -44,6 +44,21 @@ class CropCatalogEntry {
     );
   }
 
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'key': key,
+      'category': category,
+      'nameEn': nameEn,
+      'nameSw': nameSw,
+      'harvestDays': harvestDays,
+      'plantPopulationPerHa': plantPopulationPerHa,
+      'dailyWaterMm': dailyWaterMm,
+      'imageUrl': imageUrl,
+      'sortOrder': sortOrder,
+    };
+  }
+
   String displayName(AppLanguage lang) {
     return lang == AppLanguage.setswana ? nameSw : nameEn;
   }

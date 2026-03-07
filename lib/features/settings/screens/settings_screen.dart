@@ -1,4 +1,6 @@
+import 'package:agricola/core/providers/database_provider.dart';
 import 'package:agricola/core/providers/language_provider.dart';
+import 'package:agricola/core/providers/offline_settings_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/core/widgets/language_select_content.dart';
 import 'package:agricola/features/auth/providers/auth_controller.dart';
@@ -34,6 +36,16 @@ class SettingsScreen extends ConsumerWidget {
             _SettingsCard(
               children: [
                 _LanguageTile(lang: currentLang),
+              ],
+            ),
+
+            const SizedBox(height: 24),
+
+            // Offline mode section
+            _SectionHeader(title: t('offlineModeTitle', currentLang)),
+            _SettingsCard(
+              children: [
+                _OfflineModeTile(lang: currentLang),
               ],
             ),
 
@@ -530,6 +542,117 @@ class _AboutTile extends StatelessWidget {
           Text(
             value,
             style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _OfflineModeTile extends ConsumerWidget {
+  final AppLanguage lang;
+  const _OfflineModeTile({required this.lang});
+
+  String _formatBytes(int bytes) {
+    if (bytes < 1024) return '$bytes B';
+    if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
+    return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isEnabled = ref.watch(offlineModeEnabledProvider);
+    final cacheSize = ref.watch(cacheSizeProvider);
+
+    return Column(
+      children: [
+        SwitchListTile(
+          secondary: Icon(
+            Icons.cloud_off_outlined,
+            color: isEnabled ? AppColors.green : Colors.grey,
+          ),
+          title: Text(
+            t('offlineModeToggle', lang),
+            style: const TextStyle(fontWeight: FontWeight.w500),
+          ),
+          subtitle: Text(
+            t('offlineModeDesc', lang),
+            style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+          ),
+          value: isEnabled,
+          activeColor: AppColors.green,
+          onChanged: (_) =>
+              ref.read(offlineModeEnabledProvider.notifier).toggle(),
+        ),
+        if (isEnabled) ...[
+          const Divider(height: 1),
+          ListTile(
+            leading: const Icon(Icons.storage_outlined, color: AppColors.green),
+            title: Text(
+              t('cacheSize', lang),
+              style: const TextStyle(fontWeight: FontWeight.w500),
+            ),
+            trailing: Text(
+              cacheSize.whenOrNull(data: _formatBytes) ?? '...',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey[600],
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          const Divider(height: 1),
+          ListTile(
+            leading: const Icon(Icons.delete_sweep_outlined,
+                color: AppColors.green),
+            title: Text(
+              t('clearCache', lang),
+              style: const TextStyle(fontWeight: FontWeight.w500),
+            ),
+            trailing: Icon(Icons.chevron_right, color: Colors.grey[400]),
+            onTap: () => _showClearCacheDialog(context, ref),
+          ),
+        ],
+      ],
+    );
+  }
+
+  void _showClearCacheDialog(BuildContext context, WidgetRef ref) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(t('clearCache', lang)),
+        content: Text(t('clearCacheWarning', lang)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              t('cancel', lang),
+              style: const TextStyle(color: Colors.grey),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              final db = ref.read(databaseProvider);
+              await db.clearAllCache();
+              ref.invalidate(cacheSizeProvider);
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(t('cacheCleared', lang)),
+                    backgroundColor: AppColors.green,
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.green,
+              foregroundColor: Colors.white,
+            ),
+            child: Text(t('clearCache', lang)),
           ),
         ],
       ),

@@ -1,5 +1,7 @@
+import 'package:agricola/core/database/sync/sync_service.dart';
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/providers/nav_provider.dart';
+import 'package:agricola/core/widgets/offline_banner.dart';
 import 'package:agricola/domain/profile/enum/merchant_type.dart';
 import 'package:agricola/features/auth/providers/auth_state_provider.dart';
 import 'package:agricola/features/crops/screens/crops_screen.dart';
@@ -131,8 +133,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   ),
                 ]);
 
+    // Initialize sync trigger (listens to connectivity changes)
+    ref.watch(syncTriggerProvider);
+
     return Scaffold(
-      body: widgetOptions.elementAt(selectedIndex),
+      body: Column(
+        children: [
+          const OfflineBanner(),
+          Expanded(child: widgetOptions.elementAt(selectedIndex)),
+        ],
+      ),
       bottomNavigationBar: HomeBottomNavigationBar(
         selectedIndex: selectedIndex,
         navItems: navItems,
