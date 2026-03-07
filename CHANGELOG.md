@@ -1,3 +1,15 @@
+## 0.16.0 - 2026-03-07
+
+### Added
+- **Data Export (PDF/CSV)** — export farm or business data from the Reports screen
+  - **CSV exports**: Crops, Inventory, Purchases, Orders — each generates a downloadable `.csv` file with bilingual column headers
+  - **PDF summary reports**: Farm Summary (farmer) and Business Summary (merchant) — single-page A4 PDF with stats overview
+  - Export FAB on both `ReportsScreen` and `MerchantReportsScreen`
+  - Bottom sheet picker for selecting data type and format
+  - Native share sheet integration via `share_plus` (save to files, email, WhatsApp, etc.)
+  - All export labels translated (English + Setswana)
+  - New dependencies: `csv`, `pdf`, `share_plus`
+
 ## 0.15.0 - 2026-03-07
 
 ### Added

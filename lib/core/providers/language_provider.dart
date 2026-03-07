@@ -641,10 +641,6 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
     AppLanguage.english: 'Track all your activities',
     AppLanguage.setswana: 'Latela ditiro tsotlhe tsa gago',
   },
-  'export_data': {
-    AppLanguage.english: 'Export Data',
-    AppLanguage.setswana: 'Romela Data',
-  },
   'export_data_desc': {
     AppLanguage.english: 'Download your records',
     AppLanguage.setswana: 'Kopolola direkoto tsa gago',
@@ -1420,21 +1416,21 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
     AppLanguage.english: 'Loss Details',
     AppLanguage.setswana: 'Dintlha tsa Ditshenyegelo',
   },
-  'results': {
-    AppLanguage.english: 'Results',
-    AppLanguage.setswana: 'Dipholo',
-  },
+  'results': {AppLanguage.english: 'Results', AppLanguage.setswana: 'Dipholo'},
   'select_crop': {
     AppLanguage.english: 'Select Crop',
     AppLanguage.setswana: 'Tlhopha Sejalo',
   },
   'select_crop_for_calculation': {
     AppLanguage.english: 'Choose a crop to calculate post-harvest losses',
-    AppLanguage.setswana: 'Tlhopha sejalo go bala ditshenyegelo tsa morago ga thobo',
+    AppLanguage.setswana:
+        'Tlhopha sejalo go bala ditshenyegelo tsa morago ga thobo',
   },
   'no_crops_add_first': {
-    AppLanguage.english: 'No crops found. Add a crop first to use the calculator.',
-    AppLanguage.setswana: 'Ga go na dijalo. Tsenya sejalo pele go dirisa sekala-ditshenyegelo.',
+    AppLanguage.english:
+        'No crops found. Add a crop first to use the calculator.',
+    AppLanguage.setswana:
+        'Ga go na dijalo. Tsenya sejalo pele go dirisa sekala-ditshenyegelo.',
   },
   'choose_crop': {
     AppLanguage.english: 'Choose a crop',
@@ -1457,8 +1453,10 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
     AppLanguage.setswana: 'Tsenya Ditshenyegelo ka Mogato',
   },
   'enter_losses_description': {
-    AppLanguage.english: 'Enter the amount lost at each stage. Leave blank if none.',
-    AppLanguage.setswana: 'Tsenya selekanyo se se latlhegileng mo mogatong mongwe le mongwe. Tlogela go se na sepe fa go se na.',
+    AppLanguage.english:
+        'Enter the amount lost at each stage. Leave blank if none.',
+    AppLanguage.setswana:
+        'Tsenya selekanyo se se latlhegileng mo mogatong mongwe le mongwe. Tlogela go se na sepe fa go se na.',
   },
   'select_cause': {
     AppLanguage.english: 'Select cause (optional)',
@@ -1484,14 +1482,8 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
     AppLanguage.english: 'Running Total',
     AppLanguage.setswana: 'Palogotlhe e e Tswelelang',
   },
-  'calculate': {
-    AppLanguage.english: 'Calculate',
-    AppLanguage.setswana: 'Bala',
-  },
-  'done': {
-    AppLanguage.english: 'Done',
-    AppLanguage.setswana: 'Go Fedile',
-  },
+  'calculate': {AppLanguage.english: 'Calculate', AppLanguage.setswana: 'Bala'},
+  'done': {AppLanguage.english: 'Done', AppLanguage.setswana: 'Go Fedile'},
   'total_loss': {
     AppLanguage.english: 'Total Loss',
     AppLanguage.setswana: 'Ditshenyegelo Tsotlhe',
@@ -1530,11 +1522,13 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
   },
   'below_regional_average': {
     AppLanguage.english: 'Below regional average — well done!',
-    AppLanguage.setswana: 'Ka fa tlase ga palogare ya tikologo — o dirile sentle!',
+    AppLanguage.setswana:
+        'Ka fa tlase ga palogare ya tikologo — o dirile sentle!',
   },
   'above_regional_average': {
     AppLanguage.english: 'Above regional average — room for improvement',
-    AppLanguage.setswana: 'Ka fa godimo ga palogare ya tikologo — go na le sebaka sa tokafatso',
+    AppLanguage.setswana:
+        'Ka fa godimo ga palogare ya tikologo — go na le sebaka sa tokafatso',
   },
   'regional_average': {
     AppLanguage.english: 'Regional average',
@@ -1546,7 +1540,8 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
   },
   'based_on_highest_loss': {
     AppLanguage.english: 'Based on your highest loss stage',
-    AppLanguage.setswana: 'Go ya ka mogato wa gago o o nang le ditshenyegelo tse dintsi',
+    AppLanguage.setswana:
+        'Go ya ka mogato wa gago o o nang le ditshenyegelo tse dintsi',
   },
   'no_losses_recorded': {
     AppLanguage.english: 'No losses recorded — great job!',
@@ -1612,60 +1607,88 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
   },
   // Prevention tips
   'tip_field_timely_harvest': {
-    AppLanguage.english: 'Harvest at the right time — delays increase field losses by up to 10%.',
-    AppLanguage.setswana: 'Roba ka nako e e siameng — go diega go oketsa ditshenyegelo tsa tshimo ka 10%.',
+    AppLanguage.english:
+        'Harvest at the right time — delays increase field losses by up to 10%.',
+    AppLanguage.setswana:
+        'Roba ka nako e e siameng — go diega go oketsa ditshenyegelo tsa tshimo ka 10%.',
   },
   'tip_field_pest_management': {
-    AppLanguage.english: 'Use integrated pest management before and during harvest to reduce crop damage.',
-    AppLanguage.setswana: 'Dirisa taolo ya disenyi pele le ka nako ya thobo go fokotsa tshenyegelo ya dijalo.',
+    AppLanguage.english:
+        'Use integrated pest management before and during harvest to reduce crop damage.',
+    AppLanguage.setswana:
+        'Dirisa taolo ya disenyi pele le ka nako ya thobo go fokotsa tshenyegelo ya dijalo.',
   },
   'tip_field_proper_handling': {
-    AppLanguage.english: 'Handle produce gently during harvest — avoid dropping or throwing.',
-    AppLanguage.setswana: 'Tshwara dijalo ka kelotlhoko ka nako ya thobo — tila go latlhela kgotsa go tshola.',
+    AppLanguage.english:
+        'Handle produce gently during harvest — avoid dropping or throwing.',
+    AppLanguage.setswana:
+        'Tshwara dijalo ka kelotlhoko ka nako ya thobo — tila go latlhela kgotsa go tshola.',
   },
   'tip_transport_proper_containers': {
-    AppLanguage.english: 'Use clean, rigid containers (crates, baskets) instead of sacks to prevent crushing.',
-    AppLanguage.setswana: 'Dirisa ditshipi tse di phepa (dikerese, ditlatla) go na le mekotla go thibela go pitlagana.',
+    AppLanguage.english:
+        'Use clean, rigid containers (crates, baskets) instead of sacks to prevent crushing.',
+    AppLanguage.setswana:
+        'Dirisa ditshipi tse di phepa (dikerese, ditlatla) go na le mekotla go thibela go pitlagana.',
   },
   'tip_transport_minimize_distance': {
-    AppLanguage.english: 'Minimize transport time and distance. Sell or process closer to the farm.',
-    AppLanguage.setswana: 'Fokotsa nako le sebaka sa dipalangwa. Rekisa kgotsa dirisa gaufi le polasa.',
+    AppLanguage.english:
+        'Minimize transport time and distance. Sell or process closer to the farm.',
+    AppLanguage.setswana:
+        'Fokotsa nako le sebaka sa dipalangwa. Rekisa kgotsa dirisa gaufi le polasa.',
   },
   'tip_transport_avoid_heat': {
-    AppLanguage.english: 'Transport during cooler hours (early morning or evening) to reduce spoilage.',
-    AppLanguage.setswana: 'Rwala ka dinako tse di tsididi (phakela kgotsa mantsiboa) go fokotsa go bolela.',
+    AppLanguage.english:
+        'Transport during cooler hours (early morning or evening) to reduce spoilage.',
+    AppLanguage.setswana:
+        'Rwala ka dinako tse di tsididi (phakela kgotsa mantsiboa) go fokotsa go bolela.',
   },
   'tip_storage_dry_before_storing': {
-    AppLanguage.english: 'Dry crops to safe moisture levels before storing (e.g., 13% for grains).',
-    AppLanguage.setswana: 'Omisa dijalo go ya maemong a a babalesegileng a monola pele ga polokelo (sekao, 13% go mabele).',
+    AppLanguage.english:
+        'Dry crops to safe moisture levels before storing (e.g., 13% for grains).',
+    AppLanguage.setswana:
+        'Omisa dijalo go ya maemong a a babalesegileng a monola pele ga polokelo (sekao, 13% go mabele).',
   },
   'tip_storage_use_hermetic': {
-    AppLanguage.english: 'Use hermetic (airtight) storage bags or containers to prevent pests and mould.',
-    AppLanguage.setswana: 'Dirisa mekotla kgotsa ditshipi tse di tswalwang ka botlalo go thibela disenyi le mofufutso.',
+    AppLanguage.english:
+        'Use hermetic (airtight) storage bags or containers to prevent pests and mould.',
+    AppLanguage.setswana:
+        'Dirisa mekotla kgotsa ditshipi tse di tswalwang ka botlalo go thibela disenyi le mofufutso.',
   },
   'tip_storage_check_regularly': {
-    AppLanguage.english: 'Inspect stored produce regularly for signs of pests, mould, or moisture.',
-    AppLanguage.setswana: 'Tlhola dithoto tse di bolokwileng ka metlha go bona matshwao a disenyi, mofufutso, kgotsa monola.',
+    AppLanguage.english:
+        'Inspect stored produce regularly for signs of pests, mould, or moisture.',
+    AppLanguage.setswana:
+        'Tlhola dithoto tse di bolokwileng ka metlha go bona matshwao a disenyi, mofufutso, kgotsa monola.',
   },
   'tip_storage_upgrade_method': {
-    AppLanguage.english: 'Consider upgrading from open-air/traditional to improved or hermetic storage.',
-    AppLanguage.setswana: 'Akanya go tokafatsa go tswa mo polokelong ya setso go ya go e e tokafaditsweng kgotsa ya hermetic.',
+    AppLanguage.english:
+        'Consider upgrading from open-air/traditional to improved or hermetic storage.',
+    AppLanguage.setswana:
+        'Akanya go tokafatsa go tswa mo polokelong ya setso go ya go e e tokafaditsweng kgotsa ya hermetic.',
   },
   'tip_processing_calibrate_equipment': {
-    AppLanguage.english: 'Calibrate threshing and milling equipment to minimize grain breakage.',
-    AppLanguage.setswana: 'Rulaganya didirisiwa tsa go photha le go sila go fokotsa go thubega ga mabele.',
+    AppLanguage.english:
+        'Calibrate threshing and milling equipment to minimize grain breakage.',
+    AppLanguage.setswana:
+        'Rulaganya didirisiwa tsa go photha le go sila go fokotsa go thubega ga mabele.',
   },
   'tip_processing_proper_drying': {
-    AppLanguage.english: 'Ensure proper drying before processing — wet grain shatters more easily.',
-    AppLanguage.setswana: 'Netefatsa go omisa sentle pele ga tiragatso — mabele a a metsi a thubega bonolo.',
+    AppLanguage.english:
+        'Ensure proper drying before processing — wet grain shatters more easily.',
+    AppLanguage.setswana:
+        'Netefatsa go omisa sentle pele ga tiragatso — mabele a a metsi a thubega bonolo.',
   },
   'tip_processing_train_workers': {
-    AppLanguage.english: 'Train workers on gentle handling techniques to reduce spillage and waste.',
-    AppLanguage.setswana: 'Katisa badiri ka mekgwa ya go tshwara ka kelotlhoko go fokotsa go tshologa le mosenyi.',
+    AppLanguage.english:
+        'Train workers on gentle handling techniques to reduce spillage and waste.',
+    AppLanguage.setswana:
+        'Katisa badiri ka mekgwa ya go tshwara ka kelotlhoko go fokotsa go tshologa le mosenyi.',
   },
   'tip_general_record_losses': {
-    AppLanguage.english: 'Recording losses regularly helps identify patterns and areas for improvement.',
-    AppLanguage.setswana: 'Go kwala ditshenyegelo ka metlha go thusa go lemoga mekgwa le mafelo a tokafatso.',
+    AppLanguage.english:
+        'Recording losses regularly helps identify patterns and areas for improvement.',
+    AppLanguage.setswana:
+        'Go kwala ditshenyegelo ka metlha go thusa go lemoga mekgwa le mafelo a tokafatso.',
   },
   'list_on_marketplace': {
     AppLanguage.english: 'List on Marketplace',
@@ -1675,17 +1698,18 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
     AppLanguage.english: 'Listed on Marketplace',
     AppLanguage.setswana: 'E romeletswe mo Marketplace',
   },
-  'unlist': {
-    AppLanguage.english: 'Unlist',
-    AppLanguage.setswana: 'Ntsha',
-  },
+  'unlist': {AppLanguage.english: 'Unlist', AppLanguage.setswana: 'Ntsha'},
   'unlist_confirm': {
-    AppLanguage.english: 'Are you sure you want to remove this item from the marketplace?',
-    AppLanguage.setswana: 'A o tlhomamisegile gore o batla go ntsha seno mo marketplace?',
+    AppLanguage.english:
+        'Are you sure you want to remove this item from the marketplace?',
+    AppLanguage.setswana:
+        'A o tlhomamisegile gore o batla go ntsha seno mo marketplace?',
   },
   'listing_from_inventory': {
-    AppLanguage.english: 'Pre-filled from your inventory. Review and set a price.',
-    AppLanguage.setswana: 'E tladitswe go tswa mo inventory ya gago. Sekaseka o bo o beye tlhwatlhwa.',
+    AppLanguage.english:
+        'Pre-filled from your inventory. Review and set a price.',
+    AppLanguage.setswana:
+        'E tladitswe go tswa mo inventory ya gago. Sekaseka o bo o beye tlhwatlhwa.',
   },
   'listed': {
     AppLanguage.english: 'Listed',
@@ -1708,14 +1732,8 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
     AppLanguage.setswana: 'Palogotlhe',
   },
   // Settings Screen
-  'language': {
-    AppLanguage.english: 'Language',
-    AppLanguage.setswana: 'Puo',
-  },
-  'account': {
-    AppLanguage.english: 'Account',
-    AppLanguage.setswana: 'Akhaonto',
-  },
+  'language': {AppLanguage.english: 'Language', AppLanguage.setswana: 'Puo'},
+  'account': {AppLanguage.english: 'Account', AppLanguage.setswana: 'Akhaonto'},
   'support': {
     AppLanguage.english: 'Support',
     AppLanguage.setswana: 'Tshegetso',
@@ -1753,8 +1771,10 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
     AppLanguage.setswana: 'Ga go na imeile e e amanang le akhaonto eno',
   },
   'password_reset_message': {
-    AppLanguage.english: 'We will send a password reset link to your email address:',
-    AppLanguage.setswana: 'Re tla romela linki ya go fetola phasewete go imeile ya gago:',
+    AppLanguage.english:
+        'We will send a password reset link to your email address:',
+    AppLanguage.setswana:
+        'Re tla romela linki ya go fetola phasewete go imeile ya gago:',
   },
   'reset_failed': {
     AppLanguage.english: 'Failed to send reset email',
@@ -1762,7 +1782,8 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
   },
   'reset_email_sent': {
     AppLanguage.english: 'Password reset email sent! Check your inbox.',
-    AppLanguage.setswana: 'Imeile ya go fetola phasewete e rometswe! Tlhola inbox ya gago.',
+    AppLanguage.setswana:
+        'Imeile ya go fetola phasewete e rometswe! Tlhola inbox ya gago.',
   },
   'send_reset_link': {
     AppLanguage.english: 'Send Reset Link',
@@ -1830,8 +1851,10 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
     AppLanguage.setswana: 'Dumela mokgwa wa go sa golagana',
   },
   'offlineModeDesc': {
-    AppLanguage.english: 'Save data locally to work without internet. Uses a small amount of phone storage.',
-    AppLanguage.setswana: 'Boloka data mono go dira ntle le inthanete. E dirisa bogolo bo bonnye jwa polokelo.',
+    AppLanguage.english:
+        'Save data locally to work without internet. Uses a small amount of phone storage.',
+    AppLanguage.setswana:
+        'Boloka data mono go dira ntle le inthanete. E dirisa bogolo bo bonnye jwa polokelo.',
   },
   'cacheSize': {
     AppLanguage.english: 'Cached data size',
@@ -1842,8 +1865,10 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
     AppLanguage.setswana: 'Tlosa data e e bolokilweng',
   },
   'clearCacheWarning': {
-    AppLanguage.english: 'This will delete all locally saved data. Any unsynced changes will be lost.',
-    AppLanguage.setswana: 'Se se tla tlosa data yotlhe e e bolokilweng mono. Diphetogo tse di sa romelelwang di tla latlhega.',
+    AppLanguage.english:
+        'This will delete all locally saved data. Any unsynced changes will be lost.',
+    AppLanguage.setswana:
+        'Se se tla tlosa data yotlhe e e bolokilweng mono. Diphetogo tse di sa romelelwang di tla latlhega.',
   },
   'cacheCleared': {
     AppLanguage.english: 'Cached data cleared',
@@ -1867,7 +1892,82 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
   },
   'changesSaved': {
     AppLanguage.english: 'Changes saved locally, will sync when online',
-    AppLanguage.setswana: 'Diphetogo di boloketswe mono, di tla romelwa fa o golagana',
+    AppLanguage.setswana:
+        'Diphetogo di boloketswe mono, di tla romelwa fa o golagana',
+  },
+  // Data export
+  'export_data': {
+    AppLanguage.english: 'Export Data',
+    AppLanguage.setswana: 'Romela Tshedimosetso',
+  },
+  'select_format': {
+    AppLanguage.english: 'Select Format',
+    AppLanguage.setswana: 'Tlhopha Sebopego',
+  },
+  'select_data': {
+    AppLanguage.english: 'Select Data to Export',
+    AppLanguage.setswana: 'Tlhopha Tshedimosetso go Romela',
+  },
+  'crops_report': {
+    AppLanguage.english: 'Crops',
+    AppLanguage.setswana: 'Dijalo',
+  },
+  'inventory_report': {
+    AppLanguage.english: 'Inventory',
+    AppLanguage.setswana: 'Setoko',
+  },
+  'purchases_report': {
+    AppLanguage.english: 'Purchases',
+    AppLanguage.setswana: 'Ditheko',
+  },
+  'orders_report': {
+    AppLanguage.english: 'Orders',
+    AppLanguage.setswana: 'Di-odara',
+  },
+  'farm_summary': {
+    AppLanguage.english: 'Farm Summary',
+    AppLanguage.setswana: 'Kakaretso ya Polasi',
+  },
+  'business_summary': {
+    AppLanguage.english: 'Business Summary',
+    AppLanguage.setswana: 'Kakaretso ya Kgwebo',
+  },
+  'export_success': {
+    AppLanguage.english: 'Export ready',
+    AppLanguage.setswana: 'Pego e siame',
+  },
+  'export_error': {
+    AppLanguage.english: 'Export failed',
+    AppLanguage.setswana: 'Pego e paletswe',
+  },
+  'generating_report': {
+    AppLanguage.english: 'Generating report...',
+    AppLanguage.setswana: 'Go dira pego...',
+  },
+  'no_data_to_export': {
+    AppLanguage.english: 'No data to export',
+    AppLanguage.setswana: 'Ga go na tshedimosetso go romela',
+  },
+  'generated_on': {
+    AppLanguage.english: 'Generated on',
+    AppLanguage.setswana: 'E dirilwe ka',
+  },
+  'seller': {AppLanguage.english: 'Seller', AppLanguage.setswana: 'Morekisi'},
+  'price_per_unit': {
+    AppLanguage.english: 'Price per Unit',
+    AppLanguage.setswana: 'Tlhwatlhwa ka Yuniti',
+  },
+  'total_amount': {
+    AppLanguage.english: 'Total Amount',
+    AppLanguage.setswana: 'Palogotlhe',
+  },
+  'purchase_date': {
+    AppLanguage.english: 'Purchase Date',
+    AppLanguage.setswana: 'Letsatsi la Theko',
+  },
+  'order_id': {
+    AppLanguage.english: 'Order ID',
+    AppLanguage.setswana: 'Nomoro ya Odara',
   },
 };
 

@@ -1,7 +1,7 @@
 name: agricola
 description: "A new Flutter project."
 publish_to: 'none'
-version: 0.15.0
+version: 0.16.0
 
 environment:
   sdk: ^3.9.0
@@ -35,6 +35,9 @@ dependencies:
   drift_flutter: ^0.2.4
   connectivity_plus: ^6.1.4
   uuid: ^4.5.1
+  csv: ^6.0.0
+  pdf: ^3.11.0
+  share_plus: ^10.0.0
 
 dev_dependencies:
   flutter_test:

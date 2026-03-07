@@ -1,6 +1,11 @@
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
+import 'package:agricola/features/crops/providers/crop_providers.dart';
+import 'package:agricola/features/inventory/providers/inventory_providers.dart';
+import 'package:agricola/features/orders/providers/orders_provider.dart';
+import 'package:agricola/features/purchases/providers/purchases_provider.dart';
 import 'package:agricola/features/reports/providers/reports_provider.dart';
+import 'package:agricola/features/reports/services/export_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -18,6 +23,13 @@ class ReportsScreen extends ConsumerWidget {
         backgroundColor: Colors.white,
         foregroundColor: Colors.black87,
         elevation: 0,
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => _showExportSheet(context, ref, currentLang, isFarmer: true),
+        backgroundColor: AppColors.green,
+        icon: const Icon(Icons.file_download, color: Colors.white),
+        label: Text(t('export_data', currentLang),
+            style: const TextStyle(color: Colors.white)),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -49,6 +61,13 @@ class MerchantReportsScreen extends ConsumerWidget {
         backgroundColor: Colors.white,
         foregroundColor: Colors.black87,
         elevation: 0,
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => _showExportSheet(context, ref, currentLang, isFarmer: false),
+        backgroundColor: AppColors.green,
+        icon: const Icon(Icons.file_download, color: Colors.white),
+        label: Text(t('export_data', currentLang),
+            style: const TextStyle(color: Colors.white)),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -414,6 +433,205 @@ class _ActivityTile extends StatelessWidget {
     if (diff.inDays < 7) return '${diff.inDays}d ago';
     return '${date.day}/${date.month}/${date.year}';
   }
+}
+
+// ---------------------------------------------------------------------------
+// Export bottom sheet
+// ---------------------------------------------------------------------------
+
+void _showExportSheet(
+    BuildContext context, WidgetRef ref, AppLanguage lang,
+    {required bool isFarmer}) {
+  showModalBottomSheet(
+    context: context,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    ),
+    builder: (_) => _ExportSheet(ref: ref, lang: lang, isFarmer: isFarmer),
+  );
+}
+
+class _ExportSheet extends StatelessWidget {
+  final WidgetRef ref;
+  final AppLanguage lang;
+  final bool isFarmer;
+
+  const _ExportSheet({
+    required this.ref,
+    required this.lang,
+    required this.isFarmer,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final options = isFarmer
+        ? [
+            _ExportOption(
+              icon: Icons.grass,
+              label: t('crops_report', lang),
+              onTap: () => _exportCsv(context, 'crops'),
+            ),
+            _ExportOption(
+              icon: Icons.inventory_2,
+              label: t('inventory_report', lang),
+              onTap: () => _exportCsv(context, 'inventory'),
+            ),
+            _ExportOption(
+              icon: Icons.picture_as_pdf,
+              label: '${t('farm_summary', lang)} (PDF)',
+              onTap: () => _exportPdf(context, 'farmer_summary'),
+            ),
+          ]
+        : [
+            _ExportOption(
+              icon: Icons.inventory_2,
+              label: t('inventory_report', lang),
+              onTap: () => _exportCsv(context, 'inventory'),
+            ),
+            _ExportOption(
+              icon: Icons.shopping_bag,
+              label: t('purchases_report', lang),
+              onTap: () => _exportCsv(context, 'purchases'),
+            ),
+            _ExportOption(
+              icon: Icons.shopping_cart,
+              label: t('orders_report', lang),
+              onTap: () => _exportCsv(context, 'orders'),
+            ),
+            _ExportOption(
+              icon: Icons.picture_as_pdf,
+              label: '${t('business_summary', lang)} (PDF)',
+              onTap: () => _exportPdf(context, 'merchant_summary'),
+            ),
+          ];
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 20, 16, 32),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Center(
+            child: Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            t('select_data', lang),
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
+          ),
+          const SizedBox(height: 16),
+          ...options.map((opt) => ListTile(
+                leading: Icon(opt.icon, color: AppColors.green),
+                title: Text(opt.label),
+                trailing: const Icon(Icons.chevron_right, color: Colors.grey),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
+                onTap: opt.onTap,
+              )),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _exportCsv(BuildContext context, String type) async {
+    Navigator.pop(context);
+
+    String csv;
+    String filename;
+    final date = DateTime.now().toIso8601String().split('T').first;
+
+    switch (type) {
+      case 'crops':
+        final crops = ref.read(cropNotifierProvider).valueOrNull ?? [];
+        if (crops.isEmpty) {
+          _showMessage(context, t('no_data_to_export', lang));
+          return;
+        }
+        csv = cropsToCsv(crops, lang);
+        filename = 'agricola_crops_$date.csv';
+      case 'inventory':
+        final items = ref.read(inventoryNotifierProvider).valueOrNull ?? [];
+        if (items.isEmpty) {
+          _showMessage(context, t('no_data_to_export', lang));
+          return;
+        }
+        csv = inventoryToCsv(items, lang);
+        filename = 'agricola_inventory_$date.csv';
+      case 'purchases':
+        final purchases =
+            ref.read(purchasesNotifierProvider).valueOrNull ?? [];
+        if (purchases.isEmpty) {
+          _showMessage(context, t('no_data_to_export', lang));
+          return;
+        }
+        csv = purchasesToCsv(purchases, lang);
+        filename = 'agricola_purchases_$date.csv';
+      case 'orders':
+        final orders = ref.read(ordersNotifierProvider).valueOrNull ?? [];
+        if (orders.isEmpty) {
+          _showMessage(context, t('no_data_to_export', lang));
+          return;
+        }
+        csv = ordersToCsv(orders, lang);
+        filename = 'agricola_orders_$date.csv';
+      default:
+        return;
+    }
+
+    try {
+      await shareExportFile(csv, filename, 'text/csv');
+    } catch (_) {
+      if (context.mounted) _showMessage(context, t('export_error', lang));
+    }
+  }
+
+  Future<void> _exportPdf(BuildContext context, String type) async {
+    Navigator.pop(context);
+
+    try {
+      List<int> bytes;
+      String filename;
+      final date = DateTime.now().toIso8601String().split('T').first;
+
+      if (type == 'farmer_summary') {
+        final stats = ref.read(farmerReportStatsProvider);
+        bytes = await farmerSummaryPdf(stats, lang);
+        filename = 'agricola_farm_summary_$date.pdf';
+      } else {
+        final stats = ref.read(merchantReportStatsProvider);
+        bytes = await merchantSummaryPdf(stats, lang);
+        filename = 'agricola_business_summary_$date.pdf';
+      }
+
+      await sharePdfFile(bytes, filename);
+    } catch (_) {
+      if (context.mounted) _showMessage(context, t('export_error', lang));
+    }
+  }
+
+  void _showMessage(BuildContext context, String msg) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(msg)));
+  }
+}
+
+class _ExportOption {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+  const _ExportOption(
+      {required this.icon, required this.label, required this.onTap});
 }
 
 // ---------------------------------------------------------------------------
