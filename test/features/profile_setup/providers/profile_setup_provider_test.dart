@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:agricola/domain/profile/enum/merchant_type.dart';
 import 'package:agricola/features/auth/providers/auth_controller.dart';
 import 'package:agricola/features/auth/providers/auth_provider.dart';
@@ -22,6 +24,7 @@ void main() {
 
   setUpAll(() {
     // Register fallback values for mocktail
+    registerFallbackValue(File(''));
     registerFallbackValue(
       FarmerProfileModel(
         id: '',
@@ -249,12 +252,24 @@ void main() {
       // Arrange
       final notifier = container.read(profileSetupProvider.notifier);
 
+      // Create a real temporary file so File.exists() returns true
+      final tempDir = Directory.systemTemp.createTempSync('photo_test_');
+      final tempFile = File('${tempDir.path}/photo.jpg')..writeAsBytesSync([0]);
+
       notifier.startNewProfileSetup(UserType.farmer, null);
       notifier.updateVillage('Test Village');
       notifier.toggleCrop('Maize');
       notifier.updateFarmSize('Small (< 5 acres)');
-      notifier.setPhoto('/path/to/photo.jpg');
+      notifier.setPhoto(tempFile.path);
       await Future.delayed(const Duration(milliseconds: 200));
+
+      const uploadedUrl = 'https://storage.example.com/photo.jpg';
+      when(
+        () => mockProfileNotifier.uploadProfilePhoto(
+          userId: any(named: 'userId'),
+          photoFile: any(named: 'photoFile'),
+        ),
+      ).thenAnswer((_) async => uploadedUrl);
 
       FarmerProfileModel? capturedProfile;
       when(
@@ -275,9 +290,12 @@ void main() {
       // Act
       await notifier.completeSetup();
 
+      // Cleanup
+      tempDir.deleteSync(recursive: true);
+
       // Assert
       expect(capturedProfile, isNotNull);
-      expect(capturedProfile!.photoUrl, '/path/to/photo.jpg');
+      expect(capturedProfile!.photoUrl, uploadedUrl);
     });
   });
 

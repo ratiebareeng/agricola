@@ -71,7 +71,7 @@ void main() {
       test('should create farmer profile and cache it', () async {
         when(
           () => mockApiService.createFarmerProfile(any()),
-        ).thenAnswer((_) async => farmerProfile.toJson());
+        ).thenAnswer((_) async => {'data': farmerProfile.toJson()});
         when(
           () => mockCacheService.cacheFarmerProfile(any()),
         ).thenAnswer((_) async => {});
@@ -116,7 +116,7 @@ void main() {
       test('should create merchant profile and cache it', () async {
         when(
           () => mockApiService.createMerchantProfile(any()),
-        ).thenAnswer((_) async => merchantProfile.toJson());
+        ).thenAnswer((_) async => {'data': merchantProfile.toJson()});
         when(
           () => mockCacheService.cacheMerchantProfile(any()),
         ).thenAnswer((_) async => {});
@@ -159,7 +159,7 @@ void main() {
         when(() => mockCacheService.getCachedProfile()).thenReturn(null);
         when(
           () => mockApiService.getFarmerProfile(any()),
-        ).thenAnswer((_) async => farmerProfile.toJson());
+        ).thenAnswer((_) async => {'data': farmerProfile.toJson()});
         when(
           () => mockCacheService.cacheFarmerProfile(any()),
         ).thenAnswer((_) async => {});
@@ -192,7 +192,7 @@ void main() {
           );
           when(
             () => mockApiService.getMerchantProfile(any()),
-          ).thenAnswer((_) async => merchantProfile.toJson());
+          ).thenAnswer((_) async => {'data': merchantProfile.toJson()});
           when(
             () => mockCacheService.cacheMerchantProfile(any()),
           ).thenAnswer((_) async => {});
@@ -252,7 +252,7 @@ void main() {
 
         when(
           () => mockApiService.updateFarmerProfile(any(), any()),
-        ).thenAnswer((_) async => updatedProfile.toJson());
+        ).thenAnswer((_) async => {'data': updatedProfile.toJson()});
         when(
           () => mockCacheService.cacheFarmerProfile(any()),
         ).thenAnswer((_) async => {});
@@ -304,7 +304,7 @@ void main() {
 
         when(
           () => mockApiService.updateMerchantProfile(any(), any()),
-        ).thenAnswer((_) async => updatedProfile.toJson());
+        ).thenAnswer((_) async => {'data': updatedProfile.toJson()});
         when(
           () => mockCacheService.cacheMerchantProfile(any()),
         ).thenAnswer((_) async => {});
@@ -467,7 +467,7 @@ void main() {
       test('should bypass cache and fetch fresh farmer profile', () async {
         when(
           () => mockApiService.getFarmerProfile(any()),
-        ).thenAnswer((_) async => farmerProfile.toJson());
+        ).thenAnswer((_) async => {'data': farmerProfile.toJson()});
         when(
           () => mockCacheService.cacheFarmerProfile(any()),
         ).thenAnswer((_) async => {});
