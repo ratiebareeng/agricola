@@ -1,3 +1,11 @@
+## 0.11.1 - 2026-03-07
+
+### Fixed
+- Auth test compilation errors
+  - Replaced `StreamProvider.overrideWithValue()` (not available in Riverpod 2.6.1) with `overrideWith()` using streams
+  - Route protection tests now override `unifiedAuthStateProvider` directly instead of upstream `StreamProvider`
+  - Fixed `FakeRef` to implement `Ref<Object?>` and `_FakeBuildContext` to implement `BuildContext` in sign-in tests
+
 ## 0.11.0 - 2026-03-07
 
 ### Added
