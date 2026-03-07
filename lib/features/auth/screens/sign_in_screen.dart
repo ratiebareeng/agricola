@@ -98,9 +98,6 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
             SocialLoginButtons(
               isLoading: signInState.isLoading,
               onGoogleTap: () => signInNotifier.signInWithGoogle(context),
-              onFacebookTap: () {
-                // TODO: Implement Facebook sign-in
-              },
             ),
             const SizedBox(height: 32),
             AuthFooterLink(
