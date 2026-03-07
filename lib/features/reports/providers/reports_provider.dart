@@ -1,6 +1,9 @@
 import 'package:agricola/core/network/http_client_provider.dart';
+import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/features/auth/providers/auth_provider.dart';
+import 'package:agricola/features/crops/crop_helpers.dart';
 import 'package:agricola/features/crops/models/crop_model.dart';
+import 'package:agricola/features/crops/providers/crop_catalog_provider.dart';
 import 'package:agricola/features/crops/providers/crop_providers.dart';
 import 'package:agricola/features/home/providers/dashboard_stats_provider.dart';
 import 'package:agricola/features/inventory/providers/inventory_providers.dart';
@@ -203,6 +206,8 @@ class ActivityItem {
 enum ActivityType { crop, inventory, purchase, listing }
 
 final recentActivityProvider = Provider<List<ActivityItem>>((ref) {
+  final lang = ref.watch(languageProvider);
+  final catalog = ref.watch(cropCatalogProvider).valueOrNull ?? [];
   final cropsAsync = ref.watch(cropNotifierProvider);
   final inventoryAsync = ref.watch(inventoryNotifierProvider);
   final purchasesAsync = ref.watch(purchasesNotifierProvider);
@@ -212,7 +217,7 @@ final recentActivityProvider = Provider<List<ActivityItem>>((ref) {
 
   for (final crop in cropsAsync.valueOrNull ?? <CropModel>[]) {
     activities.add(ActivityItem(
-      title: 'Planted ${crop.cropType}',
+      title: 'Planted ${cropDisplayName(crop.cropType, catalog, lang)}',
       subtitle: crop.fieldName,
       date: crop.createdAt,
       type: ActivityType.crop,
@@ -221,7 +226,7 @@ final recentActivityProvider = Provider<List<ActivityItem>>((ref) {
 
   for (final item in inventoryAsync.valueOrNull ?? []) {
     activities.add(ActivityItem(
-      title: 'Stored ${item.cropType}',
+      title: 'Stored ${cropDisplayName(item.cropType, catalog, lang)}',
       subtitle: '${item.quantity} ${item.unit} at ${item.storageLocation}',
       date: item.createdAt,
       type: ActivityType.inventory,

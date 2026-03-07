@@ -1,5 +1,7 @@
 import 'package:agricola/core/providers/language_provider.dart';
+import 'package:agricola/features/crops/crop_helpers.dart';
 import 'package:agricola/features/crops/models/crop_model.dart';
+import 'package:agricola/features/crops/providers/crop_catalog_provider.dart';
 import 'package:agricola/features/crops/providers/crop_providers.dart';
 import 'package:agricola/features/inventory/models/inventory_model.dart';
 import 'package:agricola/features/inventory/providers/inventory_providers.dart';
@@ -12,6 +14,7 @@ final notificationsProvider = Provider<List<AppNotification>>((ref) {
   final lang = ref.watch(languageProvider);
   final cropsAsync = ref.watch(cropNotifierProvider);
   final inventoryAsync = ref.watch(inventoryNotifierProvider);
+  final catalog = ref.watch(cropCatalogProvider).valueOrNull ?? [];
 
   final notifications = <AppNotification>[];
   final now = DateTime.now();
@@ -20,23 +23,25 @@ final notificationsProvider = Provider<List<AppNotification>>((ref) {
   final crops = cropsAsync.valueOrNull ?? [];
   for (final crop in crops) {
     final daysUntil = crop.expectedHarvestDate.difference(now).inDays;
+    final name = cropDisplayName(crop.cropType, catalog, lang);
 
     if (daysUntil < 0 && daysUntil > -30) {
-      notifications.add(_overdueHarvest(crop, daysUntil.abs(), lang));
+      notifications.add(_overdueHarvest(crop, name, daysUntil.abs(), lang));
     } else if (daysUntil >= 0 && daysUntil <= 7) {
-      notifications.add(_upcomingHarvest(crop, daysUntil, lang));
+      notifications.add(_upcomingHarvest(crop, name, daysUntil, lang));
     } else if (daysUntil > 7 && daysUntil <= 14) {
-      notifications.add(_approachingHarvest(crop, daysUntil, lang));
+      notifications.add(_approachingHarvest(crop, name, daysUntil, lang));
     }
   }
 
   // Low stock / poor condition from inventory
   final inventory = inventoryAsync.valueOrNull ?? [];
   for (final item in inventory) {
+    final itemName = cropDisplayName(item.cropType, catalog, lang);
     if (item.condition == 'critical') {
-      notifications.add(_criticalCondition(item, lang));
+      notifications.add(_criticalCondition(item, itemName, lang));
     } else if (item.condition == 'needs_attention') {
-      notifications.add(_needsAttention(item, lang));
+      notifications.add(_needsAttention(item, itemName, lang));
     }
   }
 
@@ -62,13 +67,13 @@ final unreadNotificationCountProvider = Provider<int>((ref) {
 // Notification factory helpers
 // ---------------------------------------------------------------------------
 
-AppNotification _overdueHarvest(CropModel crop, int daysOverdue, AppLanguage lang) {
+AppNotification _overdueHarvest(CropModel crop, String displayName, int daysOverdue, AppLanguage lang) {
   final isEn = lang == AppLanguage.english;
   return AppNotification(
     id: 'harvest_overdue_${crop.id}',
     title: isEn
-        ? '${crop.cropType} harvest overdue'
-        : '${crop.cropType} nako ya go roba e fetile',
+        ? '$displayName harvest overdue'
+        : '$displayName nako ya go roba e fetile',
     body: isEn
         ? '${crop.fieldName} was due $daysOverdue day${daysOverdue == 1 ? '' : 's'} ago. Record your harvest or update the crop.'
         : '${crop.fieldName} e ne e tshwanetse go robwa maloba $daysOverdue a fetile.',
@@ -78,7 +83,7 @@ AppNotification _overdueHarvest(CropModel crop, int daysOverdue, AppLanguage lan
   );
 }
 
-AppNotification _upcomingHarvest(CropModel crop, int daysUntil, AppLanguage lang) {
+AppNotification _upcomingHarvest(CropModel crop, String displayName, int daysUntil, AppLanguage lang) {
   final isEn = lang == AppLanguage.english;
   final timeText = daysUntil == 0
       ? (isEn ? 'today' : 'gompieno')
@@ -88,8 +93,8 @@ AppNotification _upcomingHarvest(CropModel crop, int daysUntil, AppLanguage lang
   return AppNotification(
     id: 'harvest_soon_${crop.id}',
     title: isEn
-        ? '${crop.cropType} ready $timeText'
-        : '${crop.cropType} e iketleeditse $timeText',
+        ? '$displayName ready $timeText'
+        : '$displayName e iketleeditse $timeText',
     body: isEn
         ? '${crop.fieldName} is due for harvest $timeText. Prepare your storage.'
         : '${crop.fieldName} e tshwanetse go robwa $timeText.',
@@ -101,13 +106,13 @@ AppNotification _upcomingHarvest(CropModel crop, int daysUntil, AppLanguage lang
   );
 }
 
-AppNotification _approachingHarvest(CropModel crop, int daysUntil, AppLanguage lang) {
+AppNotification _approachingHarvest(CropModel crop, String displayName, int daysUntil, AppLanguage lang) {
   final isEn = lang == AppLanguage.english;
   return AppNotification(
     id: 'harvest_approaching_${crop.id}',
     title: isEn
-        ? '${crop.cropType} harvest in $daysUntil days'
-        : '${crop.cropType} e tla robwa mo malatsing a $daysUntil',
+        ? '$displayName harvest in $daysUntil days'
+        : '$displayName e tla robwa mo malatsing a $daysUntil',
     body: isEn
         ? '${crop.fieldName} is approaching harvest time. Start planning ahead.'
         : '${crop.fieldName} e atamela nako ya go roba.',
@@ -117,13 +122,13 @@ AppNotification _approachingHarvest(CropModel crop, int daysUntil, AppLanguage l
   );
 }
 
-AppNotification _criticalCondition(InventoryModel item, AppLanguage lang) {
+AppNotification _criticalCondition(InventoryModel item, String displayName, AppLanguage lang) {
   final isEn = lang == AppLanguage.english;
   return AppNotification(
     id: 'inventory_critical_${item.id}',
     title: isEn
-        ? '${item.cropType} in critical condition'
-        : '${item.cropType} e mo maemong a maswe',
+        ? '$displayName in critical condition'
+        : '$displayName e mo maemong a maswe',
     body: isEn
         ? '${item.quantity} ${item.unit} at ${item.storageLocation} needs immediate attention.'
         : '${item.quantity} ${item.unit} kwa ${item.storageLocation} e tlhoka tlhokomelo ka bonako.',
@@ -133,13 +138,13 @@ AppNotification _criticalCondition(InventoryModel item, AppLanguage lang) {
   );
 }
 
-AppNotification _needsAttention(InventoryModel item, AppLanguage lang) {
+AppNotification _needsAttention(InventoryModel item, String displayName, AppLanguage lang) {
   final isEn = lang == AppLanguage.english;
   return AppNotification(
     id: 'inventory_attention_${item.id}',
     title: isEn
-        ? '${item.cropType} needs attention'
-        : '${item.cropType} e tlhoka tlhokomelo',
+        ? '$displayName needs attention'
+        : '$displayName e tlhoka tlhokomelo',
     body: isEn
         ? '${item.quantity} ${item.unit} at ${item.storageLocation} condition is declining.'
         : '${item.quantity} ${item.unit} kwa ${item.storageLocation} maemo a a fokotsa.',

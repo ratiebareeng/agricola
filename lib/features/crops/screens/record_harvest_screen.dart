@@ -1,6 +1,8 @@
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
+import 'package:agricola/features/crops/crop_helpers.dart';
 import 'package:agricola/features/crops/models/crop_model.dart';
+import 'package:agricola/features/crops/providers/crop_catalog_provider.dart';
 import 'package:agricola/features/crops/models/harvest_model.dart';
 import 'package:agricola/features/crops/widgets/quality_selector.dart';
 import 'package:flutter/material.dart';
@@ -43,6 +45,7 @@ class _RecordHarvestScreenState extends ConsumerState<RecordHarvestScreen> {
   @override
   Widget build(BuildContext context) {
     final currentLang = ref.watch(languageProvider);
+    final catalog = ref.watch(cropCatalogProvider).valueOrNull ?? [];
     final difference = _calculateDifference();
 
     return Scaffold(
@@ -96,7 +99,7 @@ class _RecordHarvestScreenState extends ConsumerState<RecordHarvestScreen> {
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  t(widget.crop.cropType, currentLang),
+                                  cropDisplayName(widget.crop.cropType, catalog, currentLang),
                                   style: TextStyle(
                                     fontSize: 14,
                                     color: Colors.grey[600],

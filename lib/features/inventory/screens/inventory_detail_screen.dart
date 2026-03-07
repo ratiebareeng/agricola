@@ -1,4 +1,6 @@
 import 'package:agricola/core/providers/language_provider.dart';
+import 'package:agricola/features/crops/crop_helpers.dart';
+import 'package:agricola/features/crops/providers/crop_catalog_provider.dart';
 import 'package:agricola/features/home/providers/dashboard_stats_provider.dart';
 import 'package:agricola/features/inventory/models/inventory_model.dart';
 import 'package:agricola/features/inventory/providers/inventory_providers.dart';
@@ -435,6 +437,7 @@ class _InventoryDetailScreenState extends ConsumerState<InventoryDetailScreen> {
   }
 
   Widget _buildHeader(BuildContext context, AppLanguage language) {
+    final catalog = ref.watch(cropCatalogProvider).valueOrNull ?? [];
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -463,7 +466,7 @@ class _InventoryDetailScreenState extends ConsumerState<InventoryDetailScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  t(_item.cropType, language),
+                  cropDisplayName(_item.cropType, catalog, language),
                   style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,

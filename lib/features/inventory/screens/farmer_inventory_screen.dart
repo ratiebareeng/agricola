@@ -2,6 +2,7 @@ import 'package:agricola/core/providers/database_provider.dart';
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/core/providers/offline_settings_provider.dart';
+import 'package:agricola/features/crops/crop_helpers.dart';
 import 'package:agricola/features/crops/models/crop_catalog_entry.dart';
 import 'package:agricola/features/crops/providers/crop_catalog_provider.dart';
 import 'package:agricola/features/home/providers/dashboard_stats_provider.dart';
@@ -62,6 +63,7 @@ class _FarmerInventoryScreenState extends ConsumerState<FarmerInventoryScreen> {
   @override
   Widget build(BuildContext context) {
     final currentLang = ref.watch(languageProvider);
+    final catalog = ref.watch(cropCatalogProvider).valueOrNull ?? [];
     final inventoryAsync = ref.watch(inventoryNotifierProvider);
     final myListingsAsync = ref.watch(myListingsNotifierProvider);
     final offlineEnabled = ref.watch(offlineModeEnabledProvider);
@@ -309,7 +311,7 @@ class _FarmerInventoryScreenState extends ConsumerState<FarmerInventoryScreen> {
                           itemBuilder: (context, index) {
                             final item = filteredItems[index];
                             return InventoryItemCard(
-                              cropType: item.cropType,
+                              cropType: cropDisplayName(item.cropType, catalog, currentLang),
                               quantity: item.quantity,
                               unit: item.unit,
                               storageDate: item.storageDate,

@@ -1,6 +1,8 @@
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/features/crops/models/crop_model.dart';
 import 'package:agricola/features/crops/models/harvest_model.dart';
+import 'package:agricola/features/crops/crop_helpers.dart';
+import 'package:agricola/features/crops/providers/crop_catalog_provider.dart';
 import 'package:agricola/features/crops/providers/crop_providers.dart';
 import 'package:agricola/features/crops/providers/harvest_providers.dart';
 import 'package:agricola/features/crops/screens/add_edit_crop_screen.dart';
@@ -21,6 +23,7 @@ class CropDetailsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentLang = ref.watch(languageProvider);
+    final catalog = ref.watch(cropCatalogProvider).valueOrNull ?? [];
     final harvestsState = ref.watch(harvestNotifierProvider(crop.id!));
     final status = _getCropStatus(crop);
     final currentStage = _getCurrentStage(crop);
@@ -88,7 +91,7 @@ class CropDetailsScreen extends ConsumerWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              t(crop.cropType, currentLang),
+                              cropDisplayName(crop.cropType, catalog, currentLang),
                               style: const TextStyle(
                                 fontSize: 28,
                                 fontWeight: FontWeight.bold,

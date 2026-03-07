@@ -1,4 +1,5 @@
 import 'package:agricola/core/providers/language_provider.dart';
+import 'package:agricola/features/crops/crop_helpers.dart';
 import 'package:agricola/features/crops/models/crop_model.dart';
 import 'package:agricola/features/crops/providers/crop_catalog_provider.dart';
 import 'package:agricola/features/crops/providers/crop_providers.dart';
@@ -211,6 +212,7 @@ class _LossCalculatorScreenState extends ConsumerState<LossCalculatorScreen> {
   // Step 1 — Crop & Harvest info
   // ---------------------------------------------------------------------------
   Widget _buildStep1(AppLanguage lang) {
+    final catalog = ref.watch(cropCatalogProvider).valueOrNull ?? [];
     final cropsAsync = ref.watch(cropNotifierProvider);
 
     return Column(
@@ -265,7 +267,7 @@ class _LossCalculatorScreenState extends ConsumerState<LossCalculatorScreen> {
                 return DropdownMenuItem(
                   value: crop,
                   child: Text(
-                    '${crop.fieldName} — ${t(crop.cropType, lang)}',
+                    '${crop.fieldName} — ${cropDisplayName(crop.cropType, catalog, lang)}',
                   ),
                 );
               }).toList(),

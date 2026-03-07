@@ -1,4 +1,6 @@
 import 'package:agricola/core/providers/language_provider.dart';
+import 'package:agricola/features/crops/crop_helpers.dart';
+import 'package:agricola/features/crops/providers/crop_catalog_provider.dart';
 import 'package:agricola/domain/profile/enum/merchant_type.dart';
 import 'package:agricola/features/home/providers/dashboard_stats_provider.dart';
 import 'package:agricola/features/inventory/models/inventory_model.dart';
@@ -23,6 +25,7 @@ class _MerchantInventoryScreenState
   @override
   Widget build(BuildContext context) {
     final currentLang = ref.watch(languageProvider);
+    final catalog = ref.watch(cropCatalogProvider).valueOrNull ?? [];
     final profile = ref.watch(profileSetupProvider);
     final isAgriShop =
         (profile.merchantType ?? MerchantType.agriShop) ==
@@ -170,7 +173,7 @@ class _MerchantInventoryScreenState
                           itemBuilder: (context, index) {
                             final item = inventory[index];
                             return InventoryItemCard(
-                              cropType: item.cropType,
+                              cropType: cropDisplayName(item.cropType, catalog, currentLang),
                               quantity: item.quantity,
                               unit: item.unit,
                               storageDate: item.storageDate,

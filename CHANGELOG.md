@@ -1,3 +1,11 @@
+## 0.20.3 - 2026-03-07
+
+### Fixed
+- **Fix crop display names** — display proper localized names instead of snake_case keys
+  - Added `cropDisplayName()` helper that looks up crop catalog entries and returns translated names (English/Setswana)
+  - Falls back to title-casing the key if catalog not loaded
+  - Updated 10 screens/widgets to use the helper instead of passing raw keys to `t()`
+
 ## 0.20.2 - 2026-03-07
 
 ### Changed

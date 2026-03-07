@@ -74,7 +74,7 @@ class InventoryItemCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        t(cropType, language),
+                        cropType,
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
