@@ -1,3 +1,25 @@
+## 0.15.0 - 2026-03-07
+
+### Added
+- **Offline Support — Phase 5 & 6 complete**
+  - **Purchases offline CRUD**: merchants can record, edit and delete purchases with no connection; changes queue to sync automatically when connectivity returns
+    - `PurchasesLocalDao`, `PurchasesOfflineRepository` following established crop/inventory pattern
+    - `purchases` entity type wired into `SyncService`
+  - **Marketplace read-only cache**: listings fetched online are cached locally; served from cache when offline (writes remain online-only)
+    - `MarketplaceLocalDao`, cache-aware `MarketplaceNotifier.loadListings()`
+  - **Orders read-only cache**: orders fetched online are cached locally; served from cache when offline (status updates remain online-only)
+    - `OrdersLocalDao`, cache-aware `OrdersNotifier.loadOrders()`
+  - **DB schema v2**: `LocalPurchases` table gains `localId` and `isSynced` columns with automatic Drift migration
+  - **`isSyncingProvider`**: exposes live sync-in-progress state to the UI
+  - **`unsyncedCropIdsProvider`** / **`unsyncedInventoryIdsProvider`**: stream providers returning IDs of locally-modified unsynced items
+  - **Sync improvements**: `SyncService.syncAll()` now calls `refreshProviders()` after each sync cycle; `purchasesNotifierProvider`, `marketplaceNotifierProvider`, and `ordersNotifierProvider` are invalidated on sync completion
+
+### Changed
+- **`OfflineBanner`**: shows an amber "Syncing…" indicator with spinner while a sync cycle is in progress (previously only shown when offline)
+- **`CropCard`**: new `isSynced` flag — shows a cloud-upload icon on any crop modified offline but not yet synced
+- **`InventoryItemCard`**: new `isSynced` flag — same pending-sync icon as crop card
+- **`CropsScreen`** / **`FarmerInventoryScreen`**: watch `unsyncedCropIdsProvider` / `unsyncedInventoryIdsProvider` and pass `isSynced` to each card
+
 ## 0.14.0 - 2026-03-07
 
 ### Added

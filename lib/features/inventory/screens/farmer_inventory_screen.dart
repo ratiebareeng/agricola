@@ -1,4 +1,6 @@
+import 'package:agricola/core/providers/database_provider.dart';
 import 'package:agricola/core/providers/language_provider.dart';
+import 'package:agricola/core/providers/offline_settings_provider.dart';
 import 'package:agricola/features/crops/models/crop_catalog_entry.dart';
 import 'package:agricola/features/crops/providers/crop_catalog_provider.dart';
 import 'package:agricola/features/home/providers/dashboard_stats_provider.dart';
@@ -61,6 +63,10 @@ class _FarmerInventoryScreenState extends ConsumerState<FarmerInventoryScreen> {
     final currentLang = ref.watch(languageProvider);
     final inventoryAsync = ref.watch(inventoryNotifierProvider);
     final myListingsAsync = ref.watch(myListingsNotifierProvider);
+    final offlineEnabled = ref.watch(offlineModeEnabledProvider);
+    final unsyncedInventoryIds = offlineEnabled
+        ? (ref.watch(unsyncedInventoryIdsProvider).valueOrNull ?? <String>{})
+        : <String>{};
 
     // Build set of listed inventory IDs
     final listedIds = <String>{};
@@ -310,6 +316,7 @@ class _FarmerInventoryScreenState extends ConsumerState<FarmerInventoryScreen> {
                               condition: item.condition,
                               language: currentLang,
                               isListed: listedIds.contains(item.id),
+                              isSynced: !unsyncedInventoryIds.contains(item.id),
                               onTap: () async {
                                 final result = await Navigator.push<bool>(
                                   context,

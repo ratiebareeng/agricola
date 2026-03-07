@@ -1599,6 +1599,17 @@ class $LocalPurchasesTable extends LocalPurchases
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _localIdMeta = const VerificationMeta(
+    'localId',
+  );
+  @override
+  late final GeneratedColumn<String> localId = GeneratedColumn<String>(
+    'local_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _dataMeta = const VerificationMeta('data');
   @override
   late final GeneratedColumn<String> data = GeneratedColumn<String>(
@@ -1607,6 +1618,21 @@ class $LocalPurchasesTable extends LocalPurchases
     false,
     type: DriftSqlType.string,
     requiredDuringInsert: true,
+  );
+  static const VerificationMeta _isSyncedMeta = const VerificationMeta(
+    'isSynced',
+  );
+  @override
+  late final GeneratedColumn<bool> isSynced = GeneratedColumn<bool>(
+    'is_synced',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_synced" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
   );
   static const VerificationMeta _cachedAtMeta = const VerificationMeta(
     'cachedAt',
@@ -1621,7 +1647,7 @@ class $LocalPurchasesTable extends LocalPurchases
     defaultValue: currentDateAndTime,
   );
   @override
-  List<GeneratedColumn> get $columns => [id, data, cachedAt];
+  List<GeneratedColumn> get $columns => [id, localId, data, isSynced, cachedAt];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -1639,6 +1665,12 @@ class $LocalPurchasesTable extends LocalPurchases
     } else if (isInserting) {
       context.missing(_idMeta);
     }
+    if (data.containsKey('local_id')) {
+      context.handle(
+        _localIdMeta,
+        localId.isAcceptableOrUnknown(data['local_id']!, _localIdMeta),
+      );
+    }
     if (data.containsKey('data')) {
       context.handle(
         _dataMeta,
@@ -1646,6 +1678,12 @@ class $LocalPurchasesTable extends LocalPurchases
       );
     } else if (isInserting) {
       context.missing(_dataMeta);
+    }
+    if (data.containsKey('is_synced')) {
+      context.handle(
+        _isSyncedMeta,
+        isSynced.isAcceptableOrUnknown(data['is_synced']!, _isSyncedMeta),
+      );
     }
     if (data.containsKey('cached_at')) {
       context.handle(
@@ -1666,9 +1704,17 @@ class $LocalPurchasesTable extends LocalPurchases
         DriftSqlType.string,
         data['${effectivePrefix}id'],
       )!,
+      localId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}local_id'],
+      ),
       data: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}data'],
+      )!,
+      isSynced: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_synced'],
       )!,
       cachedAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
@@ -1685,18 +1731,26 @@ class $LocalPurchasesTable extends LocalPurchases
 
 class LocalPurchase extends DataClass implements Insertable<LocalPurchase> {
   final String id;
+  final String? localId;
   final String data;
+  final bool isSynced;
   final DateTime cachedAt;
   const LocalPurchase({
     required this.id,
+    this.localId,
     required this.data,
+    required this.isSynced,
     required this.cachedAt,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
+    if (!nullToAbsent || localId != null) {
+      map['local_id'] = Variable<String>(localId);
+    }
     map['data'] = Variable<String>(data);
+    map['is_synced'] = Variable<bool>(isSynced);
     map['cached_at'] = Variable<DateTime>(cachedAt);
     return map;
   }
@@ -1704,7 +1758,11 @@ class LocalPurchase extends DataClass implements Insertable<LocalPurchase> {
   LocalPurchasesCompanion toCompanion(bool nullToAbsent) {
     return LocalPurchasesCompanion(
       id: Value(id),
+      localId: localId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(localId),
       data: Value(data),
+      isSynced: Value(isSynced),
       cachedAt: Value(cachedAt),
     );
   }
@@ -1716,7 +1774,9 @@ class LocalPurchase extends DataClass implements Insertable<LocalPurchase> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return LocalPurchase(
       id: serializer.fromJson<String>(json['id']),
+      localId: serializer.fromJson<String?>(json['localId']),
       data: serializer.fromJson<String>(json['data']),
+      isSynced: serializer.fromJson<bool>(json['isSynced']),
       cachedAt: serializer.fromJson<DateTime>(json['cachedAt']),
     );
   }
@@ -1725,21 +1785,32 @@ class LocalPurchase extends DataClass implements Insertable<LocalPurchase> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
+      'localId': serializer.toJson<String?>(localId),
       'data': serializer.toJson<String>(data),
+      'isSynced': serializer.toJson<bool>(isSynced),
       'cachedAt': serializer.toJson<DateTime>(cachedAt),
     };
   }
 
-  LocalPurchase copyWith({String? id, String? data, DateTime? cachedAt}) =>
-      LocalPurchase(
-        id: id ?? this.id,
-        data: data ?? this.data,
-        cachedAt: cachedAt ?? this.cachedAt,
-      );
+  LocalPurchase copyWith({
+    String? id,
+    Value<String?> localId = const Value.absent(),
+    String? data,
+    bool? isSynced,
+    DateTime? cachedAt,
+  }) => LocalPurchase(
+    id: id ?? this.id,
+    localId: localId.present ? localId.value : this.localId,
+    data: data ?? this.data,
+    isSynced: isSynced ?? this.isSynced,
+    cachedAt: cachedAt ?? this.cachedAt,
+  );
   LocalPurchase copyWithCompanion(LocalPurchasesCompanion data) {
     return LocalPurchase(
       id: data.id.present ? data.id.value : this.id,
+      localId: data.localId.present ? data.localId.value : this.localId,
       data: data.data.present ? data.data.value : this.data,
+      isSynced: data.isSynced.present ? data.isSynced.value : this.isSynced,
       cachedAt: data.cachedAt.present ? data.cachedAt.value : this.cachedAt,
     );
   }
@@ -1748,50 +1819,64 @@ class LocalPurchase extends DataClass implements Insertable<LocalPurchase> {
   String toString() {
     return (StringBuffer('LocalPurchase(')
           ..write('id: $id, ')
+          ..write('localId: $localId, ')
           ..write('data: $data, ')
+          ..write('isSynced: $isSynced, ')
           ..write('cachedAt: $cachedAt')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, data, cachedAt);
+  int get hashCode => Object.hash(id, localId, data, isSynced, cachedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is LocalPurchase &&
           other.id == this.id &&
+          other.localId == this.localId &&
           other.data == this.data &&
+          other.isSynced == this.isSynced &&
           other.cachedAt == this.cachedAt);
 }
 
 class LocalPurchasesCompanion extends UpdateCompanion<LocalPurchase> {
   final Value<String> id;
+  final Value<String?> localId;
   final Value<String> data;
+  final Value<bool> isSynced;
   final Value<DateTime> cachedAt;
   final Value<int> rowid;
   const LocalPurchasesCompanion({
     this.id = const Value.absent(),
+    this.localId = const Value.absent(),
     this.data = const Value.absent(),
+    this.isSynced = const Value.absent(),
     this.cachedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   LocalPurchasesCompanion.insert({
     required String id,
+    this.localId = const Value.absent(),
     required String data,
+    this.isSynced = const Value.absent(),
     this.cachedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        data = Value(data);
   static Insertable<LocalPurchase> custom({
     Expression<String>? id,
+    Expression<String>? localId,
     Expression<String>? data,
+    Expression<bool>? isSynced,
     Expression<DateTime>? cachedAt,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (localId != null) 'local_id': localId,
       if (data != null) 'data': data,
+      if (isSynced != null) 'is_synced': isSynced,
       if (cachedAt != null) 'cached_at': cachedAt,
       if (rowid != null) 'rowid': rowid,
     });
@@ -1799,13 +1884,17 @@ class LocalPurchasesCompanion extends UpdateCompanion<LocalPurchase> {
 
   LocalPurchasesCompanion copyWith({
     Value<String>? id,
+    Value<String?>? localId,
     Value<String>? data,
+    Value<bool>? isSynced,
     Value<DateTime>? cachedAt,
     Value<int>? rowid,
   }) {
     return LocalPurchasesCompanion(
       id: id ?? this.id,
+      localId: localId ?? this.localId,
       data: data ?? this.data,
+      isSynced: isSynced ?? this.isSynced,
       cachedAt: cachedAt ?? this.cachedAt,
       rowid: rowid ?? this.rowid,
     );
@@ -1817,8 +1906,14 @@ class LocalPurchasesCompanion extends UpdateCompanion<LocalPurchase> {
     if (id.present) {
       map['id'] = Variable<String>(id.value);
     }
+    if (localId.present) {
+      map['local_id'] = Variable<String>(localId.value);
+    }
     if (data.present) {
       map['data'] = Variable<String>(data.value);
+    }
+    if (isSynced.present) {
+      map['is_synced'] = Variable<bool>(isSynced.value);
     }
     if (cachedAt.present) {
       map['cached_at'] = Variable<DateTime>(cachedAt.value);
@@ -1833,7 +1928,9 @@ class LocalPurchasesCompanion extends UpdateCompanion<LocalPurchase> {
   String toString() {
     return (StringBuffer('LocalPurchasesCompanion(')
           ..write('id: $id, ')
+          ..write('localId: $localId, ')
           ..write('data: $data, ')
+          ..write('isSynced: $isSynced, ')
           ..write('cachedAt: $cachedAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -3868,14 +3965,18 @@ typedef $$LocalOrdersTableProcessedTableManager =
 typedef $$LocalPurchasesTableCreateCompanionBuilder =
     LocalPurchasesCompanion Function({
       required String id,
+      Value<String?> localId,
       required String data,
+      Value<bool> isSynced,
       Value<DateTime> cachedAt,
       Value<int> rowid,
     });
 typedef $$LocalPurchasesTableUpdateCompanionBuilder =
     LocalPurchasesCompanion Function({
       Value<String> id,
+      Value<String?> localId,
       Value<String> data,
+      Value<bool> isSynced,
       Value<DateTime> cachedAt,
       Value<int> rowid,
     });
@@ -3894,8 +3995,18 @@ class $$LocalPurchasesTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get localId => $composableBuilder(
+    column: $table.localId,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<String> get data => $composableBuilder(
     column: $table.data,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isSynced => $composableBuilder(
+    column: $table.isSynced,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -3919,8 +4030,18 @@ class $$LocalPurchasesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get localId => $composableBuilder(
+    column: $table.localId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get data => $composableBuilder(
     column: $table.data,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isSynced => $composableBuilder(
+    column: $table.isSynced,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -3942,8 +4063,14 @@ class $$LocalPurchasesTableAnnotationComposer
   GeneratedColumn<String> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
 
+  GeneratedColumn<String> get localId =>
+      $composableBuilder(column: $table.localId, builder: (column) => column);
+
   GeneratedColumn<String> get data =>
       $composableBuilder(column: $table.data, builder: (column) => column);
+
+  GeneratedColumn<bool> get isSynced =>
+      $composableBuilder(column: $table.isSynced, builder: (column) => column);
 
   GeneratedColumn<DateTime> get cachedAt =>
       $composableBuilder(column: $table.cachedAt, builder: (column) => column);
@@ -3983,24 +4110,32 @@ class $$LocalPurchasesTableTableManager
           updateCompanionCallback:
               ({
                 Value<String> id = const Value.absent(),
+                Value<String?> localId = const Value.absent(),
                 Value<String> data = const Value.absent(),
+                Value<bool> isSynced = const Value.absent(),
                 Value<DateTime> cachedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => LocalPurchasesCompanion(
                 id: id,
+                localId: localId,
                 data: data,
+                isSynced: isSynced,
                 cachedAt: cachedAt,
                 rowid: rowid,
               ),
           createCompanionCallback:
               ({
                 required String id,
+                Value<String?> localId = const Value.absent(),
                 required String data,
+                Value<bool> isSynced = const Value.absent(),
                 Value<DateTime> cachedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => LocalPurchasesCompanion.insert(
                 id: id,
+                localId: localId,
                 data: data,
+                isSynced: isSynced,
                 cachedAt: cachedAt,
                 rowid: rowid,
               ),

@@ -1,5 +1,10 @@
+import 'package:agricola/core/database/daos/purchases_local_dao.dart';
 import 'package:agricola/core/network/http_client_provider.dart';
+import 'package:agricola/core/providers/connectivity_provider.dart';
+import 'package:agricola/core/providers/database_provider.dart';
+import 'package:agricola/core/providers/offline_settings_provider.dart';
 import 'package:agricola/features/purchases/data/purchases_api_service.dart';
+import 'package:agricola/features/purchases/data/purchases_offline_repository.dart';
 import 'package:agricola/features/purchases/models/purchase_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -7,23 +12,38 @@ final purchasesApiServiceProvider = Provider<PurchasesApiService>((ref) {
   return PurchasesApiService(ref.watch(httpClientProvider));
 });
 
+final purchasesLocalDaoProvider = Provider<PurchasesLocalDao>((ref) {
+  return PurchasesLocalDao(ref.watch(databaseProvider));
+});
+
+final purchasesOfflineRepositoryProvider =
+    Provider<PurchasesOfflineRepository>((ref) {
+  return PurchasesOfflineRepository(
+    apiService: ref.watch(purchasesApiServiceProvider),
+    localDao: ref.watch(purchasesLocalDaoProvider),
+    db: ref.watch(databaseProvider),
+    isOnline: () => ref.read(isOnlineProvider),
+    offlineEnabled: () => ref.read(offlineModeEnabledProvider),
+  );
+});
+
 final purchasesNotifierProvider = StateNotifierProvider<PurchasesNotifier,
     AsyncValue<List<PurchaseModel>>>((ref) {
-  return PurchasesNotifier(ref.watch(purchasesApiServiceProvider));
+  return PurchasesNotifier(ref.watch(purchasesOfflineRepositoryProvider));
 });
 
 class PurchasesNotifier
     extends StateNotifier<AsyncValue<List<PurchaseModel>>> {
-  final PurchasesApiService _service;
+  final PurchasesOfflineRepository _repository;
 
-  PurchasesNotifier(this._service) : super(const AsyncValue.loading()) {
+  PurchasesNotifier(this._repository) : super(const AsyncValue.loading()) {
     loadPurchases();
   }
 
   Future<void> loadPurchases() async {
     state = const AsyncValue.loading();
     try {
-      final purchases = await _service.getPurchases();
+      final purchases = await _repository.getPurchases();
       state = AsyncValue.data(purchases);
     } catch (e, st) {
       state = AsyncValue.error(e, st);
@@ -32,7 +52,7 @@ class PurchasesNotifier
 
   Future<String?> addPurchase(PurchaseModel purchase) async {
     try {
-      final created = await _service.createPurchase(purchase);
+      final created = await _repository.createPurchase(purchase);
       state = AsyncValue.data([created, ...state.value ?? []]);
       return null;
     } catch (e) {
@@ -42,7 +62,7 @@ class PurchasesNotifier
 
   Future<String?> updatePurchase(String id, PurchaseModel purchase) async {
     try {
-      final updated = await _service.updatePurchase(id, purchase);
+      final updated = await _repository.updatePurchase(id, purchase);
       final current = state.value ?? [];
       state = AsyncValue.data(
         current.map((p) => p.id == id ? updated : p).toList(),
@@ -55,7 +75,7 @@ class PurchasesNotifier
 
   Future<String?> deletePurchase(String id) async {
     try {
-      await _service.deletePurchase(id);
+      await _repository.deletePurchase(id);
       final current = state.value ?? [];
       state = AsyncValue.data(current.where((p) => p.id != id).toList());
       return null;

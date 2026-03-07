@@ -4,16 +4,20 @@ import 'package:agricola/core/database/app_database.dart';
 import 'package:agricola/core/providers/connectivity_provider.dart';
 import 'package:agricola/core/providers/database_provider.dart';
 import 'package:agricola/core/providers/offline_settings_provider.dart';
-import 'package:agricola/features/crops/data/crop_api_service.dart';
-import 'package:agricola/features/crops/data/harvest_api_service.dart';
 import 'package:agricola/features/crops/models/crop_model.dart';
 import 'package:agricola/features/crops/models/harvest_model.dart';
 import 'package:agricola/features/crops/providers/crop_providers.dart';
 import 'package:agricola/features/crops/providers/harvest_providers.dart';
-import 'package:agricola/features/inventory/data/inventory_api_service.dart';
 import 'package:agricola/features/inventory/models/inventory_model.dart';
 import 'package:agricola/features/inventory/providers/inventory_providers.dart';
+import 'package:agricola/features/marketplace/providers/marketplace_provider.dart';
+import 'package:agricola/features/orders/providers/orders_provider.dart';
+import 'package:agricola/features/purchases/models/purchase_model.dart';
+import 'package:agricola/features/purchases/providers/purchases_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+/// True while a sync cycle is in progress. Used by the UI to show a sync indicator.
+final isSyncingProvider = StateProvider<bool>((ref) => false);
 
 final syncServiceProvider = Provider<SyncService>((ref) {
   return SyncService(ref);
@@ -42,6 +46,7 @@ class SyncService {
   Future<void> syncAll() async {
     if (_isSyncing) return;
     _isSyncing = true;
+    _ref.read(isSyncingProvider.notifier).state = true;
 
     try {
       final items = await _db.getPendingSyncItems();
@@ -54,10 +59,12 @@ class SyncService {
         await _processSyncItem(item);
       }
 
-      // Clean up completed items
+      // Clean up completed items and refresh all providers
       await _db.clearCompletedSyncItems();
+      refreshProviders();
     } finally {
       _isSyncing = false;
+      _ref.read(isSyncingProvider.notifier).state = false;
     }
   }
 
@@ -74,6 +81,8 @@ class SyncService {
           await _syncInventory(item, payload);
         case 'harvest':
           await _syncHarvest(item, payload);
+        case 'purchase':
+          await _syncPurchase(item, payload);
         default:
           await _db.updateSyncItemStatus(
             item.id,
@@ -166,6 +175,27 @@ class SyncService {
     }
   }
 
+  Future<void> _syncPurchase(
+      SyncQueueData item, Map<String, dynamic> payload) async {
+    final service = _ref.read(purchasesApiServiceProvider);
+
+    switch (item.operation) {
+      case 'create':
+        final purchase = PurchaseModel.fromJson(payload);
+        final created = await service.createPurchase(purchase);
+        await _db.replaceLocalId(
+          entityType: 'purchase',
+          localId: item.localId,
+          serverId: created.id!,
+        );
+      case 'update':
+        final purchase = PurchaseModel.fromJson(payload);
+        await service.updatePurchase(item.entityId!, purchase);
+      case 'delete':
+        await service.deletePurchase(item.entityId!);
+    }
+  }
+
   int? _extractStatusCode(Object error) {
     if (error is String && error.contains('status')) {
       final match = RegExp(r'status (\d{3})').firstMatch(error);
@@ -178,5 +208,8 @@ class SyncService {
   void refreshProviders() {
     _ref.invalidate(cropNotifierProvider);
     _ref.invalidate(inventoryNotifierProvider);
+    _ref.invalidate(purchasesNotifierProvider);
+    _ref.invalidate(marketplaceNotifierProvider);
+    _ref.invalidate(ordersNotifierProvider);
   }
 }

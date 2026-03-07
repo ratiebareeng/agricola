@@ -11,6 +11,7 @@ class InventoryItemCard extends StatelessWidget {
   final AppLanguage language;
   final VoidCallback? onTap;
   final bool isListed;
+  final bool isSynced;
 
   const InventoryItemCard({
     super.key,
@@ -23,6 +24,7 @@ class InventoryItemCard extends StatelessWidget {
     required this.language,
     this.onTap,
     this.isListed = false,
+    this.isSynced = true,
   });
 
   @override
@@ -93,6 +95,18 @@ class InventoryItemCard extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
+                    if (!isSynced)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 6),
+                        child: Tooltip(
+                          message: 'Pending sync',
+                          child: Icon(
+                            Icons.cloud_upload_outlined,
+                            size: 16,
+                            color: Colors.orange.shade600,
+                          ),
+                        ),
+                      ),
                     Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 12,

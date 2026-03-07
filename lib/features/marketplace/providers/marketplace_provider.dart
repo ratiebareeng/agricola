@@ -1,4 +1,8 @@
+import 'package:agricola/core/database/daos/marketplace_local_dao.dart';
 import 'package:agricola/core/network/http_client_provider.dart';
+import 'package:agricola/core/providers/connectivity_provider.dart';
+import 'package:agricola/core/providers/database_provider.dart';
+import 'package:agricola/core/providers/offline_settings_provider.dart';
 import 'package:agricola/features/marketplace/data/marketplace_api_service.dart';
 import 'package:agricola/features/marketplace/models/marketplace_filter.dart';
 import 'package:agricola/features/marketplace/models/marketplace_listing.dart';
@@ -10,6 +14,10 @@ final marketplaceApiServiceProvider = Provider<MarketplaceApiService>((ref) {
   return MarketplaceApiService(ref.watch(httpClientProvider));
 });
 
+final marketplaceLocalDaoProvider = Provider<MarketplaceLocalDao>((ref) {
+  return MarketplaceLocalDao(ref.watch(databaseProvider));
+});
+
 // Filter state provider (UI state, separate from data)
 final marketplaceFilterProvider = StateProvider<MarketplaceFilter>((ref) {
   return const MarketplaceFilter();
@@ -18,17 +26,35 @@ final marketplaceFilterProvider = StateProvider<MarketplaceFilter>((ref) {
 // Main data provider with AsyncValue
 final marketplaceNotifierProvider = StateNotifierProvider<MarketplaceNotifier,
     AsyncValue<List<MarketplaceListing>>>((ref) {
-  final service = ref.watch(marketplaceApiServiceProvider);
-  return MarketplaceNotifier(ref, service);
+  return MarketplaceNotifier(
+    ref: ref,
+    service: ref.watch(marketplaceApiServiceProvider),
+    localDao: ref.watch(marketplaceLocalDaoProvider),
+    isOnline: () => ref.read(isOnlineProvider),
+    offlineEnabled: () => ref.read(offlineModeEnabledProvider),
+  );
 });
 
 class MarketplaceNotifier
     extends StateNotifier<AsyncValue<List<MarketplaceListing>>> {
   final Ref _ref;
   final MarketplaceApiService _service;
+  final MarketplaceLocalDao _localDao;
+  final bool Function() _isOnline;
+  final bool Function() _offlineEnabled;
 
-  MarketplaceNotifier(this._ref, this._service)
-      : super(const AsyncValue.loading()) {
+  MarketplaceNotifier({
+    required Ref ref,
+    required MarketplaceApiService service,
+    required MarketplaceLocalDao localDao,
+    required bool Function() isOnline,
+    required bool Function() offlineEnabled,
+  })  : _ref = ref,
+        _service = service,
+        _localDao = localDao,
+        _isOnline = isOnline,
+        _offlineEnabled = offlineEnabled,
+        super(const AsyncValue.loading()) {
     loadListings();
   }
 
@@ -43,10 +69,16 @@ class MarketplaceNotifier
     return null; // Default: see all
   }
 
-  /// Load listings from backend with current filters
+  /// Load listings from backend (or local cache when offline)
   Future<void> loadListings() async {
     state = const AsyncValue.loading();
     try {
+      if (_offlineEnabled() && !_isOnline()) {
+        final cached = await _localDao.getAll();
+        state = AsyncValue.data(cached);
+        return;
+      }
+
       final filter = _ref.read(marketplaceFilterProvider);
       final userTypeFilter = _getListingTypeForUser();
 
@@ -64,8 +96,17 @@ class MarketplaceNotifier
         return b.createdAt.compareTo(a.createdAt);
       });
 
+      if (_offlineEnabled()) await _localDao.cacheAll(listings);
       state = AsyncValue.data(listings);
     } catch (e, st) {
+      if (_offlineEnabled()) {
+        // Network error while offline mode on — serve stale cache if available
+        final cached = await _localDao.getAll();
+        if (cached.isNotEmpty) {
+          state = AsyncValue.data(cached);
+          return;
+        }
+      }
       state = AsyncValue.error(e, st);
     }
   }

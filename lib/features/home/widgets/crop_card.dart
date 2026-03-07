@@ -6,6 +6,7 @@ class CropCard extends StatelessWidget {
   final String plantedDate;
   final double progress;
   final String imageUrl;
+  final bool isSynced;
 
   const CropCard({
     super.key,
@@ -14,6 +15,7 @@ class CropCard extends StatelessWidget {
     required this.plantedDate,
     required this.progress,
     required this.imageUrl,
+    this.isSynced = true,
   });
 
   @override
@@ -62,23 +64,40 @@ class CropCard extends StatelessWidget {
                         color: Colors.black87,
                       ),
                     ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.green.withAlpha(10),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        stage,
-                        style: const TextStyle(
-                          color: Colors.green,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (!isSynced)
+                          Padding(
+                            padding: const EdgeInsets.only(right: 6),
+                            child: Tooltip(
+                              message: 'Pending sync',
+                              child: Icon(
+                                Icons.cloud_upload_outlined,
+                                size: 14,
+                                color: Colors.orange.shade600,
+                              ),
+                            ),
+                          ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.green.withAlpha(10),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            stage,
+                            style: const TextStyle(
+                              color: Colors.green,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
-                      ),
+                      ],
                     ),
                   ],
                 ),

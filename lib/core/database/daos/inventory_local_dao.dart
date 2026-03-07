@@ -47,4 +47,11 @@ class InventoryLocalDao {
   Future<void> deleteOne(String id) async {
     await (_db.delete(_db.localInventory)..where((t) => t.id.equals(id))).go();
   }
+
+  Future<Set<String>> getUnsyncedIds() async {
+    final rows = await (_db.select(_db.localInventory)
+          ..where((t) => t.isSynced.equals(false)))
+        .get();
+    return rows.map((r) => r.id).toSet();
+  }
 }

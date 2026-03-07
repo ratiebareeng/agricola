@@ -60,7 +60,9 @@ class LocalOrders extends Table {
 
 class LocalPurchases extends Table {
   TextColumn get id => text()();
+  TextColumn get localId => text().nullable()();
   TextColumn get data => text()();
+  BoolColumn get isSynced => boolean().withDefault(const Constant(true))();
   DateTimeColumn get cachedAt => dateTime().withDefault(currentDateAndTime)();
 
   @override
@@ -115,7 +117,18 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+        onUpgrade: (m, from, to) async {
+          if (from < 2) {
+            // Add offline CRUD columns to LocalPurchases
+            await m.addColumn(localPurchases, localPurchases.localId);
+            await m.addColumn(localPurchases, localPurchases.isSynced);
+          }
+        },
+      );
 
   static QueryExecutor _openConnection() {
     return driftDatabase(name: 'agricola_offline');
@@ -212,6 +225,13 @@ class AppDatabase extends _$AppDatabase {
         case 'harvest':
           await (update(localHarvests)..where((t) => t.id.equals(localId)))
               .write(LocalHarvestsCompanion(
+            id: Value(serverId),
+            localId: Value(localId),
+            isSynced: const Value(true),
+          ));
+        case 'purchase':
+          await (update(localPurchases)..where((t) => t.id.equals(localId)))
+              .write(LocalPurchasesCompanion(
             id: Value(serverId),
             localId: Value(localId),
             isSynced: const Value(true),

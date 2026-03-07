@@ -1,4 +1,6 @@
+import 'package:agricola/core/providers/database_provider.dart';
 import 'package:agricola/core/providers/language_provider.dart';
+import 'package:agricola/core/providers/offline_settings_provider.dart';
 import 'package:agricola/features/crops/crop_helpers.dart';
 import 'package:agricola/features/crops/models/crop_model.dart';
 import 'package:agricola/features/crops/providers/crop_catalog_provider.dart';
@@ -17,6 +19,10 @@ class CropsScreen extends ConsumerWidget {
     final currentLang = ref.watch(languageProvider);
     final cropsAsync = ref.watch(cropNotifierProvider);
     final imageMap = ref.watch(cropImageUrlProvider).valueOrNull ?? {};
+    final offlineEnabled = ref.watch(offlineModeEnabledProvider);
+    final unsyncedIds = offlineEnabled
+        ? (ref.watch(unsyncedCropIdsProvider).valueOrNull ?? <String>{})
+        : <String>{};
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
@@ -43,7 +49,7 @@ class CropsScreen extends ConsumerWidget {
 
                     // Crops List — from backend
                     cropsAsync.when(
-                      data: (crops) => _buildCropsList(context, crops, imageMap),
+                      data: (crops) => _buildCropsList(context, crops, imageMap, unsyncedIds: unsyncedIds),
                       loading: () => const Center(
                         child: Padding(
                           padding: EdgeInsets.symmetric(vertical: 32),
@@ -100,7 +106,7 @@ class CropsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildCropsList(BuildContext context, List<CropModel> crops, Map<String, String> imageMap) {
+  Widget _buildCropsList(BuildContext context, List<CropModel> crops, Map<String, String> imageMap, {Set<String> unsyncedIds = const {}}) {
     if (crops.isEmpty) {
       return Center(
         child: Padding(
@@ -142,6 +148,7 @@ class CropsScreen extends ConsumerWidget {
                 plantedDate: formatCropDate(crop.plantingDate),
                 progress: cropProgress(crop),
                 imageUrl: imageUrlForCrop(crop.cropType, imageMap),
+                isSynced: !unsyncedIds.contains(crop.id),
               ),
             ),
           )
