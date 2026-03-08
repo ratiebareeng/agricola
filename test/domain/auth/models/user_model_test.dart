@@ -1,7 +1,6 @@
 import 'package:agricola/domain/auth/models/user_model.dart';
-import 'package:agricola/domain/domain.dart';
-import 'package:agricola/domain/profile/enum/merchant_type.dart';
-import 'package:agricola/features/profile_setup/providers/profile_setup_provider.dart';
+import 'package:agricola/domain/auth/models/user_model_firebase.dart';
+import 'package:agricola_core/agricola_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -105,7 +104,7 @@ void main() {
           'isAnonymous': false,
         };
 
-        final user = UserModel.fromFirestore(data, 'uid1');
+        final user = userModelFromFirestore(data, 'uid1');
 
         expect(user.uid, 'uid1');
         expect(user.email, 'test@example.com');
@@ -127,7 +126,7 @@ void main() {
           'userType': 'farmer',
         };
 
-        final user = UserModel.fromFirestore(data, 'uid1');
+        final user = userModelFromFirestore(data, 'uid1');
 
         expect(user.phoneNumber, isNull);
         expect(user.emailVerified, false);
@@ -145,7 +144,7 @@ void main() {
           'userType': 'unknownType',
         };
 
-        final user = UserModel.fromFirestore(data, 'uid1');
+        final user = userModelFromFirestore(data, 'uid1');
         expect(user.userType, UserType.farmer);
       });
 
@@ -157,7 +156,7 @@ void main() {
           'merchantType': 'unknownMerchant',
         };
 
-        final user = UserModel.fromFirestore(data, 'uid1');
+        final user = userModelFromFirestore(data, 'uid1');
         expect(user.merchantType, MerchantType.agriShop);
       });
 
@@ -172,7 +171,7 @@ void main() {
           'isAnonymous': null,
         };
 
-        final user = UserModel.fromFirestore(data, 'uid1');
+        final user = userModelFromFirestore(data, 'uid1');
         expect(user.emailVerified, false);
         expect(user.isProfileComplete, false);
         expect(user.hasSkippedProfileSetup, false);
@@ -196,7 +195,7 @@ void main() {
           isAnonymous: false,
         );
 
-        final map = user.toFirestore();
+        final map = userModelToFirestore(user);
 
         expect(map['email'], 'test@example.com');
         expect(map['phoneNumber'], '+267 71234567');
@@ -221,7 +220,7 @@ void main() {
           userType: UserType.farmer,
         );
 
-        final map = user.toFirestore();
+        final map = userModelToFirestore(user);
         expect(map['merchantType'], isNull);
       });
 
@@ -234,7 +233,7 @@ void main() {
           userType: UserType.farmer,
         );
 
-        final map = user.toFirestore();
+        final map = userModelToFirestore(user);
         expect(map['lastSignInAt'], isNull);
       });
     });

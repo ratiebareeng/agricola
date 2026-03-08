@@ -1,4 +1,5 @@
 import 'package:agricola/domain/auth/models/user_model.dart';
+import 'package:agricola/domain/auth/models/user_model_firebase.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -32,7 +33,7 @@ class FirebaseAuthDatasource {
     await _firestore
         .collection('users')
         .doc(uid)
-        .set(user.toFirestore(), SetOptions(merge: true));
+        .set(userModelToFirestore(user), SetOptions(merge: true));
   }
 
   /// Delete account

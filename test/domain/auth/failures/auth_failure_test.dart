@@ -59,7 +59,7 @@ void main() {
             message: 'Firebase error',
           );
 
-          final failure = AuthFailure.fromFirebaseException(exception);
+          final failure = authFailureFromFirebaseException(exception);
 
           expect(failure.type, entry.value.$1);
           expect(failure.message, entry.value.$2);
@@ -72,7 +72,7 @@ void main() {
           message: 'Something went wrong',
         );
 
-        final failure = AuthFailure.fromFirebaseException(exception);
+        final failure = authFailureFromFirebaseException(exception);
 
         expect(failure.type, AuthFailureType.unknown);
         expect(failure.message, 'Something went wrong');
@@ -84,7 +84,7 @@ void main() {
           message: null,
         );
 
-        final failure = AuthFailure.fromFirebaseException(exception);
+        final failure = authFailureFromFirebaseException(exception);
 
         expect(failure.type, AuthFailureType.unknown);
         expect(failure.message, 'An unexpected error occurred');
@@ -92,13 +92,13 @@ void main() {
     });
 
     group('fromException', () {
-      test('should delegate FirebaseAuthException to fromFirebaseException', () {
+      test('should delegate FirebaseAuthException to authFailureFromFirebaseException', () {
         final exception = FirebaseAuthException(
           code: 'user-not-found',
           message: 'Not found',
         );
 
-        final failure = AuthFailure.fromException(exception);
+        final failure = authFailureFromFirebaseException(exception);
 
         expect(failure.type, AuthFailureType.userNotFound);
         expect(failure.message, 'No user found with this email');

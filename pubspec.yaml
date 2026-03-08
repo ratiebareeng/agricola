@@ -1,7 +1,7 @@
 name: agricola
 description: "A new Flutter project."
 publish_to: 'none'
-version: 0.20.3
+version: 0.20.4
 
 environment:
   sdk: ^3.9.0
@@ -9,6 +9,10 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  agricola_core:
+    git:
+      url: https://github.com/agricola-dev/agricola-core.git
+      ref: main
   flutter_riverpod: ^2.6.1
   google_fonts: ^6.2.1
   go_router: ^14.6.0

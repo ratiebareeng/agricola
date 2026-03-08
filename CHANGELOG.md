@@ -1,3 +1,12 @@
+## 0.20.4 - 2026-03-08
+
+### Changed
+- **Extract shared code into `agricola-core` package** — models, enums, API services, auth interfaces, i18n, and helpers extracted to a shared Dart package for reuse by the upcoming web dashboard
+  - Mobile files re-export from core to maintain backward compatibility
+  - Firebase-specific code (UserModel factories, AuthFailure mapping) moved to standalone functions in `user_model_firebase.dart`
+  - `agricola_core` dependency points to GitHub repo (`agricola-dev/agricola-core`)
+- **Add web dashboard feature tracker** — 73-item phased plan across 10 phases (setup through reports/export)
+
 ## 0.20.3 - 2026-03-07
 
 ### Fixed

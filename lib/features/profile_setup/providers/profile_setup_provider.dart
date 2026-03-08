@@ -1,6 +1,7 @@
 import 'dart:io';
 
-import 'package:agricola/domain/profile/enum/merchant_type.dart';
+import 'package:agricola_core/agricola_core.dart' show MerchantType, UserType;
+export 'package:agricola_core/src/enums/user_type.dart';
 import 'package:agricola/features/auth/providers/auth_controller.dart';
 import 'package:agricola/features/auth/providers/auth_provider.dart';
 import 'package:agricola/features/profile/providers/profile_controller_provider.dart';
@@ -421,4 +422,4 @@ class ProfileSetupState {
   }
 }
 
-enum UserType { farmer, merchant }
+// UserType is now defined in agricola_core and re-exported via this file's imports

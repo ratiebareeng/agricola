@@ -1,9 +1,18 @@
 import 'package:agricola/data/auth/datasources/firebase_auth_datasource.dart';
+import 'package:agricola/domain/auth/failures/auth_failure.dart';
+import 'package:agricola/domain/auth/models/user_model_firebase.dart';
 import 'package:agricola/domain/domain.dart';
-import 'package:agricola/domain/profile/enum/merchant_type.dart';
-import 'package:agricola/features/profile_setup/providers/profile_setup_provider.dart';
+import 'package:agricola_core/agricola_core.dart' show MerchantType, UserType;
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:fpdart/fpdart.dart';
+
+/// Converts any exception to an AuthFailure, handling Firebase-specific types.
+AuthFailure _toAuthFailure(Object e) {
+  if (e is firebase_auth.FirebaseAuthException) {
+    return authFailureFromFirebaseException(e);
+  }
+  return AuthFailure.fromException(e);
+}
 
 class AuthRepositoryImpl implements AuthRepository {
   final FirebaseAuthDatasource _datasource;
@@ -27,7 +36,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
     // Note: This is sync, so we return a basic user model
     // The stream will provide the full user data asynchronously
-    return UserModel.fromFirebaseUser(
+    return userModelFromFirebaseUser(
       firebaseUser,
       userType: UserType.farmer, // Placeholder, will be updated by stream
       isProfileComplete: false,
@@ -40,7 +49,7 @@ class AuthRepositoryImpl implements AuthRepository {
       await _datasource.deleteAccount();
       return const Right(null);
     } catch (e) {
-      return Left(AuthFailure.fromException(e));
+      return Left(_toAuthFailure(e));
     }
   }
 
@@ -64,7 +73,7 @@ class AuthRepositoryImpl implements AuthRepository {
       final userModel = await _getUserModelFromFirebaseUser(firebaseUser);
       return Right(userModel);
     } catch (e) {
-      return Left(AuthFailure.fromException(e));
+      return Left(_toAuthFailure(e));
     }
   }
 
@@ -74,7 +83,7 @@ class AuthRepositoryImpl implements AuthRepository {
       await _datasource.sendPasswordResetEmail(email);
       return const Right(null);
     } catch (e) {
-      return Left(AuthFailure.fromException(e));
+      return Left(_toAuthFailure(e));
     }
   }
 
@@ -86,7 +95,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
       return Right(userId);
     } catch (e) {
-      return Left(AuthFailure.fromException(e));
+      return Left(_toAuthFailure(e));
     }
   }
 
@@ -106,7 +115,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
       return Right(userModel);
     } catch (e) {
-      return Left(AuthFailure.fromException(e));
+      return Left(_toAuthFailure(e));
     }
   }
 
@@ -125,11 +134,11 @@ class AuthRepositoryImpl implements AuthRepository {
       if (userDoc.exists) {
         // Existing user - load their data
         final userData = userDoc.data() as Map<String, dynamic>;
-        final userModel = UserModel.fromFirestore(userData, firebaseUser.uid);
+        final userModel = userModelFromFirestore(userData, firebaseUser.uid);
         return Right(userModel);
       } else {
         // New user - create with provided user type
-        final userModel = UserModel.fromFirebaseUser(
+        final userModel = userModelFromFirebaseUser(
           firebaseUser,
           userType: userType,
           merchantType: merchantType,
@@ -144,7 +153,7 @@ class AuthRepositoryImpl implements AuthRepository {
         return Right(userModel);
       }
     } catch (e) {
-      return Left(AuthFailure.fromException(e));
+      return Left(_toAuthFailure(e));
     }
   }
 
@@ -154,7 +163,7 @@ class AuthRepositoryImpl implements AuthRepository {
       await _datasource.signOut();
       return const Right(null);
     } catch (e) {
-      return Left(AuthFailure.fromException(e));
+      return Left(_toAuthFailure(e));
     }
   }
 
@@ -175,7 +184,7 @@ class AuthRepositoryImpl implements AuthRepository {
       final firebaseUser = userCredential.user!;
 
       // Create user model
-      final user = UserModel.fromFirebaseUser(
+      final user = userModelFromFirebaseUser(
         firebaseUser,
         userType: userType,
         merchantType: merchantType,
@@ -187,7 +196,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
       return Right(user);
     } catch (e) {
-      return Left(AuthFailure.fromException(e));
+      return Left(_toAuthFailure(e));
     }
   }
 
@@ -213,7 +222,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
       return const Right(null);
     } catch (e) {
-      return Left(AuthFailure.fromException(e));
+      return Left(_toAuthFailure(e));
     }
   }
 
@@ -236,7 +245,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
       return const Right(null);
     } catch (e) {
-      return Left(AuthFailure.fromException(e));
+      return Left(_toAuthFailure(e));
     }
   }
 
@@ -248,10 +257,10 @@ class AuthRepositoryImpl implements AuthRepository {
 
     if (userDoc.exists) {
       final userData = userDoc.data() as Map<String, dynamic>;
-      return UserModel.fromFirestore(userData, firebaseUser.uid);
+      return userModelFromFirestore(userData, firebaseUser.uid);
     } else {
       // Fallback for users without Firestore documents
-      return UserModel.fromFirebaseUser(
+      return userModelFromFirebaseUser(
         firebaseUser,
         userType: UserType.farmer,
         isProfileComplete: false,
