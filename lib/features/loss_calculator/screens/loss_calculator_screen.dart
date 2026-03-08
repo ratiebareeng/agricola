@@ -305,7 +305,7 @@ class _LossCalculatorScreenState extends ConsumerState<LossCalculatorScreen> {
         Row(
           children: [
             Expanded(
-              flex: 2,
+              flex: 3,
               child: TextFormField(
                 controller: _harvestAmountController,
                 keyboardType: TextInputType.number,
@@ -321,6 +321,7 @@ class _LossCalculatorScreenState extends ConsumerState<LossCalculatorScreen> {
             ),
             const SizedBox(width: 12),
             Expanded(
+              flex: 2,
               child: DropdownButtonFormField<String>(
                 initialValue: _selectedUnit,
                 decoration: _inputDecoration(null),

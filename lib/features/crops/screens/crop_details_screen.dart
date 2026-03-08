@@ -198,7 +198,7 @@ class CropDetailsScreen extends ConsumerWidget {
                     crossAxisCount: 2,
                     crossAxisSpacing: 12,
                     mainAxisSpacing: 12,
-                    childAspectRatio: 1.8,
+                    childAspectRatio: 1.5,
                     children: [
                       InfoCard(
                         label: t('days_since_planting', currentLang),

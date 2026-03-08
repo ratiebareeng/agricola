@@ -1,3 +1,12 @@
+## 0.20.5 - 2026-03-08
+
+### Fixed
+- **Fix render overflows on dashboard, crops screen, and loss calculator**
+  - CropCard: wrap crop name in `Expanded` with ellipsis to prevent long names pushing stage badge off-screen
+  - Loss calculator: adjust harvest amount/unit flex ratio (3:2) so "Kilograms" dropdown fits
+  - Crop details: reduce InfoCard grid aspect ratio (1.8→1.5) and add `maxLines: 2` so "1500.0 Kilograms" fits without bottom overflow
+- **Register missing profile edit routes** — add `/profile/edit` and `/profile/edit-merchant` GoRoute entries so edit profile navigation works
+
 ## 0.20.4 - 2026-03-08
 
 ### Changed

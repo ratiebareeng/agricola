@@ -11,6 +11,10 @@ import 'package:agricola/features/debug/screens/health_check_page.dart';
 import 'package:agricola/features/home/screens/home_screen.dart';
 import 'package:agricola/features/onboarding/screens/onboarding_screen.dart';
 import 'package:agricola/features/onboarding/screens/welcome_screen.dart';
+import 'package:agricola/features/profile/screens/edit_farmer_profile_screen.dart';
+import 'package:agricola/features/profile/screens/edit_merchant_profile_screen.dart';
+import 'package:agricola/features/profile_setup/models/farmer_profile_model.dart';
+import 'package:agricola/features/profile_setup/models/merchant_profile_model.dart';
 import 'package:agricola/features/profile_setup/screens/profile_setup_complete_screen.dart';
 import 'package:agricola/features/profile_setup/screens/profile_setup_screen.dart';
 import 'package:flutter/material.dart';
@@ -65,6 +69,18 @@ GoRouter createRouter(WidgetRef ref) {
         },
       ),
       GoRoute(path: '/home', builder: (context, state) => const HomeScreen()),
+      GoRoute(
+        path: '/profile/edit',
+        builder: (context, state) => EditFarmerProfileScreen(
+          profile: state.extra! as FarmerProfileModel,
+        ),
+      ),
+      GoRoute(
+        path: '/profile/edit-merchant',
+        builder: (context, state) => EditMerchantProfileScreen(
+          profile: state.extra! as MerchantProfileModel,
+        ),
+      ),
       GoRoute(
         path: '/debug/health-check',
         builder: (context, state) => const HealthCheckPage(),

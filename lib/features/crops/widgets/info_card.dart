@@ -39,6 +39,8 @@ class InfoCard extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             value,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
             style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
