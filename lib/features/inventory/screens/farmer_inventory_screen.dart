@@ -1,4 +1,5 @@
 import 'package:agricola/core/providers/database_provider.dart';
+import 'package:agricola/features/inventory/widgets/inventory_item_card_skeleton.dart';
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/core/providers/offline_settings_provider.dart';
@@ -85,8 +86,11 @@ class _FarmerInventoryScreenState extends ConsumerState<FarmerInventoryScreen> {
       backgroundColor: const Color(0xFFF8F9FA),
       body: SafeArea(
         child: inventoryAsync.when(
-          loading: () => const Center(
-            child: CircularProgressIndicator(color: Color(0xFF2D6A4F)),
+          loading: () => Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              children: List.generate(4, (_) => const InventoryItemCardSkeleton()),
+            ),
           ),
           error: (error, _) => Center(
             child: Column(

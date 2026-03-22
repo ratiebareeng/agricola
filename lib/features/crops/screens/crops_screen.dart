@@ -8,6 +8,7 @@ import 'package:agricola/features/crops/providers/crop_providers.dart';
 import 'package:agricola/features/crops/screens/add_edit_crop_screen.dart';
 import 'package:agricola/features/crops/screens/crop_details_screen.dart';
 import 'package:agricola/features/home/widgets/crop_card.dart';
+import 'package:agricola/features/home/widgets/crop_card_skeleton.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -50,12 +51,10 @@ class CropsScreen extends ConsumerWidget {
                     // Crops List — from backend
                     cropsAsync.when(
                       data: (crops) => _buildCropsList(context, crops, imageMap, unsyncedIds: unsyncedIds),
-                      loading: () => const Center(
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(vertical: 32),
-                          child: CircularProgressIndicator(
-                            color: Color(0xFF2D6A4F),
-                          ),
+                      loading: () => Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: Column(
+                          children: List.generate(5, (_) => const CropCardSkeleton()),
                         ),
                       ),
                       error: (error, _) => Center(

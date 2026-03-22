@@ -7,7 +7,9 @@ import 'package:agricola/features/crops/providers/crop_providers.dart';
 import 'package:agricola/features/crops/screens/add_edit_crop_screen.dart';
 import 'package:agricola/features/crops/screens/crop_details_screen.dart';
 import 'package:agricola/features/home/widgets/crop_card.dart';
+import 'package:agricola/features/home/widgets/crop_card_skeleton.dart';
 import 'package:agricola/features/home/widgets/stat_card.dart';
+import 'package:agricola/features/home/widgets/stat_card_skeleton.dart';
 import 'package:agricola/features/loss_calculator/screens/loss_calculator_screen.dart';
 import 'package:agricola/features/notifications/providers/notifications_provider.dart';
 import 'package:agricola/features/notifications/screens/notifications_screen.dart';
@@ -64,7 +66,7 @@ class FarmerDashboardScreen extends ConsumerWidget {
               // Quick Stats — derived from backend crops
               cropsAsync.when(
                 data: (crops) => _buildStatsGrid(context, crops, currentLang),
-                loading: () => _buildStatsPlaceholder(),
+                loading: () => _buildStatsSkeleton(),
                 error: (_, __) => _buildStatsGrid(context, [], currentLang),
               ),
               const SizedBox(height: 20),
@@ -135,10 +137,10 @@ class FarmerDashboardScreen extends ConsumerWidget {
               cropsAsync.when(
                 data: (crops) =>
                     _buildCropsList(context, crops.take(3).toList(), imageMap),
-                loading: () => const Center(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(vertical: 32),
-                    child: CircularProgressIndicator(color: Color(0xFF2D6A4F)),
+                loading: () => Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: Column(
+                    children: List.generate(3, (_) => const CropCardSkeleton()),
                   ),
                 ),
                 error: (error, _) => Center(
@@ -266,8 +268,7 @@ class FarmerDashboardScreen extends ConsumerWidget {
     );
   }
 
-  // Skeleton while crops are loading
-  Widget _buildStatsPlaceholder() {
+  Widget _buildStatsSkeleton() {
     return GridView.count(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -275,22 +276,7 @@ class FarmerDashboardScreen extends ConsumerWidget {
       crossAxisSpacing: 16,
       mainAxisSpacing: 16,
       childAspectRatio: 1.5,
-      children: List.generate(
-        4,
-        (_) => Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withAlpha(25),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-        ),
-      ),
+      children: List.generate(4, (_) => const StatCardSkeleton()),
     );
   }
 

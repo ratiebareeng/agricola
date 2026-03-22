@@ -8,6 +8,7 @@ import 'package:agricola/features/marketplace/models/marketplace_listing.dart';
 import 'package:agricola/features/marketplace/providers/marketplace_provider.dart';
 import 'package:agricola/features/marketplace/screens/marketplace_detail_screen.dart';
 import 'package:agricola/features/marketplace/widgets/marketplace_filter_bottom_sheet.dart';
+import 'package:agricola/features/marketplace/widgets/marketplace_listing_skeleton.dart';
 import 'package:agricola/features/profile_setup/providers/profile_setup_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -86,8 +87,9 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                       color: AppColors.green,
                       child: _buildListingsList(listings),
                     ),
-              loading: () => const Center(
-                child: CircularProgressIndicator(color: AppColors.green),
+              loading: () => ListView(
+                padding: const EdgeInsets.all(16),
+                children: List.generate(4, (_) => const MarketplaceListingSkeleton()),
               ),
               error: (error, _) => _buildErrorState(currentLang, error),
             ),

@@ -8,6 +8,7 @@ import 'package:agricola/features/inventory/providers/inventory_providers.dart';
 import 'package:agricola/features/inventory/screens/add_edit_inventory_screen.dart';
 import 'package:agricola/features/inventory/screens/inventory_detail_screen.dart';
 import 'package:agricola/features/inventory/widgets/inventory_item_card.dart';
+import 'package:agricola/features/inventory/widgets/inventory_item_card_skeleton.dart';
 import 'package:agricola/features/profile_setup/providers/profile_setup_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -47,8 +48,11 @@ class _MerchantInventoryScreenState
       backgroundColor: const Color(0xFFF8F9FA),
       body: SafeArea(
         child: inventoryAsync.when(
-          loading: () => const Center(
-            child: CircularProgressIndicator(color: Color(0xFF2D6A4F)),
+          loading: () => Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              children: List.generate(4, (_) => const InventoryItemCardSkeleton()),
+            ),
           ),
           error: (error, _) => Center(
             child: Column(

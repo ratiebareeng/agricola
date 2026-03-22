@@ -1,4 +1,6 @@
 import 'package:agricola/core/providers/language_provider.dart';
+import 'package:agricola/core/widgets/skeleton_primitives.dart';
+import 'package:agricola/features/home/widgets/stat_card_skeleton.dart';
 import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/features/crops/providers/crop_providers.dart';
 import 'package:agricola/features/inventory/providers/inventory_providers.dart';
@@ -99,12 +101,7 @@ class _FarmerStatsSection extends ConsumerWidget {
     final analyticsAsync = ref.watch(analyticsProvider('month'));
 
     return analyticsAsync.when(
-      loading: () => const Center(
-        child: Padding(
-          padding: EdgeInsets.all(32),
-          child: CircularProgressIndicator(color: AppColors.green),
-        ),
-      ),
+      loading: () => _ReportsStatsSkeleton(),
       error: (_, __) => _FarmerStatsFallback(lang: lang),
       data: (analytics) => _buildFarmerStats(analytics),
     );
@@ -162,12 +159,7 @@ class _FarmerStatsFallback extends ConsumerWidget {
     final stats = ref.watch(farmerReportStatsProvider);
 
     if (stats.isLoading) {
-      return const Center(
-        child: Padding(
-          padding: EdgeInsets.all(32),
-          child: CircularProgressIndicator(color: AppColors.green),
-        ),
-      );
+      return _ReportsStatsSkeleton();
     }
 
     return Column(
@@ -217,12 +209,7 @@ class _MerchantStatsSection extends ConsumerWidget {
     final analyticsAsync = ref.watch(analyticsProvider('month'));
 
     return analyticsAsync.when(
-      loading: () => const Center(
-        child: Padding(
-          padding: EdgeInsets.all(32),
-          child: CircularProgressIndicator(color: AppColors.green),
-        ),
-      ),
+      loading: () => _ReportsStatsSkeleton(),
       error: (_, __) => _MerchantStatsFallback(lang: lang),
       data: (analytics) => _buildMerchantStats(analytics),
     );
@@ -286,12 +273,7 @@ class _MerchantStatsFallback extends ConsumerWidget {
     final stats = ref.watch(merchantReportStatsProvider);
 
     if (stats.isLoading) {
-      return const Center(
-        child: Padding(
-          padding: EdgeInsets.all(32),
-          child: CircularProgressIndicator(color: AppColors.green),
-        ),
-      );
+      return _ReportsStatsSkeleton();
     }
 
     return Column(
@@ -822,4 +804,49 @@ class _ReportRow {
   final String value;
   final bool isWarning;
   const _ReportRow(this.label, this.value, {this.isWarning = false});
+}
+
+class _ReportsStatsSkeleton extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        children: [
+          GridView.count(
+            crossAxisCount: 2,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            crossAxisSpacing: 16,
+            mainAxisSpacing: 16,
+            childAspectRatio: 1.5,
+            children: List.generate(4, (_) => const StatCardSkeleton()),
+          ),
+          const SizedBox(height: 24),
+          ShimmerWrapper(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SkeletonLine(width: 140, height: 18),
+                const SizedBox(height: 16),
+                ...List.generate(
+                  3,
+                  (_) => Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const SkeletonLine(width: 120, height: 14),
+                        const SkeletonLine(width: 60, height: 14),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }

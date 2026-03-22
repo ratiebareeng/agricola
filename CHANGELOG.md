@@ -1,3 +1,12 @@
+## 0.20.6 - 2026-03-22
+
+### Added
+- **Skeleton loaders for all loading states** — replace bare `CircularProgressIndicator` with shimmer-animated skeleton placeholders that match each card's layout
+  - Reusable primitives: `ShimmerWrapper`, `SkeletonBox`, `SkeletonLine`, `SkeletonCircle` in `lib/core/widgets/skeleton_primitives.dart`
+  - 6 composite skeletons: `StatCardSkeleton`, `CropCardSkeleton`, `InventoryItemCardSkeleton`, `MarketplaceListingSkeleton`, `OrderCardSkeleton`, `HarvestHistoryCardSkeleton`
+  - Updated 9 screens: farmer/merchant/agrishop dashboards, crops, farmer/merchant inventory, marketplace, orders, reports
+  - Added `shimmer: ^3.0.0` dependency
+
 ## 0.20.5 - 2026-03-08
 
 ### Fixed

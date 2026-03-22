@@ -2,6 +2,7 @@ import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/features/orders/models/order_model.dart';
 import 'package:agricola/features/orders/providers/orders_provider.dart';
+import 'package:agricola/features/orders/widgets/order_card_skeleton.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -38,8 +39,9 @@ class AgriShopOrdersScreen extends ConsumerWidget {
         data: (orders) => orders.isEmpty
             ? _buildEmptyState(context, currentLang)
             : _buildOrdersList(context, ref, orders, currentLang),
-        loading: () => const Center(
-          child: CircularProgressIndicator(color: AppColors.green),
+        loading: () => ListView(
+          padding: const EdgeInsets.all(16),
+          children: List.generate(4, (_) => const OrderCardSkeleton()),
         ),
         error: (error, _) => _buildErrorState(context, ref, error, currentLang),
       ),

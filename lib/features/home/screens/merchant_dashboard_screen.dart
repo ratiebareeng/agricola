@@ -1,9 +1,11 @@
 import 'package:agricola/core/providers/language_provider.dart';
+import 'package:agricola/core/widgets/skeleton_primitives.dart';
 import 'package:agricola/core/providers/nav_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/domain/profile/enum/merchant_type.dart';
 import 'package:agricola/features/home/providers/dashboard_stats_provider.dart';
 import 'package:agricola/features/home/widgets/stat_card.dart';
+import 'package:agricola/features/home/widgets/stat_card_skeleton.dart';
 import 'package:agricola/features/marketplace/screens/add_product_screen.dart';
 import 'package:agricola/features/notifications/providers/notifications_provider.dart';
 import 'package:agricola/features/notifications/screens/notifications_screen.dart';
@@ -92,21 +94,7 @@ class MerchantDashboardScreen extends ConsumerWidget {
         mainAxisSpacing: 12,
         crossAxisSpacing: 12,
         childAspectRatio: 1.25,
-        children: List.generate(
-          4,
-          (_) => Container(
-            decoration: BoxDecoration(
-              color: Colors.grey[200],
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: const Center(
-              child: CircularProgressIndicator(
-                color: AppColors.green,
-                strokeWidth: 2,
-              ),
-            ),
-          ),
-        ),
+        children: List.generate(4, (_) => const StatCardSkeleton()),
       );
     }
 
@@ -406,10 +394,34 @@ class MerchantDashboardScreen extends ConsumerWidget {
             ],
           ),
           child: stats.isLoading
-              ? const Padding(
-                  padding: EdgeInsets.all(32),
-                  child: Center(
-                    child: CircularProgressIndicator(color: AppColors.green),
+              ? Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: ShimmerWrapper(
+                    child: Column(
+                      children: List.generate(
+                        3,
+                        (i) => Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          child: Row(
+                            children: [
+                              const SkeletonBox(width: 40, height: 40, borderRadius: 10),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const SkeletonLine(width: 100, height: 14),
+                                    const SizedBox(height: 4),
+                                    const SkeletonLine(width: 140, height: 12),
+                                  ],
+                                ),
+                              ),
+                              const SkeletonLine(width: 60, height: 14),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 )
               : stats.recentOrders.isEmpty
