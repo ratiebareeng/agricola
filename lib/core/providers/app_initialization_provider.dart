@@ -1,4 +1,7 @@
+import 'package:agricola/core/constants/api_constants.dart';
+import 'package:agricola/core/network/http_client_provider.dart';
 import 'package:agricola/features/auth/providers/auth_provider.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -20,6 +23,9 @@ class AppInitializationNotifier extends StateNotifier<AsyncValue<AppInitializati
         orElse: () => null,
       );
 
+      // Fire-and-forget: warm up Cloud Run container before user needs it
+      _warmUpServer();
+
       state = AsyncValue.data(
         AppInitializationState(
           hasSeenWelcome: prefs.getBool('has_seen_welcome') ?? false,
@@ -31,6 +37,20 @@ class AppInitializationNotifier extends StateNotifier<AsyncValue<AppInitializati
     } catch (error, stackTrace) {
       state = AsyncValue.error(error, stackTrace);
     }
+  }
+
+  /// Fire-and-forget health ping to warm up Cloud Run before user needs it
+  void _warmUpServer() {
+    final dio = _ref.read(httpClientProvider);
+    dio
+        .get(
+          ApiConstants.healthEndpoint,
+          options: Options(
+            receiveTimeout: const Duration(seconds: 5),
+            sendTimeout: const Duration(seconds: 5),
+          ),
+        )
+        .ignore(); // Ignore errors — purely a warm-up
   }
 
   /// Update a specific flag synchronously (after it's been written to SharedPreferences)

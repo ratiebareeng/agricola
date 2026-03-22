@@ -1,0 +1,59 @@
+name: Build Play Store Release
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build AAB for Play Store
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'gradle'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          cache: true
+          flutter-version: '3.35.2'
+          channel: 'stable'
+
+      - name: Cache Flutter dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.pub-cache
+            .dart_tool
+          key: ${{ runner.os }}-flutter-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-flutter-
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Setup Keystore
+        run: |
+          mkdir -p android/keystore
+          echo "${{ secrets.KEYSTORE_FILE }}" | base64 -d > android/keystore/upload-keystore.jks
+
+      - name: Build AAB
+        env:
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
+        run: flutter build appbundle --release
+
+      - name: Upload AAB artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: play-store-release-aab
+          path: build/app/outputs/bundle/release/app-release.aab
+          retention-days: 30

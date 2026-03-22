@@ -241,6 +241,7 @@ class _EditMerchantProfileScreenState
                       ? DecorationImage(
                           image: NetworkImage(widget.profile.photoUrl!),
                           fit: BoxFit.cover,
+                          onError: (_, __) {},
                         )
                       : null,
                   color: Colors.grey[200],

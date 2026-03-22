@@ -161,6 +161,7 @@ class _EditFarmerProfileScreenState
                       ? DecorationImage(
                           image: NetworkImage(widget.profile.photoUrl!),
                           fit: BoxFit.cover,
+                          onError: (_, __) {},
                         )
                       : null,
                   color: AppColors.lightGray.withAlpha(50),

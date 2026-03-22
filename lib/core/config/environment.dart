@@ -20,9 +20,9 @@ class EnvironmentConfig {
   // Cold start handling configuration
   static const Duration coldStartTimeout = Duration(seconds: 60);
 
-  static const int maxRetries = 3;
+  static const int maxRetries = 2;
 
-  static const Duration initialRetryDelay = Duration(seconds: 3);
+  static const Duration initialRetryDelay = Duration(seconds: 2);
 
   static const Duration serverWakeDelay = Duration(seconds: 5);
   // API Configuration

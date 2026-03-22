@@ -1,3 +1,15 @@
+## 0.20.7 - 2026-03-22
+
+### Added
+- **Play Store release CI workflow** — new `play-store-release.yml` GitHub Actions workflow (manual dispatch) builds AAB with proper keystore secrets, matching the App Distribution pipeline
+- **Startup server warm-up** — fire-and-forget health ping during app initialization to warm Cloud Run before users hit sign-in
+
+### Fixed
+- **Cloud Run cold start resilience** — retry interceptor now handles HTTP 502/503 responses (Cloud Run cold-start codes), reduced backoff from 3 retries/3s to 2 retries/2s
+- **Dio timeout config was dead code** — `ApiConstants.connectionTimeout` (15s) and `requestTimeout` (45s) were defined but never wired to Dio; now applied instead of hardcoded 30s/30s
+- **Image 404 crash** — added `onError` handlers to all `NetworkImage`/`DecorationImage` usages so broken Unsplash URLs fail gracefully instead of crashing the app
+- **Cloud Run min-instances** — set `--min-instances=1` on backend deploy to eliminate cold starts
+
 ## 0.20.6 - 2026-03-22
 
 ### Added

@@ -81,6 +81,10 @@ class RetryInterceptor extends Interceptor {
         return true;
       case DioExceptionType.connectionError:
         return true;
+      case DioExceptionType.badResponse:
+        // Cloud Run returns 502/503 during cold starts
+        final status = err.response?.statusCode ?? 0;
+        return status == 502 || status == 503;
       case DioExceptionType.unknown:
         // Check for socket exceptions which indicate server not ready
         if (err.error is SocketException) {

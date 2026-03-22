@@ -564,6 +564,7 @@ class _FarmerProfileScreenState extends ConsumerState<FarmerProfileScreen> {
                             ? DecorationImage(
                                 image: NetworkImage(profile.photoUrl!),
                                 fit: BoxFit.cover,
+                                onError: (_, __) {},
                               )
                             : null,
                         color: Colors.white.withAlpha(30),

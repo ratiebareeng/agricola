@@ -12,8 +12,8 @@ final httpClientProvider = Provider<Dio>((ref) {
   // Base configuration
   dio.options.baseUrl = ApiConstants.baseUrl;
   // 'https://api.agricola.app'; // TODO: Update with actual backend URL
-  dio.options.connectTimeout = const Duration(seconds: 30);
-  dio.options.receiveTimeout = const Duration(seconds: 30);
+  dio.options.connectTimeout = ApiConstants.connectionTimeout; // 15s — fail fast
+  dio.options.receiveTimeout = ApiConstants.requestTimeout; // 45s — allow for cold starts
   dio.options.headers['Content-Type'] = 'application/json';
 
   // Add retry interceptor first (handles cold starts)
