@@ -1,5 +1,6 @@
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/providers/nav_provider.dart';
+import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/features/crops/crop_helpers.dart';
 import 'package:agricola/features/crops/models/crop_model.dart';
 import 'package:agricola/features/crops/providers/crop_catalog_provider.dart';
@@ -13,7 +14,6 @@ import 'package:agricola/features/home/widgets/stat_card_skeleton.dart';
 import 'package:agricola/features/loss_calculator/screens/loss_calculator_screen.dart';
 import 'package:agricola/features/notifications/providers/notifications_provider.dart';
 import 'package:agricola/features/notifications/screens/notifications_screen.dart';
-import 'package:agricola/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -53,7 +53,10 @@ class FarmerDashboardScreen extends ConsumerWidget {
                         const SizedBox(height: 4),
                         Text(
                           'Let\'s check your farm status',
-                          style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[600],
+                          ),
                         ),
                       ],
                     ),
@@ -169,7 +172,11 @@ class FarmerDashboardScreen extends ConsumerWidget {
   // ---------------------------------------------------------------------------
   // Crop cards from backend data
   // ---------------------------------------------------------------------------
-  Widget _buildCropsList(BuildContext context, List<CropModel> crops, Map<String, String> imageMap) {
+  Widget _buildCropsList(
+    BuildContext context,
+    List<CropModel> crops,
+    Map<String, String> imageMap,
+  ) {
     if (crops.isEmpty) {
       return Center(
         child: Padding(
@@ -221,7 +228,11 @@ class FarmerDashboardScreen extends ConsumerWidget {
   // ---------------------------------------------------------------------------
   // Stats grid built from real crop data
   // ---------------------------------------------------------------------------
-  Widget _buildStatsGrid(BuildContext context, List<CropModel> crops, AppLanguage lang) {
+  Widget _buildStatsGrid(
+    BuildContext context,
+    List<CropModel> crops,
+    AppLanguage lang,
+  ) {
     final now = DateTime.now();
     final upcomingCount = crops
         .where(
@@ -251,17 +262,10 @@ class FarmerDashboardScreen extends ConsumerWidget {
           icon: Icons.agriculture,
           color: AppColors.green,
         ),
-        StatCard(
-          title: t('inventory_value', lang),
-          value: '—',
-          icon: Icons.inventory_2,
-          color: AppColors.green,
-        ),
+        StatCard(title: t('inventory_value', lang), value: '—'),
         StatCard(
           title: t('estimated_losses', lang),
           value: '—',
-          icon: Icons.warning_amber,
-          color: AppColors.alertRed,
           onTap: () => _openLossCalculator(context),
         ),
       ],
@@ -277,13 +281,6 @@ class FarmerDashboardScreen extends ConsumerWidget {
       mainAxisSpacing: 16,
       childAspectRatio: 1.5,
       children: List.generate(4, (_) => const StatCardSkeleton()),
-    );
-  }
-
-  void _openLossCalculator(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const LossCalculatorScreen()),
     );
   }
 
@@ -313,6 +310,13 @@ class FarmerDashboardScreen extends ConsumerWidget {
         }
       }
     }
+  }
+
+  void _openLossCalculator(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const LossCalculatorScreen()),
+    );
   }
 }
 
