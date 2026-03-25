@@ -156,7 +156,7 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      color: AppColors.green.withValues(alpha: 0.1),
+      color: Colors.grey[50],
       child: Row(
         children: [
           const Icon(Icons.info_outline, size: 20, color: AppColors.green),
@@ -254,9 +254,8 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: AppColors.green.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.green.withValues(alpha: 0.3)),
+        border: Border.all(color: Colors.grey[300]!),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -356,22 +355,12 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
               const SizedBox(height: 12),
               Row(
                 children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColors.green.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Text(
-                      listing.category,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: AppColors.green,
-                        fontWeight: FontWeight.w600,
-                      ),
+                  Text(
+                    listing.category,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppColors.green,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -527,28 +516,20 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
         break;
     }
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withValues(alpha: 0.3)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 14, color: color),
-          const SizedBox(width: 4),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: color,
-            ),
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 14, color: color),
+        const SizedBox(width: 4),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: color,
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 

@@ -41,15 +41,7 @@ class LossStageInput extends StatelessWidget {
         children: [
           Row(
             children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: color.withAlpha(25),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(icon, color: color, size: 20),
-              ),
+              Icon(icon, color: color, size: 24),
               const SizedBox(width: 12),
               Text(
                 t('loss_stage_$stage', lang),

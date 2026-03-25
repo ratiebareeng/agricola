@@ -1,7 +1,7 @@
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/features/loss_calculator/loss_calculator_helpers.dart';
 import 'package:agricola/features/loss_calculator/models/loss_calculation.dart';
-import 'package:agricola/core/theme/app_theme.dart';
+
 import 'package:flutter/material.dart';
 
 class PreventionTipsCard extends StatelessWidget {
@@ -21,8 +21,9 @@ class PreventionTipsCard extends StatelessWidget {
       return Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: AppColors.green.withAlpha(15),
+          color: Colors.grey[50],
           borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.grey[200]!),
         ),
         child: Row(
           children: [
@@ -76,13 +77,9 @@ class PreventionTipsCard extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
+                SizedBox(
                   width: 28,
                   height: 28,
-                  decoration: BoxDecoration(
-                    color: AppColors.green.withAlpha(25),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
                   child: Center(
                     child: Text(
                       '${entry.key + 1}',

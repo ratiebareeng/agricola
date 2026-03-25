@@ -299,14 +299,7 @@ class MerchantDashboardScreen extends ConsumerWidget {
         padding: const EdgeInsets.symmetric(vertical: 4),
         child: Row(
           children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: iconColor.withAlpha(20),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(icon, color: iconColor, size: 24),
-            ),
+            Icon(icon, color: iconColor, size: 24),
             const SizedBox(width: 16),
             Expanded(
               child: Column(
@@ -535,14 +528,7 @@ class MerchantDashboardScreen extends ConsumerWidget {
       padding: const EdgeInsets.all(16),
       child: Row(
         children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: statusConfig.color.withAlpha(20),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(statusConfig.icon, color: statusConfig.color, size: 20),
-          ),
+          Icon(statusConfig.icon, color: statusConfig.color, size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -577,19 +563,12 @@ class MerchantDashboardScreen extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 2),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                decoration: BoxDecoration(
-                  color: statusConfig.color.withAlpha(20),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Text(
-                  statusConfig.label,
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: statusConfig.color,
-                    fontWeight: FontWeight.w600,
-                  ),
+              Text(
+                statusConfig.label,
+                style: TextStyle(
+                  fontSize: 10,
+                  color: statusConfig.color,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ],

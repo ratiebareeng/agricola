@@ -119,22 +119,12 @@ class CropDetailsScreen extends ConsumerWidget {
                           ],
                         ),
                       ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
-                        ),
-                        decoration: BoxDecoration(
-                          color: _getStatusColor(status).withAlpha(10),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          t(status, currentLang),
-                          style: TextStyle(
-                            color: _getStatusColor(status),
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                          ),
+                      Text(
+                        t(status, currentLang),
+                        style: TextStyle(
+                          color: _getStatusColor(status),
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ],

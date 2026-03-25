@@ -1,3 +1,8 @@
+## 0.20.8 - 2026-03-25
+
+### Changed
+- **Remove AI-tell colored container pattern** — eliminated ~30 instances of `Container(color: X.withAlpha())` wrapping icons, text badges, and status pills across 13 files. Icons now show their color directly; text labels use colored text without background fills; info sections use neutral grey instead of tinted backgrounds. Affected: stat cards, dashboards (quick actions, order tiles), inventory cards, notifications, activity timeline, marketplace listings/detail, crop details, loss calculator, onboarding slides, selection cards.
+
 ## 0.20.7 - 2026-03-22
 
 ### Added

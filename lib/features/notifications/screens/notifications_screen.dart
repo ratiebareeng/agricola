@@ -98,14 +98,7 @@ class _NotificationCard extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: config.color.withAlpha(20),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(config.icon, color: config.color, size: 22),
-          ),
+          Icon(config.icon, color: config.color, size: 22),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -124,24 +117,14 @@ class _NotificationCard extends StatelessWidget {
                       ),
                     ),
                     if (notification.priority == NotificationPriority.high)
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 6,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: config.color.withAlpha(20),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          config.priorityLabel,
-                          style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w600,
-                            color: config.color,
-                          ),
-                        ),
+                      Text(
+                      config.priorityLabel,
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                        color: config.color,
                       ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 4),

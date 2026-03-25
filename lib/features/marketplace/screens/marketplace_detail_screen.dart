@@ -119,22 +119,12 @@ class MarketplaceDetailScreen extends ConsumerWidget {
                             ),
                           ),
                           const Spacer(),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 6,
-                            ),
-                            decoration: BoxDecoration(
-                              color: AppColors.green.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              listing.category,
-                              style: const TextStyle(
-                                fontSize: 14,
-                                color: AppColors.green,
-                                fontWeight: FontWeight.w600,
-                              ),
+                          Text(
+                            listing.category,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: AppColors.green,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ],
@@ -144,11 +134,9 @@ class MarketplaceDetailScreen extends ConsumerWidget {
                         Container(
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: AppColors.green.withValues(alpha: 0.1),
+                            color: Colors.grey[50],
                             borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: AppColors.green.withValues(alpha: 0.3),
-                            ),
+                            border: Border.all(color: Colors.grey[200]!),
                           ),
                           child: Row(
                             children: [
@@ -230,11 +218,9 @@ class MarketplaceDetailScreen extends ConsumerWidget {
                         Container(
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: AppColors.warmYellow.withAlpha(25),
+                            color: Colors.grey[50],
                             borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: AppColors.warmYellow.withAlpha(75),
-                            ),
+                            border: Border.all(color: Colors.grey[200]!),
                           ),
                           child: Row(
                             children: [
@@ -289,21 +275,12 @@ class MarketplaceDetailScreen extends ConsumerWidget {
                           children: [
                             Row(
                               children: [
-                                Container(
-                                  padding: const EdgeInsets.all(12),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.green.withValues(
-                                      alpha: 0.1,
-                                    ),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: Icon(
-                                    listing.type == ListingType.produce
-                                        ? Icons.agriculture
-                                        : Icons.store,
-                                    color: AppColors.green,
-                                    size: 28,
-                                  ),
+                                Icon(
+                                  listing.type == ListingType.produce
+                                      ? Icons.agriculture
+                                      : Icons.store,
+                                  color: AppColors.green,
+                                  size: 28,
                                 ),
                                 const SizedBox(width: 16),
                                 Expanded(
@@ -470,18 +447,11 @@ class MarketplaceDetailScreen extends ConsumerWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.green.withValues(alpha: 0.3)),
+          border: Border.all(color: Colors.grey[200]!),
         ),
         child: Row(
           children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: AppColors.green.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, color: AppColors.green, size: 20),
-            ),
+            Icon(icon, color: AppColors.green, size: 20),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -551,28 +521,20 @@ class MarketplaceDetailScreen extends ConsumerWidget {
         break;
     }
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withValues(alpha: 0.3)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 16, color: color),
-          const SizedBox(width: 6),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: color,
-            ),
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 16, color: color),
+        const SizedBox(width: 6),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: color,
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 

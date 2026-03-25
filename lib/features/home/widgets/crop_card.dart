@@ -85,22 +85,12 @@ class CropCard extends StatelessWidget {
                               ),
                             ),
                           ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.green.withAlpha(10),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            stage,
-                            style: const TextStyle(
-                              color: AppColors.green,
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                            ),
+                        Text(
+                          stage,
+                          style: const TextStyle(
+                            color: AppColors.green,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ],
