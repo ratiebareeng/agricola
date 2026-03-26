@@ -1,3 +1,14 @@
+## 0.20.9 - 2026-03-26
+
+### Changed
+- **Color hygiene pass** — remove remaining tinted containers and replace off-palette hardcoded colors with AppColors constants across 6 files
+  - `validation_hint_card.dart`: removed parametric color; card is now a consistent neutral grey (no rainbow hint cards)
+  - `settings_screen.dart`: removed tinted Container wrapping the About dialog icon
+  - `profile_setup_screen.dart`: removed red tinted bg/border from error message; alertRed applied to icon and text directly
+  - `selection_card.dart`: removed green tint from selected card background; green border + icon remain as selection indicators
+  - `offline_banner.dart`: replaced `Colors.amber.shade700`, `Colors.orange.shade700`, `Colors.red.shade700` with `AppColors.warmYellow` / `AppColors.alertRed`
+  - `farmer_dashboard_screen.dart`: replaced all hardcoded `Color(0xFF...)` and `Colors.grey[X]` values with AppColors constants
+
 ## 0.20.8 - 2026-03-25
 
 ### Changed

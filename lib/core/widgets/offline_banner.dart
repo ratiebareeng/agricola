@@ -1,4 +1,5 @@
 import 'package:agricola/core/database/sync/sync_service.dart';
+import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/core/providers/connectivity_provider.dart';
 import 'package:agricola/core/providers/database_provider.dart';
 import 'package:agricola/core/providers/language_provider.dart';
@@ -25,7 +26,7 @@ class OfflineBanner extends ConsumerWidget {
         child: Container(
           width: double.infinity,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          color: Colors.amber.shade700,
+          color: AppColors.warmYellow,
           child: SafeArea(
             bottom: false,
             child: Row(
@@ -71,8 +72,8 @@ class OfflineBanner extends ConsumerWidget {
         width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         color: connectivity == ConnectivityStatus.checking
-            ? Colors.orange.shade700
-            : Colors.red.shade700,
+            ? AppColors.warmYellow
+            : AppColors.alertRed,
         child: SafeArea(
           bottom: false,
           child: Row(

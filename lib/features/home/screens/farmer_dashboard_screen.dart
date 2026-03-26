@@ -27,7 +27,7 @@ class FarmerDashboardScreen extends ConsumerWidget {
     final imageMap = ref.watch(cropImageUrlProvider).valueOrNull ?? {};
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: AppColors.lightGray,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(20),
@@ -47,7 +47,7 @@ class FarmerDashboardScreen extends ConsumerWidget {
                           style: const TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF1A1A1A),
+                            color: AppColors.darkGray,
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -55,7 +55,7 @@ class FarmerDashboardScreen extends ConsumerWidget {
                           'Let\'s check your farm status',
                           style: TextStyle(
                             fontSize: 14,
-                            color: Colors.grey[600],
+                            color: AppColors.mediumGray,
                           ),
                         ),
                       ],
@@ -82,12 +82,12 @@ class FarmerDashboardScreen extends ConsumerWidget {
                   icon: const Icon(Icons.calculate_outlined),
                   label: Text(t('calculate_losses', currentLang)),
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: const Color(0xFF2D6A4F),
+                    foregroundColor: AppColors.green,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    side: const BorderSide(color: Color(0xFF2D6A4F)),
+                    side: const BorderSide(color: AppColors.green),
                   ),
                 ),
               ),
@@ -102,7 +102,7 @@ class FarmerDashboardScreen extends ConsumerWidget {
                     style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF1A1A1A),
+                      color: AppColors.darkGray,
                     ),
                   ),
                   TextButton(
@@ -124,8 +124,8 @@ class FarmerDashboardScreen extends ConsumerWidget {
                   icon: const Icon(Icons.add),
                   label: Text(t('add_new_crop', currentLang)),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF2D6A4F),
-                    foregroundColor: Colors.white,
+                    backgroundColor: AppColors.green,
+                    foregroundColor: AppColors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -151,11 +151,11 @@ class FarmerDashboardScreen extends ConsumerWidget {
                     padding: const EdgeInsets.symmetric(vertical: 32),
                     child: Column(
                       children: [
-                        const Icon(Icons.error_outline, color: Colors.red),
+                        const Icon(Icons.error_outline, color: AppColors.alertRed),
                         const SizedBox(height: 8),
                         Text(
                           'Failed to load crops',
-                          style: TextStyle(color: Colors.grey[600]),
+                          style: const TextStyle(color: AppColors.mediumGray),
                         ),
                       ],
                     ),
@@ -186,12 +186,12 @@ class FarmerDashboardScreen extends ConsumerWidget {
               const Icon(
                 Icons.agriculture_outlined,
                 size: 48,
-                color: Colors.grey,
+                color: AppColors.mediumGray,
               ),
               const SizedBox(height: 12),
               Text(
                 'No crops yet. Tap the button above to add one.',
-                style: TextStyle(color: Colors.grey[600]),
+                style: const TextStyle(color: AppColors.mediumGray),
                 textAlign: TextAlign.center,
               ),
             ],
@@ -330,7 +330,7 @@ class _FarmerNotificationBell extends ConsumerWidget {
         IconButton(
           icon: const Icon(
             Icons.notifications_outlined,
-            color: Color(0xFF1A1A1A),
+            color: AppColors.darkGray,
           ),
           onPressed: () => Navigator.push(
             context,

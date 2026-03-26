@@ -488,17 +488,10 @@ class _AboutTile extends StatelessWidget {
             ),
             title: Row(
               children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: AppColors.green.withAlpha(20),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Icon(
-                    Icons.agriculture,
-                    color: AppColors.green,
-                    size: 24,
-                  ),
+                const Icon(
+                  Icons.agriculture,
+                  color: AppColors.green,
+                  size: 24,
                 ),
                 const SizedBox(width: 12),
                 const Text('Agricola'),

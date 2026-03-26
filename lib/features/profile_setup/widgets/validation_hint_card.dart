@@ -23,19 +23,16 @@ class StepValidationHelper extends ConsumerWidget {
           return ValidationHintCard(
             message: t('select_at_least_one_crop', currentLang),
             icon: Icons.agriculture,
-            color: AppColors.green,
           );
         case 2:
           return ValidationHintCard(
             message: t('select_farm_size_hint', currentLang),
             icon: Icons.landscape,
-            color: AppColors.warmYellow,
           );
         case 3:
           return ValidationHintCard(
             message: t('photo_optional_hint', currentLang),
             icon: Icons.camera_alt,
-            color: Colors.grey[600],
           );
         default:
           return const SizedBox.shrink();
@@ -49,37 +46,33 @@ class StepValidationHelper extends ConsumerWidget {
 class ValidationHintCard extends ConsumerWidget {
   final String message;
   final IconData icon;
-  final Color? color;
 
   const ValidationHintCard({
     super.key,
     required this.message,
     this.icon = Icons.info_outline,
-    this.color,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final displayColor = color ?? AppColors.green;
-
     return Container(
       padding: const EdgeInsets.all(12),
       margin: const EdgeInsets.only(top: 8),
       decoration: BoxDecoration(
-        color: displayColor.withAlpha(10),
+        color: AppColors.lightGray,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: displayColor.withAlpha(30)),
+        border: Border.all(color: AppColors.mediumGray),
       ),
       child: Row(
         children: [
-          Icon(icon, size: 20, color: displayColor),
+          Icon(icon, size: 20, color: AppColors.mediumGray),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               message,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 13,
-                color: displayColor,
+                color: AppColors.darkGray,
                 fontWeight: FontWeight.w500,
               ),
             ),
