@@ -5,11 +5,24 @@ import 'package:agricola/domain/domain.dart';
 import 'package:agricola_core/agricola_core.dart' show MerchantType, UserType;
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:fpdart/fpdart.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 /// Converts any exception to an AuthFailure, handling Firebase-specific types.
 AuthFailure _toAuthFailure(Object e) {
   if (e is firebase_auth.FirebaseAuthException) {
     return authFailureFromFirebaseException(e);
+  }
+  if (e is GoogleSignInException) {
+    if (e.code == GoogleSignInExceptionCode.canceled) {
+      return const AuthFailure(
+        message: 'Sign in was canceled.',
+        type: AuthFailureType.unknown,
+      );
+    }
+    return const AuthFailure(
+      message: 'Google sign in failed. Please try again.',
+      type: AuthFailureType.unknown,
+    );
   }
   return AuthFailure.fromException(e);
 }

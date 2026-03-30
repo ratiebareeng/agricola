@@ -135,11 +135,11 @@ class FirebaseAuthDatasource {
         .authorizationForScopes(scopes);
 
     if (googleAuthorization == null) {
-      // Deal with the case where this scope is not approved (I don't even know if it's possible as it's a basic OAuth2.0 scope for google).
+      throw Exception('Google authorization was not granted for required scopes.');
     }
 
     final credential = firebase_auth.GoogleAuthProvider.credential(
-      accessToken: googleAuthorization!.accessToken,
+      accessToken: googleAuthorization.accessToken,
       idToken: googleAuth.idToken,
     );
 

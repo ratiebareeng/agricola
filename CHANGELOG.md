@@ -1,3 +1,10 @@
+## 0.20.10 - 2026-03-30
+
+### Fixed
+- **Google Sign In broken on Google Play** — root cause: Play App Signing re-signs the AAB with Google's own key; the Play App Signing certificate SHA-1 must be registered in Firebase Console and included in `google-services.json` for Android OAuth verification to succeed in production
+- **Null safety bug in Google auth flow** — empty null-check on `googleAuthorization` followed by force-unwrap `!` would crash if scopes were denied; now throws a proper exception that surfaces as an `AuthFailure`
+- **Raw exception shown on Google sign-in cancel** — `GoogleSignInException` now handled in `_toAuthFailure`; users see "Sign in was canceled." instead of the raw exception string
+
 ## 0.20.9 - 2026-03-26
 
 ### Changed
