@@ -6,6 +6,7 @@ import 'package:agricola/core/widgets/app_text_field.dart';
 import 'package:agricola/domain/profile/enum/merchant_type.dart';
 import 'package:agricola/features/crops/providers/crop_catalog_provider.dart';
 import 'package:agricola/features/profile_setup/providers/profile_setup_provider.dart';
+import 'package:agricola/features/profile_setup/widgets/district_map_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
@@ -257,6 +258,41 @@ class StepContent extends ConsumerWidget {
                   }
                 }
               },
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        OutlinedButton.icon(
+          onPressed: () async {
+            final current = isFarmer ? state.village : state.location;
+            final picked = await showModalBottomSheet<String>(
+              context: ref.context,
+              isScrollControlled: true,
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+              ),
+              builder: (_) => SizedBox(
+                height: MediaQuery.of(ref.context).size.height * 0.75,
+                child: DistrictMapPicker(
+                  selectedLocation: current.isEmpty ? null : current,
+                ),
+              ),
+            );
+            if (picked != null) {
+              if (isFarmer) {
+                notifier.updateVillage(picked);
+              } else {
+                notifier.updateLocation(picked);
+              }
+            }
+          },
+          icon: const Icon(Icons.map_outlined, size: 18),
+          label: Text(t('view_on_map', currentLang)),
+          style: OutlinedButton.styleFrom(
+            foregroundColor: AppColors.green,
+            side: const BorderSide(color: AppColors.green),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
             ),
           ),
         ),

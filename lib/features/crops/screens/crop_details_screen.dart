@@ -24,6 +24,7 @@ class CropDetailsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final currentLang = ref.watch(languageProvider);
     final catalog = ref.watch(cropCatalogProvider).valueOrNull ?? [];
+    final waterReqAsync = ref.watch(cropWaterRequirementProvider(crop.cropType));
     final harvestsState = ref.watch(harvestNotifierProvider(crop.id!));
     final status = _getCropStatus(crop);
     final currentStage = _getCurrentStage(crop);
@@ -211,6 +212,12 @@ class CropDetailsScreen extends ConsumerWidget {
                             '${crop.estimatedYield} ${t(crop.yieldUnit, currentLang)}',
                         icon: Icons.agriculture,
                       ),
+                      if (waterReqAsync.valueOrNull != null)
+                        InfoCard(
+                          label: t('daily_water_req', currentLang),
+                          value: '${waterReqAsync.value!} mm',
+                          icon: Icons.water_drop_outlined,
+                        ),
                     ],
                   ),
                   const SizedBox(height: 20),

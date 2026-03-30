@@ -1,3 +1,18 @@
+## 0.20.11 - 2026-03-30
+
+### Added
+- **Sold Fresh storage option** — farmers who sell produce fresh (unpackaged) can now select "Sold Fresh" as the storage type in both inventory and crop forms
+- **"Heads" and "Cobs" yield units** — crops counted in heads (e.g. cabbage) or cobs (maize) can now be recorded with the correct unit in both Add Crop and Record Harvest
+- **Maize cob hint** — when maize is selected in the crop form or harvest screen, an inline tip reminds farmers that maize produces 2 cobs per plant
+- **Daily water requirements** — crop details screen now shows daily water requirement (mm) from the crop catalog when available
+- **District map picker** — location selection during profile setup now includes a "View on Map" button that opens an interactive OpenStreetMap showing all 20 supported towns; tapping a town auto-selects it in the dropdown
+
+### Fixed
+- **Profile photo upload failing during registration** — added image validation and compression (via `ImageUtils`) before upload; actual Firebase error message now surfaces to the user instead of a generic fallback. Root cause: Firebase Storage security rules likely missing — see `docs/FIREBASE_SETUP.md` for required rules
+
+### Docs
+- Added `docs/FIREBASE_SETUP.md` documenting required Firebase Storage security rules for profile and marketplace photo uploads
+
 ## 0.20.10 - 2026-03-30
 
 ### Fixed

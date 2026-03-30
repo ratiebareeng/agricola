@@ -70,6 +70,18 @@ final harvestDaysProvider = Provider<AsyncValue<Map<String, int>>>((ref) {
   });
 });
 
+/// Water requirement lookup: crop key -> daily water in mm (null if unknown)
+final cropWaterRequirementProvider =
+    Provider.family<AsyncValue<double?>, String>((ref, cropKey) {
+  return ref.watch(cropCatalogProvider).whenData((entries) {
+    final entry = entries.cast<CropCatalogEntry?>().firstWhere(
+      (e) => e?.key == cropKey,
+      orElse: () => null,
+    );
+    return entry?.dailyWaterMm;
+  });
+});
+
 /// Image URL lookup: key -> url
 final cropImageUrlProvider =
     Provider<AsyncValue<Map<String, String>>>((ref) {
