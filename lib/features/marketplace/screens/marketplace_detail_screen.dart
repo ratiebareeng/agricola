@@ -1,5 +1,6 @@
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
+import 'package:agricola/core/widgets/app_dialogs.dart';
 import 'package:agricola/core/utils/url_utils.dart';
 import 'package:agricola/features/auth/providers/auth_provider.dart';
 import 'package:agricola/features/marketplace/models/marketplace_listing.dart';
@@ -556,26 +557,16 @@ class MarketplaceDetailScreen extends ConsumerWidget {
     WidgetRef ref,
     AppLanguage currentLang,
   ) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(t('delete', currentLang)),
-        content: Text(t('delete_listing_confirm', currentLang)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(t('cancel', currentLang)),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text(t('delete', currentLang)),
-          ),
-        ],
-      ),
+    final confirmed = await AppDialogs.confirm(
+      context,
+      title: t('delete', currentLang),
+      content: t('delete_listing_confirm', currentLang),
+      cancelText: t('cancel', currentLang),
+      actionText: t('delete', currentLang),
+      isDestructive: true,
     );
 
-    if (confirmed == true && context.mounted) {
+    if (confirmed && context.mounted) {
       final error = await ref
           .read(marketplaceNotifierProvider.notifier)
           .deleteListing(listing.id);

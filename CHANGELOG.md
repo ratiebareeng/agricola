@@ -1,3 +1,8 @@
+## 0.20.13 - 2026-03-31
+
+### Changed
+- **Standardized app dialogs** — replaced 20 inconsistent inline `AlertDialog` implementations across 8 files with a unified `AppDialogs` utility (`lib/core/widgets/app_dialogs.dart`). Two types: `confirm()` for two-button confirmations (green or red action button based on `isDestructive` flag) and `info()` for single-button informational dialogs. Consistent border radius (16), button shape, and color usage throughout.
+
 ## 0.20.12 - 2026-03-31
 
 ### Changed

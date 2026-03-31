@@ -1,4 +1,5 @@
 import 'package:agricola/core/providers/language_provider.dart';
+import 'package:agricola/core/widgets/app_dialogs.dart';
 import 'package:agricola/features/crops/crop_helpers.dart';
 import 'package:agricola/features/crops/providers/crop_catalog_provider.dart';
 import 'package:agricola/features/home/providers/dashboard_stats_provider.dart';
@@ -227,26 +228,16 @@ class _InventoryDetailScreenState extends ConsumerState<InventoryDetailScreen> {
     AppLanguage language,
     MarketplaceListing listing,
   ) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(t('unlist', language)),
-        content: Text(t('unlist_confirm', language)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(t('cancel', language)),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text(t('unlist', language)),
-          ),
-        ],
-      ),
+    final confirmed = await AppDialogs.confirm(
+      context,
+      title: t('unlist', language),
+      content: t('unlist_confirm', language),
+      cancelText: t('cancel', language),
+      actionText: t('unlist', language),
+      isDestructive: true,
     );
 
-    if (confirmed == true && context.mounted) {
+    if (confirmed && context.mounted) {
       final error = await ref
           .read(marketplaceNotifierProvider.notifier)
           .deleteListing(listing.id);
@@ -305,26 +296,16 @@ class _InventoryDetailScreenState extends ConsumerState<InventoryDetailScreen> {
   }
 
   Future<void> _confirmDelete(BuildContext context, AppLanguage language) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(t('delete_inventory', language)),
-        content: Text(t('delete_inventory_confirm', language)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(t('cancel', language)),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text(t('delete', language)),
-          ),
-        ],
-      ),
+    final confirmed = await AppDialogs.confirm(
+      context,
+      title: t('delete_inventory', language),
+      content: t('delete_inventory_confirm', language),
+      cancelText: t('cancel', language),
+      actionText: t('delete', language),
+      isDestructive: true,
     );
 
-    if (confirmed == true && context.mounted) {
+    if (confirmed && context.mounted) {
       await _deleteItem(context, language);
     }
   }

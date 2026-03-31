@@ -1,6 +1,7 @@
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/providers/nav_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
+import 'package:agricola/core/widgets/app_dialogs.dart';
 import 'package:agricola/core/widgets/skeleton_primitives.dart';
 import 'package:agricola/domain/profile/enum/merchant_type.dart';
 import 'package:agricola/features/home/providers/dashboard_stats_provider.dart';
@@ -581,27 +582,12 @@ class MerchantDashboardScreen extends ConsumerWidget {
   }
 
   void _showComingSoonDialog(BuildContext context, AppLanguage lang) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Row(
-          children: [
-            const Icon(Icons.construction, color: AppColors.green),
-            const SizedBox(width: 12),
-            Text(t('coming_soon', lang)),
-          ],
-        ),
-        content: Text(
-          t('feature_under_development', lang),
-          style: const TextStyle(fontSize: 15),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(t('okay', lang)),
-          ),
-        ],
-      ),
+    AppDialogs.info(
+      context,
+      title: t('coming_soon', lang),
+      content: t('feature_under_development', lang),
+      okayText: t('okay', lang),
+      icon: Icons.construction,
     );
   }
 }
