@@ -1,4 +1,5 @@
 import 'package:agricola/core/providers/language_provider.dart';
+import 'package:agricola/features/crops/models/crop_catalog_entry.dart';
 import 'package:agricola/features/crops/models/crop_model.dart';
 import 'package:agricola/features/crops/models/harvest_model.dart';
 import 'package:agricola/features/crops/crop_helpers.dart';
@@ -14,6 +15,7 @@ import 'package:agricola/features/loss_calculator/screens/loss_calculator_screen
 import 'package:agricola/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 
 class CropDetailsScreen extends ConsumerWidget {
   final CropModel crop;
@@ -24,7 +26,7 @@ class CropDetailsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final currentLang = ref.watch(languageProvider);
     final catalog = ref.watch(cropCatalogProvider).valueOrNull ?? [];
-    final waterReqAsync = ref.watch(cropWaterRequirementProvider(crop.cropType));
+    final catalogEntry = ref.watch(cropCatalogEntryProvider(crop.cropType)).valueOrNull;
     final harvestsState = ref.watch(harvestNotifierProvider(crop.id!));
     final status = _getCropStatus(crop);
     final currentStage = _getCurrentStage(crop);
@@ -212,14 +214,16 @@ class CropDetailsScreen extends ConsumerWidget {
                             '${crop.estimatedYield} ${t(crop.yieldUnit, currentLang)}',
                         icon: Icons.agriculture,
                       ),
-                      if (waterReqAsync.valueOrNull != null)
-                        InfoCard(
-                          label: t('daily_water_req', currentLang),
-                          value: '${waterReqAsync.value!} mm',
-                          icon: Icons.water_drop_outlined,
-                        ),
                     ],
                   ),
+                  if (catalogEntry?.dailyWaterMm != null) ...[
+                    const SizedBox(height: 20),
+                    _buildWaterFieldCard(
+                      catalogEntry!,
+                      crop,
+                      currentLang,
+                    ),
+                  ],
                   const SizedBox(height: 20),
                   // TODO: Add real weather data integration here in the future
                   // Container(
@@ -443,6 +447,110 @@ class CropDetailsScreen extends ConsumerWidget {
           ),
         ),
       ),
+    );
+  }
+
+  static final _numFmt = NumberFormat('#,###');
+
+  double _fieldSizeInHa(CropModel crop) {
+    if (crop.fieldSizeUnit == 'Metres (m²)') {
+      return crop.fieldSize / 10000;
+    }
+    return crop.fieldSize;
+  }
+
+  Widget _buildWaterFieldCard(
+    CropCatalogEntry entry,
+    CropModel crop,
+    AppLanguage lang,
+  ) {
+    final fieldHa = _fieldSizeInHa(crop);
+    final totalLitresPerDay = entry.dailyWaterMm! * fieldHa * 10000;
+    final litresPerHour = totalLitresPerDay / 24;
+    final plantCount = entry.plantPopulationPerHa != null
+        ? (entry.plantPopulationPerHa! * fieldHa).round()
+        : null;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey[200]!),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(
+                Icons.water_drop_outlined,
+                size: 18,
+                color: Color(0xFF2D6A4F),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                t('water_field_info', lang),
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF1A1A1A),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          _waterRow(
+            Icons.opacity,
+            t('total_daily_water', lang),
+            '${_numFmt.format(totalLitresPerDay.round())} L/day',
+          ),
+          const SizedBox(height: 12),
+          _waterRow(
+            Icons.speed,
+            t('hourly_pump_rate', lang),
+            '${_numFmt.format(litresPerHour.round())} L/hr',
+          ),
+          const SizedBox(height: 12),
+          _waterRow(
+            Icons.water_drop_outlined,
+            t('water_rate', lang),
+            '${entry.dailyWaterMm} mm/day',
+          ),
+          if (plantCount != null) ...[
+            const SizedBox(height: 12),
+            _waterRow(
+              Icons.grass,
+              t('estimated_plants', lang),
+              _numFmt.format(plantCount),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _waterRow(IconData icon, String label, String value) {
+    return Row(
+      children: [
+        Icon(icon, size: 16, color: Colors.grey[500]),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            label,
+            style: TextStyle(fontSize: 13, color: Colors.grey[600]),
+          ),
+        ),
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF1A1A1A),
+          ),
+        ),
+      ],
     );
   }
 

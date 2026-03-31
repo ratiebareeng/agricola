@@ -1,3 +1,9 @@
+## 0.20.12 - 2026-03-31
+
+### Changed
+- **Total daily water requirements** — crop details screen now shows total daily water (litres), hourly pump rate, water rate (mm/day), and estimated plant count based on field size — helps farmers compare against water rights pump capacity
+- **Crop catalog data update** — updated plant population per hectare and daily water requirement values for all 68 crops to match client-provided reference data (migration 013)
+
 ## 0.20.11 - 2026-03-30
 
 ### Added

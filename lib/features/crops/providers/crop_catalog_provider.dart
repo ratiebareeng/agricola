@@ -70,14 +70,21 @@ final harvestDaysProvider = Provider<AsyncValue<Map<String, int>>>((ref) {
   });
 });
 
-/// Water requirement lookup: crop key -> daily water in mm (null if unknown)
-final cropWaterRequirementProvider =
-    Provider.family<AsyncValue<double?>, String>((ref, cropKey) {
+/// Full catalog entry lookup: crop key -> CropCatalogEntry (null if not found)
+final cropCatalogEntryProvider =
+    Provider.family<AsyncValue<CropCatalogEntry?>, String>((ref, cropKey) {
   return ref.watch(cropCatalogProvider).whenData((entries) {
-    final entry = entries.cast<CropCatalogEntry?>().firstWhere(
+    return entries.cast<CropCatalogEntry?>().firstWhere(
       (e) => e?.key == cropKey,
       orElse: () => null,
     );
+  });
+});
+
+/// Water requirement lookup: crop key -> daily water in mm (null if unknown)
+final cropWaterRequirementProvider =
+    Provider.family<AsyncValue<double?>, String>((ref, cropKey) {
+  return ref.watch(cropCatalogEntryProvider(cropKey)).whenData((entry) {
     return entry?.dailyWaterMm;
   });
 });

@@ -896,6 +896,26 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
     AppLanguage.english: 'Daily Water (mm)',
     AppLanguage.setswana: 'Metsi a Letsatsi (mm)',
   },
+  'water_field_info': {
+    AppLanguage.english: 'Water & Field Info',
+    AppLanguage.setswana: 'Tshedimosetso ya Metsi le Tshimo',
+  },
+  'total_daily_water': {
+    AppLanguage.english: 'Total Daily Water',
+    AppLanguage.setswana: 'Metsi Otlhe a Letsatsi',
+  },
+  'hourly_pump_rate': {
+    AppLanguage.english: 'Hourly Pump Rate',
+    AppLanguage.setswana: 'Seelo sa Pompo ka Ura',
+  },
+  'water_rate': {
+    AppLanguage.english: 'Water Rate',
+    AppLanguage.setswana: 'Seelo sa Metsi',
+  },
+  'estimated_plants': {
+    AppLanguage.english: 'Estimated Plants',
+    AppLanguage.setswana: 'Palo ya Dijwalo',
+  },
   'view_on_map': {
     AppLanguage.english: 'View on Map',
     AppLanguage.setswana: 'Bona mo Mmepeng',
