@@ -1,3 +1,57 @@
+## 0.20.14 - 2026-04-02
+
+### Changed
+- **Crop catalog corrections** — applied client-confirmed plant population updates for 12 crops (maize corn corrected from 350,000→50,000; plus tomatoes, carrots, bell peppers, cucumbers, watermelon, pumpkin, butternut, eggplant, sweet potatoes, zucchini)
+
+## 0.20.13 - 2026-03-31
+
+### Changed
+- **Standardized app dialogs** — replaced 20 inconsistent inline `AlertDialog` implementations across 8 files with a unified `AppDialogs` utility (`lib/core/widgets/app_dialogs.dart`). Two types: `confirm()` for two-button confirmations (green or red action button based on `isDestructive` flag) and `info()` for single-button informational dialogs. Consistent border radius (16), button shape, and color usage throughout.
+
+## 0.20.12 - 2026-03-31
+
+### Changed
+- **Total daily water requirements** — crop details screen now shows total daily water (litres), hourly pump rate, water rate (mm/day), and estimated plant count based on field size — helps farmers compare against water rights pump capacity
+- **Crop catalog data update** — updated plant population per hectare and daily water requirement values for all 68 crops to match client-provided reference data (migration 013)
+
+## 0.20.11 - 2026-03-30
+
+### Added
+- **Sold Fresh storage option** — farmers who sell produce fresh (unpackaged) can now select "Sold Fresh" as the storage type in both inventory and crop forms
+- **"Heads" and "Cobs" yield units** — crops counted in heads (e.g. cabbage) or cobs (maize) can now be recorded with the correct unit in both Add Crop and Record Harvest
+- **Maize cob hint** — when maize is selected in the crop form or harvest screen, an inline tip reminds farmers that maize produces 2 cobs per plant
+- **Daily water requirements** — crop details screen now shows daily water requirement (mm) from the crop catalog when available
+- **District map picker** — location selection during profile setup now includes a "View on Map" button that opens an interactive OpenStreetMap showing all 20 supported towns; tapping a town auto-selects it in the dropdown
+
+### Fixed
+- **Profile photo upload failing during registration** — added image validation and compression (via `ImageUtils`) before upload; actual Firebase error message now surfaces to the user instead of a generic fallback. Root cause: Firebase Storage security rules likely missing — see `docs/FIREBASE_SETUP.md` for required rules
+
+### Docs
+- Added `docs/FIREBASE_SETUP.md` documenting required Firebase Storage security rules for profile and marketplace photo uploads
+
+## 0.20.10 - 2026-03-30
+
+### Fixed
+- **Google Sign In broken on Google Play** — root cause: Play App Signing re-signs the AAB with Google's own key; the Play App Signing certificate SHA-1 must be registered in Firebase Console and included in `google-services.json` for Android OAuth verification to succeed in production
+- **Null safety bug in Google auth flow** — empty null-check on `googleAuthorization` followed by force-unwrap `!` would crash if scopes were denied; now throws a proper exception that surfaces as an `AuthFailure`
+- **Raw exception shown on Google sign-in cancel** — `GoogleSignInException` now handled in `_toAuthFailure`; users see "Sign in was canceled." instead of the raw exception string
+
+## 0.20.9 - 2026-03-26
+
+### Changed
+- **Color hygiene pass** — remove remaining tinted containers and replace off-palette hardcoded colors with AppColors constants across 6 files
+  - `validation_hint_card.dart`: removed parametric color; card is now a consistent neutral grey (no rainbow hint cards)
+  - `settings_screen.dart`: removed tinted Container wrapping the About dialog icon
+  - `profile_setup_screen.dart`: removed red tinted bg/border from error message; alertRed applied to icon and text directly
+  - `selection_card.dart`: removed green tint from selected card background; green border + icon remain as selection indicators
+  - `offline_banner.dart`: replaced `Colors.amber.shade700`, `Colors.orange.shade700`, `Colors.red.shade700` with `AppColors.warmYellow` / `AppColors.alertRed`
+  - `farmer_dashboard_screen.dart`: replaced all hardcoded `Color(0xFF...)` and `Colors.grey[X]` values with AppColors constants
+
+## 0.20.8 - 2026-03-25
+
+### Changed
+- **Remove AI-tell colored container pattern** — eliminated ~30 instances of `Container(color: X.withAlpha())` wrapping icons, text badges, and status pills across 13 files. Icons now show their color directly; text labels use colored text without background fills; info sections use neutral grey instead of tinted backgrounds. Affected: stat cards, dashboards (quick actions, order tiles), inventory cards, notifications, activity timeline, marketplace listings/detail, crop details, loss calculator, onboarding slides, selection cards.
+
 ## 0.20.7 - 2026-03-22
 
 ### Added

@@ -48,6 +48,7 @@ class _AddEditInventoryScreenState
     'Home Storage',
     'Cold Storage',
     'Silo',
+    'Sold Fresh',
   ];
 
   bool get _isEditing => widget.existingItem != null;

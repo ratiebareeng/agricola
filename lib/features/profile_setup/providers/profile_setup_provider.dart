@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:agricola_core/agricola_core.dart' show MerchantType, UserType;
 export 'package:agricola_core/src/enums/user_type.dart';
+import 'package:agricola/core/utils/image_utils.dart';
 import 'package:agricola/features/auth/providers/auth_controller.dart';
 import 'package:agricola/features/auth/providers/auth_provider.dart';
 import 'package:agricola/features/profile/providers/profile_controller_provider.dart';
@@ -42,16 +43,37 @@ class ProfileSetupNotifier extends StateNotifier<ProfileSetupState> {
       if (state.photoPath != null) {
         final photoFile = File(state.photoPath!);
         if (await photoFile.exists()) {
+          // Validate the image before attempting upload
+          final isValid = await ImageUtils.validateImage(photoFile);
+          if (!isValid) {
+            state = state.copyWith(
+              isCreatingProfile: false,
+              errorMessage:
+                  'Invalid image. Please select a JPG or PNG under 5 MB.',
+            );
+            return false;
+          }
+
+          // Compress before uploading to reduce upload size and failures
+          final compressedFile = await ImageUtils.compressProfileImage(
+            photoFile,
+          );
+
           photoUrl = await _ref
               .read(profileControllerProvider.notifier)
               .uploadProfilePhoto(
                 userId: user.uid,
-                photoFile: photoFile,
+                photoFile: compressedFile,
               );
           if (photoUrl == null) {
+            // Surface the actual error from the upload attempt
+            final uploadError = _ref
+                .read(profileControllerProvider)
+                .errorMessage;
             state = state.copyWith(
               isCreatingProfile: false,
-              errorMessage: 'Failed to upload profile photo. Please try again.',
+              errorMessage:
+                  uploadError ?? 'Failed to upload profile photo. Please try again.',
             );
             return false;
           }

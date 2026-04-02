@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:agricola/core/config/environment.dart';
 import 'package:agricola/core/constants/api_constants.dart';
+import 'package:agricola/core/widgets/app_dialogs.dart';
 
 /// Environment indicator banner
 ///
@@ -167,66 +168,59 @@ class EnvironmentSwitcherButton extends StatelessWidget {
   }
 
   void _showEnvironmentDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Environment Configuration'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Current: ${EnvironmentConfig.environmentName.toUpperCase()}',
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
+    AppDialogs.info(
+      context,
+      title: 'Environment Configuration',
+      body: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Current: ${EnvironmentConfig.environmentName.toUpperCase()}',
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'API: ${ApiConstants.baseUrl}',
+            style: const TextStyle(fontSize: 12),
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            'To switch environments:',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            '1. Open lib/core/config/environment.dart\n'
+            '2. Change currentEnvironment to:\n'
+            '   - AppEnvironment.development\n'
+            '   - AppEnvironment.production\n'
+            '3. Hot restart the app',
+            style: TextStyle(fontSize: 12),
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            'Or use command line:',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          Container(
+            padding: const EdgeInsets.all(8),
+            color: Colors.grey[200],
+            child: const Text(
+              'flutter run --dart-define=ENVIRONMENT=production',
+              style: TextStyle(
+                fontSize: 11,
+                fontFamily: 'monospace',
               ),
             ),
-            const SizedBox(height: 16),
-            Text(
-              'API: ${ApiConstants.baseUrl}',
-              style: const TextStyle(fontSize: 12),
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'To switch environments:',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              '1. Open lib/core/config/environment.dart\n'
-              '2. Change currentEnvironment to:\n'
-              '   - AppEnvironment.development\n'
-              '   - AppEnvironment.production\n'
-              '3. Hot restart the app',
-              style: TextStyle(fontSize: 12),
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'Or use command line:',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            Container(
-              padding: const EdgeInsets.all(8),
-              color: Colors.grey[200],
-              child: const Text(
-                'flutter run --dart-define=ENVIRONMENT=production',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontFamily: 'monospace',
-                ),
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
           ),
         ],
       ),
+      okayText: 'Close',
     );
   }
 }

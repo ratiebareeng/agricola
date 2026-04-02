@@ -417,14 +417,7 @@ class _ActivityTile extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Row(
         children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: config.color.withAlpha(20),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(config.icon, color: config.color, size: 18),
-          ),
+          Icon(config.icon, color: config.color, size: 18),
           const SizedBox(width: 12),
           Expanded(
             child: Column(

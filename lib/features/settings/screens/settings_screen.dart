@@ -2,6 +2,7 @@ import 'package:agricola/core/providers/database_provider.dart';
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/providers/offline_settings_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
+import 'package:agricola/core/widgets/app_dialogs.dart';
 import 'package:agricola/core/widgets/language_select_content.dart';
 import 'package:agricola/features/auth/providers/auth_controller.dart';
 import 'package:agricola/features/auth/providers/auth_provider.dart';
@@ -133,7 +134,7 @@ class SettingsScreen extends ConsumerWidget {
   // Dialogs (moved from profile screens, shared for all user types)
   // -------------------------------------------------------------------------
 
-  void _showChangePasswordDialog(BuildContext context, WidgetRef ref) {
+  void _showChangePasswordDialog(BuildContext context, WidgetRef ref) async {
     final currentLang = ref.read(languageProvider);
     final user = ref.read(currentUserProvider);
     final email = user?.email;
@@ -148,191 +149,125 @@ class SettingsScreen extends ConsumerWidget {
       return;
     }
 
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(t('change_password', currentLang)),
-        content: Text(
-          '${t('password_reset_message', currentLang)}\n\n$email',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              t('cancel', currentLang),
-              style: const TextStyle(color: Colors.grey),
+    final confirmed = await AppDialogs.confirm(
+      context,
+      title: t('change_password', currentLang),
+      content: '${t('password_reset_message', currentLang)}\n\n$email',
+      cancelText: t('cancel', currentLang),
+      actionText: t('send_reset_link', currentLang),
+    );
+
+    if (confirmed && context.mounted) {
+      final authController = ref.read(authControllerProvider.notifier);
+      final result = await authController.sendPasswordResetEmail(email);
+      if (context.mounted) {
+        result.fold(
+          (failure) => ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                '${t('reset_failed', currentLang)}: ${failure.message}',
+              ),
+              backgroundColor: Colors.red,
+              behavior: SnackBarBehavior.floating,
             ),
           ),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              final authController = ref.read(authControllerProvider.notifier);
-              final result = await authController.sendPasswordResetEmail(email);
-              if (context.mounted) {
-                result.fold(
-                  (failure) => ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        '${t('reset_failed', currentLang)}: ${failure.message}',
-                      ),
-                      backgroundColor: Colors.red,
-                      behavior: SnackBarBehavior.floating,
-                    ),
-                  ),
-                  (_) => ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(t('reset_email_sent', currentLang)),
-                      backgroundColor: Colors.green,
-                      behavior: SnackBarBehavior.floating,
-                    ),
-                  ),
-                );
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.green,
-              foregroundColor: Colors.white,
+          (_) => ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(t('reset_email_sent', currentLang)),
+              backgroundColor: Colors.green,
+              behavior: SnackBarBehavior.floating,
             ),
-            child: Text(t('send_reset_link', currentLang)),
           ),
-        ],
-      ),
-    );
+        );
+      }
+    }
   }
 
-  void _showDeleteAccountDialog(BuildContext context, WidgetRef ref) {
+  void _showDeleteAccountDialog(BuildContext context, WidgetRef ref) async {
     final currentLang = ref.read(languageProvider);
 
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Row(
-          children: [
-            const Icon(Icons.warning, color: Colors.red, size: 24),
-            const SizedBox(width: 8),
-            Text(t('delete_account', currentLang)),
-          ],
-        ),
-        content: Text(t('delete_account_warning', currentLang)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(t('cancel', currentLang)),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              _showFinalDeleteConfirmation(context, ref);
-            },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text(t('continue_text', currentLang)),
-          ),
-        ],
-      ),
+    final confirmed = await AppDialogs.confirm(
+      context,
+      title: t('delete_account', currentLang),
+      content: t('delete_account_warning', currentLang),
+      cancelText: t('cancel', currentLang),
+      actionText: t('continue_text', currentLang),
+      isDestructive: true,
+      icon: Icons.warning,
     );
+
+    if (confirmed && context.mounted) {
+      _showFinalDeleteConfirmation(context, ref);
+    }
   }
 
-  void _showFinalDeleteConfirmation(BuildContext context, WidgetRef ref) {
+  void _showFinalDeleteConfirmation(BuildContext context, WidgetRef ref) async {
     final currentLang = ref.read(languageProvider);
 
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(
-          t('final_confirmation', currentLang),
-          style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
-        ),
-        content: Text(t('delete_permanent_warning', currentLang)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(t('cancel', currentLang)),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              await ref
-                  .read(profileProvider.notifier)
-                  .deleteAccount();
-            },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text(t('delete_account_confirm', currentLang)),
-          ),
-        ],
-      ),
+    final confirmed = await AppDialogs.confirm(
+      context,
+      title: t('final_confirmation', currentLang),
+      content: t('delete_permanent_warning', currentLang),
+      cancelText: t('cancel', currentLang),
+      actionText: t('delete_account_confirm', currentLang),
+      isDestructive: true,
     );
+
+    if (confirmed) {
+      await ref.read(profileProvider.notifier).deleteAccount();
+    }
   }
 
-  void _showLogoutDialog(BuildContext context, WidgetRef ref) {
+  void _showLogoutDialog(BuildContext context, WidgetRef ref) async {
     final currentLang = ref.read(languageProvider);
     final profileNotifier = ref.read(profileProvider.notifier);
 
-    showDialog(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(t('logout', currentLang)),
-        content: Text(t('logout_confirmation', currentLang)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: Text(t('cancel', currentLang)),
-          ),
-          TextButton(
-            onPressed: () {
-              // Dismiss dialog first to avoid context issues during navigation
-              Navigator.pop(dialogContext);
-              // Sign out — go_router route guards handle navigation automatically
-              profileNotifier.signOut();
-            },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text(t('logout', currentLang)),
-          ),
-        ],
-      ),
+    final confirmed = await AppDialogs.confirm(
+      context,
+      title: t('logout', currentLang),
+      content: t('logout_confirmation', currentLang),
+      cancelText: t('cancel', currentLang),
+      actionText: t('logout', currentLang),
+      isDestructive: true,
     );
+
+    if (confirmed) {
+      profileNotifier.signOut();
+    }
   }
 
   void _showHelpDialog(BuildContext context, AppLanguage lang) {
     final isEn = lang == AppLanguage.english;
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(t('help_support', lang)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              isEn
-                  ? 'Need help with Agricola? Contact us:'
-                  : 'A o tlhoka thuso ka Agricola? Ikgolaganye le rona:',
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                const Icon(Icons.email_outlined, size: 18, color: AppColors.green),
-                const SizedBox(width: 8),
-                const Text('developer@agricola-app.com'),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Text(
-              isEn
-                  ? 'You can also use the Report Bug feature to send feedback with a screenshot.'
-                  : 'O ka dirisa Report Bug go romela maikutlo ka setshwantsho.',
-              style: TextStyle(fontSize: 13, color: Colors.grey[600]),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(t('okay', lang)),
+    AppDialogs.info(
+      context,
+      title: t('help_support', lang),
+      body: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            isEn
+                ? 'Need help with Agricola? Contact us:'
+                : 'A o tlhoka thuso ka Agricola? Ikgolaganye le rona:',
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              const Icon(Icons.email_outlined, size: 18, color: AppColors.green),
+              const SizedBox(width: 8),
+              const Text('developer@agricola-app.com'),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            isEn
+                ? 'You can also use the Report Bug feature to send feedback with a screenshot.'
+                : 'O ka dirisa Report Bug go romela maikutlo ka setshwantsho.',
+            style: TextStyle(fontSize: 13, color: Colors.grey[600]),
           ),
         ],
       ),
+      okayText: t('okay', lang),
     );
   }
 }
@@ -480,54 +415,28 @@ class _AboutTile extends StatelessWidget {
         final info = await PackageInfo.fromPlatform();
         if (!context.mounted) return;
         final isEn = lang == AppLanguage.english;
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            title: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: AppColors.green.withAlpha(20),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Icon(
-                    Icons.agriculture,
-                    color: AppColors.green,
-                    size: 24,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                const Text('Agricola'),
-              ],
-            ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  isEn
-                      ? 'Empowering smallholder farmers in Botswana with modern tools for crop management, marketplace access, and business growth.'
-                      : 'Re thusa balemi ba bannye mo Botswana ka didirisiwa tsa segompieno tsa go laola dijalo, phitlhelelo ya mmaraka, le kgolo ya kgwebo.',
-                  style: TextStyle(fontSize: 14, color: Colors.grey[700]),
-                ),
-                const SizedBox(height: 16),
-                _aboutRow(
-                  isEn ? 'Version' : 'Phetolelo',
-                  '${info.version} (${info.buildNumber})',
-                ),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text(t('okay', lang)),
+        AppDialogs.info(
+          context,
+          title: 'Agricola',
+          icon: Icons.agriculture,
+          body: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                isEn
+                    ? 'Empowering smallholder farmers in Botswana with modern tools for crop management, marketplace access, and business growth.'
+                    : 'Re thusa balemi ba bannye mo Botswana ka didirisiwa tsa segompieno tsa go laola dijalo, phitlhelelo ya mmaraka, le kgolo ya kgwebo.',
+                style: TextStyle(fontSize: 14, color: Colors.grey[700]),
+              ),
+              const SizedBox(height: 16),
+              _aboutRow(
+                isEn ? 'Version' : 'Phetolelo',
+                '${info.version} (${info.buildNumber})',
               ),
             ],
           ),
+          okayText: t('okay', lang),
         );
       },
     );
@@ -618,45 +527,28 @@ class _OfflineModeTile extends ConsumerWidget {
     );
   }
 
-  void _showClearCacheDialog(BuildContext context, WidgetRef ref) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(t('clearCache', lang)),
-        content: Text(t('clearCacheWarning', lang)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              t('cancel', lang),
-              style: const TextStyle(color: Colors.grey),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              final db = ref.read(databaseProvider);
-              await db.clearAllCache();
-              ref.invalidate(cacheSizeProvider);
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(t('cacheCleared', lang)),
-                    backgroundColor: AppColors.green,
-                    behavior: SnackBarBehavior.floating,
-                  ),
-                );
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.green,
-              foregroundColor: Colors.white,
-            ),
-            child: Text(t('clearCache', lang)),
-          ),
-        ],
-      ),
+  void _showClearCacheDialog(BuildContext context, WidgetRef ref) async {
+    final confirmed = await AppDialogs.confirm(
+      context,
+      title: t('clearCache', lang),
+      content: t('clearCacheWarning', lang),
+      cancelText: t('cancel', lang),
+      actionText: t('clearCache', lang),
     );
+
+    if (confirmed && context.mounted) {
+      final db = ref.read(databaseProvider);
+      await db.clearAllCache();
+      ref.invalidate(cacheSizeProvider);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(t('cacheCleared', lang)),
+            backgroundColor: AppColors.green,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
   }
 }

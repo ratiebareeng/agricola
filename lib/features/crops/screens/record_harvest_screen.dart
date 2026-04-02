@@ -33,7 +33,7 @@ class _RecordHarvestScreenState extends ConsumerState<RecordHarvestScreen> {
       TextEditingController();
   final TextEditingController _notesController = TextEditingController();
 
-  final List<String> _yieldUnits = ['kg', 'bags', 'tons'];
+  final List<String> _yieldUnits = ['kg', 'bags', 'tons', 'heads', 'cobs'];
   final List<String> _lossReasons = [
     'pest_damage',
     'spoilage',
@@ -248,6 +248,29 @@ class _RecordHarvestScreenState extends ConsumerState<RecordHarvestScreen> {
                         ),
                       ],
                     ),
+                    if (widget.crop.cropType == 'maize_corn') ...[
+                      const SizedBox(height: 8),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Icon(
+                            Icons.info_outline,
+                            size: 16,
+                            color: Colors.amber,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              t('maize_cob_hint', currentLang),
+                              style: const TextStyle(
+                                fontSize: 13,
+                                color: Colors.black54,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                     if (difference != null) ...[
                       const SizedBox(height: 16),
                       Container(

@@ -1,7 +1,10 @@
 name: Build Play Store Release
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - main
+  workflow_dispatch:  # Allow manual triggering from GitHub UI
 
 jobs:
   build:

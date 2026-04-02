@@ -27,13 +27,14 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
   int _currentStep = 0;
 
   final List<String> _sizeUnits = ['hectares', 'Metres (m\u00B2)'];
-  final List<String> _yieldUnits = ['kg', 'bags', 'tons'];
+  final List<String> _yieldUnits = ['kg', 'bags', 'tons', 'heads', 'cobs'];
   final List<String> _storageMethods = [
     'traditional_granary',
     'improved_storage',
     'bags_in_room',
     'open_air',
     'warehouse',
+    'sold_fresh',
   ];
   Set<String> _selectedCropTypes = {};
 
@@ -292,6 +293,23 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
             ],
           ),
         ),
+        if (_selectedCropTypes.contains('maize_corn'))
+          Padding(
+            padding: const EdgeInsets.only(top: 12),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Icon(Icons.info_outline, size: 16, color: Colors.amber),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    t('maize_cob_hint', lang),
+                    style: const TextStyle(fontSize: 13, color: Colors.black54),
+                  ),
+                ),
+              ],
+            ),
+          ),
         const SizedBox(height: 24),
         AppFormSection(
           title: t('field_name', lang),

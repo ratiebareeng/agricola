@@ -41,7 +41,7 @@ class InventoryItemCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: conditionColor.withAlpha(30), width: 1.5),
+          border: Border.all(color: Colors.grey[200]!, width: 1),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withAlpha(25),
@@ -55,18 +55,10 @@ class InventoryItemCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                Container(
-                  width: 56,
-                  height: 56,
-                  decoration: BoxDecoration(
-                    color: conditionColor.withAlpha(10),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(
-                    Icons.inventory_2,
-                    color: conditionColor,
-                    size: 28,
-                  ),
+                Icon(
+                  Icons.inventory_2,
+                  color: conditionColor,
+                  size: 32,
                 ),
                 const SizedBox(width: 16),
                 Expanded(
@@ -108,65 +100,45 @@ class InventoryItemCard extends StatelessWidget {
                           ),
                         ),
                       ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: conditionColor.withAlpha(10),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Row(
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          _getConditionIcon(),
+                          size: 14,
+                          color: conditionColor,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          t(condition, language),
+                          style: TextStyle(
+                            color: conditionColor,
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (isListed) ...[
+                      const SizedBox(height: 6),
+                      Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(
-                            _getConditionIcon(),
-                            size: 14,
-                            color: conditionColor,
+                          const Icon(
+                            Icons.storefront,
+                            size: 12,
+                            color: Color(0xFF2D6A4F),
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            t(condition, language),
-                            style: TextStyle(
-                              color: conditionColor,
-                              fontSize: 11,
+                            t('listed', language),
+                            style: const TextStyle(
+                              color: Color(0xFF2D6A4F),
+                              fontSize: 10,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                         ],
-                      ),
-                    ),
-                    if (isListed) ...[
-                      const SizedBox(height: 6),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF2D6A4F).withAlpha(15),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(
-                              Icons.storefront,
-                              size: 12,
-                              color: Color(0xFF2D6A4F),
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              t('listed', language),
-                              style: const TextStyle(
-                                color: Color(0xFF2D6A4F),
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
                       ),
                     ],
                   ],

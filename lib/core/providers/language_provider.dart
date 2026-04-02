@@ -861,6 +861,8 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
   'kg': {AppLanguage.english: 'Kilograms', AppLanguage.setswana: 'Dikilogram'},
   'bags': {AppLanguage.english: 'Bags', AppLanguage.setswana: 'Mekotla'},
   'tons': {AppLanguage.english: 'Tons', AppLanguage.setswana: 'Ditone'},
+  'heads': {AppLanguage.english: 'Heads', AppLanguage.setswana: 'Ditlhogo'},
+  'cobs': {AppLanguage.english: 'Cobs', AppLanguage.setswana: 'Dijwang'},
   // Storage Methods
   'traditional_granary': {
     AppLanguage.english: 'Traditional Granary',
@@ -881,6 +883,50 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
   'warehouse': {
     AppLanguage.english: 'Warehouse',
     AppLanguage.setswana: 'Warehouse',
+  },
+  'sold_fresh': {
+    AppLanguage.english: 'Sold Fresh',
+    AppLanguage.setswana: 'Go Rekisa Kwa Ntle',
+  },
+  'maize_cob_hint': {
+    AppLanguage.english: 'Tip: Maize typically produces 2 cobs per plant',
+    AppLanguage.setswana: 'Temoso: Mmidi o gola dijwang di le 2 ka semela',
+  },
+  'daily_water_req': {
+    AppLanguage.english: 'Daily Water (mm)',
+    AppLanguage.setswana: 'Metsi a Letsatsi (mm)',
+  },
+  'water_field_info': {
+    AppLanguage.english: 'Water & Field Info',
+    AppLanguage.setswana: 'Tshedimosetso ya Metsi le Tshimo',
+  },
+  'total_daily_water': {
+    AppLanguage.english: 'Total Daily Water',
+    AppLanguage.setswana: 'Metsi Otlhe a Letsatsi',
+  },
+  'hourly_pump_rate': {
+    AppLanguage.english: 'Hourly Pump Rate',
+    AppLanguage.setswana: 'Seelo sa Pompo ka Ura',
+  },
+  'water_rate': {
+    AppLanguage.english: 'Water Rate',
+    AppLanguage.setswana: 'Seelo sa Metsi',
+  },
+  'estimated_plants': {
+    AppLanguage.english: 'Estimated Plants',
+    AppLanguage.setswana: 'Palo ya Dijwalo',
+  },
+  'view_on_map': {
+    AppLanguage.english: 'View on Map',
+    AppLanguage.setswana: 'Bona mo Mmepeng',
+  },
+  'select_on_map': {
+    AppLanguage.english: 'Select on Map',
+    AppLanguage.setswana: 'Tlhopha mo Mmepeng',
+  },
+  'tap_location_to_select': {
+    AppLanguage.english: 'Tap a location label to select it',
+    AppLanguage.setswana: 'Tobetsa leina la lefelo go le tlhopha',
   },
   // Helper text
   'optional': {

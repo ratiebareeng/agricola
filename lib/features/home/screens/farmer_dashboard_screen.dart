@@ -1,5 +1,6 @@
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/providers/nav_provider.dart';
+import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/features/crops/crop_helpers.dart';
 import 'package:agricola/features/crops/models/crop_model.dart';
 import 'package:agricola/features/crops/providers/crop_catalog_provider.dart';
@@ -13,7 +14,6 @@ import 'package:agricola/features/home/widgets/stat_card_skeleton.dart';
 import 'package:agricola/features/loss_calculator/screens/loss_calculator_screen.dart';
 import 'package:agricola/features/notifications/providers/notifications_provider.dart';
 import 'package:agricola/features/notifications/screens/notifications_screen.dart';
-import 'package:agricola/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -27,7 +27,7 @@ class FarmerDashboardScreen extends ConsumerWidget {
     final imageMap = ref.watch(cropImageUrlProvider).valueOrNull ?? {};
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: AppColors.lightGray,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(20),
@@ -47,13 +47,16 @@ class FarmerDashboardScreen extends ConsumerWidget {
                           style: const TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF1A1A1A),
+                            color: AppColors.darkGray,
                           ),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           'Let\'s check your farm status',
-                          style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: AppColors.mediumGray,
+                          ),
                         ),
                       ],
                     ),
@@ -79,12 +82,12 @@ class FarmerDashboardScreen extends ConsumerWidget {
                   icon: const Icon(Icons.calculate_outlined),
                   label: Text(t('calculate_losses', currentLang)),
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: const Color(0xFF2D6A4F),
+                    foregroundColor: AppColors.green,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    side: const BorderSide(color: Color(0xFF2D6A4F)),
+                    side: const BorderSide(color: AppColors.green),
                   ),
                 ),
               ),
@@ -99,7 +102,7 @@ class FarmerDashboardScreen extends ConsumerWidget {
                     style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF1A1A1A),
+                      color: AppColors.darkGray,
                     ),
                   ),
                   TextButton(
@@ -121,8 +124,8 @@ class FarmerDashboardScreen extends ConsumerWidget {
                   icon: const Icon(Icons.add),
                   label: Text(t('add_new_crop', currentLang)),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF2D6A4F),
-                    foregroundColor: Colors.white,
+                    backgroundColor: AppColors.green,
+                    foregroundColor: AppColors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -148,11 +151,11 @@ class FarmerDashboardScreen extends ConsumerWidget {
                     padding: const EdgeInsets.symmetric(vertical: 32),
                     child: Column(
                       children: [
-                        const Icon(Icons.error_outline, color: Colors.red),
+                        const Icon(Icons.error_outline, color: AppColors.alertRed),
                         const SizedBox(height: 8),
                         Text(
                           'Failed to load crops',
-                          style: TextStyle(color: Colors.grey[600]),
+                          style: const TextStyle(color: AppColors.mediumGray),
                         ),
                       ],
                     ),
@@ -169,7 +172,11 @@ class FarmerDashboardScreen extends ConsumerWidget {
   // ---------------------------------------------------------------------------
   // Crop cards from backend data
   // ---------------------------------------------------------------------------
-  Widget _buildCropsList(BuildContext context, List<CropModel> crops, Map<String, String> imageMap) {
+  Widget _buildCropsList(
+    BuildContext context,
+    List<CropModel> crops,
+    Map<String, String> imageMap,
+  ) {
     if (crops.isEmpty) {
       return Center(
         child: Padding(
@@ -179,12 +186,12 @@ class FarmerDashboardScreen extends ConsumerWidget {
               const Icon(
                 Icons.agriculture_outlined,
                 size: 48,
-                color: Colors.grey,
+                color: AppColors.mediumGray,
               ),
               const SizedBox(height: 12),
               Text(
                 'No crops yet. Tap the button above to add one.',
-                style: TextStyle(color: Colors.grey[600]),
+                style: const TextStyle(color: AppColors.mediumGray),
                 textAlign: TextAlign.center,
               ),
             ],
@@ -221,7 +228,11 @@ class FarmerDashboardScreen extends ConsumerWidget {
   // ---------------------------------------------------------------------------
   // Stats grid built from real crop data
   // ---------------------------------------------------------------------------
-  Widget _buildStatsGrid(BuildContext context, List<CropModel> crops, AppLanguage lang) {
+  Widget _buildStatsGrid(
+    BuildContext context,
+    List<CropModel> crops,
+    AppLanguage lang,
+  ) {
     final now = DateTime.now();
     final upcomingCount = crops
         .where(
@@ -251,17 +262,10 @@ class FarmerDashboardScreen extends ConsumerWidget {
           icon: Icons.agriculture,
           color: AppColors.green,
         ),
-        StatCard(
-          title: t('inventory_value', lang),
-          value: '—',
-          icon: Icons.inventory_2,
-          color: AppColors.green,
-        ),
+        StatCard(title: t('inventory_value', lang), value: '—'),
         StatCard(
           title: t('estimated_losses', lang),
           value: '—',
-          icon: Icons.warning_amber,
-          color: AppColors.alertRed,
           onTap: () => _openLossCalculator(context),
         ),
       ],
@@ -277,13 +281,6 @@ class FarmerDashboardScreen extends ConsumerWidget {
       mainAxisSpacing: 16,
       childAspectRatio: 1.5,
       children: List.generate(4, (_) => const StatCardSkeleton()),
-    );
-  }
-
-  void _openLossCalculator(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const LossCalculatorScreen()),
     );
   }
 
@@ -314,6 +311,13 @@ class FarmerDashboardScreen extends ConsumerWidget {
       }
     }
   }
+
+  void _openLossCalculator(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const LossCalculatorScreen()),
+    );
+  }
 }
 
 class _FarmerNotificationBell extends ConsumerWidget {
@@ -326,7 +330,7 @@ class _FarmerNotificationBell extends ConsumerWidget {
         IconButton(
           icon: const Icon(
             Icons.notifications_outlined,
-            color: Color(0xFF1A1A1A),
+            color: AppColors.darkGray,
           ),
           onPressed: () => Navigator.push(
             context,

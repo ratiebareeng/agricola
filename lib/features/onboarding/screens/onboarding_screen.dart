@@ -40,14 +40,7 @@ class OnboardingSlideWidget extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Container(
-            padding: const EdgeInsets.all(32),
-            decoration: BoxDecoration(
-              color: AppColors.green.withAlpha(10),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(slide.icon, size: 80, color: AppColors.green),
-          ),
+          Icon(slide.icon, size: 80, color: AppColors.green),
           const SizedBox(height: 40),
           Text(
             slide.title,

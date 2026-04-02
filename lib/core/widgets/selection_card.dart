@@ -25,7 +25,7 @@ class SelectionCard extends StatelessWidget {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.green.withAlpha(25) : AppColors.white,
+          color: AppColors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isSelected ? AppColors.green : AppColors.lightGray,
@@ -42,19 +42,10 @@ class SelectionCard extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: isSelected
-                    ? AppColors.green.withAlpha(10)
-                    : AppColors.lightGray.withAlpha(30),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                icon,
-                size: 32,
-                color: isSelected ? AppColors.green : AppColors.mediumGray,
-              ),
+            Icon(
+              icon,
+              size: 32,
+              color: isSelected ? AppColors.green : AppColors.mediumGray,
             ),
             const SizedBox(width: 16),
             Expanded(

@@ -287,14 +287,7 @@ class _QuickActionTile extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 4),
         child: Row(
           children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: iconColor.withAlpha(20),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(icon, color: iconColor, size: 24),
-            ),
+            Icon(icon, color: iconColor, size: 24),
             const SizedBox(width: 16),
             Expanded(
               child: Column(
@@ -489,14 +482,7 @@ class _OrderTile extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       child: Row(
         children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: config.color.withAlpha(20),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(config.icon, color: config.color, size: 20),
-          ),
+          Icon(config.icon, color: config.color, size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -522,19 +508,12 @@ class _OrderTile extends StatelessWidget {
                 style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
               ),
               const SizedBox(height: 2),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                decoration: BoxDecoration(
-                  color: config.color.withAlpha(20),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Text(
-                  config.label,
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: config.color,
-                    fontWeight: FontWeight.w600,
-                  ),
+              Text(
+                config.label,
+                style: TextStyle(
+                  fontSize: 10,
+                  color: config.color,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ],

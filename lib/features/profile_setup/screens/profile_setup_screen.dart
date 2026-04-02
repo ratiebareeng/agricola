@@ -195,26 +195,18 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
                   if (state.errorMessage != null)
                     Padding(
                       padding: const EdgeInsets.only(top: 12),
-                      child: Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: AppColors.alertRed.withAlpha(15),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: AppColors.alertRed.withAlpha(50)),
-                        ),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.error_outline,
-                                color: AppColors.alertRed),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                state.errorMessage!,
-                                style: const TextStyle(color: AppColors.alertRed),
-                              ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.error_outline,
+                              color: AppColors.alertRed),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              state.errorMessage!,
+                              style: const TextStyle(color: AppColors.alertRed),
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
                 ],

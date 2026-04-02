@@ -1,7 +1,7 @@
 import 'package:agricola/core/providers/language_provider.dart';
+import 'package:agricola/domain/profile/enum/merchant_type.dart';
 import 'package:agricola/features/crops/crop_helpers.dart';
 import 'package:agricola/features/crops/providers/crop_catalog_provider.dart';
-import 'package:agricola/domain/profile/enum/merchant_type.dart';
 import 'package:agricola/features/home/providers/dashboard_stats_provider.dart';
 import 'package:agricola/features/inventory/models/inventory_model.dart';
 import 'package:agricola/features/inventory/providers/inventory_providers.dart';
@@ -51,7 +51,10 @@ class _MerchantInventoryScreenState
           loading: () => Padding(
             padding: const EdgeInsets.all(20),
             child: Column(
-              children: List.generate(4, (_) => const InventoryItemCardSkeleton()),
+              children: List.generate(
+                4,
+                (_) => const InventoryItemCardSkeleton(),
+              ),
             ),
           ),
           error: (error, _) => Center(
@@ -71,7 +74,9 @@ class _MerchantInventoryScreenState
                 const SizedBox(height: 8),
                 TextButton.icon(
                   onPressed: () {
-                    ref.read(inventoryNotifierProvider.notifier).loadInventory();
+                    ref
+                        .read(inventoryNotifierProvider.notifier)
+                        .loadInventory();
                   },
                   icon: const Icon(Icons.refresh),
                   label: Text(t('retry', currentLang)),
@@ -119,19 +124,15 @@ class _MerchantInventoryScreenState
                         children: [
                           Expanded(
                             child: _buildSummaryCard(
-                              t('total_items', currentLang),
-                              '$totalItems',
-                              Icons.inventory_2,
-                              const Color(0xFF2D6A4F),
+                              label: t('total_items', currentLang),
+                              value: '$totalItems',
                             ),
                           ),
                           const SizedBox(width: 12),
                           Expanded(
                             child: _buildSummaryCard(
-                              t('low_stock', currentLang),
-                              '$lowStockItems',
-                              Icons.warning_amber_rounded,
-                              const Color(0xFFFFBE0B),
+                              label: t('low_stock', currentLang),
+                              value: '$lowStockItems',
                             ),
                           ),
                         ],
@@ -177,7 +178,11 @@ class _MerchantInventoryScreenState
                           itemBuilder: (context, index) {
                             final item = inventory[index];
                             return InventoryItemCard(
-                              cropType: cropDisplayName(item.cropType, catalog, currentLang),
+                              cropType: cropDisplayName(
+                                item.cropType,
+                                catalog,
+                                currentLang,
+                              ),
                               quantity: item.quantity,
                               unit: item.unit,
                               storageDate: item.storageDate,
@@ -243,9 +248,7 @@ class _MerchantInventoryScreenState
   Future<void> _addInventory(BuildContext context, AppLanguage lang) async {
     final result = await Navigator.push<InventoryModel>(
       context,
-      MaterialPageRoute(
-        builder: (context) => const AddEditInventoryScreen(),
-      ),
+      MaterialPageRoute(builder: (context) => const AddEditInventoryScreen()),
     );
 
     if (result != null && context.mounted) {
@@ -270,12 +273,12 @@ class _MerchantInventoryScreenState
     }
   }
 
-  Widget _buildSummaryCard(
-    String label,
-    String value,
-    IconData icon,
-    Color color,
-  ) {
+  Widget _buildSummaryCard({
+    required String label,
+    required String value,
+    IconData? icon,
+    Color? color,
+  }) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -291,7 +294,7 @@ class _MerchantInventoryScreenState
       ),
       child: Column(
         children: [
-          Icon(icon, color: color, size: 24),
+          if (icon != null) Icon(icon, color: color, size: 24),
           const SizedBox(height: 8),
           Text(
             value,

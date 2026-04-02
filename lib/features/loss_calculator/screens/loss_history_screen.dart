@@ -1,5 +1,6 @@
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
+import 'package:agricola/core/widgets/app_dialogs.dart';
 import 'package:agricola/features/loss_calculator/loss_calculator_helpers.dart';
 import 'package:agricola/features/loss_calculator/models/loss_calculation.dart';
 import 'package:agricola/features/loss_calculator/providers/loss_calculator_provider.dart';
@@ -100,32 +101,21 @@ class LossHistoryScreen extends ConsumerWidget {
     WidgetRef ref,
     LossCalculation calculation,
     AppLanguage lang,
-  ) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(t('delete_calculation', lang)),
-        content: Text(t('delete_calculation_confirm', lang)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text(t('cancel', lang)),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(ctx);
-              if (calculation.id != null) {
-                ref
-                    .read(lossCalculatorNotifierProvider.notifier)
-                    .deleteCalculation(calculation.id!);
-              }
-            },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text(t('delete', lang)),
-          ),
-        ],
-      ),
+  ) async {
+    final confirmed = await AppDialogs.confirm(
+      context,
+      title: t('delete_calculation', lang),
+      content: t('delete_calculation_confirm', lang),
+      cancelText: t('cancel', lang),
+      actionText: t('delete', lang),
+      isDestructive: true,
     );
+
+    if (confirmed && calculation.id != null) {
+      ref
+          .read(lossCalculatorNotifierProvider.notifier)
+          .deleteCalculation(calculation.id!);
+    }
   }
 }
 
