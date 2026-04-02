@@ -1,3 +1,8 @@
+## 0.20.14 - 2026-04-02
+
+### Changed
+- **Crop catalog corrections** — applied client-confirmed plant population updates for 12 crops (maize corn corrected from 350,000→50,000; plus tomatoes, carrots, bell peppers, cucumbers, watermelon, pumpkin, butternut, eggplant, sweet potatoes, zucchini)
+
 ## 0.20.13 - 2026-03-31
 
 ### Changed
