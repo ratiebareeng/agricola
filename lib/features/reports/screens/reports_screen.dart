@@ -1,3 +1,4 @@
+import 'package:agricola/core/providers/analytics_provider.dart';
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/widgets/skeleton_primitives.dart';
 import 'package:agricola/features/home/widgets/stat_card_skeleton.dart';
@@ -621,6 +622,7 @@ class _ExportSheet extends StatelessWidget {
 
     try {
       await shareExportFile(csv, filename, 'text/csv');
+      ref.read(analyticsServiceProvider).logReportExported(format: 'csv');
     } catch (_) {
       if (context.mounted) _showMessage(context, t('export_error', lang));
     }
@@ -645,6 +647,7 @@ class _ExportSheet extends StatelessWidget {
       }
 
       await sharePdfFile(bytes, filename);
+      ref.read(analyticsServiceProvider).logReportExported(format: 'pdf');
     } catch (_) {
       if (context.mounted) _showMessage(context, t('export_error', lang));
     }

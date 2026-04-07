@@ -1,3 +1,4 @@
+import 'package:agricola/core/providers/analytics_provider.dart';
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/core/widgets/app_buttons.dart';
@@ -104,6 +105,7 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
 
   void _onContinue() {
     if (_selectedUserType != null) {
+      ref.read(analyticsServiceProvider).logUserTypeSelected(userType: _selectedUserType!.name);
       context.push('/sign-up?type=${_selectedUserType!.name}');
     }
   }

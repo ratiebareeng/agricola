@@ -1,3 +1,4 @@
+import 'package:agricola/core/providers/analytics_provider.dart';
 import 'package:agricola/core/database/daos/marketplace_local_dao.dart';
 import 'package:agricola/core/network/http_client_provider.dart';
 import 'package:agricola/core/providers/connectivity_provider.dart';
@@ -130,6 +131,7 @@ class MarketplaceNotifier
       final created = await _service.createListing(listing);
       final current = state.value ?? [];
       state = AsyncValue.data([created, ...current]);
+      _ref.read(analyticsServiceProvider).logListingCreated();
       return null;
     } catch (e) {
       return e.toString();

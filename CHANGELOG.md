@@ -1,3 +1,15 @@
+## 0.20.15 - 2026-04-07
+
+### Added
+- **Firebase Analytics (M-01)** — full usage tracking added to the mobile app
+  - Centralized `AnalyticsService` (`lib/core/services/analytics_service.dart`) with typed methods for every event — no raw string event names scattered across the codebase
+  - Automatic screen view tracking via `FirebaseAnalyticsObserver` on GoRouter (all auth/onboarding routes)
+  - User properties: `user_type` (farmer/agriShop/merchant) set on every auth state change; `app_language` set on language selection
+  - Onboarding funnel: `onboarding_start`, `onboarding_complete`, `user_type_selected`, `signup_complete`, `signin_complete`, `profile_setup_started`, `profile_setup_complete`, `profile_setup_skipped`
+  - Feature adoption events: `crop_added`, `harvest_recorded`, `inventory_added`, `listing_created`, `purchase_recorded`, `order_status_updated`, `loss_calculated`, `report_exported`
+  - Tab switch tracking: `tab_switch` with tab name on bottom-nav changes
+  - No PII in any events — compliant with Botswana Data Protection Act 2018
+
 ## 0.20.14 - 2026-04-02
 
 ### Changed

@@ -1,5 +1,6 @@
 import 'dart:developer' as developer;
 
+import 'package:agricola/core/providers/analytics_provider.dart';
 import 'package:agricola/core/providers/app_initialization_provider.dart';
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
@@ -71,6 +72,14 @@ class OnboardingSlideWidget extends StatelessWidget {
 class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(analyticsServiceProvider).logOnboardingStart();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -213,6 +222,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   Future<void> _onGetStarted() async {
     developer.log('📝 ONBOARDING: User clicked Get Started', name: 'OnboardingScreen');
+    ref.read(analyticsServiceProvider).logOnboardingComplete();
 
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('has_seen_onboarding', true);

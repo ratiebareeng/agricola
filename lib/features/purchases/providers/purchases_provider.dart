@@ -1,3 +1,5 @@
+import 'package:agricola/core/providers/analytics_provider.dart';
+import 'package:agricola/core/services/analytics_service.dart';
 import 'package:agricola/core/database/daos/purchases_local_dao.dart';
 import 'package:agricola/core/network/http_client_provider.dart';
 import 'package:agricola/core/providers/connectivity_provider.dart';
@@ -32,14 +34,18 @@ final purchasesNotifierProvider = StateNotifierProvider<PurchasesNotifier,
     AsyncValue<List<PurchaseModel>>>((ref) {
   // Re-fetch purchases when user changes
   ref.watch(currentUserProvider);
-  return PurchasesNotifier(ref.watch(purchasesOfflineRepositoryProvider));
+  return PurchasesNotifier(
+    ref.watch(purchasesOfflineRepositoryProvider),
+    ref.watch(analyticsServiceProvider),
+  );
 });
 
 class PurchasesNotifier
     extends StateNotifier<AsyncValue<List<PurchaseModel>>> {
   final PurchasesOfflineRepository _repository;
+  final AnalyticsService _analytics;
 
-  PurchasesNotifier(this._repository) : super(const AsyncValue.loading()) {
+  PurchasesNotifier(this._repository, this._analytics) : super(const AsyncValue.loading()) {
     loadPurchases();
   }
 
@@ -57,6 +63,7 @@ class PurchasesNotifier
     try {
       final created = await _repository.createPurchase(purchase);
       state = AsyncValue.data([created, ...state.value ?? []]);
+      _analytics.logPurchaseRecorded();
       return null;
     } catch (e) {
       return e.toString();

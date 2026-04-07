@@ -1,3 +1,5 @@
+import 'package:agricola/core/providers/analytics_provider.dart';
+import 'package:agricola/core/services/analytics_service.dart';
 import 'package:agricola/core/network/http_client_provider.dart';
 import 'package:agricola/features/loss_calculator/data/loss_calculator_api_service.dart';
 import 'package:agricola/features/loss_calculator/models/loss_calculation.dart';
@@ -10,14 +12,18 @@ final lossCalculatorApiServiceProvider =
 
 final lossCalculatorNotifierProvider = StateNotifierProvider<
     LossCalculatorNotifier, AsyncValue<List<LossCalculation>>>((ref) {
-  return LossCalculatorNotifier(ref.watch(lossCalculatorApiServiceProvider));
+  return LossCalculatorNotifier(
+    ref.watch(lossCalculatorApiServiceProvider),
+    ref.watch(analyticsServiceProvider),
+  );
 });
 
 class LossCalculatorNotifier
     extends StateNotifier<AsyncValue<List<LossCalculation>>> {
   final LossCalculatorApiService _apiService;
+  final AnalyticsService _analytics;
 
-  LossCalculatorNotifier(this._apiService)
+  LossCalculatorNotifier(this._apiService, this._analytics)
       : super(const AsyncValue.loading()) {
     loadCalculations();
   }
@@ -36,6 +42,7 @@ class LossCalculatorNotifier
     try {
       final saved = await _apiService.saveCalculation(calculation);
       state = AsyncValue.data([saved, ...state.value ?? []]);
+      _analytics.logLossCalculated();
       return null;
     } catch (e) {
       return e.toString();

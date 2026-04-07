@@ -1,5 +1,6 @@
 import 'dart:developer' as developer;
 
+import 'package:agricola/core/providers/analytics_provider.dart';
 import 'package:agricola/core/providers/app_initialization_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -2160,6 +2161,8 @@ class LanguageNotifier extends StateNotifier<AppLanguage> {
       '🔄 UPDATED: appInitializationProvider (hasSeenWelcome: true)',
       name: 'LanguageProvider',
     );
+
+    _ref.read(analyticsServiceProvider).setLanguage(language.name);
   }
 
   Future<void> _loadLanguage() async {
@@ -2167,8 +2170,10 @@ class LanguageNotifier extends StateNotifier<AppLanguage> {
     final langCode = prefs.getString('language_code');
     if (langCode == 'tn') {
       state = AppLanguage.setswana;
+      _ref.read(analyticsServiceProvider).setLanguage(AppLanguage.setswana.name);
     } else {
       state = AppLanguage.english;
+      _ref.read(analyticsServiceProvider).setLanguage(AppLanguage.english.name);
     }
   }
 }

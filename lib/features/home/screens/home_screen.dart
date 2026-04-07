@@ -1,4 +1,5 @@
 import 'package:agricola/core/database/sync/sync_service.dart';
+import 'package:agricola/core/providers/analytics_provider.dart';
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/providers/nav_provider.dart';
 import 'package:agricola/core/widgets/offline_banner.dart';
@@ -28,6 +29,9 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
+  bool _isFarmer = false;
+  bool _isAgriShop = false;
+
   @override
   Widget build(BuildContext context) {
     final currentLang = ref.watch(languageProvider);
@@ -44,6 +48,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     // This ensures the correct dashboard is shown based on the logged-in user's type
     final isFarmer = user?.userType == UserType.farmer;
     final isAgriShop = user?.merchantType == MerchantType.agriShop;
+    _isFarmer = isFarmer;
+    _isAgriShop = isAgriShop;
 
     final widgetOptions = _widgetOptions(isFarmer, isAgriShop);
 
@@ -153,6 +159,21 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   void _onItemTapped(int index) {
     ref.read(selectedTabProvider.notifier).state = index;
+    final tabName = _getTabName(index);
+    ref.read(analyticsServiceProvider).logTabSwitch(tabName: tabName);
+  }
+
+  String _getTabName(int index) {
+    if (_isFarmer) {
+      const tabs = ['dashboard', 'marketplace', 'crops', 'inventory', 'profile'];
+      return index < tabs.length ? tabs[index] : 'unknown';
+    } else if (_isAgriShop) {
+      const tabs = ['dashboard', 'products', 'orders', 'marketplace', 'profile'];
+      return index < tabs.length ? tabs[index] : 'unknown';
+    } else {
+      const tabs = ['dashboard', 'marketplace', 'produce', 'profile'];
+      return index < tabs.length ? tabs[index] : 'unknown';
+    }
   }
 
   List<Widget> _widgetOptions(bool isFarmer, bool isAgriShop) {

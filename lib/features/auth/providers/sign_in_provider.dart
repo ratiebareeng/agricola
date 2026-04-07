@@ -1,3 +1,4 @@
+import 'package:agricola/core/providers/analytics_provider.dart';
 import 'package:agricola/features/auth/providers/auth_controller.dart';
 import 'package:agricola/features/profile_setup/providers/profile_setup_provider.dart';
 import 'package:flutter/material.dart';
@@ -12,8 +13,9 @@ final signInProvider = StateNotifierProvider<SignInNotifier, SignInState>((
 
 class SignInNotifier extends StateNotifier<SignInState> {
   final AuthController _authController;
+  final Ref _ref;
 
-  SignInNotifier(this._authController, Ref ref) : super(const SignInState());
+  SignInNotifier(this._authController, this._ref) : super(const SignInState());
 
   void clearError() {
     state = state.copyWith(errorMessage: null);
@@ -82,6 +84,7 @@ class SignInNotifier extends StateNotifier<SignInState> {
         },
         (user) {
           state = state.copyWith(isLoading: false);
+          _ref.read(analyticsServiceProvider).logSigninComplete(method: 'email');
           return true;
         },
       );
@@ -114,6 +117,7 @@ class SignInNotifier extends StateNotifier<SignInState> {
         },
         (user) {
           state = state.copyWith(isLoading: false);
+          _ref.read(analyticsServiceProvider).logSigninComplete(method: 'google');
           return true;
         },
       );

@@ -1,3 +1,5 @@
+import 'package:agricola/core/providers/analytics_provider.dart';
+import 'package:agricola/core/services/analytics_service.dart';
 import 'package:agricola/domain/auth/failures/auth_failure.dart';
 import 'package:agricola/domain/auth/models/user_model.dart';
 import 'package:agricola/features/auth/providers/auth_controller.dart';
@@ -11,13 +13,18 @@ import 'package:mocktail/mocktail.dart';
 
 class MockAuthController extends Mock implements AuthController {}
 
+class MockAnalyticsService extends Mock implements AnalyticsService {}
+
 void main() {
   late MockAuthController mockAuthController;
   late SignInNotifier notifier;
 
   setUp(() {
     mockAuthController = MockAuthController();
-    notifier = SignInNotifier(mockAuthController, FakeRef());
+    final mockAnalytics = MockAnalyticsService();
+    when(() => mockAnalytics.logSigninComplete(method: any(named: 'method')))
+        .thenAnswer((_) async {});
+    notifier = SignInNotifier(mockAuthController, FakeRef(mockAnalytics));
   });
 
   group('SignInNotifier', () {
@@ -277,4 +284,15 @@ void main() {
 // Fakes for test-only use
 class _FakeBuildContext extends Fake implements BuildContext {}
 
-class FakeRef extends Fake implements Ref<Object?> {}
+class FakeRef extends Fake implements Ref<Object?> {
+  FakeRef(this.analytics);
+  final MockAnalyticsService analytics;
+
+  @override
+  T read<T>(ProviderListenable<T> provider) {
+    if (identical(provider, analyticsServiceProvider)) {
+      return analytics as T;
+    }
+    throw UnimplementedError('FakeRef.read not implemented for $provider');
+  }
+}
