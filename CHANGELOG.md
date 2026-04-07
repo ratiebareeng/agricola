@@ -1,3 +1,13 @@
+## 1.0.5 - 2026-04-07
+
+### Added
+- **Marketplace test coverage (M-05)** — 49 tests across 4 test files
+  - `marketplace_listing_test.dart` — fromJson, toJson, copyWith, computed properties (isAvailableNow, isProduce/isSupplies), enum fallbacks
+  - `marketplace_filter_test.dart` — toQueryParameters, hasActiveFilters, activeFilterCount, copyWith with clear flags
+  - `marketplace_api_service_test.dart` — all CRUD endpoints with mocked Dio
+  - `marketplace_notifier_test.dart` — load/add/update/delete (success + error), sorting, offline fallback, local cache
+- Updated feature tracker: inventory (already had 34 tests) and marketplace now marked as covered
+
 ## 1.0.4 - 2026-04-07
 
 ### Fixed
