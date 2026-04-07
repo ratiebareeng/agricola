@@ -102,7 +102,7 @@ void main() {
 
       final result = await notifier.addInventory(newItem);
 
-      expect(result, contains('Create failed'));
+      expect(result, equals('error_unexpected'));
       expect(notifier.state.value, isEmpty);
     });
   });
@@ -137,7 +137,7 @@ void main() {
 
       final result = await notifier.updateInventory(updated);
 
-      expect(result, contains('Update failed'));
+      expect(result, equals('error_unexpected'));
       expect(notifier.state.value!.first.cropType, 'maize');
     });
   });
@@ -169,7 +169,7 @@ void main() {
 
       final result = await notifier.deleteInventory('1');
 
-      expect(result, contains('Delete failed'));
+      expect(result, equals('error_unexpected'));
       expect(notifier.state.value!.length, 1);
     });
   });

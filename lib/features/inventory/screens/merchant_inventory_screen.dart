@@ -258,7 +258,7 @@ class _MerchantInventoryScreenState
       if (error != null && context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('${t('error', lang)}: $error'),
+            content: Text(t(error, lang)),
             backgroundColor: Colors.red,
           ),
         );

@@ -1,3 +1,14 @@
+## 1.0.4 - 2026-04-07
+
+### Fixed
+- **User-friendly error messages (M-03)** — raw API exceptions no longer surface to users
+  - New `errorKeyFromException()` utility (`lib/core/utils/error_utils.dart`) maps DioException, SocketException, TimeoutException to translation keys
+  - 11 bilingual error messages added (English + Setswana) — e.g. "No internet connection" / "Ga go na kgolagano ya inthanete"
+  - Updated 18 catch blocks across 7 providers to return translation keys instead of `e.toString()`
+  - Updated 17 error display sites across 12 screens to use `t(key, lang)` for bilingual output
+  - `ErrorRecoveryService._getErrorMessage()` now uses the shared mapping
+  - Updated inventory notifier tests to expect error keys
+
 ## 0.20.15 - 2026-04-07
 
 ### Added

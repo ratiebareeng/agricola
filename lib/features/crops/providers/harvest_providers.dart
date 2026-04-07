@@ -1,3 +1,4 @@
+import 'package:agricola/core/utils/error_utils.dart';
 import 'package:agricola/core/providers/analytics_provider.dart';
 import 'package:agricola/core/services/analytics_service.dart';
 import 'package:agricola/core/database/daos/harvest_local_dao.dart';
@@ -69,7 +70,7 @@ class HarvestNotifier extends StateNotifier<AsyncValue<List<HarvestModel>>> {
       _analytics.logHarvestRecorded();
       return null;
     } catch (e) {
-      return e.toString();
+      return errorKeyFromException(e);
     }
   }
 
@@ -81,7 +82,7 @@ class HarvestNotifier extends StateNotifier<AsyncValue<List<HarvestModel>>> {
           current.where((h) => h.id != harvestId).toList());
       return null;
     } catch (e) {
-      return e.toString();
+      return errorKeyFromException(e);
     }
   }
 }

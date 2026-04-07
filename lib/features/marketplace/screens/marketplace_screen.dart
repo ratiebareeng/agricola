@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
+import 'package:agricola/core/utils/error_utils.dart';
 import 'package:agricola/domain/profile/enum/merchant_type.dart';
 import 'package:agricola/features/marketplace/models/marketplace_filter.dart';
 import 'package:agricola/features/marketplace/models/marketplace_listing.dart';
@@ -226,7 +227,7 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              error.toString(),
+              t(errorKeyFromException(error), lang),
               style: TextStyle(fontSize: 14, color: Colors.grey[500]),
               textAlign: TextAlign.center,
             ),

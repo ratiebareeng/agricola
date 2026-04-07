@@ -1,3 +1,4 @@
+import 'package:agricola/core/utils/error_utils.dart';
 import 'package:agricola/core/providers/analytics_provider.dart';
 import 'package:agricola/core/services/analytics_service.dart';
 import 'package:agricola/core/database/daos/inventory_local_dao.dart';
@@ -66,7 +67,7 @@ class InventoryNotifier extends StateNotifier<AsyncValue<List<InventoryModel>>> 
       _analytics.logInventoryAdded(itemName: item.cropType);
       return null;
     } catch (e) {
-      return e.toString();
+      return errorKeyFromException(e);
     }
   }
 
@@ -79,7 +80,7 @@ class InventoryNotifier extends StateNotifier<AsyncValue<List<InventoryModel>>> 
       );
       return null;
     } catch (e) {
-      return e.toString();
+      return errorKeyFromException(e);
     }
   }
 
@@ -90,7 +91,7 @@ class InventoryNotifier extends StateNotifier<AsyncValue<List<InventoryModel>>> 
       state = AsyncValue.data(current.where((i) => i.id != id).toList());
       return null;
     } catch (e) {
-      return e.toString();
+      return errorKeyFromException(e);
     }
   }
 }

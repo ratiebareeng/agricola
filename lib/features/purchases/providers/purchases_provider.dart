@@ -1,3 +1,4 @@
+import 'package:agricola/core/utils/error_utils.dart';
 import 'package:agricola/core/providers/analytics_provider.dart';
 import 'package:agricola/core/services/analytics_service.dart';
 import 'package:agricola/core/database/daos/purchases_local_dao.dart';
@@ -66,7 +67,7 @@ class PurchasesNotifier
       _analytics.logPurchaseRecorded();
       return null;
     } catch (e) {
-      return e.toString();
+      return errorKeyFromException(e);
     }
   }
 
@@ -79,7 +80,7 @@ class PurchasesNotifier
       );
       return null;
     } catch (e) {
-      return e.toString();
+      return errorKeyFromException(e);
     }
   }
 
@@ -90,7 +91,7 @@ class PurchasesNotifier
       state = AsyncValue.data(current.where((p) => p.id != id).toList());
       return null;
     } catch (e) {
-      return e.toString();
+      return errorKeyFromException(e);
     }
   }
 }

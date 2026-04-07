@@ -1,3 +1,4 @@
+import 'package:agricola/core/utils/error_utils.dart';
 import 'package:agricola/core/providers/analytics_provider.dart';
 import 'package:agricola/core/services/analytics_service.dart';
 import 'package:agricola/core/network/http_client_provider.dart';
@@ -45,7 +46,7 @@ class LossCalculatorNotifier
       _analytics.logLossCalculated();
       return null;
     } catch (e) {
-      return e.toString();
+      return errorKeyFromException(e);
     }
   }
 
@@ -56,7 +57,7 @@ class LossCalculatorNotifier
       state = AsyncValue.data(current.where((c) => c.id != id).toList());
       return null;
     } catch (e) {
-      return e.toString();
+      return errorKeyFromException(e);
     }
   }
 }

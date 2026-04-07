@@ -1,10 +1,11 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:agricola/core/network/http_client_provider.dart';
 import 'package:agricola/core/network/interceptors/retry_interceptor.dart';
+import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/services/server_wake_service.dart';
 import 'package:agricola/core/theme/app_theme.dart';
+import 'package:agricola/core/utils/error_utils.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
@@ -146,24 +147,10 @@ class ErrorRecoveryService {
     );
   }
 
-  /// Get a user-friendly error message
-  static String _getErrorMessage(Object error) {
-    if (error is DioException) {
-      if (error.isColdStartError) {
-        return 'Server is starting up. Please wait...';
-      }
-      return error.friendlyMessage;
-    }
-
-    if (error is SocketException) {
-      return 'Unable to connect to server. Please check your internet connection.';
-    }
-
-    if (error is TimeoutException) {
-      return 'Request timed out. The server might be starting up...';
-    }
-
-    return 'An unexpected error occurred. Please try again.';
+  /// Get a user-friendly error message using translation keys.
+  /// Defaults to English since this service may not have access to user language.
+  static String _getErrorMessage(Object error, [AppLanguage lang = AppLanguage.english]) {
+    return t(errorKeyFromException(error), lang);
   }
 
   static void _showErrorSnackbar(

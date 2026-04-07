@@ -1,3 +1,4 @@
+import 'package:agricola/core/utils/error_utils.dart';
 import 'package:agricola/core/providers/analytics_provider.dart';
 import 'package:agricola/core/services/analytics_service.dart';
 import 'package:agricola/core/database/daos/orders_local_dao.dart';
@@ -92,7 +93,7 @@ class OrdersNotifier extends StateNotifier<AsyncValue<List<OrderModel>>> {
       _analytics.logOrderStatusUpdated(status: status);
       return null;
     } catch (e) {
-      return e.toString();
+      return errorKeyFromException(e);
     }
   }
 
@@ -106,7 +107,7 @@ class OrdersNotifier extends StateNotifier<AsyncValue<List<OrderModel>>> {
       );
       return null;
     } catch (e) {
-      return e.toString();
+      return errorKeyFromException(e);
     }
   }
 }

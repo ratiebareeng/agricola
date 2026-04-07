@@ -1,3 +1,4 @@
+import 'package:agricola/core/utils/error_utils.dart';
 import 'package:agricola/core/providers/analytics_provider.dart';
 import 'package:agricola/core/services/analytics_service.dart';
 import 'package:agricola/core/database/daos/crop_local_dao.dart';
@@ -65,7 +66,7 @@ class CropNotifier extends StateNotifier<AsyncValue<List<CropModel>>> {
       _analytics.logCropAdded(cropType: crop.cropType);
       return null;
     } catch (e) {
-      return e.toString();
+      return errorKeyFromException(e);
     }
   }
 
@@ -78,7 +79,7 @@ class CropNotifier extends StateNotifier<AsyncValue<List<CropModel>>> {
       );
       return null;
     } catch (e) {
-      return e.toString();
+      return errorKeyFromException(e);
     }
   }
 
@@ -89,7 +90,7 @@ class CropNotifier extends StateNotifier<AsyncValue<List<CropModel>>> {
       state = AsyncValue.data(current.where((c) => c.id != id).toList());
       return null;
     } catch (e) {
-      return e.toString();
+      return errorKeyFromException(e);
     }
   }
 }

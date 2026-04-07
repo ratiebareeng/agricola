@@ -1,4 +1,5 @@
 import 'package:agricola/core/providers/language_provider.dart';
+import 'package:agricola/core/utils/error_utils.dart';
 import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/core/widgets/app_dialogs.dart';
 import 'package:agricola/features/crops/crop_helpers.dart';
@@ -66,7 +67,7 @@ class CropDetailsScreen extends ConsumerWidget {
                 if (error != null && context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text('Failed to update: $error'),
+                      content: Text(t(error, currentLang)),
                       backgroundColor: Colors.red,
                     ),
                   );
@@ -371,7 +372,7 @@ class CropDetailsScreen extends ConsumerWidget {
                     loading: () =>
                         const Center(child: CircularProgressIndicator()),
                     error: (error, _) => Text(
-                      'Failed to load harvests: $error',
+                      t(errorKeyFromException(error), currentLang),
                       style: const TextStyle(color: Colors.red),
                     ),
                     data: (harvests) {
@@ -432,7 +433,7 @@ class CropDetailsScreen extends ConsumerWidget {
               if (error != null && context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text('Failed to save harvest: $error'),
+                    content: Text(t(error, currentLang)),
                     backgroundColor: Colors.red,
                   ),
                 );
@@ -606,7 +607,7 @@ class CropDetailsScreen extends ConsumerWidget {
         if (error != null && context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Failed to delete: $error'),
+              content: Text(t(error, lang)),
               backgroundColor: Colors.red,
             ),
           );
