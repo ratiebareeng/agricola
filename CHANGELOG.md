@@ -1,3 +1,12 @@
+## 1.0.6 - 2026-04-08
+
+### Added
+- **Orders test coverage (M-05)** — 42 tests across 3 test files
+  - `order_model_test.dart` — OrderItem + OrderModel fromJson/toJson, round-trip, copyWith, constructor defaults, null id handling
+  - `orders_api_service_test.dart` — all 4 endpoints (getUserOrders with/without role, getOrder, updateOrderStatus, cancelOrder) with mocked Dio
+  - `orders_notifier_test.dart` — loadOrders (online, offline, cache fallback, error states, role param), updateOrderStatus (success, analytics, error, state immutability), cancelOrder (success, multi-order isolation, error, state immutability)
+- Updated feature tracker: Orders now marked as `[x] Good` (3 test files)
+
 ## 1.0.5 - 2026-04-07
 
 ### Added
