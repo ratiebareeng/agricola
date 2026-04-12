@@ -404,7 +404,7 @@ class _AddPurchaseScreenState extends ConsumerState<AddPurchaseScreen> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('${t('purchase_save_failed', lang)}: $error'),
+          content: Text(t(error, lang)),
           backgroundColor: Colors.red,
         ),
       );

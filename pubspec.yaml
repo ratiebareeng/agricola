@@ -1,7 +1,7 @@
 name: agricola
 description: "A new Flutter project."
 publish_to: 'none'
-version: 1.0.2+12
+version: 1.0.7+17
 
 environment:
   sdk: ^3.9.0
@@ -32,6 +32,7 @@ dependencies:
   path_provider: ^2.1.5
   path: ^1.9.1
   firebase_crashlytics: ^5.0.8
+  firebase_analytics: ^12.1.3
   feedback: ^3.2.0
   flutter_email_sender: ^8.0.0
   package_info_plus: ^9.0.0

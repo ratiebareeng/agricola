@@ -1,3 +1,6 @@
+import 'package:agricola/core/utils/error_utils.dart';
+import 'package:agricola/core/providers/analytics_provider.dart';
+import 'package:agricola/core/services/analytics_service.dart';
 import 'package:agricola/core/database/daos/harvest_local_dao.dart';
 import 'package:agricola/core/network/http_client_provider.dart';
 import 'package:agricola/core/providers/connectivity_provider.dart';
@@ -32,15 +35,19 @@ final harvestNotifierProvider =
         String>(
       (ref, cropId) {
         return HarvestNotifier(
-            ref.watch(harvestOfflineRepositoryProvider), cropId);
+          ref.watch(harvestOfflineRepositoryProvider),
+          cropId,
+          ref.watch(analyticsServiceProvider),
+        );
       },
     );
 
 class HarvestNotifier extends StateNotifier<AsyncValue<List<HarvestModel>>> {
   final HarvestOfflineRepository _repository;
   final String _cropId;
+  final AnalyticsService _analytics;
 
-  HarvestNotifier(this._repository, this._cropId)
+  HarvestNotifier(this._repository, this._cropId, this._analytics)
       : super(const AsyncValue.loading()) {
     loadHarvests();
   }
@@ -60,9 +67,10 @@ class HarvestNotifier extends StateNotifier<AsyncValue<List<HarvestModel>>> {
       final created = await _repository.createHarvest(harvest);
       final current = state.value ?? [];
       state = AsyncValue.data([created, ...current]);
+      _analytics.logHarvestRecorded();
       return null;
     } catch (e) {
-      return e.toString();
+      return errorKeyFromException(e);
     }
   }
 
@@ -74,7 +82,7 @@ class HarvestNotifier extends StateNotifier<AsyncValue<List<HarvestModel>>> {
           current.where((h) => h.id != harvestId).toList());
       return null;
     } catch (e) {
-      return e.toString();
+      return errorKeyFromException(e);
     }
   }
 }

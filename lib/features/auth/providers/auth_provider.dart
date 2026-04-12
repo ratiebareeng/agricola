@@ -1,3 +1,4 @@
+import 'package:agricola/core/providers/analytics_provider.dart';
 import 'package:agricola/data/data.dart';
 import 'package:agricola/domain/domain.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -25,12 +26,17 @@ final authStateProvider = StreamProvider<UserModel?>((ref) {
 
 final currentUserProvider = Provider<UserModel?>((ref) {
   final authState = ref.watch(authStateProvider);
+  final analytics = ref.read(analyticsServiceProvider);
 
   return authState.when(
     data: (user) {
       // Set Crashlytics user identifier for error attribution
-      FirebaseCrashlytics.instance
-          .setUserIdentifier(user?.uid ?? '');
+      FirebaseCrashlytics.instance.setUserIdentifier(user?.uid ?? '');
+      // Set Analytics user properties for segmentation
+      analytics.setUserId(user?.uid);
+      if (user != null) {
+        analytics.setUserType(user.userType.name);
+      }
       return user;
     },
     loading: () => null,

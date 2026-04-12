@@ -1,3 +1,4 @@
+import 'package:agricola/core/services/analytics_service.dart';
 import 'package:agricola/features/inventory/data/inventory_offline_repository.dart';
 import 'package:agricola/features/inventory/models/inventory_model.dart';
 import 'package:agricola/features/inventory/providers/inventory_providers.dart';
@@ -7,6 +8,8 @@ import 'package:mocktail/mocktail.dart';
 
 class MockInventoryOfflineRepository extends Mock
     implements InventoryOfflineRepository {}
+
+class MockAnalyticsService extends Mock implements AnalyticsService {}
 
 InventoryModel _makeItem({String? id, String cropType = 'maize'}) {
   return InventoryModel(
@@ -22,9 +25,13 @@ InventoryModel _makeItem({String? id, String cropType = 'maize'}) {
 
 void main() {
   late MockInventoryOfflineRepository mockRepo;
+  late MockAnalyticsService mockAnalytics;
 
   setUp(() {
     mockRepo = MockInventoryOfflineRepository();
+    mockAnalytics = MockAnalyticsService();
+    when(() => mockAnalytics.logInventoryAdded(itemName: any(named: 'itemName')))
+        .thenAnswer((_) async {});
   });
 
   /// Helper: creates a notifier that does NOT auto-load on init.
@@ -35,7 +42,7 @@ void main() {
   }) {
     when(() => mockRepo.getUserInventory())
         .thenAnswer((_) async => initialData);
-    return InventoryNotifier(mockRepo);
+    return InventoryNotifier(mockRepo, mockAnalytics);
   }
 
   /// Wait for the constructor's loadInventory() to settle.
@@ -58,7 +65,7 @@ void main() {
     test('sets error on failure', () async {
       when(() => mockRepo.getUserInventory())
           .thenThrow(Exception('Network error'));
-      final notifier = InventoryNotifier(mockRepo);
+      final notifier = InventoryNotifier(mockRepo, mockAnalytics);
 
       await waitForLoad(notifier);
 
@@ -95,7 +102,7 @@ void main() {
 
       final result = await notifier.addInventory(newItem);
 
-      expect(result, contains('Create failed'));
+      expect(result, equals('error_unexpected'));
       expect(notifier.state.value, isEmpty);
     });
   });
@@ -130,7 +137,7 @@ void main() {
 
       final result = await notifier.updateInventory(updated);
 
-      expect(result, contains('Update failed'));
+      expect(result, equals('error_unexpected'));
       expect(notifier.state.value!.first.cropType, 'maize');
     });
   });
@@ -162,7 +169,7 @@ void main() {
 
       final result = await notifier.deleteInventory('1');
 
-      expect(result, contains('Delete failed'));
+      expect(result, equals('error_unexpected'));
       expect(notifier.state.value!.length, 1);
     });
   });

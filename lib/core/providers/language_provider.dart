@@ -1,5 +1,6 @@
 import 'dart:developer' as developer;
 
+import 'package:agricola/core/providers/analytics_provider.dart';
 import 'package:agricola/core/providers/app_initialization_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -1319,7 +1320,8 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
   },
   'delete_listing_confirm': {
     AppLanguage.english: 'Are you sure you want to delete this listing?',
-    AppLanguage.setswana: 'A o tlhomamisegile gore o batla go phimola lenaneo leno?',
+    AppLanguage.setswana:
+        'A o tlhomamisegile gore o batla go phimola lenaneo leno?',
   },
   'listing_deleted': {
     AppLanguage.english: 'Listing deleted successfully',
@@ -1347,7 +1349,8 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
   },
   'image_too_large': {
     AppLanguage.english: 'Image must be less than 5MB and JPG/PNG format',
-    AppLanguage.setswana: 'Setshwantsho se tshwanetse go nna ka fa tlase ga 5MB le formate ya JPG/PNG',
+    AppLanguage.setswana:
+        'Setshwantsho se tshwanetse go nna ka fa tlase ga 5MB le formate ya JPG/PNG',
   },
   'update_product': {
     AppLanguage.english: 'Update Product',
@@ -1463,11 +1466,7 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
   },
   'total_amount': {
     AppLanguage.english: 'Total Amount',
-    AppLanguage.setswana: 'Palogotlhe',
-  },
-  'purchase_date': {
-    AppLanguage.english: 'Purchase Date',
-    AppLanguage.setswana: 'Letlha la Theko',
+    AppLanguage.setswana: 'Paloyotlhe',
   },
   'purchase_saved': {
     AppLanguage.english: 'Purchase recorded successfully',
@@ -2055,14 +2054,6 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
     AppLanguage.setswana: 'E dirilwe ka',
   },
   'seller': {AppLanguage.english: 'Seller', AppLanguage.setswana: 'Morekisi'},
-  'price_per_unit': {
-    AppLanguage.english: 'Price per Unit',
-    AppLanguage.setswana: 'Tlhwatlhwa ka Yuniti',
-  },
-  'total_amount': {
-    AppLanguage.english: 'Total Amount',
-    AppLanguage.setswana: 'Palogotlhe',
-  },
   'purchase_date': {
     AppLanguage.english: 'Purchase Date',
     AppLanguage.setswana: 'Letsatsi la Theko',
@@ -2072,10 +2063,7 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
     AppLanguage.setswana: 'Nomoro ya Odara',
   },
   // Loss Calculator — history & save
-  'history': {
-    AppLanguage.english: 'History',
-    AppLanguage.setswana: 'Hisitori',
-  },
+  'history': {AppLanguage.english: 'History', AppLanguage.setswana: 'Hisitori'},
   'loss_history': {
     AppLanguage.english: 'Loss History',
     AppLanguage.setswana: 'Hisitori ya Ditshenyegelo',
@@ -2088,10 +2076,7 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
     AppLanguage.english: 'Save Results',
     AppLanguage.setswana: 'Boloka Dipholo',
   },
-  'saved': {
-    AppLanguage.english: 'Saved',
-    AppLanguage.setswana: 'E Bolokilwe',
-  },
+  'saved': {AppLanguage.english: 'Saved', AppLanguage.setswana: 'E Bolokilwe'},
   'save_failed': {
     AppLanguage.english: 'Failed to save. Please try again.',
     AppLanguage.setswana: 'Go boloka go paletse. Leka gape.',
@@ -2116,13 +2101,57 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
     AppLanguage.english: 'more than average',
     AppLanguage.setswana: 'ka godimo ga average',
   },
-  'avg': {
-    AppLanguage.english: 'Avg',
-    AppLanguage.setswana: 'Avg',
+  'avg': {AppLanguage.english: 'Avg', AppLanguage.setswana: 'Avg'},
+  'region': {AppLanguage.english: 'Region', AppLanguage.setswana: 'Kgaolo'},
+
+  // Error messages (M-03)
+  'error_no_connection': {
+    AppLanguage.english: 'No internet connection. Please check your network.',
+    AppLanguage.setswana:
+        'Ga go na kgolagano ya inthanete. Tsweetswee rurifatsa intranets ya gago.',
   },
-  'region': {
-    AppLanguage.english: 'Region',
-    AppLanguage.setswana: 'Kgaolo',
+  'error_timeout': {
+    AppLanguage.english: 'Connection timed out. Please try again.',
+    AppLanguage.setswana:
+        'Kgolagano ga e a fetsa ka nako. Tsweetswee leka gape.',
+  },
+  'error_server_slow': {
+    AppLanguage.english: 'Server is taking too long. Please try again.',
+    AppLanguage.setswana:
+        'Kgolaganyo e tsaya nako e telele. Tsweetswee leka gape.',
+  },
+  'error_server': {
+    AppLanguage.english: 'Server error. Please try again later.',
+    AppLanguage.setswana:
+        'Kgolaganyo ya gago e na le bothata ka nano e. Tsweetswee leka morago ga sebakanyana.',
+  },
+  'error_not_found': {
+    AppLanguage.english: 'The requested item was not found.',
+    AppLanguage.setswana: 'Se o se batlang ga se a fitlhelwa.',
+  },
+  'error_auth_required': {
+    AppLanguage.english: 'Please sign in again.',
+    AppLanguage.setswana: 'Tsweetswee tsena ka account gape.',
+  },
+  'error_permission_denied': {
+    AppLanguage.english: 'You do not have permission for this action.',
+    AppLanguage.setswana: 'Ga o na tetla ya go dira se.',
+  },
+  'error_conflict': {
+    AppLanguage.english: 'This item was updated elsewhere. Please refresh.',
+    AppLanguage.setswana: 'Go nnile le bothata. Tsweetswee leka gape.',
+  },
+  'error_request_failed': {
+    AppLanguage.english: 'Request failed. Please try again.',
+    AppLanguage.setswana: 'Kopo e paletswe. Tsweetswee leka gape.',
+  },
+  'error_cancelled': {
+    AppLanguage.english: 'Request was cancelled.',
+    AppLanguage.setswana: 'Kopo e emisitswe.',
+  },
+  'error_unexpected': {
+    AppLanguage.english: 'Something went wrong. Please try again.',
+    AppLanguage.setswana: 'Go na le phoso. Tsweetswee leka gape.',
   },
 };
 
@@ -2160,6 +2189,8 @@ class LanguageNotifier extends StateNotifier<AppLanguage> {
       '🔄 UPDATED: appInitializationProvider (hasSeenWelcome: true)',
       name: 'LanguageProvider',
     );
+
+    _ref.read(analyticsServiceProvider).setLanguage(language.name);
   }
 
   Future<void> _loadLanguage() async {
@@ -2167,8 +2198,12 @@ class LanguageNotifier extends StateNotifier<AppLanguage> {
     final langCode = prefs.getString('language_code');
     if (langCode == 'tn') {
       state = AppLanguage.setswana;
+      _ref
+          .read(analyticsServiceProvider)
+          .setLanguage(AppLanguage.setswana.name);
     } else {
       state = AppLanguage.english;
+      _ref.read(analyticsServiceProvider).setLanguage(AppLanguage.english.name);
     }
   }
 }

@@ -1,3 +1,5 @@
+import 'package:agricola/core/providers/analytics_provider.dart';
+import 'package:agricola/core/services/analytics_service.dart';
 import 'package:agricola/domain/profile/enum/merchant_type.dart';
 import 'package:agricola/features/auth/providers/auth_controller.dart';
 import 'package:agricola/features/profile_setup/providers/profile_setup_provider.dart';
@@ -8,13 +10,15 @@ final signUpProvider = StateNotifierProvider<SignUpNotifier, SignUpState>((
   ref,
 ) {
   final authController = ref.watch(authControllerProvider.notifier);
-  return SignUpNotifier(authController);
+  final analytics = ref.watch(analyticsServiceProvider);
+  return SignUpNotifier(authController, analytics);
 });
 
 class SignUpNotifier extends StateNotifier<SignUpState> {
   final AuthController _authController;
+  final AnalyticsService _analytics;
 
-  SignUpNotifier(this._authController) : super(const SignUpState());
+  SignUpNotifier(this._authController, this._analytics) : super(const SignUpState());
 
   void clearError() {
     state = state.copyWith(errorMessage: null);
@@ -49,6 +53,7 @@ class SignUpNotifier extends StateNotifier<SignUpState> {
         },
         (user) {
           state = state.copyWith(isLoading: false);
+          _analytics.logSignupComplete(method: 'email');
           return true;
         },
       );
@@ -86,6 +91,7 @@ class SignUpNotifier extends StateNotifier<SignUpState> {
         },
         (user) {
           state = state.copyWith(isLoading: false);
+          _analytics.logSignupComplete(method: 'google');
           return true;
         },
       );

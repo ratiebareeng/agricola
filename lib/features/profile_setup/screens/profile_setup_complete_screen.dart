@@ -1,3 +1,4 @@
+import 'package:agricola/core/providers/analytics_provider.dart';
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/features/auth/providers/auth_provider.dart';
@@ -294,6 +295,12 @@ class ProfileSetupCompleteScreen extends ConsumerWidget {
 
   Future<void> _handleGetStarted(BuildContext context, WidgetRef ref) async {
     final skipped = profileData['skipped'] as bool? ?? false;
+    final userType = profileData['userType'] as String? ?? 'unknown';
+    if (skipped) {
+      ref.read(analyticsServiceProvider).logProfileSetupSkipped();
+    } else {
+      ref.read(analyticsServiceProvider).logProfileSetupComplete(userType: userType);
+    }
 
     if (skipped) {
       // User skipped profile setup - invalidate auth state to refresh

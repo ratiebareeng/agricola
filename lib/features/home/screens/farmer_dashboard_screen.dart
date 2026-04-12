@@ -302,7 +302,7 @@ class FarmerDashboardScreen extends ConsumerWidget {
         if (error != null && context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Failed to save crop: $error'),
+              content: Text(t(error, ref.read(languageProvider))),
               backgroundColor: AppColors.alertRed,
             ),
           );

@@ -574,7 +574,7 @@ class MarketplaceDetailScreen extends ConsumerWidget {
         if (error != null) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Error: $error'),
+              content: Text(t(error, currentLang)),
               backgroundColor: Colors.red,
             ),
           );

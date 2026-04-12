@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:agricola/core/providers/analytics_provider.dart';
 import 'package:agricola/core/providers/app_initialization_provider.dart';
 import 'package:agricola/core/routing/route_guards.dart';
 import 'package:agricola/core/screens/splash_screen.dart';
@@ -27,11 +28,13 @@ final _routerNotifierProvider = Provider<RouterNotifier>((ref) {
 
 GoRouter createRouter(WidgetRef ref) {
   final notifier = ref.watch(_routerNotifierProvider);
+  final analyticsService = ref.read(analyticsServiceProvider);
 
   return GoRouter(
     initialLocation: '/splash',
     refreshListenable: notifier,
     redirect: (context, state) => RouteGuards.redirect(ref, state),
+    observers: [analyticsService.observer],
     routes: [
       GoRoute(
         path: '/splash',

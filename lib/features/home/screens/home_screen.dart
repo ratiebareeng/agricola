@@ -1,4 +1,5 @@
 import 'package:agricola/core/database/sync/sync_service.dart';
+import 'package:agricola/core/providers/analytics_provider.dart';
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/providers/nav_provider.dart';
 import 'package:agricola/core/widgets/offline_banner.dart';
@@ -27,7 +28,14 @@ class HomeScreen extends ConsumerStatefulWidget {
   ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
+const _farmerTabNames = ['dashboard', 'marketplace', 'crops', 'inventory', 'profile'];
+const _agriShopTabNames = ['dashboard', 'products', 'orders', 'marketplace', 'profile'];
+const _merchantTabNames = ['dashboard', 'marketplace', 'produce', 'profile'];
+
 class _HomeScreenState extends ConsumerState<HomeScreen> {
+  bool _isFarmer = false;
+  bool _isAgriShop = false;
+
   @override
   Widget build(BuildContext context) {
     final currentLang = ref.watch(languageProvider);
@@ -44,6 +52,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     // This ensures the correct dashboard is shown based on the logged-in user's type
     final isFarmer = user?.userType == UserType.farmer;
     final isAgriShop = user?.merchantType == MerchantType.agriShop;
+    _isFarmer = isFarmer;
+    _isAgriShop = isAgriShop;
 
     final widgetOptions = _widgetOptions(isFarmer, isAgriShop);
 
@@ -153,33 +163,51 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   void _onItemTapped(int index) {
     ref.read(selectedTabProvider.notifier).state = index;
+    final tabName = _getTabName(index);
+    ref.read(analyticsServiceProvider).logTabSwitch(tabName: tabName);
+  }
+
+  String _getTabName(int index) {
+    final tabs = _isFarmer
+        ? _farmerTabNames
+        : (_isAgriShop ? _agriShopTabNames : _merchantTabNames);
+    return index >= 0 && index < tabs.length ? tabs[index] : 'unknown';
   }
 
   List<Widget> _widgetOptions(bool isFarmer, bool isAgriShop) {
     if (isFarmer) {
-      return [
-        const FarmerDashboardScreen(),
-        const MarketplaceScreen(),
-        const CropsScreen(),
-        const FarmerInventoryScreen(),
-        const ProfileScreen(),
+      const widgets = [
+        FarmerDashboardScreen(),
+        MarketplaceScreen(),
+        CropsScreen(),
+        FarmerInventoryScreen(),
+        ProfileScreen(),
       ];
+      assert(widgets.length == _farmerTabNames.length,
+          'farmer tab widgets/names length mismatch');
+      return widgets;
     } else if (isAgriShop) {
-      return [
-        const AgriShopDashboardScreen(),
-        const MerchantInventoryScreen(),
-        const AgriShopOrdersScreen(),
-        const MarketplaceScreen(),
-        const ProfileScreen(),
+      const widgets = [
+        AgriShopDashboardScreen(),
+        MerchantInventoryScreen(),
+        AgriShopOrdersScreen(),
+        MarketplaceScreen(),
+        ProfileScreen(),
       ];
+      assert(widgets.length == _agriShopTabNames.length,
+          'agriShop tab widgets/names length mismatch');
+      return widgets;
     } else {
       // Default to merchant dashboard for other merchant types
-      return [
-        const MerchantDashboardScreen(),
-        const MarketplaceScreen(),
-        const MerchantInventoryScreen(),
-        const ProfileScreen(),
+      const widgets = [
+        MerchantDashboardScreen(),
+        MarketplaceScreen(),
+        MerchantInventoryScreen(),
+        ProfileScreen(),
       ];
+      assert(widgets.length == _merchantTabNames.length,
+          'merchant tab widgets/names length mismatch');
+      return widgets;
     }
   }
 }

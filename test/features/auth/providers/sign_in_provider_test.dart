@@ -1,15 +1,17 @@
+import 'package:agricola/core/services/analytics_service.dart';
 import 'package:agricola/domain/auth/failures/auth_failure.dart';
 import 'package:agricola/domain/auth/models/user_model.dart';
 import 'package:agricola/features/auth/providers/auth_controller.dart';
 import 'package:agricola/features/auth/providers/sign_in_provider.dart';
 import 'package:agricola/features/profile_setup/providers/profile_setup_provider.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockAuthController extends Mock implements AuthController {}
+
+class MockAnalyticsService extends Mock implements AnalyticsService {}
 
 void main() {
   late MockAuthController mockAuthController;
@@ -17,7 +19,10 @@ void main() {
 
   setUp(() {
     mockAuthController = MockAuthController();
-    notifier = SignInNotifier(mockAuthController, FakeRef());
+    final mockAnalytics = MockAnalyticsService();
+    when(() => mockAnalytics.logSigninComplete(method: any(named: 'method')))
+        .thenAnswer((_) async {});
+    notifier = SignInNotifier(mockAuthController, mockAnalytics);
   });
 
   group('SignInNotifier', () {
@@ -276,5 +281,3 @@ void main() {
 
 // Fakes for test-only use
 class _FakeBuildContext extends Fake implements BuildContext {}
-
-class FakeRef extends Fake implements Ref<Object?> {}

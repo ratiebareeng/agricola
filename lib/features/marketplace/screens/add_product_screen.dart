@@ -627,7 +627,7 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
       if (mounted) {
         if (error != null) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error: $error'), backgroundColor: Colors.red),
+            SnackBar(content: Text(t(error, ref.read(languageProvider))), backgroundColor: Colors.red),
           );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(

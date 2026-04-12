@@ -1,3 +1,55 @@
+## 1.0.7 - 2026-04-12
+
+### Fixed
+- **Setswana error translations** — replaced transliterated/incorrect strings in `error_no_connection`, `error_timeout`, `error_server_slow`, `error_server`, `error_conflict`, `error_cancelled`, and `error_auth_required` with native-validated wording.
+- **`ErrorRecoveryService` now honours the user language** — resolves `AppLanguage` from the active `ProviderScope` via the surrounding `BuildContext` instead of hardcoding English.
+
+### Changed
+- **`SignInNotifier` analytics injection** — receives `AnalyticsService` directly instead of stashing `Ref`, matching the rest of the notifiers in the app.
+- **`HomeScreen` tab-name drift guard** — tab name lists promoted to file-level consts with debug `assert`s that the widget list length matches, preventing silent drift when tabs are reordered.
+
+## 1.0.6 - 2026-04-08
+
+### Added
+- **Orders test coverage (M-05)** — 42 tests across 3 test files
+  - `order_model_test.dart` — OrderItem + OrderModel fromJson/toJson, round-trip, copyWith, constructor defaults, null id handling
+  - `orders_api_service_test.dart` — all 4 endpoints (getUserOrders with/without role, getOrder, updateOrderStatus, cancelOrder) with mocked Dio
+  - `orders_notifier_test.dart` — loadOrders (online, offline, cache fallback, error states, role param), updateOrderStatus (success, analytics, error, state immutability), cancelOrder (success, multi-order isolation, error, state immutability)
+- Updated feature tracker: Orders now marked as `[x] Good` (3 test files)
+
+## 1.0.5 - 2026-04-07
+
+### Added
+- **Marketplace test coverage (M-05)** — 49 tests across 4 test files
+  - `marketplace_listing_test.dart` — fromJson, toJson, copyWith, computed properties (isAvailableNow, isProduce/isSupplies), enum fallbacks
+  - `marketplace_filter_test.dart` — toQueryParameters, hasActiveFilters, activeFilterCount, copyWith with clear flags
+  - `marketplace_api_service_test.dart` — all CRUD endpoints with mocked Dio
+  - `marketplace_notifier_test.dart` — load/add/update/delete (success + error), sorting, offline fallback, local cache
+- Updated feature tracker: inventory (already had 34 tests) and marketplace now marked as covered
+
+## 1.0.4 - 2026-04-07
+
+### Fixed
+- **User-friendly error messages (M-03)** — raw API exceptions no longer surface to users
+  - New `errorKeyFromException()` utility (`lib/core/utils/error_utils.dart`) maps DioException, SocketException, TimeoutException to translation keys
+  - 11 bilingual error messages added (English + Setswana) — e.g. "No internet connection" / "Ga go na kgolagano ya inthanete"
+  - Updated 18 catch blocks across 7 providers to return translation keys instead of `e.toString()`
+  - Updated 17 error display sites across 12 screens to use `t(key, lang)` for bilingual output
+  - `ErrorRecoveryService._getErrorMessage()` now uses the shared mapping
+  - Updated inventory notifier tests to expect error keys
+
+## 0.20.15 - 2026-04-07
+
+### Added
+- **Firebase Analytics (M-01)** — full usage tracking added to the mobile app
+  - Centralized `AnalyticsService` (`lib/core/services/analytics_service.dart`) with typed methods for every event — no raw string event names scattered across the codebase
+  - Automatic screen view tracking via `FirebaseAnalyticsObserver` on GoRouter (all auth/onboarding routes)
+  - User properties: `user_type` (farmer/agriShop/merchant) set on every auth state change; `app_language` set on language selection
+  - Onboarding funnel: `onboarding_start`, `onboarding_complete`, `user_type_selected`, `signup_complete`, `signin_complete`, `profile_setup_started`, `profile_setup_complete`, `profile_setup_skipped`
+  - Feature adoption events: `crop_added`, `harvest_recorded`, `inventory_added`, `listing_created`, `purchase_recorded`, `order_status_updated`, `loss_calculated`, `report_exported`
+  - Tab switch tracking: `tab_switch` with tab name on bottom-nav changes
+  - No PII in any events — compliant with Botswana Data Protection Act 2018
+
 ## 0.20.14 - 2026-04-02
 
 ### Changed

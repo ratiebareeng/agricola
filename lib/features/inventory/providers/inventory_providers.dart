@@ -1,3 +1,6 @@
+import 'package:agricola/core/utils/error_utils.dart';
+import 'package:agricola/core/providers/analytics_provider.dart';
+import 'package:agricola/core/services/analytics_service.dart';
 import 'package:agricola/core/database/daos/inventory_local_dao.dart';
 import 'package:agricola/core/network/http_client_provider.dart';
 import 'package:agricola/core/providers/connectivity_provider.dart';
@@ -32,13 +35,17 @@ final inventoryNotifierProvider =
     StateNotifierProvider<InventoryNotifier, AsyncValue<List<InventoryModel>>>((ref) {
       // Re-fetch inventory when user changes
       ref.watch(currentUserProvider);
-      return InventoryNotifier(ref.watch(inventoryOfflineRepositoryProvider));
+      return InventoryNotifier(
+        ref.watch(inventoryOfflineRepositoryProvider),
+        ref.watch(analyticsServiceProvider),
+      );
     });
 
 class InventoryNotifier extends StateNotifier<AsyncValue<List<InventoryModel>>> {
   final InventoryOfflineRepository _repository;
+  final AnalyticsService _analytics;
 
-  InventoryNotifier(this._repository) : super(const AsyncValue.loading()) {
+  InventoryNotifier(this._repository, this._analytics) : super(const AsyncValue.loading()) {
     loadInventory();
   }
 
@@ -57,9 +64,10 @@ class InventoryNotifier extends StateNotifier<AsyncValue<List<InventoryModel>>> 
       final created = await _repository.createInventory(item);
       final current = state.value ?? [];
       state = AsyncValue.data([created, ...current]);
+      _analytics.logInventoryAdded(itemName: item.cropType);
       return null;
     } catch (e) {
-      return e.toString();
+      return errorKeyFromException(e);
     }
   }
 
@@ -72,7 +80,7 @@ class InventoryNotifier extends StateNotifier<AsyncValue<List<InventoryModel>>> 
       );
       return null;
     } catch (e) {
-      return e.toString();
+      return errorKeyFromException(e);
     }
   }
 
@@ -83,7 +91,7 @@ class InventoryNotifier extends StateNotifier<AsyncValue<List<InventoryModel>>> 
       state = AsyncValue.data(current.where((i) => i.id != id).toList());
       return null;
     } catch (e) {
-      return e.toString();
+      return errorKeyFromException(e);
     }
   }
 }

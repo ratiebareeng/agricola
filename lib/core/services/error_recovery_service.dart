@@ -1,12 +1,14 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:agricola/core/network/http_client_provider.dart';
 import 'package:agricola/core/network/interceptors/retry_interceptor.dart';
+import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/services/server_wake_service.dart';
 import 'package:agricola/core/theme/app_theme.dart';
+import 'package:agricola/core/utils/error_utils.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Service for handling errors with user-friendly recovery options.
 /// Provides context-aware error messages and retry functionality.
@@ -37,7 +39,7 @@ class ErrorRecoveryService {
           if (context.mounted) {
             _showErrorSnackbar(
               context,
-              errorMessage ?? _getErrorMessage(error),
+              errorMessage ?? _getErrorMessage(error, _langFromContext(context)),
               onRetry: attempts < maxRetries
                   ? () async {
                       // Let the caller handle retry
@@ -146,24 +148,20 @@ class ErrorRecoveryService {
     );
   }
 
-  /// Get a user-friendly error message
-  static String _getErrorMessage(Object error) {
-    if (error is DioException) {
-      if (error.isColdStartError) {
-        return 'Server is starting up. Please wait...';
-      }
-      return error.friendlyMessage;
-    }
+  /// Get a user-friendly error message using translation keys.
+  static String _getErrorMessage(Object error, AppLanguage lang) {
+    return t(errorKeyFromException(error), lang);
+  }
 
-    if (error is SocketException) {
-      return 'Unable to connect to server. Please check your internet connection.';
+  /// Resolve the active [AppLanguage] from the provider container attached
+  /// to [context]. Falls back to English if no ProviderScope is present.
+  static AppLanguage _langFromContext(BuildContext context) {
+    try {
+      return ProviderScope.containerOf(context, listen: false)
+          .read(languageProvider);
+    } catch (_) {
+      return AppLanguage.english;
     }
-
-    if (error is TimeoutException) {
-      return 'Request timed out. The server might be starting up...';
-    }
-
-    return 'An unexpected error occurred. Please try again.';
   }
 
   static void _showErrorSnackbar(

@@ -1,3 +1,6 @@
+import 'package:agricola/core/utils/error_utils.dart';
+import 'package:agricola/core/providers/analytics_provider.dart';
+import 'package:agricola/core/services/analytics_service.dart';
 import 'package:agricola/core/database/daos/orders_local_dao.dart';
 import 'package:agricola/core/network/http_client_provider.dart';
 import 'package:agricola/core/providers/connectivity_provider.dart';
@@ -28,6 +31,7 @@ final ordersNotifierProvider =
     localDao: ref.watch(ordersLocalDaoProvider),
     isOnline: () => ref.read(isOnlineProvider),
     offlineEnabled: () => ref.read(offlineModeEnabledProvider),
+    analytics: ref.watch(analyticsServiceProvider),
   );
 });
 
@@ -36,16 +40,19 @@ class OrdersNotifier extends StateNotifier<AsyncValue<List<OrderModel>>> {
   final OrdersLocalDao _localDao;
   final bool Function() _isOnline;
   final bool Function() _offlineEnabled;
+  final AnalyticsService _analytics;
 
   OrdersNotifier({
     required OrdersApiService service,
     required OrdersLocalDao localDao,
     required bool Function() isOnline,
     required bool Function() offlineEnabled,
+    required AnalyticsService analytics,
   })  : _service = service,
         _localDao = localDao,
         _isOnline = isOnline,
         _offlineEnabled = offlineEnabled,
+        _analytics = analytics,
         super(const AsyncValue.loading()) {
     loadOrders();
   }
@@ -83,9 +90,10 @@ class OrdersNotifier extends StateNotifier<AsyncValue<List<OrderModel>>> {
       state = AsyncValue.data(
         current.map((o) => o.id == id ? updated : o).toList(),
       );
+      _analytics.logOrderStatusUpdated(status: status);
       return null;
     } catch (e) {
-      return e.toString();
+      return errorKeyFromException(e);
     }
   }
 
@@ -99,7 +107,7 @@ class OrdersNotifier extends StateNotifier<AsyncValue<List<OrderModel>>> {
       );
       return null;
     } catch (e) {
-      return e.toString();
+      return errorKeyFromException(e);
     }
   }
 }

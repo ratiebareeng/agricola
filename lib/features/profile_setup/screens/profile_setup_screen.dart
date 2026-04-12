@@ -1,3 +1,4 @@
+import 'package:agricola/core/providers/analytics_provider.dart';
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/core/widgets/app_buttons.dart';
@@ -27,6 +28,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
 
   void _initializeProfileSetup() {
     final notifier = ref.read(profileSetupProvider.notifier);
+    String userTypeLabel = widget.initialUserType ?? 'unknown';
 
     // If initialUserType provided (from sign-up), use it
     if (widget.initialUserType != null) {
@@ -46,8 +48,11 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
       final user = ref.read(currentUserProvider);
       if (user != null) {
         notifier.startNewProfileSetup(user.userType, user.merchantType);
+        userTypeLabel = user.userType.name;
       }
     }
+
+    ref.read(analyticsServiceProvider).logProfileSetupStarted(userType: userTypeLabel);
   }
 
   @override

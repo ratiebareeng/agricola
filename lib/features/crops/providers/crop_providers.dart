@@ -1,3 +1,6 @@
+import 'package:agricola/core/utils/error_utils.dart';
+import 'package:agricola/core/providers/analytics_provider.dart';
+import 'package:agricola/core/services/analytics_service.dart';
 import 'package:agricola/core/database/daos/crop_local_dao.dart';
 import 'package:agricola/core/network/http_client_provider.dart';
 import 'package:agricola/core/providers/connectivity_provider.dart';
@@ -31,13 +34,17 @@ final cropNotifierProvider =
     StateNotifierProvider<CropNotifier, AsyncValue<List<CropModel>>>((ref) {
       // Re-fetch crops when user changes
       ref.watch(currentUserProvider);
-      return CropNotifier(ref.watch(cropOfflineRepositoryProvider));
+      return CropNotifier(
+        ref.watch(cropOfflineRepositoryProvider),
+        ref.watch(analyticsServiceProvider),
+      );
     });
 
 class CropNotifier extends StateNotifier<AsyncValue<List<CropModel>>> {
   final CropOfflineRepository _repository;
+  final AnalyticsService _analytics;
 
-  CropNotifier(this._repository) : super(const AsyncValue.loading()) {
+  CropNotifier(this._repository, this._analytics) : super(const AsyncValue.loading()) {
     loadCrops();
   }
 
@@ -56,9 +63,10 @@ class CropNotifier extends StateNotifier<AsyncValue<List<CropModel>>> {
       final created = await _repository.createCrop(crop);
       final current = state.value ?? [];
       state = AsyncValue.data([created, ...current]);
+      _analytics.logCropAdded(cropType: crop.cropType);
       return null;
     } catch (e) {
-      return e.toString();
+      return errorKeyFromException(e);
     }
   }
 
@@ -71,7 +79,7 @@ class CropNotifier extends StateNotifier<AsyncValue<List<CropModel>>> {
       );
       return null;
     } catch (e) {
-      return e.toString();
+      return errorKeyFromException(e);
     }
   }
 
@@ -82,7 +90,7 @@ class CropNotifier extends StateNotifier<AsyncValue<List<CropModel>>> {
       state = AsyncValue.data(current.where((c) => c.id != id).toList());
       return null;
     } catch (e) {
-      return e.toString();
+      return errorKeyFromException(e);
     }
   }
 }

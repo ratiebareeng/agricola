@@ -1,5 +1,6 @@
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
+import 'package:agricola/core/utils/error_utils.dart';
 import 'package:agricola/features/orders/models/order_model.dart';
 import 'package:agricola/features/orders/providers/orders_provider.dart';
 import 'package:agricola/features/orders/widgets/order_card_skeleton.dart';
@@ -238,7 +239,7 @@ class AgriShopOrdersScreen extends ConsumerWidget {
     if (context.mounted) {
       if (error != null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $error'), backgroundColor: Colors.red),
+          SnackBar(content: Text(t(error, ref.read(languageProvider))), backgroundColor: Colors.red),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -428,7 +429,7 @@ class AgriShopOrdersScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              error.toString(),
+              t(errorKeyFromException(error), lang),
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.grey[600]),
             ),

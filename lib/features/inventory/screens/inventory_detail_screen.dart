@@ -245,7 +245,7 @@ class _InventoryDetailScreenState extends ConsumerState<InventoryDetailScreen> {
         if (error != null) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('${t('error', language)}: $error'),
+              content: Text(t(error, language)),
               backgroundColor: Colors.red,
             ),
           );
@@ -277,7 +277,7 @@ class _InventoryDetailScreenState extends ConsumerState<InventoryDetailScreen> {
       if (error != null && context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('${t('error', language)}: $error'),
+            content: Text(t(error, language)),
             backgroundColor: Colors.red,
           ),
         );
@@ -326,7 +326,7 @@ class _InventoryDetailScreenState extends ConsumerState<InventoryDetailScreen> {
     if (error != null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('${t('error', language)}: $error'),
+          content: Text(t(error, language)),
           backgroundColor: Colors.red,
         ),
       );
