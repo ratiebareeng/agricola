@@ -1,4 +1,3 @@
-import 'package:agricola/core/providers/analytics_provider.dart';
 import 'package:agricola/core/services/analytics_service.dart';
 import 'package:agricola/domain/auth/failures/auth_failure.dart';
 import 'package:agricola/domain/auth/models/user_model.dart';
@@ -6,7 +5,6 @@ import 'package:agricola/features/auth/providers/auth_controller.dart';
 import 'package:agricola/features/auth/providers/sign_in_provider.dart';
 import 'package:agricola/features/profile_setup/providers/profile_setup_provider.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:mocktail/mocktail.dart';
@@ -24,7 +22,7 @@ void main() {
     final mockAnalytics = MockAnalyticsService();
     when(() => mockAnalytics.logSigninComplete(method: any(named: 'method')))
         .thenAnswer((_) async {});
-    notifier = SignInNotifier(mockAuthController, FakeRef(mockAnalytics));
+    notifier = SignInNotifier(mockAuthController, mockAnalytics);
   });
 
   group('SignInNotifier', () {
@@ -283,16 +281,3 @@ void main() {
 
 // Fakes for test-only use
 class _FakeBuildContext extends Fake implements BuildContext {}
-
-class FakeRef extends Fake implements Ref<Object?> {
-  FakeRef(this.analytics);
-  final MockAnalyticsService analytics;
-
-  @override
-  T read<T>(ProviderListenable<T> provider) {
-    if (identical(provider, analyticsServiceProvider)) {
-      return analytics as T;
-    }
-    throw UnimplementedError('FakeRef.read not implemented for $provider');
-  }
-}

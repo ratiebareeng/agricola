@@ -8,6 +8,7 @@ import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/core/utils/error_utils.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Service for handling errors with user-friendly recovery options.
 /// Provides context-aware error messages and retry functionality.
@@ -38,7 +39,7 @@ class ErrorRecoveryService {
           if (context.mounted) {
             _showErrorSnackbar(
               context,
-              errorMessage ?? _getErrorMessage(error),
+              errorMessage ?? _getErrorMessage(error, _langFromContext(context)),
               onRetry: attempts < maxRetries
                   ? () async {
                       // Let the caller handle retry
@@ -148,9 +149,19 @@ class ErrorRecoveryService {
   }
 
   /// Get a user-friendly error message using translation keys.
-  /// Defaults to English since this service may not have access to user language.
-  static String _getErrorMessage(Object error, [AppLanguage lang = AppLanguage.english]) {
+  static String _getErrorMessage(Object error, AppLanguage lang) {
     return t(errorKeyFromException(error), lang);
+  }
+
+  /// Resolve the active [AppLanguage] from the provider container attached
+  /// to [context]. Falls back to English if no ProviderScope is present.
+  static AppLanguage _langFromContext(BuildContext context) {
+    try {
+      return ProviderScope.containerOf(context, listen: false)
+          .read(languageProvider);
+    } catch (_) {
+      return AppLanguage.english;
+    }
   }
 
   static void _showErrorSnackbar(

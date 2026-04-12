@@ -2108,20 +2108,22 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
   'error_no_connection': {
     AppLanguage.english: 'No internet connection. Please check your network.',
     AppLanguage.setswana:
-        'Ga go na kgolagano ya inthanete. Tsweetswee leka gape.',
+        'Ga go na kgolagano ya inthanete. Tsweetswee rurifatsa intranets ya gago.',
   },
   'error_timeout': {
     AppLanguage.english: 'Connection timed out. Please try again.',
-    AppLanguage.setswana: 'Kgolagano e fedile nako. Tsweetswee leka gape.',
+    AppLanguage.setswana:
+        'Kgolagano ga e a fetsa ka nako. Tsweetswee leka gape.',
   },
   'error_server_slow': {
     AppLanguage.english: 'Server is taking too long. Please try again.',
     AppLanguage.setswana:
-        'Setshedi se tsaya nako e telele. Tsweetswee leka gape.',
+        'Kgolaganyo e tsaya nako e telele. Tsweetswee leka gape.',
   },
   'error_server': {
     AppLanguage.english: 'Server error. Please try again later.',
-    AppLanguage.setswana: 'Phoso ya setshedi. Tsweetswee leka morago.',
+    AppLanguage.setswana:
+        'Kgolaganyo ya gago e na le bothata ka nano e. Tsweetswee leka morago ga sebakanyana.',
   },
   'error_not_found': {
     AppLanguage.english: 'The requested item was not found.',
@@ -2129,7 +2131,7 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
   },
   'error_auth_required': {
     AppLanguage.english: 'Please sign in again.',
-    AppLanguage.setswana: 'Tsweetswee tsena gape.',
+    AppLanguage.setswana: 'Tsweetswee tsena ka account gape.',
   },
   'error_permission_denied': {
     AppLanguage.english: 'You do not have permission for this action.',
@@ -2137,8 +2139,7 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
   },
   'error_conflict': {
     AppLanguage.english: 'This item was updated elsewhere. Please refresh.',
-    AppLanguage.setswana:
-        'Se se fetotsweke ko go sele. Tsweetswee fetlha gape.',
+    AppLanguage.setswana: 'Go nnile le bothata. Tsweetswee leka gape.',
   },
   'error_request_failed': {
     AppLanguage.english: 'Request failed. Please try again.',
@@ -2146,7 +2147,7 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
   },
   'error_cancelled': {
     AppLanguage.english: 'Request was cancelled.',
-    AppLanguage.setswana: 'Kopo e khanseletswee.',
+    AppLanguage.setswana: 'Kopo e emisitswe.',
   },
   'error_unexpected': {
     AppLanguage.english: 'Something went wrong. Please try again.',

@@ -1,3 +1,13 @@
+## 1.0.7 - 2026-04-12
+
+### Fixed
+- **Setswana error translations** — replaced transliterated/incorrect strings in `error_no_connection`, `error_timeout`, `error_server_slow`, `error_server`, `error_conflict`, `error_cancelled`, and `error_auth_required` with native-validated wording.
+- **`ErrorRecoveryService` now honours the user language** — resolves `AppLanguage` from the active `ProviderScope` via the surrounding `BuildContext` instead of hardcoding English.
+
+### Changed
+- **`SignInNotifier` analytics injection** — receives `AnalyticsService` directly instead of stashing `Ref`, matching the rest of the notifiers in the app.
+- **`HomeScreen` tab-name drift guard** — tab name lists promoted to file-level consts with debug `assert`s that the widget list length matches, preventing silent drift when tabs are reordered.
+
 ## 1.0.6 - 2026-04-08
 
 ### Added

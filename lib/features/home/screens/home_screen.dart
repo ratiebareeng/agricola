@@ -28,6 +28,10 @@ class HomeScreen extends ConsumerStatefulWidget {
   ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
+const _farmerTabNames = ['dashboard', 'marketplace', 'crops', 'inventory', 'profile'];
+const _agriShopTabNames = ['dashboard', 'products', 'orders', 'marketplace', 'profile'];
+const _merchantTabNames = ['dashboard', 'marketplace', 'produce', 'profile'];
+
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   bool _isFarmer = false;
   bool _isAgriShop = false;
@@ -164,43 +168,46 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   String _getTabName(int index) {
-    if (_isFarmer) {
-      const tabs = ['dashboard', 'marketplace', 'crops', 'inventory', 'profile'];
-      return index < tabs.length ? tabs[index] : 'unknown';
-    } else if (_isAgriShop) {
-      const tabs = ['dashboard', 'products', 'orders', 'marketplace', 'profile'];
-      return index < tabs.length ? tabs[index] : 'unknown';
-    } else {
-      const tabs = ['dashboard', 'marketplace', 'produce', 'profile'];
-      return index < tabs.length ? tabs[index] : 'unknown';
-    }
+    final tabs = _isFarmer
+        ? _farmerTabNames
+        : (_isAgriShop ? _agriShopTabNames : _merchantTabNames);
+    return index >= 0 && index < tabs.length ? tabs[index] : 'unknown';
   }
 
   List<Widget> _widgetOptions(bool isFarmer, bool isAgriShop) {
     if (isFarmer) {
-      return [
-        const FarmerDashboardScreen(),
-        const MarketplaceScreen(),
-        const CropsScreen(),
-        const FarmerInventoryScreen(),
-        const ProfileScreen(),
+      const widgets = [
+        FarmerDashboardScreen(),
+        MarketplaceScreen(),
+        CropsScreen(),
+        FarmerInventoryScreen(),
+        ProfileScreen(),
       ];
+      assert(widgets.length == _farmerTabNames.length,
+          'farmer tab widgets/names length mismatch');
+      return widgets;
     } else if (isAgriShop) {
-      return [
-        const AgriShopDashboardScreen(),
-        const MerchantInventoryScreen(),
-        const AgriShopOrdersScreen(),
-        const MarketplaceScreen(),
-        const ProfileScreen(),
+      const widgets = [
+        AgriShopDashboardScreen(),
+        MerchantInventoryScreen(),
+        AgriShopOrdersScreen(),
+        MarketplaceScreen(),
+        ProfileScreen(),
       ];
+      assert(widgets.length == _agriShopTabNames.length,
+          'agriShop tab widgets/names length mismatch');
+      return widgets;
     } else {
       // Default to merchant dashboard for other merchant types
-      return [
-        const MerchantDashboardScreen(),
-        const MarketplaceScreen(),
-        const MerchantInventoryScreen(),
-        const ProfileScreen(),
+      const widgets = [
+        MerchantDashboardScreen(),
+        MarketplaceScreen(),
+        MerchantInventoryScreen(),
+        ProfileScreen(),
       ];
+      assert(widgets.length == _merchantTabNames.length,
+          'merchant tab widgets/names length mismatch');
+      return widgets;
     }
   }
 }
