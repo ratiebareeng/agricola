@@ -8,7 +8,6 @@ import 'package:agricola/core/providers/offline_settings_provider.dart';
 import 'package:agricola/features/marketplace/data/marketplace_api_service.dart';
 import 'package:agricola/features/marketplace/models/marketplace_filter.dart';
 import 'package:agricola/features/marketplace/models/marketplace_listing.dart';
-import 'package:agricola/features/profile_setup/providers/profile_setup_provider.dart';
 import 'package:agricola/features/auth/providers/auth_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -63,16 +62,9 @@ class MarketplaceNotifier
     loadListings();
   }
 
-  /// Determine the listing type filter based on user type
-  ListingType? _getListingTypeForUser() {
-    final profileState = _ref.read(profileSetupProvider);
-    if (profileState.userType == UserType.farmer) {
-      return ListingType.supplies; // Farmers see supplies
-    } else if (profileState.userType == UserType.merchant) {
-      return ListingType.produce; // Merchants see produce
-    }
-    return null; // Default: see all
-  }
+  /// No automatic type filter — all users see all listings.
+  /// Users can filter by type via the filter sheet.
+  ListingType? _getListingTypeForUser() => null;
 
   /// Load listings from backend (or local cache when offline)
   Future<void> loadListings() async {

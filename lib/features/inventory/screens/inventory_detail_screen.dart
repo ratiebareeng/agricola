@@ -276,6 +276,7 @@ class _InventoryDetailScreenState extends ConsumerState<InventoryDetailScreen> {
               ),
             ),
             child: SafeArea(
+              top: false,
               child: isListed
                   ? Row(
                       children: [

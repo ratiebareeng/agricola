@@ -44,6 +44,7 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
 
   String _category = 'Vegetables';
   String _unit = 'kg';
+  late ListingType _listingType;
   final _otherCategoryController = TextEditingController();
 
   final List<String> _categories = [
@@ -110,13 +111,15 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
         _otherCategoryController.text = product.category;
       }
       _unit = _units.contains(product.unit) ? (product.unit ?? 'kg') : 'kg';
+      _listingType = product.type;
       _existingImageUrls = [
         if (product.imagePath != null && product.imagePath!.isNotEmpty)
           product.imagePath!,
         ...?product.additionalImages,
       ];
     } else if (source != null) {
-      // Pre-fill from inventory
+      // Pre-fill from inventory — always produce when listing a harvest
+      _listingType = ListingType.produce;
       _titleController = TextEditingController(text: source.cropType);
       _descriptionController =
           TextEditingController(text: source.notes ?? '');
@@ -126,6 +129,7 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
       _unit = _units.contains(source.unit) ? source.unit : 'kg';
       _existingImageUrls = List<String>.from(source.imageUrls);
     } else {
+      _listingType = ListingType.produce;
       _titleController = TextEditingController();
       _descriptionController = TextEditingController();
       _priceController = TextEditingController();
@@ -210,6 +214,24 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
                       ),
                       const SizedBox(height: 20),
                     ],
+                    _buildSectionTitle(t('listing_type', currentLang)),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        _buildTypeChip(
+                          ListingType.produce,
+                          t('produce', currentLang),
+                          Icons.eco_outlined,
+                        ),
+                        const SizedBox(width: 8),
+                        _buildTypeChip(
+                          ListingType.supplies,
+                          t('supplies', currentLang),
+                          Icons.store_outlined,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
                     _buildSectionTitle(t('product_name', currentLang)),
                     const SizedBox(height: 8),
                     _buildTextField(
@@ -491,7 +513,7 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
               title: Text(t('take_photo', lang)),
               onTap: () {
                 Navigator.pop(context);
-                _pickImage(ImageSource.camera);
+                _pickSingleImage(ImageSource.camera);
               },
             ),
             ListTile(
@@ -499,7 +521,7 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
               title: Text(t('choose_from_gallery', lang)),
               onTap: () {
                 Navigator.pop(context);
-                _pickImage(ImageSource.gallery);
+                _pickMultipleImages();
               },
             ),
           ],
@@ -508,7 +530,7 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
     );
   }
 
-  Future<void> _pickImage(ImageSource source) async {
+  Future<void> _pickSingleImage(ImageSource source) async {
     final lang = ref.read(languageProvider);
     try {
       final picked = await _imagePicker.pickImage(
@@ -528,10 +550,67 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
         );
         return;
       }
-      setState(() => _newImages.add(file));
+      if (mounted) setState(() => _newImages.add(file));
     } catch (_) {
       // silently ignore picker cancellation
     }
+  }
+
+  Future<void> _pickMultipleImages() async {
+    try {
+      final remaining = 5 - _totalImageCount;
+      if (remaining <= 0) return;
+      final picked = await _imagePicker.pickMultiImage(
+        maxWidth: 1200,
+        maxHeight: 1200,
+      );
+      if (picked.isEmpty) return;
+      final limited = picked.take(remaining).toList();
+      for (final xFile in limited) {
+        final file = File(xFile.path);
+        final isValid = await ImageUtils.validateImage(file);
+        if (!isValid) continue;
+        if (mounted) setState(() => _newImages.add(file));
+      }
+    } catch (_) {
+      // silently ignore picker cancellation
+    }
+  }
+
+  Widget _buildTypeChip(ListingType type, String label, IconData icon) {
+    final selected = _listingType == type;
+    return GestureDetector(
+      onTap: () => setState(() => _listingType = type),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(
+            color: selected ? AppColors.green : Colors.grey[300]!,
+            width: selected ? 2 : 1,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 16,
+              color: selected ? AppColors.green : Colors.grey[500],
+            ),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 14,
+                color: selected ? AppColors.green : Colors.grey[600],
+                fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildSectionTitle(String title) {
@@ -655,7 +734,7 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
         id: widget.existingProduct?.id ?? '',
         title: _titleController.text.trim(),
         description: _descriptionController.text.trim(),
-        type: ListingType.supplies,
+        type: _listingType,
         category: effectiveCategory,
         price: price,
         unit: _unit,

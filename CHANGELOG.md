@@ -1,3 +1,11 @@
+## 1.0.17 - 2026-04-16
+
+### Fixed
+- **Multi-photo selection** — Gallery picker in both inventory edit and marketplace add-product forms now uses `pickMultiImage`, letting users select up to 5 photos in a single gallery session instead of one at a time. Camera remains single-shot.
+- **Inventory edit add-photo** — Fixed silent image-picker failure on the edit inventory screen (matched the multi-image approach used by the marketplace form).
+- **Inventory detail layout** — Changed sticky bottom button `SafeArea` to `top: false`, preventing unexpected top padding inside the Scaffold body that was compressing the scrollable content area.
+- **Marketplace two-way trading (R-??)** — Farmers can now list produce for sale (not just supplies). `AddProductScreen` now has a "Listing Type" toggle (Produce / Supplies) that defaults to Produce when listing from inventory or creating a new listing, and restores the existing type when editing. Marketplace provider no longer force-filters by user type — all users see all listings; type filtering is available via the filter sheet.
+
 ## 1.0.16 - 2026-04-16
 
 ### Added

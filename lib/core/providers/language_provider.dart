@@ -426,6 +426,8 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
     AppLanguage.setswana: 'Dithoto',
   },
   'produce': {AppLanguage.english: 'Produce', AppLanguage.setswana: 'Thobo'},
+  'supplies': {AppLanguage.english: 'Supplies', AppLanguage.setswana: 'Dithoto tsa Temo'},
+  'listing_type': {AppLanguage.english: 'Listing Type', AppLanguage.setswana: 'Mofuta wa Lethathamo'},
   'crops': {AppLanguage.english: 'Crops', AppLanguage.setswana: 'Dijalo'},
   'inventory': {
     AppLanguage.english: 'Inventory',

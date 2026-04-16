@@ -369,7 +369,7 @@ class _AddEditInventoryScreenState
               title: Text(t('take_photo', lang)),
               onTap: () {
                 Navigator.pop(context);
-                _pickImage(ImageSource.camera, lang);
+                _pickSingleImage(ImageSource.camera, lang);
               },
             ),
             ListTile(
@@ -377,7 +377,7 @@ class _AddEditInventoryScreenState
               title: Text(t('choose_from_gallery', lang)),
               onTap: () {
                 Navigator.pop(context);
-                _pickImage(ImageSource.gallery, lang);
+                _pickMultipleImages(lang);
               },
             ),
           ],
@@ -386,7 +386,7 @@ class _AddEditInventoryScreenState
     );
   }
 
-  Future<void> _pickImage(ImageSource source, AppLanguage lang) async {
+  Future<void> _pickSingleImage(ImageSource source, AppLanguage lang) async {
     try {
       final picked = await _imagePicker.pickImage(
         source: source,
@@ -405,7 +405,28 @@ class _AddEditInventoryScreenState
         );
         return;
       }
-      setState(() => _newImages.add(file));
+      if (mounted) setState(() => _newImages.add(file));
+    } catch (_) {
+      // silently ignore picker cancellation
+    }
+  }
+
+  Future<void> _pickMultipleImages(AppLanguage lang) async {
+    try {
+      final remaining = _maxImages - _totalImageCount;
+      if (remaining <= 0) return;
+      final picked = await _imagePicker.pickMultiImage(
+        maxWidth: 1200,
+        maxHeight: 1200,
+      );
+      if (picked.isEmpty) return;
+      final limited = picked.take(remaining).toList();
+      for (final xFile in limited) {
+        final file = File(xFile.path);
+        final isValid = await ImageUtils.validateImage(file);
+        if (!isValid) continue;
+        if (mounted) setState(() => _newImages.add(file));
+      }
     } catch (_) {
       // silently ignore picker cancellation
     }
