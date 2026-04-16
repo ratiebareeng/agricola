@@ -1,4 +1,7 @@
-## 1.0.10 - 2026-04-16
+## 1.0.11 - 2026-04-16
+
+### Added
+- **Real photo uploads for inventory and marketplace** — Users can attach up to 5 real photos per inventory item and marketplace listing. Inventory `AddEditInventoryScreen` has a horizontal scroll image picker (camera + gallery). Marketplace `AddProductScreen` upgraded from single-image to the same multi-image pattern. Marketplace list cards now show a thumbnail. Marketplace detail view shows all images in a swipeable PageView with dot indicators. `FirebaseStorage` now has `uploadInventoryImage()` at `inventory/{userId}/{itemId}/`. Backend migration 016 adds `image_urls TEXT[]` to the inventory table.
 
 ### Fixed
 - **Inventory image mismatch + harvest-to-inventory gap (R-07)** — Inventory cards and detail screens now show the actual crop thumbnail (same `imageUrlForCrop` logic as crop cards, with a neutral `local_florist_outlined` icon as fallback). After a harvest is saved, a one-tap confirm dialog appears — "Add {amount} {unit} of {crop} to inventory?" — pre-filled from the harvest form. Dismissing with "Not now" is instant; confirming creates the inventory entry automatically with quality mapped to condition.

@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/core/utils/image_utils.dart';
-import 'package:agricola/core/utils/url_utils.dart';
 import 'package:agricola/features/auth/providers/auth_provider.dart';
 import 'package:agricola/features/inventory/models/inventory_model.dart';
 import 'package:agricola/features/marketplace/models/marketplace_listing.dart';
@@ -33,8 +32,10 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
   final _imagePicker = ImagePicker();
   bool _isLoading = false;
 
-  File? _selectedImage;
-  String? _existingImageUrl;
+  late List<String> _existingImageUrls;
+  final List<File> _newImages = [];
+
+  int get _totalImageCount => _existingImageUrls.length + _newImages.length;
 
   late TextEditingController _titleController;
   late TextEditingController _descriptionController;
@@ -79,7 +80,11 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
           TextEditingController(text: product.quantity ?? '');
       _category = product.category;
       _unit = product.unit ?? 'kg';
-      _existingImageUrl = product.imagePath;
+      _existingImageUrls = [
+        if (product.imagePath != null && product.imagePath!.isNotEmpty)
+          product.imagePath!,
+        ...?product.additionalImages,
+      ];
     } else if (source != null) {
       // Pre-fill from inventory
       _titleController = TextEditingController(text: source.cropType);
@@ -89,11 +94,13 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
       _quantityController =
           TextEditingController(text: source.quantity.toString());
       _unit = _units.contains(source.unit) ? source.unit : 'kg';
+      _existingImageUrls = List<String>.from(source.imageUrls);
     } else {
       _titleController = TextEditingController();
       _descriptionController = TextEditingController();
       _priceController = TextEditingController();
       _quantityController = TextEditingController();
+      _existingImageUrls = [];
     }
   }
 
@@ -316,173 +323,170 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
   }
 
   Widget _buildImagePicker(AppLanguage lang) {
-    final hasImage = _selectedImage != null ||
-        (_existingImageUrl != null && isNetworkUrl(_existingImageUrl));
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildSectionTitle(t('product_image', lang)),
         const SizedBox(height: 8),
-        GestureDetector(
-          onTap: _showImageSourcePicker,
-          child: Container(
-            height: 180,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.grey[300]!),
-            ),
-            child: hasImage
-                ? ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        if (_selectedImage != null)
-                          Image.file(_selectedImage!, fit: BoxFit.cover)
-                        else
-                          Image.network(
-                            _existingImageUrl!,
-                            fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) =>
-                                _buildImagePlaceholder(lang),
-                          ),
-                        Positioned(
-                          top: 8,
-                          right: 8,
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              _buildImageActionButton(
-                                icon: Icons.edit,
-                                onTap: _showImageSourcePicker,
-                              ),
-                              const SizedBox(width: 8),
-                              _buildImageActionButton(
-                                icon: Icons.close,
-                                onTap: () => setState(() {
-                                  _selectedImage = null;
-                                  _existingImageUrl = null;
-                                }),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
-                : _buildImagePlaceholder(lang),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              for (int i = 0; i < _existingImageUrls.length; i++)
+                _buildExistingImageSlot(_existingImageUrls[i], i),
+              for (int i = 0; i < _newImages.length; i++)
+                _buildNewImageSlot(_newImages[i], i),
+              if (_totalImageCount < 5) _buildAddSlot(lang),
+            ],
           ),
         ),
+        if (_totalImageCount > 0)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Text(
+              '$_totalImageCount / 5 ${t('photos', lang).toLowerCase()}',
+              style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+            ),
+          ),
       ],
     );
   }
 
-  Widget _buildImagePlaceholder(AppLanguage lang) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(Icons.add_a_photo, size: 40, color: Colors.grey[400]),
-        const SizedBox(height: 8),
-        Text(
-          t('tap_to_add_image', lang),
-          style: TextStyle(fontSize: 14, color: Colors.grey[500]),
-        ),
-      ],
+  Widget _buildExistingImageSlot(String url, int index) {
+    return _imageSlot(
+      child: Image.network(url, fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) =>
+              Icon(Icons.broken_image_outlined, color: Colors.grey[400])),
+      onRemove: () => setState(() => _existingImageUrls.removeAt(index)),
     );
   }
 
-  Widget _buildImageActionButton({
-    required IconData icon,
-    required VoidCallback onTap,
-  }) {
+  Widget _buildNewImageSlot(File file, int index) {
+    return _imageSlot(
+      child: Image.file(file, fit: BoxFit.cover),
+      onRemove: () => setState(() => _newImages.removeAt(index)),
+    );
+  }
+
+  Widget _imageSlot({required Widget child, required VoidCallback onRemove}) {
+    return Container(
+      width: 88,
+      height: 88,
+      margin: const EdgeInsets.only(right: 10),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        color: Colors.grey[100],
+      ),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: child,
+          ),
+          Positioned(
+            top: 4,
+            right: 4,
+            child: GestureDetector(
+              onTap: onRemove,
+              child: Container(
+                width: 22,
+                height: 22,
+                decoration: const BoxDecoration(
+                  color: Colors.black54,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.close, size: 14, color: Colors.white),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAddSlot(AppLanguage lang) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: _showImageSourcePicker,
       child: Container(
-        padding: const EdgeInsets.all(6),
+        width: 88,
+        height: 88,
         decoration: BoxDecoration(
-          color: Colors.black.withAlpha(120),
-          shape: BoxShape.circle,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: Colors.grey[300]!, width: 1.5),
+          color: Colors.grey[50],
         ),
-        child: Icon(icon, size: 18, color: Colors.white),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.add_a_photo_outlined, size: 28, color: Colors.grey[400]),
+            const SizedBox(height: 4),
+            Text(
+              t('add_image_slot', lang),
+              style: TextStyle(fontSize: 10, color: Colors.grey[500]),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   void _showImageSourcePicker() {
+    final lang = ref.read(languageProvider);
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
-      builder: (context) {
-        final lang = ref.read(languageProvider);
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ListTile(
-                  leading: const Icon(Icons.camera_alt, color: AppColors.green),
-                  title: Text(t('take_photo', lang)),
-                  onTap: () {
-                    Navigator.pop(context);
-                    _pickImage(ImageSource.camera);
-                  },
-                ),
-                ListTile(
-                  leading: const Icon(Icons.photo_library, color: AppColors.green),
-                  title: Text(t('choose_from_gallery', lang)),
-                  onTap: () {
-                    Navigator.pop(context);
-                    _pickImage(ImageSource.gallery);
-                  },
-                ),
-              ],
+      builder: (_) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.camera_alt_outlined),
+              title: Text(t('take_photo', lang)),
+              onTap: () {
+                Navigator.pop(context);
+                _pickImage(ImageSource.camera);
+              },
             ),
-          ),
-        );
-      },
+            ListTile(
+              leading: const Icon(Icons.photo_library_outlined),
+              title: Text(t('choose_from_gallery', lang)),
+              onTap: () {
+                Navigator.pop(context);
+                _pickImage(ImageSource.gallery);
+              },
+            ),
+          ],
+        ),
+      ),
     );
   }
 
   Future<void> _pickImage(ImageSource source) async {
+    final lang = ref.read(languageProvider);
     try {
       final picked = await _imagePicker.pickImage(
         source: source,
         maxWidth: 1200,
         maxHeight: 1200,
       );
-      if (picked != null) {
-        final file = File(picked.path);
-        final isValid = await ImageUtils.validateImage(file);
-        if (!isValid && mounted) {
-          final lang = ref.read(languageProvider);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(t('image_too_large', lang)),
-              backgroundColor: Colors.red,
-            ),
-          );
-          return;
-        }
-        setState(() {
-          _selectedImage = file;
-          _existingImageUrl = null;
-        });
-      }
-    } catch (e) {
-      if (mounted) {
+      if (picked == null) return;
+      final file = File(picked.path);
+      final isValid = await ImageUtils.validateImage(file);
+      if (!isValid && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error picking image: $e'),
+            content: Text(t('image_too_large', lang)),
             backgroundColor: Colors.red,
           ),
         );
+        return;
       }
+      setState(() => _newImages.add(file));
+    } catch (_) {
+      // silently ignore picker cancellation
     }
   }
 
@@ -583,17 +587,18 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
 
       final price = double.tryParse(_priceController.text);
 
-      // Upload image if a new one was selected
-      String? imageUrl = _existingImageUrl;
-      if (_selectedImage != null) {
-        final compressed =
-            await ImageUtils.compressProductImage(_selectedImage!);
-        final storageService = ref.read(firebaseStorageServiceProvider);
-        imageUrl = await storageService.uploadMarketplaceImage(
+      // Upload any new images
+      final storageService = ref.read(firebaseStorageServiceProvider);
+      final allImageUrls = List<String>.from(_existingImageUrls);
+      for (int i = 0; i < _newImages.length; i++) {
+        final compressed = await ImageUtils.compressProductImage(_newImages[i]);
+        final url = await storageService.uploadMarketplaceImage(
           compressed,
           user.uid,
           listingId: widget.existingProduct?.id,
+          index: allImageUrls.length + i,
         );
+        allImageUrls.add(url);
       }
 
       final listing = MarketplaceListing(
@@ -610,7 +615,8 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
         location: profile.location.isNotEmpty ? profile.location : 'Botswana',
         sellerEmail: user.email,
         inventoryId: widget.sourceInventory?.id,
-        imagePath: imageUrl,
+        imagePath: allImageUrls.isNotEmpty ? allImageUrls.first : null,
+        additionalImages: allImageUrls.length > 1 ? allImageUrls.sublist(1) : null,
       );
 
       String? error;

@@ -190,7 +190,9 @@ class _MerchantInventoryScreenState
                               storageLocation: item.storageLocation,
                               condition: item.condition,
                               language: currentLang,
-                              imageUrl: imageUrlForCrop(item.cropType, imageMap),
+                              imageUrl: item.imageUrls.isNotEmpty
+                                  ? item.imageUrls.first
+                                  : imageUrlForCrop(item.cropType, imageMap),
                               isListed: listedIds.contains(item.id),
                               onTap: () async {
                                 final result = await Navigator.push<bool>(

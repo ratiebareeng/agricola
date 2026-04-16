@@ -1,7 +1,6 @@
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/core/widgets/app_dialogs.dart';
-import 'package:agricola/core/utils/url_utils.dart';
 import 'package:agricola/features/auth/providers/auth_provider.dart';
 import 'package:agricola/features/marketplace/models/marketplace_listing.dart';
 import 'package:agricola/features/marketplace/providers/marketplace_provider.dart';
@@ -68,14 +67,7 @@ class MarketplaceDetailScreen extends ConsumerWidget {
                   ]
                 : null,
             flexibleSpace: FlexibleSpaceBar(
-              background: isNetworkUrl(listing.imagePath)
-                  ? Image.network(
-                      listing.imagePath!,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) =>
-                          _buildPlaceholderImage(),
-                    )
-                  : _buildPlaceholderImage(),
+              background: _buildImageGallery(listing),
             ),
           ),
           SliverToBoxAdapter(
@@ -478,6 +470,59 @@ class MarketplaceDetailScreen extends ConsumerWidget {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildImageGallery(MarketplaceListing listing) {
+    final allImages = [
+      if (listing.imagePath != null && listing.imagePath!.isNotEmpty)
+        listing.imagePath!,
+      ...?listing.additionalImages,
+    ].where((url) => url.isNotEmpty).toList();
+
+    if (allImages.isEmpty) return _buildPlaceholderImage();
+
+    if (allImages.length == 1) {
+      return Image.network(
+        allImages.first,
+        fit: BoxFit.cover,
+        width: double.infinity,
+        errorBuilder: (_, __, ___) => _buildPlaceholderImage(),
+      );
+    }
+
+    return Stack(
+      children: [
+        PageView.builder(
+          itemCount: allImages.length,
+          itemBuilder: (context, index) => Image.network(
+            allImages[index],
+            fit: BoxFit.cover,
+            width: double.infinity,
+            errorBuilder: (_, __, ___) => _buildPlaceholderImage(),
+          ),
+        ),
+        Positioned(
+          bottom: 12,
+          left: 0,
+          right: 0,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(
+              allImages.length,
+              (i) => Container(
+                width: 6,
+                height: 6,
+                margin: const EdgeInsets.symmetric(horizontal: 3),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white.withAlpha(180),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 

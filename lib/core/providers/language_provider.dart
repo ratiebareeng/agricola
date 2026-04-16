@@ -1177,6 +1177,22 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
     AppLanguage.english: 'Add Inventory',
     AppLanguage.setswana: 'Tsenya Dithoto',
   },
+  'photos': {
+    AppLanguage.english: 'Photos',
+    AppLanguage.setswana: 'Ditshwantsho',
+  },
+  'photos_optional_hint': {
+    AppLanguage.english: 'Add up to 5 photos of your stored produce',
+    AppLanguage.setswana: 'Tsenya go fitlha ditshwantsho tse 5 tsa melora ya gago',
+  },
+  'add_image_slot': {
+    AppLanguage.english: 'Add',
+    AppLanguage.setswana: 'Tsenya',
+  },
+  'error_upload_failed': {
+    AppLanguage.english: 'Photo upload failed. Please try again.',
+    AppLanguage.setswana: 'Go romela setshwantsho go paletse. Leka gape.',
+  },
   'add_to_inventory': {
     AppLanguage.english: 'Add to inventory?',
     AppLanguage.setswana: 'Tsenya mo dithothong?',

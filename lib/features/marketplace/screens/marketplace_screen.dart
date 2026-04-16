@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/core/utils/error_utils.dart';
+import 'package:agricola/core/utils/url_utils.dart';
 import 'package:agricola/domain/profile/enum/merchant_type.dart';
 import 'package:agricola/features/marketplace/models/marketplace_filter.dart';
 import 'package:agricola/features/marketplace/models/marketplace_listing.dart';
@@ -311,7 +312,36 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Thumbnail
+                  Builder(builder: (context) {
+                    final imageUrl = listing.imagePath;
+                    final hasImage = imageUrl != null && isNetworkUrl(imageUrl);
+                    return Container(
+                      width: 72,
+                      height: 72,
+                      margin: const EdgeInsets.only(right: 12),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        color: Colors.grey[100],
+                        image: hasImage
+                            ? DecorationImage(
+                                image: NetworkImage(imageUrl),
+                                fit: BoxFit.cover,
+                                onError: (_, __) {},
+                              )
+                            : null,
+                      ),
+                      child: hasImage
+                          ? null
+                          : Icon(
+                              Icons.storefront_outlined,
+                              color: Colors.grey[400],
+                              size: 32,
+                            ),
+                    );
+                  }),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,

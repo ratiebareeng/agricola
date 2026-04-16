@@ -472,23 +472,52 @@ class _InventoryDetailScreenState extends ConsumerState<InventoryDetailScreen> {
   }
 
   Widget _buildImageSection(BuildContext context) {
+    final userPhotos = _item.imageUrls;
+    if (userPhotos.isNotEmpty) {
+      return SizedBox(
+        height: 180,
+        child: ListView.separated(
+          scrollDirection: Axis.horizontal,
+          itemCount: userPhotos.length,
+          separatorBuilder: (_, __) => const SizedBox(width: 8),
+          itemBuilder: (context, index) => ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: Image.network(
+              userPhotos[index],
+              height: 180,
+              width: 260,
+              fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) => Container(
+                width: 260,
+                height: 180,
+                color: Colors.grey[100],
+                child: Icon(Icons.broken_image_outlined,
+                    color: Colors.grey[400], size: 48),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    // Fallback: catalog image or icon placeholder
     final imageMap = ref.watch(cropImageUrlProvider).valueOrNull ?? {};
-    final imageUrl = imageUrlForCrop(_item.cropType, imageMap);
+    final catalogUrl = imageUrlForCrop(_item.cropType, imageMap);
     return Container(
       height: 180,
       width: double.infinity,
       decoration: BoxDecoration(
         color: Colors.grey[100],
         borderRadius: BorderRadius.circular(16),
-        image: imageUrl.isEmpty
+        image: catalogUrl.isEmpty
             ? null
             : DecorationImage(
-                image: NetworkImage(imageUrl),
+                image: NetworkImage(catalogUrl),
                 fit: BoxFit.cover,
                 onError: (_, __) {},
               ),
       ),
-      child: imageUrl.isEmpty
+      child: catalogUrl.isEmpty
           ? Center(
               child: Icon(
                 Icons.local_florist_outlined,
