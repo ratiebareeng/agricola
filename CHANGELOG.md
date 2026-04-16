@@ -1,3 +1,8 @@
+## 1.0.13 - 2026-04-16
+
+### Fixed
+- **Crop limit removed (R-02)** — Profile setup and edit farmer profile no longer enforce a hard cap of 5 crops. Farmers can now select as many crops as they grow. Removed `maxPrimaryCropsCount` constant, dropped the upper-bound validation from `ProfileValidators`, and removed `maxSelection: 5` from the edit profile chip group.
+
 ## 1.0.12 - 2026-04-16
 
 ### Fixed

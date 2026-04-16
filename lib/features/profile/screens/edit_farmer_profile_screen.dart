@@ -98,11 +98,10 @@ class _EditFarmerProfileScreenState
             const SizedBox(height: 24),
             AppFormSection(
               title: 'Primary Crops',
-              description: 'Select up to 5 crops',
+              description: 'Select all crops you grow',
               child: AppFilterChipGroup<String>(
                 items: _availableCrops,
                 selectedItems: _selectedCrops,
-                maxSelection: 5,
                 itemLabelBuilder: (item) => item,
                 onSelected: (crop, selected) {
                   if (isLoading) return;
