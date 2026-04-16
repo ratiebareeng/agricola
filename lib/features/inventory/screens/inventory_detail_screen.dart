@@ -122,8 +122,14 @@ class _InventoryDetailScreenState extends ConsumerState<InventoryDetailScreen> {
                         strokeWidth: 2, color: AppColors.alertRed),
                   )
                 : const Icon(Icons.delete_outline, color: AppColors.alertRed),
-            onPressed:
-                _isDeleting ? null : () => _confirmDelete(context, language),
+            onPressed: _isDeleting
+                ? null
+                : () => _confirmDelete(
+                      context,
+                      language,
+                      isListed,
+                      linkedListing.valueOrNull,
+                    ),
           ),
         ],
       ),
@@ -557,25 +563,51 @@ class _InventoryDetailScreenState extends ConsumerState<InventoryDetailScreen> {
   }
 
   Future<void> _confirmDelete(
-      BuildContext context, AppLanguage language) async {
+    BuildContext context,
+    AppLanguage language,
+    bool isListed,
+    MarketplaceListing? linkedListing,
+  ) async {
     final confirmed = await AppDialogs.confirm(
       context,
       title: t('delete_inventory', language),
-      content: t('delete_inventory_confirm', language),
+      content: isListed
+          ? t('delete_inventory_listed_confirm', language)
+          : t('delete_inventory_confirm', language),
       cancelText: t('cancel', language),
-      actionText: t('delete', language),
+      actionText: isListed ? t('delete_both', language) : t('delete', language),
       isDestructive: true,
     );
 
     if (confirmed && context.mounted) {
-      await _deleteItem(context, language);
+      await _deleteItem(context, language, linkedListing: linkedListing);
     }
   }
 
-  Future<void> _deleteItem(BuildContext context, AppLanguage language) async {
+  Future<void> _deleteItem(
+    BuildContext context,
+    AppLanguage language, {
+    MarketplaceListing? linkedListing,
+  }) async {
     if (_item.id == null) return;
 
     setState(() => _isDeleting = true);
+
+    if (linkedListing != null) {
+      final unlistError = await ref
+          .read(marketplaceNotifierProvider.notifier)
+          .deleteListing(linkedListing.id);
+      if (unlistError != null && context.mounted) {
+        setState(() => _isDeleting = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(t(unlistError, language)),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+    }
 
     final error = await ref
         .read(inventoryNotifierProvider.notifier)
@@ -595,7 +627,11 @@ class _InventoryDetailScreenState extends ConsumerState<InventoryDetailScreen> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(t('inventory_deleted', language)),
+          content: Text(
+            linkedListing != null
+                ? t('inventory_and_listing_deleted', language)
+                : t('inventory_deleted', language),
+          ),
           backgroundColor: AppColors.green,
         ),
       );

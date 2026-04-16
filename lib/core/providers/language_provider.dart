@@ -1248,6 +1248,20 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
     AppLanguage.setswana:
         'A o tlhomamisa gore o batla go phimola selo se sa dithoto?',
   },
+  'delete_inventory_listed_confirm': {
+    AppLanguage.english:
+        'This item is listed on the marketplace. Deleting it will also remove the listing.',
+    AppLanguage.setswana:
+        'Selo se se mo lenaaneng la mmaraka. Go se phimola go tla tlosa lenaane le gape.',
+  },
+  'delete_both': {
+    AppLanguage.english: 'Delete Both',
+    AppLanguage.setswana: 'Phimola Bobedi',
+  },
+  'inventory_and_listing_deleted': {
+    AppLanguage.english: 'Item and listing removed',
+    AppLanguage.setswana: 'Selo le lenaane di phimologile',
+  },
   'error_loading_inventory': {
     AppLanguage.english: 'Failed to load inventory',
     AppLanguage.setswana: 'Go padile go tsenya dithoto',

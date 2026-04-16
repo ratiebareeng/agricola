@@ -1,3 +1,8 @@
+## 1.0.18 - 2026-04-16
+
+### Fixed
+- **Inventory delete guard** — Deleting an inventory item that is listed on the marketplace now shows a warning dialog ("Delete Both") and automatically removes the marketplace listing first, preventing orphaned listings. Combined success message shown on completion.
+
 ## 1.0.17 - 2026-04-16
 
 ### Fixed
