@@ -27,6 +27,7 @@ class _MerchantInventoryScreenState
   Widget build(BuildContext context) {
     final currentLang = ref.watch(languageProvider);
     final catalog = ref.watch(cropCatalogProvider).valueOrNull ?? [];
+    final imageMap = ref.watch(cropImageUrlProvider).valueOrNull ?? {};
     final profile = ref.watch(profileSetupProvider);
     final isAgriShop =
         (profile.merchantType ?? MerchantType.agriShop) ==
@@ -189,6 +190,7 @@ class _MerchantInventoryScreenState
                               storageLocation: item.storageLocation,
                               condition: item.condition,
                               language: currentLang,
+                              imageUrl: imageUrlForCrop(item.cropType, imageMap),
                               isListed: listedIds.contains(item.id),
                               onTap: () async {
                                 final result = await Navigator.push<bool>(

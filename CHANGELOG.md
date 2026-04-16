@@ -1,3 +1,8 @@
+## 1.0.10 - 2026-04-16
+
+### Fixed
+- **Inventory image mismatch + harvest-to-inventory gap (R-07)** — Inventory cards and detail screens now show the actual crop thumbnail (same `imageUrlForCrop` logic as crop cards, with a neutral `local_florist_outlined` icon as fallback). After a harvest is saved, a one-tap confirm dialog appears — "Add {amount} {unit} of {crop} to inventory?" — pre-filled from the harvest form. Dismissing with "Not now" is instant; confirming creates the inventory entry automatically with quality mapped to condition.
+
 ## 1.0.9 - 2026-04-16
 
 ### Fixed

@@ -472,20 +472,31 @@ class _InventoryDetailScreenState extends ConsumerState<InventoryDetailScreen> {
   }
 
   Widget _buildImageSection(BuildContext context) {
+    final imageMap = ref.watch(cropImageUrlProvider).valueOrNull ?? {};
+    final imageUrl = imageUrlForCrop(_item.cropType, imageMap);
     return Container(
       height: 180,
       width: double.infinity,
       decoration: BoxDecoration(
         color: Colors.grey[100],
         borderRadius: BorderRadius.circular(16),
+        image: imageUrl.isEmpty
+            ? null
+            : DecorationImage(
+                image: NetworkImage(imageUrl),
+                fit: BoxFit.cover,
+                onError: (_, __) {},
+              ),
       ),
-      child: Center(
-        child: Icon(
-          Icons.inventory_2,
-          size: 64,
-          color: Colors.grey[400],
-        ),
-      ),
+      child: imageUrl.isEmpty
+          ? Center(
+              child: Icon(
+                Icons.local_florist_outlined,
+                size: 64,
+                color: Colors.grey[400],
+              ),
+            )
+          : null,
     );
   }
 }

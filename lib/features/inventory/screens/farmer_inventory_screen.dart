@@ -65,6 +65,7 @@ class _FarmerInventoryScreenState extends ConsumerState<FarmerInventoryScreen> {
   Widget build(BuildContext context) {
     final currentLang = ref.watch(languageProvider);
     final catalog = ref.watch(cropCatalogProvider).valueOrNull ?? [];
+    final imageMap = ref.watch(cropImageUrlProvider).valueOrNull ?? {};
     final inventoryAsync = ref.watch(inventoryNotifierProvider);
     final myListingsAsync = ref.watch(myListingsNotifierProvider);
     final offlineEnabled = ref.watch(offlineModeEnabledProvider);
@@ -322,6 +323,7 @@ class _FarmerInventoryScreenState extends ConsumerState<FarmerInventoryScreen> {
                               storageLocation: item.storageLocation,
                               condition: item.condition,
                               language: currentLang,
+                              imageUrl: imageUrlForCrop(item.cropType, imageMap),
                               isListed: listedIds.contains(item.id),
                               isSynced: !unsyncedInventoryIds.contains(item.id),
                               onTap: () async {

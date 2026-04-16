@@ -14,6 +14,8 @@ import 'package:agricola/features/crops/screens/record_harvest_screen.dart';
 import 'package:agricola/features/crops/widgets/harvest_history_card.dart';
 import 'package:agricola/features/crops/widgets/info_card.dart';
 import 'package:agricola/features/crops/widgets/timeline_view.dart';
+import 'package:agricola/features/inventory/models/inventory_model.dart';
+import 'package:agricola/features/inventory/providers/inventory_providers.dart';
 import 'package:agricola/features/loss_calculator/screens/loss_calculator_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -427,16 +429,54 @@ class CropDetailsScreen extends ConsumerWidget {
               ),
             );
             if (result != null && context.mounted) {
-              final error = await ref
+              final harvestError = await ref
                   .read(harvestNotifierProvider(crop.id!).notifier)
                   .addHarvest(result);
-              if (error != null && context.mounted) {
+              if (harvestError != null && context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text(t(error, currentLang)),
+                    content: Text(t(harvestError, currentLang)),
                     backgroundColor: Colors.red,
                   ),
                 );
+                return;
+              }
+
+              // Prompt to add to inventory — net amount after losses
+              if (!context.mounted) return;
+              final netAmount =
+                  result.actualYield - (result.lossAmount ?? 0);
+              if (netAmount > 0) {
+                final cropName = cropDisplayName(
+                  crop.cropType,
+                  ref.read(cropCatalogProvider).valueOrNull ?? [],
+                  currentLang,
+                );
+                final addToInventory = await AppDialogs.confirm(
+                  context,
+                  icon: Icons.inventory_2_outlined,
+                  title: t('add_to_inventory', currentLang),
+                  content: t('add_to_inventory_prompt', currentLang)
+                      .replaceAll('{amount}', netAmount.toStringAsFixed(1))
+                      .replaceAll('{unit}', t(result.yieldUnit, currentLang))
+                      .replaceAll('{crop}', cropName),
+                  cancelText: t('not_now', currentLang),
+                  actionText: t('add', currentLang),
+                );
+                if (addToInventory && context.mounted) {
+                  final inventoryItem = InventoryModel(
+                    cropType: crop.cropType,
+                    quantity: netAmount,
+                    unit: result.yieldUnit,
+                    storageDate: result.harvestDate,
+                    storageLocation: result.storageLocation,
+                    condition: _qualityToCondition(result.quality),
+                    notes: result.notes,
+                  );
+                  await ref
+                      .read(inventoryNotifierProvider.notifier)
+                      .addInventory(inventoryItem);
+                }
               }
             }
           },
@@ -617,6 +657,21 @@ class CropDetailsScreen extends ConsumerWidget {
       if (context.mounted) {
         Navigator.pop(context); // close details
       }
+    }
+  }
+
+  String _qualityToCondition(String quality) {
+    switch (quality.toLowerCase()) {
+      case 'excellent':
+        return 'excellent';
+      case 'good':
+        return 'good';
+      case 'fair':
+        return 'fair';
+      case 'poor':
+        return 'needs_attention';
+      default:
+        return 'good';
     }
   }
 

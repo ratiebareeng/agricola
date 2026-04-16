@@ -1177,6 +1177,22 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
     AppLanguage.english: 'Add Inventory',
     AppLanguage.setswana: 'Tsenya Dithoto',
   },
+  'add_to_inventory': {
+    AppLanguage.english: 'Add to inventory?',
+    AppLanguage.setswana: 'Tsenya mo dithothong?',
+  },
+  'add_to_inventory_prompt': {
+    AppLanguage.english: 'Add {amount} {unit} of {crop} to inventory?',
+    AppLanguage.setswana: 'Tsenya {amount} {unit} ya {crop} mo dithothong?',
+  },
+  'not_now': {
+    AppLanguage.english: 'Not now',
+    AppLanguage.setswana: 'Jaanong nnyaa',
+  },
+  'add': {
+    AppLanguage.english: 'Add',
+    AppLanguage.setswana: 'Tsenya',
+  },
   'add_inventory_hint': {
     AppLanguage.english: 'Add your first harvest to start tracking',
     AppLanguage.setswana: 'Tsenya thobo ya gago ya ntlha go simolola go latela',

@@ -13,6 +13,7 @@ class InventoryItemCard extends StatelessWidget {
   final VoidCallback? onTap;
   final bool isListed;
   final bool isSynced;
+  final String imageUrl;
 
   const InventoryItemCard({
     super.key,
@@ -26,6 +27,7 @@ class InventoryItemCard extends StatelessWidget {
     this.onTap,
     this.isListed = false,
     this.isSynced = true,
+    this.imageUrl = '',
   });
 
   @override
@@ -55,10 +57,27 @@ class InventoryItemCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(
-                  Icons.inventory_2,
-                  color: conditionColor,
-                  size: 32,
+                Container(
+                  width: 56,
+                  height: 56,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    color: Colors.grey[100],
+                    image: imageUrl.isEmpty
+                        ? null
+                        : DecorationImage(
+                            image: NetworkImage(imageUrl),
+                            fit: BoxFit.cover,
+                            onError: (_, __) {},
+                          ),
+                  ),
+                  child: imageUrl.isEmpty
+                      ? Icon(
+                          Icons.local_florist_outlined,
+                          color: Colors.grey[500],
+                          size: 28,
+                        )
+                      : null,
                 ),
                 const SizedBox(width: 16),
                 Expanded(
