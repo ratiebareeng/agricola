@@ -20,21 +20,21 @@ void main() {
       expect(url, 'https://example.com/crops/maize.jpg');
     });
 
-    test('returns fallback URL for unknown crop type', () {
+    test('returns empty string for unknown crop type', () {
       final url = imageUrlForCrop('quinoa', imageMap);
-      expect(url, startsWith('https://'));
+      expect(url, isEmpty);
     });
 
-    test('returned URL always starts with http', () {
-      for (final cropType in ['maize', 'unknown', '', 'SORGHUM']) {
-        final url = imageUrlForCrop(cropType, imageMap);
-        expect(url, startsWith('http'), reason: 'Failed for cropType: $cropType');
-      }
+    test('returns known URL or empty string — never a random fallback', () {
+      expect(imageUrlForCrop('maize', imageMap), 'https://example.com/crops/maize.jpg');
+      expect(imageUrlForCrop('unknown', imageMap), isEmpty);
+      expect(imageUrlForCrop('', imageMap), isEmpty);
+      expect(imageUrlForCrop('SORGHUM', imageMap), 'https://example.com/crops/sorghum.jpg');
     });
 
-    test('returns fallback URL for empty image map', () {
+    test('returns empty string for empty image map', () {
       final url = imageUrlForCrop('maize', {});
-      expect(url, startsWith('https://'));
+      expect(url, isEmpty);
     });
   });
 

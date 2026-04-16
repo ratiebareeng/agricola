@@ -1,3 +1,8 @@
+## 1.0.9 - 2026-04-16
+
+### Fixed
+- **Crop image mismatch (R-06)** — removed the maize fallback in `imageUrlForCrop` that was showing a corn photo for any crop without its own image (e.g. "Rape" displayed maize). `CropCard` now renders a neutral icon placeholder when no image URL is available. Backend migration 015 also backfills all 49 previously-NULL crop image URLs, so the placeholder path is reserved for genuinely unknown crop types.
+
 ## 1.0.8 - 2026-04-16
 
 ### Fixed

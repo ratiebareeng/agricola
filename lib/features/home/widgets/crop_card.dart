@@ -43,12 +43,21 @@ class CropCard extends StatelessWidget {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
               color: Colors.grey[200],
-              image: DecorationImage(
-                image: NetworkImage(imageUrl),
-                fit: BoxFit.cover,
-                onError: (_, __) {},
-              ),
+              image: imageUrl.isEmpty
+                  ? null
+                  : DecorationImage(
+                      image: NetworkImage(imageUrl),
+                      fit: BoxFit.cover,
+                      onError: (_, __) {},
+                    ),
             ),
+            child: imageUrl.isEmpty
+                ? Icon(
+                    Icons.local_florist_outlined,
+                    color: Colors.grey[500],
+                    size: 32,
+                  )
+                : null,
           ),
           const SizedBox(width: 16),
           Expanded(
