@@ -7,9 +7,9 @@ import 'package:agricola/core/widgets/app_filter_chip_group.dart';
 import 'package:agricola/core/widgets/app_form_layout.dart';
 import 'package:agricola/core/widgets/app_form_section.dart';
 import 'package:agricola/core/widgets/app_radio_group.dart';
-import 'package:agricola/core/widgets/app_text_field.dart';
 import 'package:agricola/features/profile/providers/profile_controller_provider.dart';
 import 'package:agricola/features/profile_setup/models/farmer_profile_model.dart';
+import 'package:agricola/features/profile_setup/widgets/location_autocomplete_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -28,7 +28,7 @@ class EditFarmerProfileScreen extends ConsumerStatefulWidget {
 class _EditFarmerProfileScreenState
     extends ConsumerState<EditFarmerProfileScreen> {
   final _formKey = GlobalKey<FormState>();
-  late TextEditingController _villageController;
+  late String _village;
   late List<String> _selectedCrops;
   late String _farmSize;
   File? _newPhoto;
@@ -71,11 +71,11 @@ class _EditFarmerProfileScreenState
             AppFormSection(
               title: 'Village/Location',
               isRequired: true,
-              child: AppTextField(
+              child: LocationAutocompleteField(
+                initialValue: _village,
                 label: '',
-                controller: _villageController,
-                hint: 'Enter village or location',
-                prefixIcon: Icons.location_on_outlined,
+                hint: 'Search your village or area',
+                onChanged: (value) => setState(() => _village = value),
                 validator: (value) {
                   if (value == null || value.isEmpty) return 'Village is required';
                   if (value.length < 2) return 'Village name is too short';
@@ -123,17 +123,9 @@ class _EditFarmerProfileScreenState
   }
 
   @override
-  void dispose() {
-    _villageController.dispose();
-    super.dispose();
-  }
-
-  @override
   void initState() {
     super.initState();
-    _villageController = TextEditingController(
-      text: widget.profile.displayLocation,
-    );
+    _village = widget.profile.displayLocation;
     _selectedCrops = List.from(widget.profile.primaryCrops);
     _farmSize = widget.profile.farmSize;
   }
@@ -240,7 +232,7 @@ class _EditFarmerProfileScreenState
     }
 
     final updatedProfile = widget.profile.copyWith(
-      village: _villageController.text,
+      village: _village,
       primaryCrops: _selectedCrops,
       farmSize: _farmSize,
     );

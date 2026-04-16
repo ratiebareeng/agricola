@@ -8,6 +8,7 @@ import 'package:agricola/core/widgets/app_text_field.dart';
 import 'package:agricola/domain/profile/enum/merchant_type.dart';
 import 'package:agricola/features/profile/providers/profile_controller_provider.dart';
 import 'package:agricola/features/profile_setup/models/merchant_profile_model.dart';
+import 'package:agricola/features/profile_setup/widgets/location_autocomplete_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -27,7 +28,7 @@ class _EditMerchantProfileScreenState
     extends ConsumerState<EditMerchantProfileScreen> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _businessNameController;
-  late TextEditingController _locationController;
+  late String _location;
   late MerchantType _merchantType;
   late List<String> _selectedProducts;
   File? _newPhoto;
@@ -100,7 +101,6 @@ class _EditMerchantProfileScreenState
   @override
   void dispose() {
     _businessNameController.dispose();
-    _locationController.dispose();
     super.dispose();
   }
 
@@ -110,9 +110,7 @@ class _EditMerchantProfileScreenState
     _businessNameController = TextEditingController(
       text: widget.profile.businessName,
     );
-    _locationController = TextEditingController(
-      text: widget.profile.displayLocation,
-    );
+    _location = widget.profile.displayLocation;
     _merchantType = widget.profile.merchantType;
     _selectedProducts = List.from(widget.profile.productsOffered);
   }
@@ -138,10 +136,11 @@ class _EditMerchantProfileScreenState
   }
 
   Widget _buildLocationField() {
-    return AppTextField(
-      controller: _locationController,
+    return LocationAutocompleteField(
+      initialValue: _location,
       label: 'Location',
-      prefixIcon: Icons.location_on_outlined,
+      hint: 'Search your business location',
+      onChanged: (value) => setState(() => _location = value),
       validator: (value) {
         if (value == null || value.isEmpty) return 'Location is required';
         if (value.length < 2) return 'Location name is too short';
@@ -365,7 +364,7 @@ class _EditMerchantProfileScreenState
 
     final updatedProfile = widget.profile.copyWith(
       businessName: _businessNameController.text,
-      location: _locationController.text,
+      location: _location,
       merchantType: _merchantType,
       productsOffered: _selectedProducts,
     );

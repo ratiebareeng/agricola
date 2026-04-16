@@ -7,6 +7,7 @@ import 'package:agricola/domain/profile/enum/merchant_type.dart';
 import 'package:agricola/features/crops/providers/crop_catalog_provider.dart';
 import 'package:agricola/features/profile_setup/providers/profile_setup_provider.dart';
 import 'package:agricola/features/profile_setup/widgets/district_map_picker.dart';
+import 'package:agricola/features/profile_setup/widgets/location_autocomplete_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
@@ -195,31 +196,7 @@ class StepContent extends ConsumerWidget {
     final state = ref.watch(profileSetupProvider);
     final notifier = ref.read(profileSetupProvider.notifier);
     final currentLang = ref.watch(languageProvider);
-
-    // Use same locations list for both farmers and merchants
-    final locations = [
-      'Gaborone',
-      'Francistown',
-      'Maun',
-      'Serowe',
-      'Molepolole',
-      'Kanye',
-      'Mochudi',
-      'Mahalapye',
-      'Palapye',
-      'Tlokweng',
-      'Ramotswa',
-      'Mogoditshane',
-      'Gabane',
-      'Lobatse',
-      'Thamaga',
-      'Letlhakane',
-      'Tonota',
-      'Moshupa',
-      'Jwaneng',
-      'Ghanzi',
-      'Other',
-    ];
+    final currentValue = isFarmer ? state.village : state.location;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -232,39 +209,19 @@ class StepContent extends ConsumerWidget {
             fontWeight: FontWeight.w500,
           ),
         ),
-        const SizedBox(height: 16),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey[300]!),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton<String>(
-              value: isFarmer
-                  ? (state.village.isEmpty ? null : state.village)
-                  : (state.location.isEmpty ? null : state.location),
-              hint: Text(isFarmer ? t('select_village', currentLang) : t('select_location', currentLang)),
-              isExpanded: true,
-              items: locations.map((location) {
-                return DropdownMenuItem(value: location, child: Text(location));
-              }).toList(),
-              onChanged: (value) {
-                if (value != null) {
-                  if (isFarmer) {
-                    notifier.updateVillage(value);
-                  } else {
-                    notifier.updateLocation(value);
-                  }
-                }
-              },
-            ),
-          ),
+        const SizedBox(height: 12),
+        LocationAutocompleteField(
+          key: ValueKey('location_autocomplete_$isFarmer'),
+          initialValue: currentValue.isEmpty ? null : currentValue,
+          label: '',
+          hint: isFarmer ? 'Search your village or area' : 'Search your business location',
+          onChanged: (value) => isFarmer
+              ? notifier.updateVillage(value)
+              : notifier.updateLocation(value),
         ),
         const SizedBox(height: 12),
         OutlinedButton.icon(
           onPressed: () async {
-            final current = isFarmer ? state.village : state.location;
             final picked = await showModalBottomSheet<String>(
               context: ref.context,
               isScrollControlled: true,
@@ -274,7 +231,7 @@ class StepContent extends ConsumerWidget {
               builder: (_) => SizedBox(
                 height: MediaQuery.of(ref.context).size.height * 0.75,
                 child: DistrictMapPicker(
-                  selectedLocation: current.isEmpty ? null : current,
+                  selectedLocation: currentValue.isEmpty ? null : currentValue,
                 ),
               ),
             );
@@ -296,16 +253,6 @@ class StepContent extends ConsumerWidget {
             ),
           ),
         ),
-        if ((isFarmer && state.village == 'Other') || (!isFarmer && state.location == 'Other')) ...[
-          const SizedBox(height: 16),
-          AppTextField(
-            key: ValueKey('custom_village_${state.userType.name}_${state.merchantType?.name}_${state.currentStep}'),
-            label: t('specify_location', currentLang),
-            hint: isFarmer ? 'Enter your village/area' : 'Enter your business location',
-            initialValue: state.customVillage,
-            onChanged: (value) => notifier.updateCustomVillage(value),
-          ),
-        ],
       ],
     );
   }

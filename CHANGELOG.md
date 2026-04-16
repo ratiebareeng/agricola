@@ -1,3 +1,8 @@
+## 1.0.16 - 2026-04-16
+
+### Added
+- **Farm location autocomplete (R-01)** — Replaced the hardcoded dropdown of 20 towns with a live search field backed by Nominatim (OpenStreetMap geocoding, filtered to Botswana). Users can type any village, settlement, or area and select from real suggestions. Works in profile setup (farmer + merchant) and both edit-profile screens. The map picker is retained as an optional visual fallback.
+
 ## 1.0.15 - 2026-04-16
 
 ### Fixed
