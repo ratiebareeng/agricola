@@ -100,7 +100,7 @@ class FarmerDashboardScreen extends ConsumerWidget {
                         context,
                         MaterialPageRoute(
                           builder: (_) =>
-                              const OrdersScreen(showSalesTab: false),
+                              const OrdersScreen(showSalesTab: true),
                         ),
                       ),
                       icon: const Icon(Icons.receipt_long_outlined),

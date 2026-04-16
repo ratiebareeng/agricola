@@ -1,7 +1,7 @@
 import 'package:agricola/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
-class AppTextField extends StatelessWidget {
+class AppTextField extends StatefulWidget {
   final String label;
   final String? hint;
   final TextEditingController? controller;
@@ -32,12 +32,39 @@ class AppTextField extends StatelessWidget {
   });
 
   @override
+  State<AppTextField> createState() => _AppTextFieldState();
+}
+
+class _AppTextFieldState extends State<AppTextField> {
+  late bool _obscure;
+
+  @override
+  void initState() {
+    super.initState();
+    _obscure = widget.obscureText;
+  }
+
+  @override
   Widget build(BuildContext context) {
+    Widget? resolvedSuffixIcon;
+    if (widget.obscureText) {
+      resolvedSuffixIcon = IconButton(
+        icon: Icon(
+          _obscure ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+          color: AppColors.mediumGray,
+          size: 22,
+        ),
+        onPressed: () => setState(() => _obscure = !_obscure),
+      );
+    } else {
+      resolvedSuffixIcon = widget.suffixIcon;
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          label,
+          widget.label,
           style: const TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
@@ -46,20 +73,20 @@ class AppTextField extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         TextFormField(
-          initialValue: initialValue,
-          controller: controller,
-          onChanged: onChanged,
-          onSaved: onSaved,
-          obscureText: obscureText,
-          keyboardType: keyboardType,
-          maxLines: maxLines,
-          validator: validator,
+          initialValue: widget.initialValue,
+          controller: widget.controller,
+          onChanged: widget.onChanged,
+          onSaved: widget.onSaved,
+          obscureText: _obscure,
+          keyboardType: widget.keyboardType,
+          maxLines: widget.obscureText ? 1 : widget.maxLines,
+          validator: widget.validator,
           style: const TextStyle(fontSize: 16, color: AppColors.darkGray),
           decoration: InputDecoration(
-            prefixIcon: prefixIcon != null
-                ? Icon(prefixIcon, color: AppColors.green)
+            prefixIcon: widget.prefixIcon != null
+                ? Icon(widget.prefixIcon, color: AppColors.green)
                 : null,
-            hintText: hint,
+            hintText: widget.hint,
             hintStyle: TextStyle(
               color: AppColors.mediumGray.withAlpha(70),
               fontSize: 16,
@@ -89,7 +116,7 @@ class AppTextField extends StatelessWidget {
                 width: 1.5,
               ),
             ),
-            suffixIcon: suffixIcon,
+            suffixIcon: resolvedSuffixIcon,
           ),
         ),
       ],

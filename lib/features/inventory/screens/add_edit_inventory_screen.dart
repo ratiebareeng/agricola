@@ -50,7 +50,21 @@ class _AddEditInventoryScreenState
 
   int get _totalImageCount => _existingImageUrls.length + _newImages.length;
 
-  final List<String> _units = ['kg', 'bags', 'tons'];
+  final List<String> _units = [
+    'kg',
+    'g',
+    'tons',
+    'bags',
+    'sacks',
+    'crates',
+    'litres',
+    'pieces',
+    'bundles',
+    'heads',
+    'dozen',
+    'bales',
+    'trays',
+  ];
 
   final List<String> _conditions = [
     'excellent',

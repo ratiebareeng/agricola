@@ -30,6 +30,14 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen>
       length: widget.showSalesTab ? 2 : 1,
       vsync: this,
     );
+    // Refresh on every visit so newly placed orders appear immediately.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ref.read(buyerOrdersProvider.notifier).loadOrders();
+      if (widget.showSalesTab) {
+        ref.read(sellerOrdersProvider.notifier).loadOrders();
+      }
+    });
   }
 
   @override
@@ -251,14 +259,36 @@ class _OrderCard extends ConsumerWidget {
                 _StatusBadge(status: order.status),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 10),
+            ...order.items.map((item) => Padding(
+                  padding: const EdgeInsets.only(bottom: 4),
+                  child: Row(
+                    children: [
+                      Icon(Icons.circle, size: 6, color: Colors.grey[400]),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          item.title,
+                          style: const TextStyle(fontSize: 14),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'x${item.quantity}',
+                        style: TextStyle(fontSize: 13, color: Colors.grey[600]),
+                      ),
+                    ],
+                  ),
+                )),
+            const SizedBox(height: 8),
             Row(
               children: [
-                Icon(Icons.shopping_bag_outlined,
-                    size: 16, color: Colors.grey[600]),
+                Icon(Icons.access_time, size: 16, color: Colors.grey[600]),
                 const SizedBox(width: 8),
                 Text(
-                  '${order.items.length} ${order.items.length == 1 ? 'item' : 'items'}',
+                  _formatDate(order.createdAt),
                   style: TextStyle(color: Colors.grey[600], fontSize: 14),
                 ),
                 const Spacer(),
@@ -269,17 +299,6 @@ class _OrderCard extends ConsumerWidget {
                     fontSize: 16,
                     color: AppColors.green,
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Icon(Icons.access_time, size: 16, color: Colors.grey[600]),
-                const SizedBox(width: 8),
-                Text(
-                  _formatDate(order.createdAt),
-                  style: TextStyle(color: Colors.grey[600], fontSize: 14),
                 ),
               ],
             ),

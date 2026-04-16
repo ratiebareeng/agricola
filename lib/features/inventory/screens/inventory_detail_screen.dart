@@ -28,11 +28,20 @@ class InventoryDetailScreen extends ConsumerStatefulWidget {
 class _InventoryDetailScreenState extends ConsumerState<InventoryDetailScreen> {
   late InventoryModel _item;
   bool _isDeleting = false;
+  int _currentImageIndex = 0;
+  late final PageController _pageController;
 
   @override
   void initState() {
     super.initState();
     _item = widget.item;
+    _pageController = PageController();
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
   }
 
   MarketplaceListing? _findLinkedListing(List<MarketplaceListing> listings) {
@@ -41,6 +50,23 @@ class _InventoryDetailScreenState extends ConsumerState<InventoryDetailScreen> {
       if (listing.inventoryId == _item.id) return listing;
     }
     return null;
+  }
+
+  Color _conditionColor(String condition) {
+    switch (condition) {
+      case 'excellent':
+        return AppColors.green;
+      case 'good':
+        return const Color(0xFF52A871);
+      case 'fair':
+        return AppColors.warmYellow;
+      case 'needs_attention':
+        return Colors.orange;
+      case 'critical':
+        return AppColors.alertRed;
+      default:
+        return AppColors.mediumGray;
+    }
   }
 
   @override
@@ -52,13 +78,39 @@ class _InventoryDetailScreenState extends ConsumerState<InventoryDetailScreen> {
       (listings) => _findLinkedListing(listings),
     );
     final isListed = linkedListing.valueOrNull != null;
+    final catalog = ref.watch(cropCatalogProvider).valueOrNull ?? [];
+    final imageMap = ref.watch(cropImageUrlProvider).valueOrNull ?? {};
+    final cropName = cropDisplayName(_item.cropType, catalog, language);
+    final userPhotos = _item.imageUrls;
+    final catalogUrl = userPhotos.isEmpty
+        ? imageUrlForCrop(_item.cropType, imageMap)
+        : '';
+    final allPhotos = userPhotos.isNotEmpty
+        ? userPhotos
+        : (catalogUrl.isNotEmpty ? [catalogUrl] : <String>[]);
+    final conditionColor = _conditionColor(_item.condition);
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text(t('inventory_details', language)),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        surfaceTintColor: Colors.transparent,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Color(0xFF1A1A1A)),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Text(
+          t('inventory_details', language),
+          style: const TextStyle(
+            color: Color(0xFF1A1A1A),
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+          ),
+        ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.edit),
+            icon: const Icon(Icons.edit_outlined, color: Color(0xFF1A1A1A)),
             onPressed: () => _editItem(context, language),
           ),
           IconButton(
@@ -66,10 +118,12 @@ class _InventoryDetailScreenState extends ConsumerState<InventoryDetailScreen> {
                 ? const SizedBox(
                     width: 20,
                     height: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2),
+                    child: CircularProgressIndicator(
+                        strokeWidth: 2, color: AppColors.alertRed),
                   )
-                : const Icon(Icons.delete),
-            onPressed: _isDeleting ? null : () => _confirmDelete(context, language),
+                : const Icon(Icons.delete_outline, color: AppColors.alertRed),
+            onPressed:
+                _isDeleting ? null : () => _confirmDelete(context, language),
           ),
         ],
       ),
@@ -77,63 +131,149 @@ class _InventoryDetailScreenState extends ConsumerState<InventoryDetailScreen> {
         children: [
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildImageSection(context),
-                  const SizedBox(height: 24),
-                  _buildHeader(context, language),
-                  const SizedBox(height: 24),
-                  _buildDetailSection(
-                    context,
-                    title: t('storage_info', language),
-                    children: [
-                      _buildDetailRow(
-                        context,
-                        icon: Icons.calendar_today,
-                        label: t('storage_date', language),
-                        value: dateFormat.format(_item.storageDate),
-                      ),
-                      _buildDetailRow(
-                        context,
-                        icon: Icons.location_on,
-                        label: t('location', language),
-                        value: _item.storageLocation,
-                      ),
-                      _buildDetailRow(
-                        context,
-                        icon: Icons.info_outline,
-                        label: t('condition', language),
-                        value: t(_item.condition, language),
-                      ),
-                    ],
-                  ),
-                  if (_item.notes != null && _item.notes!.isNotEmpty) ...[
-                    const SizedBox(height: 24),
-                    _buildDetailSection(
-                      context,
-                      title: t('notes', language),
+                  // Hero image
+                  _buildHeroImage(allPhotos),
+
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(_item.notes!, style: const TextStyle(fontSize: 16)),
+                        // Crop name + condition
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                cropName,
+                                style: const TextStyle(
+                                  fontSize: 26,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF1A1A1A),
+                                  height: 1.2,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Text(
+                              t(_item.condition, language),
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: conditionColor,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+
+                        // Quantity
+                        Text(
+                          '${_item.quantity} ${t(_item.unit, language)}',
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.green,
+                          ),
+                        ),
+
+                        // Listed badge
+                        if (isListed) ...[
+                          const SizedBox(height: 10),
+                          Row(
+                            children: [
+                              const Icon(Icons.storefront,
+                                  size: 14, color: AppColors.green),
+                              const SizedBox(width: 6),
+                              Text(
+                                t('listed_on_marketplace', language),
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  color: AppColors.green,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+
+                        const SizedBox(height: 24),
+                        const Divider(height: 1, color: Color(0xFFEEEEEE)),
+                        const SizedBox(height: 24),
+
+                        // Storage details
+                        Text(
+                          t('storage_info', language),
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF1A1A1A),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        _buildInfoRow(
+                          icon: Icons.calendar_today_outlined,
+                          label: t('storage_date', language),
+                          value: dateFormat.format(_item.storageDate),
+                        ),
+                        const SizedBox(height: 14),
+                        _buildInfoRow(
+                          icon: Icons.location_on_outlined,
+                          label: t('location', language),
+                          value: _item.storageLocation,
+                        ),
+                        const SizedBox(height: 14),
+                        _buildInfoRow(
+                          icon: Icons.inventory_2_outlined,
+                          label: t('condition', language),
+                          value: t(_item.condition, language),
+                          valueColor: conditionColor,
+                        ),
+
+                        // Notes
+                        if (_item.notes != null && _item.notes!.isNotEmpty) ...[
+                          const SizedBox(height: 24),
+                          const Divider(height: 1, color: Color(0xFFEEEEEE)),
+                          const SizedBox(height: 24),
+                          Text(
+                            t('notes', language),
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF1A1A1A),
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            _item.notes!,
+                            style: TextStyle(
+                              fontSize: 15,
+                              height: 1.6,
+                              color: Colors.grey[700],
+                            ),
+                          ),
+                        ],
+
+                        const SizedBox(height: 32),
                       ],
                     ),
-                  ],
+                  ),
                 ],
               ),
             ),
           ),
+
+          // Sticky bottom action
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
             decoration: BoxDecoration(
               color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withAlpha(10),
-                  blurRadius: 10,
-                  offset: const Offset(0, -2),
-                ),
-              ],
+              border: Border(
+                top: BorderSide(color: Colors.grey.shade200),
+              ),
             ),
             child: SafeArea(
               child: isListed
@@ -154,16 +294,17 @@ class _InventoryDetailScreenState extends ConsumerState<InventoryDetailScreen> {
                                 );
                               }
                             },
-                            icon: const Icon(Icons.storefront),
+                            icon: const Icon(Icons.storefront_outlined),
                             label: Text(t('view_listing', language)),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF2D6A4F),
+                              backgroundColor: AppColors.green,
                               foregroundColor: Colors.white,
                               padding:
                                   const EdgeInsets.symmetric(vertical: 14),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
+                              elevation: 0,
                             ),
                           ),
                         ),
@@ -174,7 +315,7 @@ class _InventoryDetailScreenState extends ConsumerState<InventoryDetailScreen> {
                             language,
                             linkedListing.valueOrNull!,
                           ),
-                          icon: const Icon(Icons.remove_shopping_cart),
+                          icon: const Icon(Icons.remove_shopping_cart_outlined),
                           label: Text(t('unlist', language)),
                           style: OutlinedButton.styleFrom(
                             foregroundColor: Colors.red,
@@ -192,15 +333,16 @@ class _InventoryDetailScreenState extends ConsumerState<InventoryDetailScreen> {
                       width: double.infinity,
                       child: ElevatedButton.icon(
                         onPressed: () => _listOnMarketplace(context),
-                        icon: const Icon(Icons.storefront),
+                        icon: const Icon(Icons.storefront_outlined),
                         label: Text(t('list_on_marketplace', language)),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF2D6A4F),
+                          backgroundColor: AppColors.green,
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
+                          elevation: 0,
                         ),
                       ),
                     ),
@@ -208,6 +350,124 @@ class _InventoryDetailScreenState extends ConsumerState<InventoryDetailScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildHeroImage(List<String> photos) {
+    if (photos.isEmpty) {
+      return Container(
+        height: 220,
+        color: Colors.grey[100],
+        child: Center(
+          child: Icon(
+            Icons.local_florist_outlined,
+            size: 72,
+            color: Colors.grey[300],
+          ),
+        ),
+      );
+    }
+
+    if (photos.length == 1) {
+      return SizedBox(
+        height: 220,
+        width: double.infinity,
+        child: Image.network(
+          photos.first,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => Container(
+            height: 220,
+            color: Colors.grey[100],
+            child: Center(
+              child: Icon(Icons.broken_image_outlined,
+                  size: 48, color: Colors.grey[300]),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Stack(
+      children: [
+        SizedBox(
+          height: 220,
+          child: PageView.builder(
+            controller: _pageController,
+            itemCount: photos.length,
+            onPageChanged: (i) => setState(() => _currentImageIndex = i),
+            itemBuilder: (context, index) => Image.network(
+              photos[index],
+              fit: BoxFit.cover,
+              width: double.infinity,
+              errorBuilder: (_, __, ___) => Container(
+                color: Colors.grey[100],
+                child: Center(
+                  child: Icon(Icons.broken_image_outlined,
+                      size: 48, color: Colors.grey[300]),
+                ),
+              ),
+            ),
+          ),
+        ),
+        Positioned(
+          bottom: 12,
+          left: 0,
+          right: 0,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(
+              photos.length,
+              (i) => AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                width: i == _currentImageIndex ? 16 : 6,
+                height: 6,
+                margin: const EdgeInsets.symmetric(horizontal: 2),
+                decoration: BoxDecoration(
+                  color: i == _currentImageIndex
+                      ? Colors.white
+                      : Colors.white.withAlpha(120),
+                  borderRadius: BorderRadius.circular(3),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildInfoRow({
+    required IconData icon,
+    required String label,
+    required String value,
+    Color? valueColor,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 18, color: Colors.grey[500]),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                value,
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                  color: valueColor ?? const Color(0xFF1A1A1A),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -254,7 +514,7 @@ class _InventoryDetailScreenState extends ConsumerState<InventoryDetailScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(t('unlisted_success', language)),
-              backgroundColor: Colors.green,
+              backgroundColor: AppColors.green,
             ),
           );
         }
@@ -288,14 +548,15 @@ class _InventoryDetailScreenState extends ConsumerState<InventoryDetailScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(t('inventory_updated', language)),
-            backgroundColor: Colors.green,
+            backgroundColor: AppColors.green,
           ),
         );
       }
     }
   }
 
-  Future<void> _confirmDelete(BuildContext context, AppLanguage language) async {
+  Future<void> _confirmDelete(
+      BuildContext context, AppLanguage language) async {
     final confirmed = await AppDialogs.confirm(
       context,
       title: t('delete_inventory', language),
@@ -334,198 +595,10 @@ class _InventoryDetailScreenState extends ConsumerState<InventoryDetailScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(t('inventory_deleted', language)),
-          backgroundColor: Colors.green,
+          backgroundColor: AppColors.green,
         ),
       );
       Navigator.pop(context, true);
     }
-  }
-
-  Widget _buildDetailRow(
-    BuildContext context, {
-    required IconData icon,
-    required String label,
-    required String value,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Row(
-        children: [
-          Icon(icon, size: 20, color: Colors.grey[600]),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                ),
-                Text(
-                  value,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: Color(0xFF1A1A1A),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDetailSection(
-    BuildContext context, {
-    required String title,
-    required List<Widget> children,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: Color(0xFF1A1A1A),
-          ),
-        ),
-        const SizedBox(height: 12),
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.grey.shade200),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withAlpha(10),
-                blurRadius: 4,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: children,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildHeader(BuildContext context, AppLanguage language) {
-    final catalog = ref.watch(cropCatalogProvider).valueOrNull ?? [];
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AppColors.green.withAlpha(15),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.green.withAlpha(30)),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 64,
-            height: 64,
-            decoration: BoxDecoration(
-              color: AppColors.green.withAlpha(25),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(
-              Icons.inventory_2,
-              color: AppColors.green,
-              size: 32,
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  cropDisplayName(_item.cropType, catalog, language),
-                  style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF1A1A1A),
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  '${_item.quantity} ${t(_item.unit, language)}',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.grey[700],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildImageSection(BuildContext context) {
-    final userPhotos = _item.imageUrls;
-    if (userPhotos.isNotEmpty) {
-      return SizedBox(
-        height: 180,
-        child: ListView.separated(
-          scrollDirection: Axis.horizontal,
-          itemCount: userPhotos.length,
-          separatorBuilder: (_, __) => const SizedBox(width: 8),
-          itemBuilder: (context, index) => ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: Image.network(
-              userPhotos[index],
-              height: 180,
-              width: 260,
-              fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => Container(
-                width: 260,
-                height: 180,
-                color: Colors.grey[100],
-                child: Icon(Icons.broken_image_outlined,
-                    color: Colors.grey[400], size: 48),
-              ),
-            ),
-          ),
-        ),
-      );
-    }
-
-    // Fallback: catalog image or icon placeholder
-    final imageMap = ref.watch(cropImageUrlProvider).valueOrNull ?? {};
-    final catalogUrl = imageUrlForCrop(_item.cropType, imageMap);
-    return Container(
-      height: 180,
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: Colors.grey[100],
-        borderRadius: BorderRadius.circular(16),
-        image: catalogUrl.isEmpty
-            ? null
-            : DecorationImage(
-                image: NetworkImage(catalogUrl),
-                fit: BoxFit.cover,
-                onError: (_, __) {},
-              ),
-      ),
-      child: catalogUrl.isEmpty
-          ? Center(
-              child: Icon(
-                Icons.local_florist_outlined,
-                size: 64,
-                color: Colors.grey[400],
-              ),
-            )
-          : null,
-    );
   }
 }

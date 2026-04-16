@@ -1,3 +1,14 @@
+## 1.0.15 - 2026-04-16
+
+### Fixed
+- **Inventory detail redesign** — Replaced the tinted-green header container with a full-width hero image (PageView with animated dots for multi-photo items), clean bold crop name, green quantity, and plain colour-coded condition text. Removed blank-sheet effect caused by short content; content now fills screen correctly.
+- **Password visibility toggle** — `AppTextField` is now stateful; when `obscureText: true`, a visibility icon button is shown automatically in the suffix position. Works on both sign-in and sign-up screens.
+- **Order card detail** — Order cards now list each item by name with quantity (e.g. "Maize × 3") instead of "1 item". Total amount moved inline with the timestamp row.
+- **Seller orders auto-refresh** — `OrdersScreen` now triggers a fresh load of both seller and buyer providers every time the screen is visited, so newly placed purchase requests appear immediately without requiring a manual pull-to-refresh.
+- **Farmer seller orders** — Farmers' "My Orders" dashboard button now shows both the Sales tab (incoming purchase requests for their listings) and the My Requests tab (`showSalesTab: true`).
+- **Product categories expanded** — Marketplace listing form now includes Vegetables, Fruits, Grains & Cereals, Legumes, Roots & Tubers, Herbs & Spices, Livestock, Poultry, Dairy & Eggs, Processed Foods, plus the original agricultural supply categories. Selecting "Other" reveals a free-text field to specify the category.
+- **Quantity units expanded** — Both the marketplace add-product form and the inventory add/edit form now offer a full set of farming units: kg, g, tons, bags, sacks, crates, litres, ml, pieces, boxes, bundles, heads, dozen, bales, trays.
+
 ## 1.0.14 - 2026-04-16
 
 ### Added

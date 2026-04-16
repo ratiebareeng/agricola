@@ -42,10 +42,20 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
   late TextEditingController _priceController;
   late TextEditingController _quantityController;
 
-  String _category = 'Seeds';
+  String _category = 'Vegetables';
   String _unit = 'kg';
+  final _otherCategoryController = TextEditingController();
 
   final List<String> _categories = [
+    'Vegetables',
+    'Fruits',
+    'Grains & Cereals',
+    'Legumes',
+    'Roots & Tubers',
+    'Herbs & Spices',
+    'Livestock',
+    'Poultry',
+    'Dairy & Eggs',
     'Seeds',
     'Fertilizers',
     'Pesticides',
@@ -53,10 +63,27 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
     'Irrigation',
     'Animal Feed',
     'Packaging',
+    'Processed Foods',
     'Other',
   ];
 
-  final List<String> _units = ['kg', 'bags', 'litres', 'pieces', 'boxes'];
+  final List<String> _units = [
+    'kg',
+    'g',
+    'tons',
+    'bags',
+    'sacks',
+    'crates',
+    'litres',
+    'ml',
+    'pieces',
+    'boxes',
+    'bundles',
+    'heads',
+    'dozen',
+    'bales',
+    'trays',
+  ];
 
   bool get _isEditing => widget.existingProduct != null;
 
@@ -78,8 +105,11 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
           TextEditingController(text: product.price?.toString() ?? '');
       _quantityController =
           TextEditingController(text: product.quantity ?? '');
-      _category = product.category;
-      _unit = product.unit ?? 'kg';
+      _category = _categories.contains(product.category) ? product.category : 'Other';
+      if (!_categories.contains(product.category)) {
+        _otherCategoryController.text = product.category;
+      }
+      _unit = _units.contains(product.unit) ? (product.unit ?? 'kg') : 'kg';
       _existingImageUrls = [
         if (product.imagePath != null && product.imagePath!.isNotEmpty)
           product.imagePath!,
@@ -110,6 +140,7 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
     _descriptionController.dispose();
     _priceController.dispose();
     _quantityController.dispose();
+    _otherCategoryController.dispose();
     super.dispose();
   }
 
@@ -217,6 +248,19 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
                         }
                       },
                     ),
+                    if (_category == 'Other') ...[
+                      const SizedBox(height: 10),
+                      _buildTextField(
+                        controller: _otherCategoryController,
+                        hint: 'Specify category (e.g. Mushrooms)',
+                        validator: (value) {
+                          if (_category == 'Other' && (value == null || value.isEmpty)) {
+                            return t('required_field', currentLang);
+                          }
+                          return null;
+                        },
+                      ),
+                    ],
                     const SizedBox(height: 20),
                     Row(
                       children: [
@@ -601,12 +645,18 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
         allImageUrls.add(url);
       }
 
+      final effectiveCategory = _category == 'Other'
+          ? _otherCategoryController.text.trim().isNotEmpty
+              ? _otherCategoryController.text.trim()
+              : 'Other'
+          : _category;
+
       final listing = MarketplaceListing(
         id: widget.existingProduct?.id ?? '',
         title: _titleController.text.trim(),
         description: _descriptionController.text.trim(),
         type: ListingType.supplies,
-        category: _category,
+        category: effectiveCategory,
         price: price,
         unit: _unit,
         quantity: _quantityController.text.trim(),
