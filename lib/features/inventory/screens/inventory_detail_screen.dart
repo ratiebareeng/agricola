@@ -1,5 +1,6 @@
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/widgets/app_dialogs.dart';
+import 'package:agricola/core/widgets/app_network_image.dart';
 import 'package:agricola/features/crops/crop_helpers.dart';
 import 'package:agricola/features/crops/providers/crop_catalog_provider.dart';
 import 'package:agricola/features/home/providers/dashboard_stats_provider.dart';
@@ -379,18 +380,7 @@ class _InventoryDetailScreenState extends ConsumerState<InventoryDetailScreen> {
       return SizedBox(
         height: 220,
         width: double.infinity,
-        child: Image.network(
-          photos.first,
-          fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => Container(
-            height: 220,
-            color: Colors.grey[100],
-            child: Center(
-              child: Icon(Icons.broken_image_outlined,
-                  size: 48, color: Colors.grey[300]),
-            ),
-          ),
-        ),
+        child: AppNetworkImage(url: photos.first, height: 220),
       );
     }
 
@@ -402,17 +392,9 @@ class _InventoryDetailScreenState extends ConsumerState<InventoryDetailScreen> {
             controller: _pageController,
             itemCount: photos.length,
             onPageChanged: (i) => setState(() => _currentImageIndex = i),
-            itemBuilder: (context, index) => Image.network(
-              photos[index],
-              fit: BoxFit.cover,
+            itemBuilder: (context, index) => AppNetworkImage(
+              url: photos[index],
               width: double.infinity,
-              errorBuilder: (_, __, ___) => Container(
-                color: Colors.grey[100],
-                child: Center(
-                  child: Icon(Icons.broken_image_outlined,
-                      size: 48, color: Colors.grey[300]),
-                ),
-              ),
             ),
           ),
         ),

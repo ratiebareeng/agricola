@@ -1,6 +1,7 @@
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/core/widgets/app_dialogs.dart';
+import 'package:agricola/core/widgets/app_network_image.dart';
 import 'package:agricola/features/auth/providers/auth_provider.dart';
 import 'package:agricola/features/marketplace/models/marketplace_listing.dart';
 import 'package:agricola/features/marketplace/providers/marketplace_provider.dart';
@@ -504,11 +505,10 @@ class MarketplaceDetailScreen extends ConsumerWidget {
     if (allImages.isEmpty) return _buildPlaceholderImage();
 
     if (allImages.length == 1) {
-      return Image.network(
-        allImages.first,
-        fit: BoxFit.cover,
+      return AppNetworkImage(
+        url: allImages.first,
         width: double.infinity,
-        errorBuilder: (_, __, ___) => _buildPlaceholderImage(),
+        errorWidget: _buildPlaceholderImage(),
       );
     }
 
@@ -516,11 +516,10 @@ class MarketplaceDetailScreen extends ConsumerWidget {
       children: [
         PageView.builder(
           itemCount: allImages.length,
-          itemBuilder: (context, index) => Image.network(
-            allImages[index],
-            fit: BoxFit.cover,
+          itemBuilder: (context, index) => AppNetworkImage(
+            url: allImages[index],
             width: double.infinity,
-            errorBuilder: (_, __, ___) => _buildPlaceholderImage(),
+            errorWidget: _buildPlaceholderImage(),
           ),
         ),
         Positioned(

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/core/utils/image_utils.dart';
+import 'package:agricola/core/widgets/app_network_image.dart';
 import 'package:agricola/features/auth/providers/auth_provider.dart';
 import 'package:agricola/features/inventory/models/inventory_model.dart';
 import 'package:agricola/features/marketplace/models/marketplace_listing.dart';
@@ -420,9 +421,10 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
 
   Widget _buildExistingImageSlot(String url, int index) {
     return _imageSlot(
-      child: Image.network(url, fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) =>
-              Icon(Icons.broken_image_outlined, color: Colors.grey[400])),
+      child: AppNetworkImage(
+        url: url,
+        errorWidget: Icon(Icons.broken_image_outlined, color: Colors.grey[400]),
+      ),
       onRemove: () => setState(() => _existingImageUrls.removeAt(index)),
     );
   }
@@ -718,7 +720,6 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
         final url = await storageService.uploadMarketplaceImage(
           compressed,
           user.uid,
-          listingId: widget.existingProduct?.id,
           index: allImageUrls.length + i,
         );
         allImageUrls.add(url);
@@ -776,7 +777,8 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
           Navigator.pop(context, true);
         }
       }
-    } catch (e) {
+    } catch (e, st) {
+      debugPrint('Marketplace upload error: $e\n$st');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),

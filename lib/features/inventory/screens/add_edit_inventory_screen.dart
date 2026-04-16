@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/core/widgets/app_date_field.dart';
+import 'package:agricola/core/widgets/app_network_image.dart';
 import 'package:agricola/core/widgets/app_dropdown_field.dart';
 import 'package:agricola/core/widgets/app_form_layout.dart';
 import 'package:agricola/core/widgets/app_form_section.dart';
@@ -278,8 +279,10 @@ class _AddEditInventoryScreenState
 
   Widget _buildExistingImageSlot(String url, int index) {
     return _imageSlot(
-      child: Image.network(url, fit: BoxFit.cover, errorBuilder: (_, __, ___) =>
-          Icon(Icons.broken_image_outlined, color: Colors.grey[400])),
+      child: AppNetworkImage(
+        url: url,
+        errorWidget: Icon(Icons.broken_image_outlined, color: Colors.grey[400]),
+      ),
       onRemove: () => setState(() => _existingImageUrls.removeAt(index)),
     );
   }
@@ -451,7 +454,6 @@ class _AddEditInventoryScreenState
         final url = await storageService.uploadInventoryImage(
           compressed,
           user?.uid ?? 'unknown',
-          itemId: widget.existingItem?.id,
           index: uploadedUrls.length + i,
         );
         uploadedUrls.add(url);
@@ -472,7 +474,8 @@ class _AddEditInventoryScreenState
       );
 
       if (mounted) Navigator.pop(context, item);
-    } catch (e) {
+    } catch (e, st) {
+      debugPrint('Inventory upload error: $e\n$st');
       if (mounted) {
         setState(() => _isLoading = false);
         final lang = ref.read(languageProvider);

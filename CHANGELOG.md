@@ -1,3 +1,12 @@
+## 1.0.19 - 2026-04-16
+
+### Fixed
+- **Location search partial matching** — Replaced pure Nominatim lookups with a hybrid approach: 160+ bundled Botswana settlements are filtered locally by prefix/contains match (instant, offline-capable), with Nominatim running in parallel for 4+ character queries to surface less-common locations not in the local list.
+- **Edit inventory image upload** — Images added while editing an existing inventory item now upload to a timestamp-based folder (same as add mode) instead of an item-ID-based path, resolving the Firebase Storage path mismatch that caused the "Photo upload failed" error. Same fix applied to edit marketplace listing.
+
+### Added
+- **Image caching** — All `Image.network()` calls replaced with `CachedNetworkImage` via a new shared `AppNetworkImage` widget. Images are cached on-device after first load, eliminating re-downloads on every screen visit (inventory detail, marketplace detail, image pickers).
+
 ## 1.0.18 - 2026-04-16
 
 ### Fixed
