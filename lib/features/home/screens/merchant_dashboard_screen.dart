@@ -1,7 +1,6 @@
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/providers/nav_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
-import 'package:agricola/core/widgets/app_dialogs.dart';
 import 'package:agricola/core/widgets/skeleton_primitives.dart';
 import 'package:agricola/domain/profile/enum/merchant_type.dart';
 import 'package:agricola/features/home/providers/dashboard_stats_provider.dart';
@@ -11,6 +10,7 @@ import 'package:agricola/features/marketplace/screens/add_product_screen.dart';
 import 'package:agricola/features/notifications/providers/notifications_provider.dart';
 import 'package:agricola/features/notifications/screens/notifications_screen.dart';
 import 'package:agricola/features/orders/models/order_model.dart';
+import 'package:agricola/features/orders/screens/orders_screen.dart';
 import 'package:agricola/features/profile_setup/providers/profile_setup_provider.dart';
 import 'package:agricola/features/purchases/screens/add_purchase_screen.dart';
 import 'package:agricola/features/reports/screens/reports_screen.dart';
@@ -283,12 +283,15 @@ class MerchantDashboardScreen extends ConsumerWidget {
                 title: t('view_orders', lang),
                 subtitle: t('manage_customer_orders', lang),
                 onTap: () {
-                  // AgriShop: Orders is index 2
-                  // Non-AgriShop: No orders tab, show coming soon
                   if (isAgriShop) {
                     ref.read(selectedTabProvider.notifier).state = 2;
                   } else {
-                    _showComingSoonDialog(context, lang);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const OrdersScreen(showSalesTab: true),
+                      ),
+                    );
                   }
                 },
               ),
@@ -581,15 +584,6 @@ class MerchantDashboardScreen extends ConsumerWidget {
     }
   }
 
-  void _showComingSoonDialog(BuildContext context, AppLanguage lang) {
-    AppDialogs.info(
-      context,
-      title: t('coming_soon', lang),
-      content: t('feature_under_development', lang),
-      okayText: t('okay', lang),
-      icon: Icons.construction,
-    );
-  }
 }
 
 class _NotificationBell extends ConsumerWidget {

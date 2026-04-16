@@ -2189,6 +2189,80 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
     AppLanguage.english: 'Creating your profile...',
     AppLanguage.setswana: 'Re dira porofaele ya gago...',
   },
+  'request_to_buy': {
+    AppLanguage.english: 'Request to Buy',
+    AppLanguage.setswana: 'Kopa go Reka',
+  },
+  'send_request': {
+    AppLanguage.english: 'Send Request',
+    AppLanguage.setswana: 'Romela Kopo',
+  },
+  'request_sent': {
+    AppLanguage.english: 'Request sent!',
+    AppLanguage.setswana: 'Kopo e romilwe!',
+  },
+  'seller_will_contact_you': {
+    AppLanguage.english:
+        'The seller will contact you to arrange payment and delivery.',
+    AppLanguage.setswana:
+        'Morekisi o tla go ikopanya go rulaganya tuelo le phithiso.',
+  },
+  'optional_note': {
+    AppLanguage.english: 'Note (optional)',
+    AppLanguage.setswana: 'Kakanyo (e ka se)',
+  },
+  'note_hint': {
+    AppLanguage.english: 'e.g. Can you deliver to Maun?',
+    AppLanguage.setswana: 'e.g. A o ka tlisetsa kwa Maun?',
+  },
+  'total': {
+    AppLanguage.english: 'Total',
+    AppLanguage.setswana: 'Kakaretso',
+  },
+  'quantity_must_be_positive': {
+    AppLanguage.english: 'Quantity must be at least 1',
+    AppLanguage.setswana: 'Palo e tlhoka go nna 1 kgotsa go feta',
+  },
+  'no_price_set': {
+    AppLanguage.english: 'No price set for this listing',
+    AppLanguage.setswana: 'Tlhwatlhwa ga e a bewa',
+  },
+  'my_requests': {
+    AppLanguage.english: 'My Requests',
+    AppLanguage.setswana: 'Dikopo Tsa Me',
+  },
+  'sales': {
+    AppLanguage.english: 'Sales',
+    AppLanguage.setswana: 'Ditlhatloso',
+  },
+  'no_purchase_requests': {
+    AppLanguage.english: 'No purchase requests yet',
+    AppLanguage.setswana: 'Ga go na dikopo tsa go reka',
+  },
+  'purchase_requests_appear_here': {
+    AppLanguage.english: 'Your purchase requests will appear here.',
+    AppLanguage.setswana: 'Dikopo tsa gago tsa go reka di tla bo di le fa.',
+  },
+  'order_cancelled': {
+    AppLanguage.english: 'Order cancelled',
+    AppLanguage.setswana: 'Taelo e phimotse',
+  },
+  'cancel_order': {
+    AppLanguage.english: 'Cancel Request',
+    AppLanguage.setswana: 'Phimola Kopo',
+  },
+  'cancel_order_confirm': {
+    AppLanguage.english: 'Cancel this purchase request?',
+    AppLanguage.setswana: 'A o batla go phimola kopo e ya go reka?',
+  },
+  'my_orders': {
+    AppLanguage.english: 'My Orders',
+    AppLanguage.setswana: 'Ditaelo Tsa Me',
+  },
+  'view_details': {
+    AppLanguage.english: 'View Details',
+    AppLanguage.setswana: 'Bona Dintlha',
+  },
 };
 
 String t(String key, AppLanguage lang) {

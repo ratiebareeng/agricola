@@ -1,3 +1,10 @@
+## 1.0.14 - 2026-04-16
+
+### Added
+- **Request-to-Buy CTA on product pages (R-05)** — Non-owner marketplace detail page now has a "Request to Buy" primary button alongside a phone contact shortcut. Tapping it opens a bottom sheet with quantity input (validated), optional note, and live total preview. Submitting creates a `pending` order via `POST /api/v1/orders` with success feedback explaining that the seller will arrange payment and delivery off-platform.
+- **Tabbed Orders screen (Sales | My Requests)** — Replaced the AgriShop-only orders view with a unified `OrdersScreen` supporting both seller (Sales) and buyer (My Requests) tabs. Buyers can cancel pending requests. Sellers can confirm → ship → delivered.
+- **Orders entry for all user types** — Farmers get a "My Orders" quick-action button on their dashboard (alongside the existing Loss Calculator). Non-AgriShop merchants now navigate to the full Orders screen from "View Orders" instead of a coming-soon dialog.
+
 ## 1.0.13 - 2026-04-16
 
 ### Fixed

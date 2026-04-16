@@ -5,6 +5,8 @@ import 'package:agricola/features/auth/providers/auth_provider.dart';
 import 'package:agricola/features/marketplace/models/marketplace_listing.dart';
 import 'package:agricola/features/marketplace/providers/marketplace_provider.dart';
 import 'package:agricola/features/marketplace/screens/add_product_screen.dart';
+import 'package:agricola/features/orders/models/order_model.dart';
+import 'package:agricola/features/orders/providers/orders_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -355,48 +357,67 @@ class MarketplaceDetailScreen extends ConsumerWidget {
           ],
         ),
         child: SafeArea(
-          child: Row(
-            children: [
-              Expanded(
-                child: isOwner
-                    ? ElevatedButton(
-                        onPressed: () => _editListing(context, ref),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.green,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+          child: isOwner
+              ? ElevatedButton(
+                  onPressed: () => _editListing(context, ref),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.green,
+                    foregroundColor: Colors.white,
+                    minimumSize: const Size(double.infinity, 52),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.edit),
+                      const SizedBox(width: 8),
+                      Text(
+                        t('edit_listing', currentLang),
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              : Row(
+                  children: [
+                    if (listing.sellerPhone != null)
+                      Expanded(
+                        flex: 1,
+                        child: OutlinedButton(
+                          onPressed: () => _copyToClipboard(
+                            context,
+                            listing.sellerPhone!,
+                            t('phone_copied', currentLang),
                           ),
-                          elevation: 0,
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(Icons.edit),
-                            const SizedBox(width: 8),
-                            Text(
-                              t('edit_listing', currentLang),
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                              ),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: AppColors.green,
+                            side: const BorderSide(color: AppColors.green),
+                            minimumSize: const Size(0, 52),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
                             ),
-                          ],
+                          ),
+                          child: const Icon(Icons.phone),
                         ),
-                      )
-                    : ElevatedButton(
-                        onPressed: listing.sellerPhone != null
-                            ? () => _copyToClipboard(
-                                context,
-                                listing.sellerPhone!,
-                                t('phone_copied', currentLang),
-                              )
+                      ),
+                    if (listing.sellerPhone != null) const SizedBox(width: 12),
+                    Expanded(
+                      flex: 3,
+                      child: ElevatedButton(
+                        onPressed: listing.price != null
+                            ? () => _showRequestToBuySheet(
+                                context, ref, currentLang)
                             : null,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.green,
                           foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          minimumSize: const Size(0, 52),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
@@ -405,10 +426,10 @@ class MarketplaceDetailScreen extends ConsumerWidget {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Icon(Icons.phone),
+                            const Icon(Icons.shopping_cart_outlined),
                             const SizedBox(width: 8),
                             Text(
-                              t('contact_seller', currentLang),
+                              t('request_to_buy', currentLang),
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
@@ -417,9 +438,9 @@ class MarketplaceDetailScreen extends ConsumerWidget {
                           ],
                         ),
                       ),
-              ),
-            ],
-          ),
+                    ),
+                  ],
+                ),
         ),
       ),
     );
@@ -584,6 +605,19 @@ class MarketplaceDetailScreen extends ConsumerWidget {
     );
   }
 
+  void _showRequestToBuySheet(
+      BuildContext context, WidgetRef ref, AppLanguage lang) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => _RequestToBuySheet(listing: listing, lang: lang),
+    );
+  }
+
   void _editListing(BuildContext context, WidgetRef ref) async {
     final result = await Navigator.push<bool>(
       context,
@@ -644,6 +678,243 @@ class MarketplaceDetailScreen extends ConsumerWidget {
         backgroundColor: AppColors.green,
         behavior: SnackBarBehavior.floating,
         duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+}
+
+class _RequestToBuySheet extends ConsumerStatefulWidget {
+  final MarketplaceListing listing;
+  final AppLanguage lang;
+
+  const _RequestToBuySheet({required this.listing, required this.lang});
+
+  @override
+  ConsumerState<_RequestToBuySheet> createState() => _RequestToBuySheetState();
+}
+
+class _RequestToBuySheetState extends ConsumerState<_RequestToBuySheet> {
+  final _formKey = GlobalKey<FormState>();
+  final _qtyController = TextEditingController(text: '1');
+  final _noteController = TextEditingController();
+  bool _loading = false;
+
+  @override
+  void dispose() {
+    _qtyController.dispose();
+    _noteController.dispose();
+    super.dispose();
+  }
+
+  int get _qty => int.tryParse(_qtyController.text) ?? 1;
+  double get _unitPrice => widget.listing.price ?? 0;
+  double get _total => _qty * _unitPrice;
+
+  Future<void> _submit() async {
+    if (!_formKey.currentState!.validate()) return;
+    setState(() => _loading = true);
+
+    final item = OrderItem(
+      listingId: widget.listing.id,
+      title: widget.listing.title,
+      price: _unitPrice,
+      quantity: _qty,
+    );
+
+    final error = await ref.read(buyerOrdersProvider.notifier).createOrder(
+          sellerId: widget.listing.sellerId,
+          totalAmount: _total,
+          items: [item],
+        );
+
+    if (!mounted) return;
+    setState(() => _loading = false);
+
+    if (error != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(t(error, widget.lang)),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    Navigator.pop(context);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              t('request_sent', widget.lang),
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 2),
+            Text(t('seller_will_contact_you', widget.lang)),
+          ],
+        ),
+        backgroundColor: AppColors.green,
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 5),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(
+        left: 24,
+        right: 24,
+        top: 24,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+      ),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              t('request_to_buy', widget.lang),
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: AppColors.darkGray,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              widget.listing.title,
+              style: TextStyle(fontSize: 15, color: Colors.grey[600]),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              t('quantity', widget.lang),
+              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+            ),
+            const SizedBox(height: 8),
+            TextFormField(
+              controller: _qtyController,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                hintText: t('enter_quantity', widget.lang),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Colors.grey[300]!),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Colors.grey[300]!),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: AppColors.green),
+                ),
+                suffixText: widget.listing.unit,
+              ),
+              onChanged: (_) => setState(() {}),
+              validator: (v) {
+                final n = int.tryParse(v ?? '');
+                if (n == null || n < 1) {
+                  return t('quantity_must_be_positive', widget.lang);
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 16),
+            Text(
+              t('optional_note', widget.lang),
+              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+            ),
+            const SizedBox(height: 8),
+            TextFormField(
+              controller: _noteController,
+              maxLines: 2,
+              decoration: InputDecoration(
+                hintText: t('note_hint', widget.lang),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Colors.grey[300]!),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Colors.grey[300]!),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: AppColors.green),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  t('total', widget.lang),
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Text(
+                  'P ${_total.toStringAsFixed(2)}',
+                  style: const TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.green,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: _loading ? null : _submit,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.green,
+                  foregroundColor: Colors.white,
+                  minimumSize: const Size(double.infinity, 52),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  elevation: 0,
+                ),
+                child: _loading
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : Text(
+                        t('send_request', widget.lang),
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

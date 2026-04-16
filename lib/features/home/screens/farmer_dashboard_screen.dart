@@ -14,6 +14,7 @@ import 'package:agricola/features/home/widgets/stat_card_skeleton.dart';
 import 'package:agricola/features/loss_calculator/screens/loss_calculator_screen.dart';
 import 'package:agricola/features/notifications/providers/notifications_provider.dart';
 import 'package:agricola/features/notifications/screens/notifications_screen.dart';
+import 'package:agricola/features/orders/screens/orders_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -74,22 +75,47 @@ class FarmerDashboardScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 20),
 
-              // Loss Calculator quick action
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton.icon(
-                  onPressed: () => _openLossCalculator(context),
-                  icon: const Icon(Icons.calculate_outlined),
-                  label: Text(t('calculate_losses', currentLang)),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.green,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+              // Quick actions row
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () => _openLossCalculator(context),
+                      icon: const Icon(Icons.calculate_outlined),
+                      label: Text(t('calculate_losses', currentLang)),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppColors.green,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        side: const BorderSide(color: AppColors.green),
+                      ),
                     ),
-                    side: const BorderSide(color: AppColors.green),
                   ),
-                ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              const OrdersScreen(showSalesTab: false),
+                        ),
+                      ),
+                      icon: const Icon(Icons.receipt_long_outlined),
+                      label: Text(t('my_orders', currentLang)),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppColors.green,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        side: const BorderSide(color: AppColors.green),
+                      ),
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 24),
 

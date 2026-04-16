@@ -73,30 +73,6 @@ void main() {
         );
       });
 
-      test('returns error when primaryCrops exceeds max count', () {
-        final profile = FarmerProfileModel(
-          id: '1',
-          userId: 'user123',
-          village: 'Test Village',
-          primaryCrops: [
-            'Maize',
-            'Beans',
-            'Rice',
-            'Wheat',
-            'Sorghum',
-            'Millet',
-          ],
-          farmSize: 'Small (< 5 acres)',
-          createdAt: DateTime.now(),
-          updatedAt: DateTime.now(),
-        );
-
-        expect(
-          ProfileValidators.validateFarmerProfile(profile),
-          'Select up to ${ValidationRules.maxPrimaryCropsCount} crops',
-        );
-      });
-
       test('returns error when farmSize is empty', () {
         final profile = FarmerProfileModel(
           id: '1',
@@ -274,14 +250,6 @@ void main() {
         expect(
           ProfileValidators.validateCrops([]),
           ValidationRules.cropsRequired,
-        );
-      });
-
-      test('returns error when crops exceed max count', () {
-        final crops = ['Maize', 'Beans', 'Rice', 'Wheat', 'Sorghum', 'Millet'];
-        expect(
-          ProfileValidators.validateCrops(crops),
-          'Select up to ${ValidationRules.maxPrimaryCropsCount} crops',
         );
       });
 

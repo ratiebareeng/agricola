@@ -66,6 +66,7 @@ void main() {
       isOnline: () => isOnline,
       offlineEnabled: () => offlineEnabled,
       analytics: mockAnalytics,
+      role: 'seller',
     );
   }
 
@@ -112,6 +113,7 @@ void main() {
         isOnline: () => false,
         offlineEnabled: () => true,
         analytics: mockAnalytics,
+        role: 'seller',
       );
 
       await waitForLoad();
@@ -135,6 +137,7 @@ void main() {
         isOnline: () => true,
         offlineEnabled: () => true,
         analytics: mockAnalytics,
+        role: 'seller',
       );
 
       await waitForLoad();
@@ -153,6 +156,7 @@ void main() {
         isOnline: () => true,
         offlineEnabled: () => false,
         analytics: mockAnalytics,
+        role: 'seller',
       );
 
       await waitForLoad();
@@ -172,6 +176,7 @@ void main() {
         isOnline: () => true,
         offlineEnabled: () => true,
         analytics: mockAnalytics,
+        role: 'seller',
       );
 
       await waitForLoad();
@@ -179,16 +184,22 @@ void main() {
       expect(notifier.state, isA<AsyncError<List<OrderModel>>>());
     });
 
-    test('passes role parameter to API service', () async {
-      final notifier = createNotifier(initialData: []);
-      await waitForLoad();
-
+    test('uses role set at construction time when calling API', () async {
+      final buyerNotifier = OrdersNotifier(
+        service: mockApi,
+        localDao: mockDao,
+        isOnline: () => true,
+        offlineEnabled: () => false,
+        analytics: mockAnalytics,
+        role: 'buyer',
+      );
       when(() => mockApi.getUserOrders(role: 'buyer'))
           .thenAnswer((_) async => []);
 
-      await notifier.loadOrders(role: 'buyer');
+      await waitForLoad();
 
       verify(() => mockApi.getUserOrders(role: 'buyer')).called(1);
+      buyerNotifier.dispose();
     });
   });
 

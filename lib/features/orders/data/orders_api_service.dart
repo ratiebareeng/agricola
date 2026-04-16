@@ -41,6 +41,23 @@ class OrdersApiService {
     return OrderModel.fromJson(response.data['data'] as Map<String, dynamic>);
   }
 
+  /// POST /api/v1/orders - Create a new order (buyer)
+  Future<OrderModel> createOrder({
+    required String sellerId,
+    required double totalAmount,
+    required List<OrderItem> items,
+  }) async {
+    final response = await _dio.post(
+      '/${ApiConstants.ordersEndpoint}',
+      data: {
+        'sellerId': sellerId,
+        'totalAmount': totalAmount,
+        'items': items.map((i) => i.toJson()).toList(),
+      },
+    );
+    return OrderModel.fromJson(response.data['data'] as Map<String, dynamic>);
+  }
+
   /// DELETE /api/v1/orders/:id - Cancel order (buyer only, pending only)
   Future<void> cancelOrder(String id) async {
     await _dio.delete('/${ApiConstants.ordersEndpoint}/$id');
