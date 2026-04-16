@@ -103,7 +103,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
             AuthFooterLink(
               text: t('dont_have_account', currentLang),
               linkText: t('sign_up', currentLang),
-              onTap: () => context.push('/sign-up'),
+              onTap: () => context.push('/register'),
             ),
           ],
         ),

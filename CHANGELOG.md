@@ -1,3 +1,8 @@
+## 1.0.12 - 2026-04-16
+
+### Fixed
+- **Sign-up bypasses account type selection** — "Don't have an account? Sign up" link on the sign-in screen was navigating directly to `/sign-up`, skipping the account type selection screen (`/register`). Now correctly routes to `/register` first so users choose Farmer, Agri Shop, or Supermarket Vendor before entering credentials.
+
 ## 1.0.11 - 2026-04-16
 
 ### Added
