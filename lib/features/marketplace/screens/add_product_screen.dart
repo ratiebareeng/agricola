@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/core/utils/image_utils.dart';
+import 'package:agricola/core/widgets/agri_kit.dart';
+import 'package:agricola/core/widgets/app_text_field.dart';
 import 'package:agricola/core/widgets/app_network_image.dart';
 import 'package:agricola/features/auth/providers/auth_provider.dart';
 import 'package:agricola/features/inventory/models/inventory_model.dart';
@@ -42,6 +44,7 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
   late TextEditingController _descriptionController;
   late TextEditingController _priceController;
   late TextEditingController _quantityController;
+  late TextEditingController _phoneController;
 
   String _category = 'Vegetables';
   String _unit = 'kg';
@@ -97,6 +100,7 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
     super.initState();
     final product = widget.existingProduct;
     final source = widget.sourceInventory;
+    final user = ref.read(currentUserProvider);
 
     if (product != null) {
       // Editing existing listing
@@ -107,6 +111,7 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
           TextEditingController(text: product.price?.toString() ?? '');
       _quantityController =
           TextEditingController(text: product.quantity ?? '');
+      _phoneController = TextEditingController(text: product.sellerPhone ?? user?.phoneNumber);
       _category = _categories.contains(product.category) ? product.category : 'Other';
       if (!_categories.contains(product.category)) {
         _otherCategoryController.text = product.category;
@@ -126,7 +131,8 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
           TextEditingController(text: source.notes ?? '');
       _priceController = TextEditingController();
       _quantityController =
-          TextEditingController(text: source.quantity.toString());
+          TextEditingController(text: AgriKit.formatQuantity(source.quantity));
+      _phoneController = TextEditingController(text: user?.phoneNumber);
       _unit = _units.contains(source.unit) ? source.unit : 'kg';
       _existingImageUrls = List<String>.from(source.imageUrls);
     } else {
@@ -135,6 +141,7 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
       _descriptionController = TextEditingController();
       _priceController = TextEditingController();
       _quantityController = TextEditingController();
+      _phoneController = TextEditingController(text: user?.phoneNumber);
       _existingImageUrls = [];
     }
   }
@@ -145,6 +152,7 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
     _descriptionController.dispose();
     _priceController.dispose();
     _quantityController.dispose();
+    _phoneController.dispose();
     _otherCategoryController.dispose();
     super.dispose();
   }
@@ -260,6 +268,20 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
                       },
                     ),
                     const SizedBox(height: 20),
+                    _buildSectionTitle(t('contact_phone', currentLang)),
+                    const SizedBox(height: 8),
+                    _buildTextField(
+                      controller: _phoneController,
+                      hint: t('enter_phone_number', currentLang),
+                      keyboardType: TextInputType.phone,
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return t('phone_required_for_listing', currentLang);
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 20),
                     _buildSectionTitle(t('category', currentLang)),
                     const SizedBox(height: 8),
                     _buildDropdownField(
@@ -350,37 +372,12 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
               ],
             ),
             child: SafeArea(
-              child: SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _isLoading ? null : _saveProduct,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.green,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: _isLoading
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 2,
-                          ),
-                        )
-                      : Text(
-                          _isEditing
-                              ? t('update_product', currentLang)
-                              : t('add_product', currentLang),
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                ),
+              child: AgriStadiumButton(
+                label: _isEditing
+                    ? t('update_product', currentLang)
+                    : t('add_product', currentLang),
+                onPressed: _saveProduct,
+                isLoading: _isLoading,
               ),
             ),
           ),
@@ -393,7 +390,13 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionTitle(t('product_image', lang)),
+        Row(
+          children: [
+            _buildSectionTitle(t('product_image', lang)),
+            const SizedBox(width: 4),
+            const Text('*', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+          ],
+        ),
         const SizedBox(height: 8),
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
@@ -407,14 +410,19 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
             ],
           ),
         ),
-        if (_totalImageCount > 0)
-          Padding(
-            padding: const EdgeInsets.only(top: 8),
-            child: Text(
-              '$_totalImageCount / 5 ${t('photos', lang).toLowerCase()}',
-              style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+        Padding(
+          padding: const EdgeInsets.only(top: 8),
+          child: Text(
+            _totalImageCount == 0 
+              ? t('at_least_one_image_required', lang)
+              : '$_totalImageCount / 5 ${t('photos', lang).toLowerCase()}',
+            style: TextStyle(
+              fontSize: 12, 
+              color: _totalImageCount == 0 ? Colors.red : Colors.grey[500],
+              fontWeight: _totalImageCount == 0 ? FontWeight.w500 : FontWeight.normal,
             ),
           ),
+        ),
       ],
     );
   }
@@ -700,6 +708,16 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
   Future<void> _saveProduct() async {
     if (!_formKey.currentState!.validate()) return;
 
+    if (_totalImageCount == 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(t('at_least_one_image_required', ref.read(languageProvider))),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
     setState(() => _isLoading = true);
 
     try {
@@ -744,6 +762,7 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
         sellerId: user.uid,
         location: profile.location.isNotEmpty ? profile.location : 'Botswana',
         sellerEmail: user.email,
+        sellerPhone: _phoneController.text.trim(),
         inventoryId: widget.sourceInventory?.id,
         imagePath: allImageUrls.isNotEmpty ? allImageUrls.first : null,
         additionalImages: allImageUrls.length > 1 ? allImageUrls.sublist(1) : null,

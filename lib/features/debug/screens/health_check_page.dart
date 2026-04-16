@@ -1,3 +1,4 @@
+import 'package:agricola/core/widgets/agri_kit.dart';
 import 'package:agricola/features/debug/providers/health_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -38,7 +39,7 @@ class _HealthCheckPageState extends ConsumerState<HealthCheckPage> {
             const SizedBox(height: 8),
             Text(state.error ?? ''),
 
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             _checkHealthButton('Retry'),
           ],
         ),
@@ -57,8 +58,8 @@ class _HealthCheckPageState extends ConsumerState<HealthCheckPage> {
               style: Theme.of(context).textTheme.headlineSmall,
             ),
             const SizedBox(height: 8),
-            Text('The harvest is bountiful.'),
-            const SizedBox(height: 8),
+            const Text('The harvest is bountiful.'),
+            const SizedBox(height: 16),
             _checkHealthButton(null),
           ],
         ),
@@ -68,9 +69,10 @@ class _HealthCheckPageState extends ConsumerState<HealthCheckPage> {
     if (state.healthStatus == false) {
       return Center(
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('Press the button to check health'),
-            SizedBox(height: 16),
+            const Text('Press the button to check health'),
+            const SizedBox(height: 16),
             _checkHealthButton(null),
           ],
         ),
@@ -83,11 +85,15 @@ class _HealthCheckPageState extends ConsumerState<HealthCheckPage> {
   }
 
   Widget _checkHealthButton(String? label) {
-    return OutlinedButton(
-      onPressed: () {
-        ref.read(healthStatusProvider.notifier).getHealth();
-      },
-      child: Text(label ?? 'Check Health'),
+    return SizedBox(
+      width: 200,
+      child: AgriStadiumButton(
+        onPressed: () {
+          ref.read(healthStatusProvider.notifier).getHealth();
+        },
+        label: label ?? 'Check Health',
+        isPrimary: false,
+      ),
     );
   }
 }

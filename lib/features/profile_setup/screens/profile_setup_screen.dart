@@ -1,7 +1,7 @@
 import 'package:agricola/core/providers/analytics_provider.dart';
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
-import 'package:agricola/core/widgets/app_buttons.dart';
+import 'package:agricola/core/widgets/agri_kit.dart';
 import 'package:agricola/domain/profile/enum/merchant_type.dart';
 import 'package:agricola/features/auth/providers/auth_controller.dart';
 import 'package:agricola/features/auth/providers/auth_provider.dart';
@@ -164,11 +164,11 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
               padding: const EdgeInsets.all(24.0),
               child: Column(
                 children: [
-                  AppPrimaryButton(
+                  AgriStadiumButton(
                     label: state.currentStep == state.totalSteps - 1
                         ? t('finish', currentLang)
                         : t('continue', currentLang),
-                    onTap: (_canContinue(state) && !state.isCreatingProfile)
+                    onPressed: (_canContinue(state) && !state.isCreatingProfile)
                         ? () async {
                             if (state.currentStep == state.totalSteps - 1) {
                               await _handleFinish(context, ref);

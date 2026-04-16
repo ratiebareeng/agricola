@@ -10,6 +10,7 @@ import 'package:agricola/features/crops/screens/add_edit_crop_screen.dart';
 import 'package:agricola/features/crops/screens/crop_details_screen.dart';
 import 'package:agricola/features/home/widgets/crop_card.dart';
 import 'package:agricola/features/home/widgets/crop_card_skeleton.dart';
+import 'package:agricola/features/home/widgets/hero_card_skeleton.dart';
 import 'package:agricola/features/loss_calculator/screens/loss_calculator_screen.dart';
 import 'package:agricola/features/notifications/providers/notifications_provider.dart';
 import 'package:agricola/features/notifications/screens/notifications_screen.dart';
@@ -66,10 +67,7 @@ class FarmerDashboardScreen extends ConsumerWidget {
               // Hero Focus Card
               cropsAsync.when(
                 data: (crops) => _buildHeroCard(context, crops, currentLang),
-                loading: () => const AgriFocusCard(
-                  color: AppColors.deepEmerald,
-                  child: SizedBox(height: 120, child: Center(child: CircularProgressIndicator(color: AppColors.bone))),
-                ),
+                loading: () => const HeroCardSkeleton(),
                 error: (_, __) => _buildHeroCard(context, [], currentLang),
               ),
               const SizedBox(height: 32),
@@ -82,7 +80,6 @@ class FarmerDashboardScreen extends ConsumerWidget {
                       label: t('calculate_losses', currentLang),
                       onPressed: () => _openLossCalculator(context),
                       isPrimary: false,
-                      icon: Icons.calculate_outlined,
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -92,11 +89,11 @@ class FarmerDashboardScreen extends ConsumerWidget {
                       onPressed: () => Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => const OrdersScreen(showSalesTab: true),
+                          builder: (_) =>
+                              const OrdersScreen(showSalesTab: true),
                         ),
                       ),
                       isPrimary: false,
-                      icon: Icons.receipt_long_outlined,
                     ),
                   ),
                 ],
@@ -121,9 +118,11 @@ class FarmerDashboardScreen extends ConsumerWidget {
                         fontWeight: FontWeight.w900,
                         letterSpacing: 1,
                         fontSize: 12,
+                        color: AppColors.forestGreen,
                       ),
                     ),
                   ),
+
                 ],
               ),
               const SizedBox(height: 20),
@@ -138,12 +137,18 @@ class FarmerDashboardScreen extends ConsumerWidget {
 
               // Crops List
               cropsAsync.when(
-                data: (crops) => _buildCropsList(context, crops.take(3).toList(), imageMap),
+                data: (crops) =>
+                    _buildCropsList(context, crops.take(3).toList(), imageMap),
                 loading: () => Column(
                   children: List.generate(3, (_) => const CropCardSkeleton()),
                 ),
                 error: (error, _) => Center(
-                  child: Text('Failed to load crops', style: TextStyle(color: AppColors.deepEmerald.withValues(alpha: 0.5))),
+                  child: Text(
+                    'Failed to load crops',
+                    style: TextStyle(
+                      color: AppColors.deepEmerald.withValues(alpha: 0.5),
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -153,7 +158,66 @@ class FarmerDashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildHeroCard(BuildContext context, List<CropModel> crops, AppLanguage lang) {
+  Widget _buildCropsList(
+    BuildContext context,
+    List<CropModel> crops,
+    Map<String, String> imageMap,
+  ) {
+    if (crops.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 40),
+          child: Column(
+            children: [
+              Icon(
+                Icons.agriculture_outlined,
+                size: 64,
+                color: AppColors.deepEmerald.withValues(alpha: 0.1),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'No crops planted yet.',
+                style: TextStyle(
+                  color: AppColors.deepEmerald.withValues(alpha: 0.3),
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return Column(
+      children: crops
+          .map(
+            (crop) => GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => CropDetailsScreen(crop: crop),
+                  ),
+                );
+              },
+              child: CropCard(
+                name: crop.fieldName,
+                stage: cropStage(crop),
+                plantedDate: formatCropDate(crop.plantingDate),
+                progress: cropProgress(crop),
+                imageUrl: imageUrlForCrop(crop.cropType, imageMap),
+              ),
+            ),
+          )
+          .toList(),
+    );
+  }
+
+  Widget _buildHeroCard(
+    BuildContext context,
+    List<CropModel> crops,
+    AppLanguage lang,
+  ) {
     final now = DateTime.now();
     final upcomingCount = crops
         .where(
@@ -199,63 +263,15 @@ class FarmerDashboardScreen extends ConsumerWidget {
                       ? 'You have $upcomingCount harvest${upcomingCount > 1 ? 's' : ''} coming up this month.'
                       : 'Everything is quiet. Time to plan your next field?',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppColors.bone.withValues(alpha: 0.6),
-                        fontSize: 14,
-                      ),
+                    color: AppColors.bone.withValues(alpha: 0.6),
+                    fontSize: 14,
+                  ),
                 ),
               ),
             ],
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildCropsList(
-    BuildContext context,
-    List<CropModel> crops,
-    Map<String, String> imageMap,
-  ) {
-    if (crops.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 40),
-          child: Column(
-            children: [
-              Icon(Icons.agriculture_outlined, size: 64, color: AppColors.deepEmerald.withValues(alpha: 0.1)),
-              const SizedBox(height: 16),
-              Text(
-                'No crops planted yet.',
-                style: TextStyle(color: AppColors.deepEmerald.withValues(alpha: 0.3), fontWeight: FontWeight.w700),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    return Column(
-      children: crops
-          .map(
-            (crop) => GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => CropDetailsScreen(crop: crop),
-                  ),
-                );
-              },
-              child: CropCard(
-                name: crop.fieldName,
-                stage: cropStage(crop),
-                plantedDate: formatCropDate(crop.plantingDate),
-                progress: cropProgress(crop),
-                imageUrl: imageUrlForCrop(crop.cropType, imageMap),
-              ),
-            ),
-          )
-          .toList(),
     );
   }
 

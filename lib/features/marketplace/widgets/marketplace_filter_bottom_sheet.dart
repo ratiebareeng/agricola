@@ -1,5 +1,6 @@
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
+import 'package:agricola/core/widgets/agri_kit.dart';
 import 'package:agricola/features/marketplace/providers/marketplace_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -162,23 +163,9 @@ class _MarketplaceFilterBottomSheetState
           // Apply Button
           SizedBox(
             width: double.infinity,
-            child: ElevatedButton(
+            child: AgriStadiumButton(
               onPressed: _applyFilters,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.green,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: Text(
-                t('apply_filters', currentLang),
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
+              label: t('apply_filters', currentLang),
             ),
           ),
           const SizedBox(height: 16),

@@ -1,4 +1,5 @@
 import 'package:agricola/core/providers/database_provider.dart';
+import 'package:agricola/core/widgets/agri_kit.dart';
 import 'package:agricola/features/inventory/widgets/inventory_item_card_skeleton.dart';
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
@@ -172,7 +173,7 @@ class _FarmerInventoryScreenState extends ConsumerState<FarmerInventoryScreen> {
                                   ),
                                   const SizedBox(height: 8),
                                   Text(
-                                    'P ${totalValue.toStringAsFixed(2)}',
+                                    'P ${totalValue.toStringAsFixed(0)}',
                                     style: TextStyle(
                                       fontSize: 22,
                                       fontWeight: FontWeight.bold,
@@ -351,18 +352,10 @@ class _FarmerInventoryScreenState extends ConsumerState<FarmerInventoryScreen> {
                   child: SafeArea(
                     child: SizedBox(
                       width: double.infinity,
-                      child: ElevatedButton.icon(
+                      child: AgriStadiumButton(
                         onPressed: () => _addInventory(context, currentLang),
-                        icon: const Icon(Icons.add),
-                        label: Text(t('add_inventory', currentLang)),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF2D6A4F),
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
+                        icon: Icons.add,
+                        label: t('add_inventory', currentLang),
                       ),
                     ),
                   ),
@@ -511,7 +504,7 @@ class _FarmerInventoryScreenState extends ConsumerState<FarmerInventoryScreen> {
               const SizedBox(height: 24),
               SizedBox(
                 width: double.infinity,
-                child: ElevatedButton(
+                child: AgriStadiumButton(
                   onPressed: () {
                     setState(() {
                       _selectedCropFilter = tempCropFilter;
@@ -519,15 +512,7 @@ class _FarmerInventoryScreenState extends ConsumerState<FarmerInventoryScreen> {
                     });
                     Navigator.pop(context);
                   },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF2D6A4F),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: Text(t('apply_filters', lang)),
+                  label: t('apply_filters', lang),
                 ),
               ),
             ],

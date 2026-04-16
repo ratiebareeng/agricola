@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
+import 'package:agricola/core/widgets/agri_kit.dart';
 import 'package:agricola/core/widgets/app_date_field.dart';
 import 'package:agricola/core/widgets/app_network_image.dart';
 import 'package:agricola/core/widgets/app_dropdown_field.dart';
@@ -167,7 +168,7 @@ class _AddEditInventoryScreenState
                     flex: 2,
                     child: AppTextField(
                       label: '',
-                      initialValue: _isEditing ? _quantity.toString() : '',
+                      initialValue: _isEditing ? AgriKit.formatQuantity(_quantity) : '',
                       keyboardType: TextInputType.number,
                       hint: t('enter_quantity', currentLang),
                       validator: (value) {

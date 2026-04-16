@@ -1,6 +1,6 @@
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
-import 'package:agricola/core/widgets/app_buttons.dart';
+import 'package:agricola/core/widgets/agri_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -25,7 +25,7 @@ class WelcomeScreen extends ConsumerWidget {
               width: 300,
               height: 300,
               decoration: BoxDecoration(
-                color: AppColors.green.withAlpha(25),
+                color: AppColors.green.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
             ),
@@ -37,7 +37,7 @@ class WelcomeScreen extends ConsumerWidget {
               width: 200,
               height: 200,
               decoration: BoxDecoration(
-                color: AppColors.earthBrown.withAlpha(25),
+                color: AppColors.earthBrown.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
             ),
@@ -52,22 +52,25 @@ class WelcomeScreen extends ConsumerWidget {
                   const Spacer(flex: 2),
                   // Logo & Branding
                   Container(
-                    padding: const EdgeInsets.all(24),
+                    width: 120,
+                    height: 120,
+                    padding: const EdgeInsets.all(4),
                     decoration: BoxDecoration(
                       color: AppColors.white,
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.green.withAlpha(105),
+                          color: AppColors.green.withValues(alpha: 0.4),
                           blurRadius: 20,
                           offset: const Offset(0, 10),
                         ),
                       ],
                     ),
-                    child: const Icon(
-                      Icons.agriculture_rounded,
-                      size: 80,
-                      color: AppColors.green,
+                    child: ClipOval(
+                      child: Image.asset(
+                        'assets/icons/icon.jpg',
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 32),
@@ -93,35 +96,25 @@ class WelcomeScreen extends ConsumerWidget {
                   const Spacer(flex: 3),
 
                   // Language Selection
-                  Container(
+                  AgriFocusCard(
                     padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      color: AppColors.white,
-                      borderRadius: BorderRadius.circular(24),
-                      border: Border.all(color: AppColors.lightGray),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withAlpha(25),
-                          blurRadius: 15,
-                          offset: const Offset(0, 5),
-                        ),
-                      ],
-                    ),
                     child: Column(
                       children: [
                         Text(
-                          t('select_language', currentLang),
-                          style: Theme.of(context).textTheme.titleLarge
-                              ?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.darkGray,
-                              ),
+                          t('select_language', currentLang).toUpperCase(),
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w900,
+                            color: AppColors.deepEmerald,
+                            letterSpacing: 2,
+                          ),
                         ),
                         const SizedBox(height: 24),
-                        AppSecondaryButton(
+                        AgriStadiumButton(
                           label: 'English',
                           icon: Icons.language,
-                          onTap: () async {
+                          isPrimary: false,
+                          onPressed: () async {
                             await ref
                                 .read(languageProvider.notifier)
                                 .setLanguage(AppLanguage.english);
@@ -130,10 +123,11 @@ class WelcomeScreen extends ConsumerWidget {
                           },
                         ),
                         const SizedBox(height: 16),
-                        AppSecondaryButton(
+                        AgriStadiumButton(
                           label: 'Setswana',
                           icon: Icons.translate,
-                          onTap: () async {
+                          isPrimary: false,
+                          onPressed: () async {
                             await ref
                                 .read(languageProvider.notifier)
                                 .setLanguage(AppLanguage.setswana);
@@ -147,7 +141,7 @@ class WelcomeScreen extends ConsumerWidget {
                   const Spacer(flex: 1),
 
                   // Debug / Testing Button
-                  TextButton(
+                  AgriTextButton(
                     onPressed: () async {
                       final prefs = await SharedPreferences.getInstance();
                       await prefs.clear();
@@ -157,10 +151,8 @@ class WelcomeScreen extends ConsumerWidget {
                         );
                       }
                     },
-                    child: const Text(
-                      'Reset App Data (Testing)',
-                      style: TextStyle(color: Colors.grey, fontSize: 12),
-                    ),
+                    label: 'RESET APP DATA (TESTING)',
+                    color: Colors.grey,
                   ),
                 ],
               ),
@@ -171,3 +163,4 @@ class WelcomeScreen extends ConsumerWidget {
     );
   }
 }
+

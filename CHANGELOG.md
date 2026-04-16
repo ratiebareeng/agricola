@@ -1,3 +1,27 @@
+## 1.1.3 - 2026-04-17
+
+### Changed
+- **UI component refactoring** — migrated button components (`AppPrimaryButton`, `AppSecondaryButton`, `AppTextButton`) into unified `AgriKit` library; added `AgriTextButton` for consistent text button styling and `AgriKit.formatQuantity()` utility for quantity formatting
+- **Cleaned up language provider** — removed deprecated and unused translation keys to reduce bundle size
+- **Code organization** — consolidated core UI widgets into `agri_kit.dart` for better maintainability
+
+## 1.1.2 - 2026-04-17
+
+### Fixed
+- **Profile setup error handling** — surface backend validation errors for profile creation flow instead of generic failure messages; improved error message extraction from 400 responses
+
+## 1.1.1 - 2026-04-16
+
+### Added
+- **Direct Seller Contact** — Added prominent **Call** and **Email** action buttons to the Marketplace Detail screen, powered by `url_launcher`.
+- **Integrated url_launcher** — Added dependency to support native phone and email application launching.
+
+### Fixed
+- **Metric Scaling** — Improved `AgriMetricDisplay` with `FittedBox` to prevent UI overflow when displaying long values (e.g., large quantities).
+- **Redesign Completion** — Migrated remaining legacy UI components to the "Digital Earth" ethos, including Settings, Purchase forms, Profile completion, and shared Dialogs.
+- **Button Consistency** — Styled all remaining `TextButton` and `ElevatedButton` instances to follow the bold, high-contrast aesthetic.
+- **SwitchListTile Deprecation** — Replaced deprecated `activeColor` with `activeThumbColor` in Settings.
+
 ## 1.1.0 - 2026-04-16
 
 ### Added
@@ -84,6 +108,13 @@
 
 ### Fixed
 - **Profile setup error handling** — surface backend validation messages from profile creation and avoid a generic failure state when creating user profiles.
+
+## 1.1.2 - 2026-04-17
+
+### Changed
+- **UI component refactoring** — migrated button components (`AppPrimaryButton`, `AppSecondaryButton`, `AppTextButton`) into unified `AgriKit` library; added `AgriTextButton` for consistent text button styling and `AgriKit.formatQuantity()` utility for quantity formatting
+- **Cleaned up language provider** — removed deprecated and unused translation keys to reduce bundle size
+- **Code organization** — consolidated core UI widgets into `agri_kit.dart` for better maintainability
 
 ## 1.0.7 - 2026-04-12
 

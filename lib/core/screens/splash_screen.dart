@@ -87,22 +87,25 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
               children: [
                 // Logo
                 Container(
-                  padding: const EdgeInsets.all(24),
+                  width: 120,
+                  height: 120,
+                  padding: const EdgeInsets.all(4), // Subtle border space
                   decoration: BoxDecoration(
                     color: AppColors.white,
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.green.withAlpha(105),
+                        color: AppColors.green.withValues(alpha: 0.4),
                         blurRadius: 20,
                         offset: const Offset(0, 10),
                       ),
                     ],
                   ),
-                  child: const Icon(
-                    Icons.agriculture_rounded,
-                    size: 80,
-                    color: AppColors.green,
+                  child: ClipOval(
+                    child: Image.asset(
+                      'assets/icons/icon.jpg',
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 32),

@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/core/utils/image_utils.dart';
 import 'package:agricola/core/utils/url_utils.dart';
-import 'package:agricola/core/widgets/app_buttons.dart';
+import 'package:agricola/core/widgets/agri_kit.dart';
 import 'package:agricola/core/widgets/app_text_field.dart';
 import 'package:agricola/domain/profile/enum/merchant_type.dart';
 import 'package:agricola/features/profile/providers/profile_controller_provider.dart';
@@ -87,7 +87,7 @@ class _EditMerchantProfileScreenState
             const SizedBox(height: 24),
             _buildProductsSection(isLoading),
             const SizedBox(height: 32),
-            AppPrimaryButton(
+            AgriStadiumButton(
               label: isLoading ? 'Saving...' : 'Save Changes',
               onPressed: isLoading ? null : _saveProfile,
               isLoading: isLoading,

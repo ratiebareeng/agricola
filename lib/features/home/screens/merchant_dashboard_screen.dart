@@ -5,6 +5,7 @@ import 'package:agricola/core/widgets/agri_kit.dart';
 import 'package:agricola/core/widgets/skeleton_primitives.dart';
 import 'package:agricola/domain/profile/enum/merchant_type.dart';
 import 'package:agricola/features/home/providers/dashboard_stats_provider.dart';
+import 'package:agricola/features/home/widgets/hero_card_skeleton.dart';
 import 'package:agricola/features/marketplace/screens/add_product_screen.dart';
 import 'package:agricola/features/notifications/providers/notifications_provider.dart';
 import 'package:agricola/features/notifications/screens/notifications_screen.dart';
@@ -105,10 +106,7 @@ class _StatsHero extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (stats.isLoading) {
-      return const AgriFocusCard(
-        color: AppColors.deepEmerald,
-        child: SizedBox(height: 150, child: Center(child: CircularProgressIndicator(color: AppColors.bone))),
-      );
+      return const HeroCardSkeleton();
     }
 
     return AgriFocusCard(
@@ -182,7 +180,6 @@ class _QuickActionsGrid extends ConsumerWidget {
       children: [
         AgriStadiumButton(
           label: t('add_new_product', lang),
-          icon: Icons.add_circle_outline,
           onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AddProductScreen())),
         ),
         const SizedBox(height: 16),
@@ -192,7 +189,6 @@ class _QuickActionsGrid extends ConsumerWidget {
               child: AgriStadiumButton(
                 label: 'INVENTORY',
                 isPrimary: false,
-                icon: Icons.inventory_outlined,
                 onPressed: () => ref.read(selectedTabProvider.notifier).state = isAgriShop ? 1 : 2,
               ),
             ),
@@ -201,7 +197,6 @@ class _QuickActionsGrid extends ConsumerWidget {
               child: AgriStadiumButton(
                 label: 'ORDERS',
                 isPrimary: false,
-                icon: Icons.receipt_long_outlined,
                 onPressed: () {
                   if (isAgriShop) {
                     ref.read(selectedTabProvider.notifier).state = 2;
@@ -261,9 +256,15 @@ class _RecentActivitySection extends ConsumerWidget {
             children: [
               Text(
                 t('view_all_orders', lang).toUpperCase(),
-                style: const TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1, fontSize: 12),
+                style: const TextStyle(
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 1,
+                  fontSize: 12,
+                  color: AppColors.forestGreen,
+                ),
               ),
-              const Icon(Icons.arrow_forward, size: 16),
+              const SizedBox(width: 4),
+              const Icon(Icons.arrow_forward, size: 16, color: AppColors.forestGreen),
             ],
           ),
         ),

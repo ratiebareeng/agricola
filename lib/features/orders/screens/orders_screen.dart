@@ -1,6 +1,7 @@
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/core/utils/error_utils.dart';
+import 'package:agricola/core/widgets/agri_kit.dart';
 import 'package:agricola/core/widgets/app_dialogs.dart';
 import 'package:agricola/features/orders/models/order_model.dart';
 import 'package:agricola/features/orders/providers/orders_provider.dart';
@@ -209,14 +210,10 @@ class _OrdersList extends ConsumerWidget {
               style: TextStyle(color: Colors.grey[600]),
             ),
             const SizedBox(height: 24),
-            ElevatedButton.icon(
+            AgriStadiumButton(
               onPressed: () => ref.read(provider.notifier).loadOrders(),
-              icon: const Icon(Icons.refresh),
-              label: Text(t('retry', lang)),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.green,
-                foregroundColor: Colors.white,
-              ),
+              icon: Icons.refresh,
+              label: t('retry', lang),
             ),
           ],
         ),
@@ -341,24 +338,17 @@ class _SellerActions extends ConsumerWidget {
     return Row(
       children: [
         Expanded(
-          child: OutlinedButton(
+          child: AgriStadiumButton(
             onPressed: () => _showDetails(context),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: AppColors.green,
-              side: const BorderSide(color: AppColors.green),
-            ),
-            child: Text(t('view_details', lang)),
+            label: t('view_details', lang),
+            isPrimary: false,
           ),
         ),
         const SizedBox(width: 12),
         Expanded(
-          child: ElevatedButton(
+          child: AgriStadiumButton(
             onPressed: () => _updateStatus(context, ref, nextStatus),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.green,
-              foregroundColor: Colors.white,
-            ),
-            child: Text(_actionLabel(order.status)),
+            label: _actionLabel(order.status),
           ),
         ),
       ],
@@ -429,13 +419,10 @@ class _BuyerActions extends ConsumerWidget {
     return Row(
       children: [
         Expanded(
-          child: OutlinedButton(
+          child: AgriStadiumButton(
             onPressed: () => _confirmCancel(context, ref),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: Colors.red,
-              side: const BorderSide(color: Colors.red),
-            ),
-            child: Text(t('cancel_order', lang)),
+            label: t('cancel_order', lang),
+            isPrimary: false,
           ),
         ),
       ],

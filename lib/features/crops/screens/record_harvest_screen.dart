@@ -1,5 +1,6 @@
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
+import 'package:agricola/core/widgets/agri_kit.dart';
 import 'package:agricola/features/crops/crop_helpers.dart';
 import 'package:agricola/features/crops/models/crop_model.dart';
 import 'package:agricola/features/crops/providers/crop_catalog_provider.dart';
@@ -299,7 +300,7 @@ class _RecordHarvestScreenState extends ConsumerState<RecordHarvestScreen> {
                                   ),
                                 ),
                                 Text(
-                                  '${widget.crop.estimatedYield} ${t(_selectedYieldUnit, currentLang)}',
+                                  '${AgriKit.formatQuantity(widget.crop.estimatedYield)} ${t(_selectedYieldUnit, currentLang)}',
                                   style: const TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w600,
@@ -339,7 +340,7 @@ class _RecordHarvestScreenState extends ConsumerState<RecordHarvestScreen> {
                                   ),
                                 ),
                                 Text(
-                                  '${difference >= 0 ? '+' : ''}${difference.toStringAsFixed(1)} ${t(_selectedYieldUnit, currentLang)}',
+                                  '${difference >= 0 ? '+' : ''}${AgriKit.formatQuantity(difference)} ${t(_selectedYieldUnit, currentLang)}',
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
@@ -593,34 +594,19 @@ class _RecordHarvestScreenState extends ConsumerState<RecordHarvestScreen> {
               child: Row(
                 children: [
                   Expanded(
-                    child: OutlinedButton(
+                    child: AgriStadiumButton(
                       onPressed: () => Navigator.pop(context),
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        side: const BorderSide(color: Color(0xFF2D6A4F)),
-                      ),
-                      child: Text(t('cancel', currentLang)),
+                      label: t('cancel', currentLang),
+                      isPrimary: false,
                     ),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
                     flex: 2,
-                    child: ElevatedButton.icon(
+                    child: AgriStadiumButton(
                       onPressed: _saveHarvest,
-                      icon: const Icon(Icons.inventory_2),
-                      label: Text(t('save_to_inventory', currentLang)),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF2D6A4F),
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        elevation: 0,
-                      ),
+                      icon: Icons.inventory_2,
+                      label: t('save_to_inventory', currentLang),
                     ),
                   ),
                 ],
@@ -651,7 +637,8 @@ class _RecordHarvestScreenState extends ConsumerState<RecordHarvestScreen> {
 
   double? _calculateDifference() {
     if (_actualYieldController.text.isNotEmpty) {
-      final actual = double.parse(_actualYieldController.text);
+      final actual = double.tryParse(_actualYieldController.text);
+      if (actual == null) return null;
       return actual - widget.crop.estimatedYield;
     }
     return null;

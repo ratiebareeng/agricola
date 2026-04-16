@@ -1,6 +1,16 @@
 import 'package:agricola/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
+class AgriKit {
+  /// Formatting utility for quantities (removes trailing zeros)
+  static String formatQuantity(double quantity) {
+    if (quantity == quantity.toInt().toDouble()) {
+      return quantity.toInt().toString();
+    }
+    return quantity.toString();
+  }
+}
+
 /// The core UI Kit for the "Digital Earth" design ethos.
 class AgriFocusCard extends StatelessWidget {
   final Widget child;
@@ -60,16 +70,22 @@ class AgriMetricDisplay extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          value,
-          style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                color: valueColor ?? AppColors.deepEmerald,
-                height: 1,
-              ),
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.centerLeft,
+          child: Text(
+            value,
+            style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                  color: valueColor ?? AppColors.deepEmerald,
+                  height: 1,
+                ),
+          ),
         ),
         const SizedBox(height: 4),
         Text(
           label.toUpperCase(),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: labelColor ?? AppColors.forestGreen.withValues(alpha: 0.6),
                 fontWeight: FontWeight.w800,
@@ -124,5 +140,43 @@ class AgriStadiumButton extends StatelessWidget {
         label: Text(label),
       );
     }
+  }
+}
+
+class AgriTextButton extends StatelessWidget {
+  final String label;
+  final VoidCallback? onPressed;
+  final Color? color;
+  final bool isUnderlined;
+  final double fontSize;
+
+  const AgriTextButton({
+    super.key,
+    required this.label,
+    this.onPressed,
+    this.color,
+    this.isUnderlined = false,
+    this.fontSize = 14,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return TextButton(
+      onPressed: onPressed,
+      style: TextButton.styleFrom(
+        foregroundColor: color ?? AppColors.forestGreen,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: fontSize,
+          fontWeight: FontWeight.w700,
+          decoration: isUnderlined ? TextDecoration.underline : null,
+          letterSpacing: 0.5,
+        ),
+      ),
+    );
   }
 }

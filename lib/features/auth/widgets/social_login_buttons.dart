@@ -1,5 +1,5 @@
 import 'package:agricola/core/providers/language_provider.dart';
-import 'package:agricola/core/widgets/app_buttons.dart';
+import 'package:agricola/core/widgets/agri_kit.dart';
 import 'package:agricola/features/auth/widgets/or_divider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -22,24 +22,26 @@ class SocialLoginButtons extends ConsumerWidget {
 
     return Column(
       children: [
-        OrDivider(text: t('or_continue_with', currentLang)),
+        OrDivider(text: t('or_continue_with', currentLang).toUpperCase()),
         const SizedBox(height: 24),
         Row(
           children: [
             Expanded(
-              child: AppSecondaryButton(
+              child: AgriStadiumButton(
                 label: t('google', currentLang),
-                icon: Icons.g_mobiledata,
-                onTap: isLoading ? null : onGoogleTap,
+                icon: Icons.login,
+                onPressed: isLoading ? null : onGoogleTap,
+                isPrimary: false,
               ),
             ),
             if (onFacebookTap != null) ...[
               const SizedBox(width: 16),
               Expanded(
-                child: AppSecondaryButton(
+                child: AgriStadiumButton(
                   label: t('facebook', currentLang),
                   icon: Icons.facebook,
-                  onTap: isLoading ? null : onFacebookTap,
+                  onPressed: isLoading ? null : onFacebookTap,
+                  isPrimary: false,
                 ),
               ),
             ],

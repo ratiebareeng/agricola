@@ -2,6 +2,7 @@ import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/utils/url_utils.dart';
 import 'package:agricola/core/routing/route_guard_helpers.dart';
 import 'package:agricola/core/theme/app_theme.dart';
+import 'package:agricola/core/widgets/agri_kit.dart';
 import 'package:agricola/core/widgets/language_select_content.dart';
 import 'package:agricola/features/auth/providers/auth_provider.dart';
 import 'package:agricola/features/profile/domain/models/displayable_profile.dart';
@@ -238,9 +239,9 @@ class _FarmerProfileScreenState extends ConsumerState<FarmerProfileScreen> {
         ),
         const SizedBox(height: 12),
         if (profile.primaryCrops.isEmpty)
-          Text(
+          const Text(
             'Not set',
-            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
           )
         else
           Wrap(
@@ -285,16 +286,19 @@ class _FarmerProfileScreenState extends ConsumerState<FarmerProfileScreen> {
               style: TextStyle(fontSize: 16, color: Colors.grey[600]),
             ),
             const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                final user = ref.read(currentUserProvider);
-                if (user != null) {
-                  ref
-                      .read(profileControllerProvider.notifier)
-                      .loadProfile(userId: user.uid);
-                }
-              },
-              child: const Text('Retry'),
+            SizedBox(
+              width: 200,
+              child: AgriStadiumButton(
+                onPressed: () {
+                  final user = ref.read(currentUserProvider);
+                  if (user != null) {
+                    ref
+                        .read(profileControllerProvider.notifier)
+                        .loadProfile(userId: user.uid);
+                  }
+                },
+                label: 'Retry',
+              ),
             ),
           ],
         ),
@@ -464,30 +468,10 @@ class _FarmerProfileScreenState extends ConsumerState<FarmerProfileScreen> {
             style: TextStyle(color: Colors.white.withAlpha(90), fontSize: 14),
           ),
           const SizedBox(height: 16),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () => context.push('/profile-setup'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-                foregroundColor: AppColors.green,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Complete Profile',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(width: 8),
-                  Icon(Icons.arrow_forward, size: 20),
-                ],
-              ),
-            ),
+          AgriStadiumButton(
+            onPressed: () => context.push('/profile-setup'),
+            label: 'Complete Profile',
+            icon: Icons.arrow_forward,
           ),
         ],
       ),

@@ -16,6 +16,7 @@ import 'package:agricola/features/crops/widgets/harvest_history_card.dart';
 import 'package:agricola/features/crops/widgets/timeline_view.dart';
 import 'package:agricola/features/inventory/models/inventory_model.dart';
 import 'package:agricola/features/inventory/providers/inventory_providers.dart';
+import 'package:agricola/features/loss_calculator/screens/loss_calculator_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -115,6 +116,20 @@ class CropDetailsScreen extends ConsumerWidget {
               plantingDate: crop.plantingDate,
               expectedHarvestDate: crop.expectedHarvestDate,
             ),
+            const SizedBox(height: 16),
+            AgriStadiumButton(
+              label: t('calculate_losses', currentLang),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => LossCalculatorScreen(preselectedCrop: crop),
+                  ),
+                );
+              },
+              isPrimary: false,
+              icon: Icons.calculate_outlined,
+            ),
             const SizedBox(height: 32),
 
             Text(
@@ -146,7 +161,7 @@ class CropDetailsScreen extends ConsumerWidget {
                 ),
                 _DetailMetric(
                   label: t('estimated_yield', currentLang),
-                  value: '${crop.estimatedYield}${t(crop.yieldUnit, currentLang)}',
+                  value: '${AgriKit.formatQuantity(crop.estimatedYield)}${t(crop.yieldUnit, currentLang)}',
                   isSmallValue: true,
                 ),
               ],
@@ -201,7 +216,7 @@ class CropDetailsScreen extends ConsumerWidget {
                     final date = '${_monthName(harvest.harvestDate.month)} ${harvest.harvestDate.day}, ${harvest.harvestDate.year}';
                     return HarvestHistoryCard(
                       date: date,
-                      yield: '${harvest.actualYield} ${harvest.yieldUnit}',
+                      yield: '${AgriKit.formatQuantity(harvest.actualYield)} ${harvest.yieldUnit}',
                       quality: harvest.quality,
                     );
                   }).toList(),
@@ -248,7 +263,7 @@ class CropDetailsScreen extends ConsumerWidget {
           icon: Icons.inventory_2_outlined,
           title: t('add_to_inventory', currentLang),
           content: t('add_to_inventory_prompt', currentLang)
-              .replaceAll('{amount}', netAmount.toStringAsFixed(1))
+              .replaceAll('{amount}', AgriKit.formatQuantity(netAmount))
               .replaceAll('{unit}', t(result.yieldUnit, currentLang))
               .replaceAll('{crop}', cropName),
           cancelText: t('not_now', currentLang),

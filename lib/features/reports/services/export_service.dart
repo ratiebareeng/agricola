@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:agricola/core/providers/language_provider.dart';
+import 'package:agricola/core/widgets/agri_kit.dart';
 import 'package:agricola/features/crops/models/crop_model.dart';
 import 'package:agricola/features/inventory/models/inventory_model.dart';
 import 'package:agricola/features/orders/models/order_model.dart';
@@ -102,7 +103,7 @@ String ordersToCsv(List<OrderModel> orders, AppLanguage lang) {
   final rows = orders.map((o) => [
         o.id ?? '',
         o.status,
-        o.items.map((i) => '${i.title} x${i.quantity}').join('; '),
+        o.items.map((i) => '${i.title} x${AgriKit.formatQuantity(i.quantity.toDouble())}').join('; '),
         o.totalAmount,
         _fmtDate(o.createdAt),
       ]);

@@ -13,6 +13,7 @@ import 'package:agricola/features/orders/providers/orders_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class MarketplaceDetailScreen extends ConsumerWidget {
   final MarketplaceListing listing;
@@ -26,6 +27,7 @@ class MarketplaceDetailScreen extends ConsumerWidget {
     final isOwner = currentUser != null && listing.sellerId == currentUser.uid;
 
     return Scaffold(
+      backgroundColor: AppColors.bone,
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
@@ -60,8 +62,26 @@ class MarketplaceDetailScreen extends ConsumerWidget {
                     ),
                   ]
                 : null,
-            flexibleSpace: FlexibleSpaceBar(
-              background: _buildImageGallery(listing),
+            flexibleSpace: LayoutBuilder(
+              builder: (context, constraints) {
+                final top = constraints.biggest.height;
+                final isCollapsed = top <= MediaQuery.of(context).padding.top + kToolbarHeight;
+                return FlexibleSpaceBar(
+                  centerTitle: true,
+                  title: isCollapsed
+                      ? Text(
+                          listing.title.toUpperCase(),
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w900,
+                            color: AppColors.bone,
+                            letterSpacing: 1.5,
+                          ),
+                        )
+                      : null,
+                  background: _buildImageGallery(listing),
+                );
+              },
             ),
           ),
           SliverToBoxAdapter(
@@ -105,21 +125,26 @@ class MarketplaceDetailScreen extends ConsumerWidget {
                       color: AppColors.deepEmerald,
                       padding: const EdgeInsets.all(24),
                       child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          AgriMetricDisplay(
-                            value: 'P${listing.price!.toStringAsFixed(0)}',
-                            label: t('price', currentLang),
-                            valueColor: AppColors.bone,
-                            labelColor: AppColors.bone.withValues(alpha: 0.5),
-                          ),
-                          if (listing.quantity != null)
-                            AgriMetricDisplay(
-                              value: listing.quantity!,
-                              label: t('available', currentLang),
-                              valueColor: AppColors.earthYellow,
-                              labelColor: AppColors.earthYellow.withValues(alpha: 0.5),
+                          Expanded(
+                            child: AgriMetricDisplay(
+                              value: 'P${listing.price!.toStringAsFixed(0)}',
+                              label: t('price', currentLang),
+                              valueColor: AppColors.bone,
+                              labelColor: AppColors.bone.withValues(alpha: 0.5),
                             ),
+                          ),
+                          if (listing.quantity != null) ...[
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: AgriMetricDisplay(
+                                value: AgriKit.formatQuantity(double.tryParse(listing.quantity!) ?? 0),
+                                label: t('available', currentLang),
+                                valueColor: AppColors.earthYellow,
+                                labelColor: AppColors.earthYellow.withValues(alpha: 0.5),
+                              ),
+                            ),
+                          ],
                         ],
                       ),
                     ),
@@ -202,19 +227,18 @@ class MarketplaceDetailScreen extends ConsumerWidget {
                         ),
                         const SizedBox(height: 32),
                         if (listing.sellerPhone != null)
-                          _ContactTile(
+                          AgriStadiumButton(
+                            onPressed: () => _makePhoneCall(listing.sellerPhone!),
+                            label: t('call_seller', currentLang).toUpperCase(),
                             icon: Icons.phone_outlined,
-                            label: t('call_seller', currentLang),
-                            value: listing.sellerPhone!,
-                            onTap: () => _copyToClipboard(context, listing.sellerPhone!, t('phone_copied', currentLang)),
                           ),
                         if (listing.sellerEmail != null) ...[
                           const SizedBox(height: 16),
-                          _ContactTile(
+                          AgriStadiumButton(
+                            onPressed: () => _sendEmail(listing.sellerEmail!, listing.title),
+                            label: t('email_seller', currentLang).toUpperCase(),
                             icon: Icons.email_outlined,
-                            label: t('email_seller', currentLang),
-                            value: listing.sellerEmail!,
-                            onTap: () => _copyToClipboard(context, listing.sellerEmail!, t('email_copied', currentLang)),
+                            isPrimary: false,
                           ),
                         ],
                       ],
@@ -248,7 +272,7 @@ class MarketplaceDetailScreen extends ConsumerWidget {
                       SizedBox(
                         width: 64,
                         child: AgriStadiumButton(
-                          onPressed: () => _copyToClipboard(context, listing.sellerPhone!, t('phone_copied', currentLang)),
+                          onPressed: () => _makePhoneCall(listing.sellerPhone!),
                           label: '',
                           icon: Icons.phone_outlined,
                           isPrimary: false,
@@ -402,57 +426,31 @@ class MarketplaceDetailScreen extends ConsumerWidget {
     }
   }
 
-  void _copyToClipboard(BuildContext context, String text, String message) {
-    Clipboard.setData(ClipboardData(text: text));
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: AppColors.forestGreen,
-        behavior: SnackBarBehavior.floating,
-        duration: const Duration(seconds: 2),
-      ),
+  Future<void> _makePhoneCall(String phoneNumber) async {
+    final Uri launchUri = Uri(
+      scheme: 'tel',
+      path: phoneNumber,
     );
+    if (await canLaunchUrl(launchUri)) {
+      await launchUrl(launchUri);
+    }
   }
-}
 
-class _ContactTile extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String value;
-  final VoidCallback onTap;
-
-  const _ContactTile({required this.icon, required this.label, required this.value, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(color: AppColors.bone, borderRadius: BorderRadius.circular(16)),
-        child: Row(
-          children: [
-            Icon(icon, color: AppColors.forestGreen, size: 20),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    label.toUpperCase(),
-                    style: TextStyle(fontSize: 9, fontWeight: FontWeight.w800, color: AppColors.deepEmerald.withValues(alpha: 0.4), letterSpacing: 0.5),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(value, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.deepEmerald)),
-                ],
-              ),
-            ),
-            Icon(Icons.copy, size: 16, color: AppColors.deepEmerald.withValues(alpha: 0.2)),
-          ],
-        ),
-      ),
+  Future<void> _sendEmail(String email, String subject) async {
+    final Uri launchUri = Uri(
+      scheme: 'mailto',
+      path: email,
+      query: encodeQueryParameters(<String, String>{
+        'subject': 'Agricola Marketplace: $subject',
+      }),
     );
+    if (await canLaunchUrl(launchUri)) {
+      await launchUrl(launchUri);
+    }
+  }
+
+  String? encodeQueryParameters(Map<String, String> params) {
+    return params.entries.map((MapEntry<String, String> e) => '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}').join('&');
   }
 }
 

@@ -1,4 +1,5 @@
 import 'package:agricola/core/theme/app_theme.dart';
+import 'package:agricola/core/widgets/agri_kit.dart';
 import 'package:flutter/material.dart';
 
 class AuthFooterLink extends StatelessWidget {
@@ -19,20 +20,29 @@ class AuthFooterLink extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          text,
-          style: const TextStyle(
-            color: AppColors.darkGray,
-            fontSize: 16,
+          text.toUpperCase(),
+          style: TextStyle(
+            color: AppColors.deepEmerald.withValues(alpha: 0.4),
+            fontSize: 11,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 0.5,
           ),
         ),
+        const SizedBox(width: 4),
         TextButton(
           onPressed: onTap,
+          style: TextButton.styleFrom(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            minimumSize: Size.zero,
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          ),
           child: Text(
-            linkText,
+            linkText.toUpperCase(),
             style: const TextStyle(
-              color: AppColors.green,
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
+              color: AppColors.forestGreen,
+              fontWeight: FontWeight.w900,
+              fontSize: 11,
+              letterSpacing: 0.5,
             ),
           ),
         ),

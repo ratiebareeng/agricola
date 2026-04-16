@@ -1,5 +1,6 @@
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
+import 'package:agricola/core/widgets/agri_kit.dart';
 import 'package:flutter/material.dart';
 
 class InventoryItemCard extends StatelessWidget {
@@ -94,7 +95,7 @@ class InventoryItemCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '$quantity ${t(unit, language)}',
+                        '${AgriKit.formatQuantity(quantity)} ${t(unit, language)}',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,

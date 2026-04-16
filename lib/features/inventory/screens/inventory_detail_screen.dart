@@ -1,4 +1,5 @@
 import 'package:agricola/core/providers/language_provider.dart';
+import 'package:agricola/core/widgets/agri_kit.dart';
 import 'package:agricola/core/widgets/app_dialogs.dart';
 import 'package:agricola/core/widgets/app_network_image.dart';
 import 'package:agricola/features/crops/crop_helpers.dart';
@@ -179,7 +180,7 @@ class _InventoryDetailScreenState extends ConsumerState<InventoryDetailScreen> {
 
                         // Quantity
                         Text(
-                          '${_item.quantity} ${t(_item.unit, language)}',
+                          '${AgriKit.formatQuantity(_item.quantity)} ${t(_item.unit, language)}',
                           style: const TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.w600,
@@ -275,12 +276,16 @@ class _InventoryDetailScreenState extends ConsumerState<InventoryDetailScreen> {
 
           // Sticky bottom action
           Container(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
             decoration: BoxDecoration(
               color: Colors.white,
-              border: Border(
-                top: BorderSide(color: Colors.grey.shade200),
-              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withAlpha(10),
+                  blurRadius: 10,
+                  offset: const Offset(0, -2),
+                ),
+              ],
             ),
             child: SafeArea(
               top: false,
@@ -288,7 +293,7 @@ class _InventoryDetailScreenState extends ConsumerState<InventoryDetailScreen> {
                   ? Row(
                       children: [
                         Expanded(
-                          child: ElevatedButton.icon(
+                          child: AgriStadiumButton(
                             onPressed: () {
                               final linked = linkedListing.valueOrNull;
                               if (linked != null) {
@@ -302,56 +307,31 @@ class _InventoryDetailScreenState extends ConsumerState<InventoryDetailScreen> {
                                 );
                               }
                             },
-                            icon: const Icon(Icons.storefront_outlined),
-                            label: Text(t('view_listing', language)),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.green,
-                              foregroundColor: Colors.white,
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 14),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              elevation: 0,
-                            ),
+                            icon: Icons.storefront_outlined,
+                            label: t('view_listing', language),
                           ),
                         ),
                         const SizedBox(width: 12),
-                        OutlinedButton.icon(
-                          onPressed: () => _confirmUnlist(
-                            context,
-                            language,
-                            linkedListing.valueOrNull!,
-                          ),
-                          icon: const Icon(Icons.remove_shopping_cart_outlined),
-                          label: Text(t('unlist', language)),
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: Colors.red,
-                            side: const BorderSide(color: Colors.red),
-                            padding:
-                                const EdgeInsets.symmetric(vertical: 14),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                        Expanded(
+                          child: AgriStadiumButton(
+                            onPressed: () => _confirmUnlist(
+                              context,
+                              language,
+                              linkedListing.valueOrNull!,
                             ),
+                            icon: Icons.remove_shopping_cart_outlined,
+                            label: t('unlist', language),
+                            isPrimary: false,
                           ),
                         ),
                       ],
                     )
                   : SizedBox(
                       width: double.infinity,
-                      child: ElevatedButton.icon(
+                      child: AgriStadiumButton(
                         onPressed: () => _listOnMarketplace(context),
-                        icon: const Icon(Icons.storefront_outlined),
-                        label: Text(t('list_on_marketplace', language)),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.green,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          elevation: 0,
-                        ),
+                        icon: Icons.storefront_outlined,
+                        label: t('list_on_marketplace', language),
                       ),
                     ),
             ),

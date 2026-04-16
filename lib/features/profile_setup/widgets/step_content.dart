@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
+import 'package:agricola/core/widgets/agri_kit.dart';
 import 'package:agricola/core/widgets/app_text_field.dart';
 import 'package:agricola/domain/profile/enum/merchant_type.dart';
 import 'package:agricola/features/crops/providers/crop_catalog_provider.dart';
@@ -220,7 +221,7 @@ class StepContent extends ConsumerWidget {
               : notifier.updateLocation(value),
         ),
         const SizedBox(height: 12),
-        OutlinedButton.icon(
+        AgriStadiumButton(
           onPressed: () async {
             final picked = await showModalBottomSheet<String>(
               context: ref.context,
@@ -243,15 +244,9 @@ class StepContent extends ConsumerWidget {
               }
             }
           },
-          icon: const Icon(Icons.map_outlined, size: 18),
-          label: Text(t('view_on_map', currentLang)),
-          style: OutlinedButton.styleFrom(
-            foregroundColor: AppColors.green,
-            side: const BorderSide(color: AppColors.green),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ),
+          icon: Icons.map_outlined,
+          label: t('view_on_map', currentLang),
+          isPrimary: false,
         ),
       ],
     );
@@ -331,10 +326,11 @@ class StepContent extends ConsumerWidget {
             style: TextStyle(fontSize: 14, color: Colors.grey[600]),
           ),
           const SizedBox(height: 16),
-          TextButton.icon(
+          AgriStadiumButton(
             onPressed: () => _pickImage(ref),
-            icon: const Icon(Icons.upload),
-            label: Text(t('upload_photo', currentLang)),
+            icon: Icons.upload,
+            label: t('upload_photo', currentLang),
+            isPrimary: false,
           ),
         ],
       ),

@@ -1,5 +1,5 @@
 import 'package:agricola/core/theme/app_theme.dart';
-import 'package:agricola/core/widgets/app_buttons.dart';
+import 'package:agricola/core/widgets/agri_kit.dart';
 import 'package:flutter/material.dart';
 
 class AppFormLayout extends StatelessWidget {
@@ -58,9 +58,9 @@ class AppFormLayout extends StatelessWidget {
                 ],
               ),
               child: SafeArea(
-                child: AppPrimaryButton(
+                child: AgriStadiumButton(
                   label: submitLabel!,
-                  onTap: onSubmit,
+                  onPressed: onSubmit,
                   isLoading: isLoading,
                 ),
               ),

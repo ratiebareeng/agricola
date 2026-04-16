@@ -1,4 +1,5 @@
 import 'package:agricola/core/providers/language_provider.dart';
+import 'package:agricola/core/widgets/agri_kit.dart';
 import 'package:agricola/features/crops/crop_helpers.dart';
 import 'package:agricola/features/crops/models/crop_model.dart';
 import 'package:agricola/features/crops/providers/crop_catalog_provider.dart';
@@ -65,7 +66,7 @@ class _LossCalculatorScreenState extends ConsumerState<LossCalculatorScreen> {
     if (widget.preselectedCrop != null) {
       _selectedCrop = widget.preselectedCrop;
       _harvestAmountController.text =
-          widget.preselectedCrop!.estimatedYield.toString();
+          AgriKit.formatQuantity(widget.preselectedCrop!.estimatedYield);
       _selectedUnit = widget.preselectedCrop!.yieldUnit;
       _storageMethod = widget.preselectedCrop!.storageMethod;
     }
@@ -276,7 +277,7 @@ class _LossCalculatorScreenState extends ConsumerState<LossCalculatorScreen> {
                 setState(() {
                   _selectedCrop = crop;
                   _harvestAmountController.text =
-                      crop.estimatedYield.toString();
+                      AgriKit.formatQuantity(crop.estimatedYield);
                   _selectedUnit = crop.yieldUnit;
                   _storageMethod = crop.storageMethod;
                 });
@@ -489,7 +490,7 @@ class _LossCalculatorScreenState extends ConsumerState<LossCalculatorScreen> {
             style: const TextStyle(fontWeight: FontWeight.w600),
           ),
           Text(
-            '${totalLoss.toStringAsFixed(1)} ${t(_selectedUnit, lang)} (${pct.toStringAsFixed(1)}%)',
+            '${AgriKit.formatQuantity(totalLoss)} ${t(_selectedUnit, lang)} (${pct.toStringAsFixed(1)}%)',
             style: TextStyle(
               fontWeight: FontWeight.bold,
               color: pct > 25
@@ -533,33 +534,14 @@ class _LossCalculatorScreenState extends ConsumerState<LossCalculatorScreen> {
         // Save button
         SizedBox(
           width: double.infinity,
-          child: OutlinedButton.icon(
+          child: AgriStadiumButton(
             onPressed: _isSaving || _isSaved
                 ? null
                 : () => _saveCalculation(cropCategory),
-            icon: _isSaving
-                ? const SizedBox(
-                    width: 18,
-                    height: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : Icon(_isSaved ? Icons.check : Icons.save_outlined),
-            label: Text(
-              _isSaved ? t('saved', lang) : t('save_results', lang),
-            ),
-            style: OutlinedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 14),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              side: BorderSide(
-                color: _isSaved
-                    ? const Color(0xFF2D6A4F)
-                    : Colors.grey[400]!,
-              ),
-              foregroundColor:
-                  _isSaved ? const Color(0xFF2D6A4F) : Colors.grey[700],
-            ),
+            isLoading: _isSaving,
+            icon: _isSaved ? Icons.check : Icons.save_outlined,
+            label: _isSaved ? t('saved', lang) : t('save_results', lang),
+            isPrimary: !_isSaved,
           ),
         ),
         const SizedBox(height: 24),
@@ -592,44 +574,25 @@ class _LossCalculatorScreenState extends ConsumerState<LossCalculatorScreen> {
         children: [
           if (_currentStep > 0)
             Expanded(
-              child: OutlinedButton(
+              child: AgriStadiumButton(
                 onPressed: () => setState(() {
                   _currentStep--;
                   _isSaved = false;
                 }),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  side: const BorderSide(color: Color(0xFF2D6A4F)),
-                ),
-                child: Text(t('back', lang)),
+                label: t('back', lang),
+                isPrimary: false,
               ),
             ),
           if (_currentStep > 0) const SizedBox(width: 16),
           Expanded(
             flex: 2,
-            child: ElevatedButton(
+            child: AgriStadiumButton(
               onPressed: _onNext,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: _currentStep == 2
-                    ? const Color(0xFF2D6A4F)
-                    : const Color(0xFF2D6A4F),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                elevation: 0,
-              ),
-              child: Text(
-                _currentStep == 0
+              label: _currentStep == 0
                     ? t('next', lang)
                     : _currentStep == 1
                         ? t('calculate', lang)
                         : t('done', lang),
-              ),
             ),
           ),
         ],

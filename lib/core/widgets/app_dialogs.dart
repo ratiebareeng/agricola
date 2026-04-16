@@ -25,28 +25,38 @@ class AppDialogs {
     final result = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        backgroundColor: AppColors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
         title: _buildTitle(title, icon, isDestructive),
-        content: Text(content),
+        content: Text(
+          content,
+          style: TextStyle(
+            fontSize: 16,
+            color: AppColors.deepEmerald.withValues(alpha: 0.7),
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        actionsPadding: const EdgeInsets.only(right: 16, bottom: 16, left: 16),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text(
-              cancelText,
-              style: const TextStyle(color: Colors.grey),
+            style: TextButton.styleFrom(
+              foregroundColor: AppColors.deepEmerald.withValues(alpha: 0.4),
+              textStyle: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13, letterSpacing: 0.5),
             ),
+            child: Text(cancelText.toUpperCase()),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(
-              backgroundColor:
-                  isDestructive ? AppColors.alertRed : AppColors.green,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
+              backgroundColor: isDestructive ? AppColors.alertRed : AppColors.forestGreen,
+              foregroundColor: AppColors.white,
+              elevation: 0,
+              shape: const StadiumBorder(),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              textStyle: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13, letterSpacing: 0.5),
             ),
-            child: Text(actionText),
+            child: Text(actionText.toUpperCase()),
           ),
         ],
       ),
@@ -69,14 +79,31 @@ class AppDialogs {
     return showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        backgroundColor: AppColors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
         title: _buildTitle(title, icon, false),
-        content: body ?? Text(content!),
+        content: body ??
+            Text(
+              content!,
+              style: TextStyle(
+                fontSize: 16,
+                color: AppColors.deepEmerald.withValues(alpha: 0.7),
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+        actionsPadding: const EdgeInsets.only(right: 16, bottom: 16, left: 16),
         actions: [
-          TextButton(
+          ElevatedButton(
             onPressed: () => Navigator.pop(context),
-            style: TextButton.styleFrom(foregroundColor: AppColors.green),
-            child: Text(okayText),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.forestGreen,
+              foregroundColor: AppColors.white,
+              elevation: 0,
+              shape: const StadiumBorder(),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              textStyle: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13, letterSpacing: 0.5),
+            ),
+            child: Text(okayText.toUpperCase()),
           ),
         ],
       ),
@@ -84,16 +111,32 @@ class AppDialogs {
   }
 
   static Widget _buildTitle(String title, IconData? icon, bool isDestructive) {
-    if (icon == null) return Text(title);
+    final titleWidget = Text(
+      title,
+      style: const TextStyle(
+        fontSize: 20,
+        fontWeight: FontWeight.w800,
+        color: AppColors.deepEmerald,
+        letterSpacing: -0.5,
+      ),
+    );
+    if (icon == null) return titleWidget;
     return Row(
       children: [
-        Icon(
-          icon,
-          color: isDestructive ? AppColors.alertRed : AppColors.green,
-          size: 24,
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: (isDestructive ? AppColors.alertRed : AppColors.forestGreen).withValues(alpha: 0.1),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            icon,
+            color: isDestructive ? AppColors.alertRed : AppColors.forestGreen,
+            size: 20,
+          ),
         ),
         const SizedBox(width: 12),
-        Expanded(child: Text(title)),
+        Expanded(child: titleWidget),
       ],
     );
   }
