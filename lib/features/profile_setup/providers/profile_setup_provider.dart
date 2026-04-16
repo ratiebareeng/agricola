@@ -109,25 +109,25 @@ class ProfileSetupNotifier extends StateNotifier<ProfileSetupState> {
         }
 
         // Create profile in backend
-        final success = await _ref
+        final error = await _ref
             .read(profileControllerProvider.notifier)
             .createFarmerProfile(profile: farmerProfile);
 
-        if (success) {
+        if (error == null) {
           // Mark profile as complete in Firestore
           await _ref
               .read(authControllerProvider.notifier)
               .markProfileAsComplete();
 
           state = state.copyWith(isCreatingProfile: false, clearError: true);
+          return true;
         } else {
           state = state.copyWith(
             isCreatingProfile: false,
-            errorMessage: 'Failed to create profile. Please try again.',
+            errorMessage: error,
           );
+          return false;
         }
-
-        return success;
       } else {
         // Validate merchant type is set
         if (state.merchantType == null) {
@@ -167,25 +167,25 @@ class ProfileSetupNotifier extends StateNotifier<ProfileSetupState> {
         }
 
         // Create profile in backend
-        final success = await _ref
+        final error = await _ref
             .read(profileControllerProvider.notifier)
             .createMerchantProfile(profile: merchantProfile);
 
-        if (success) {
+        if (error == null) {
           // Mark profile as complete in Firestore
           await _ref
               .read(authControllerProvider.notifier)
               .markProfileAsComplete();
 
           state = state.copyWith(isCreatingProfile: false, clearError: true);
+          return true;
         } else {
           state = state.copyWith(
             isCreatingProfile: false,
-            errorMessage: 'Failed to create profile. Please try again.',
+            errorMessage: error,
           );
+          return false;
         }
-
-        return success;
       }
     } catch (e) {
       state = state.copyWith(

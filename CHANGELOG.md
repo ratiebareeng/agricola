@@ -1,3 +1,8 @@
+## 1.0.8 - 2026-04-16
+
+### Fixed
+- **Profile setup error handling** — surface backend validation messages from profile creation and avoid a generic failure state when creating user profiles.
+
 ## 1.0.7 - 2026-04-12
 
 ### Fixed

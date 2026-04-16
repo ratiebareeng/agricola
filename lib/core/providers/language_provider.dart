@@ -2153,6 +2153,10 @@ final Map<String, Map<AppLanguage, String>> _localizedStrings = {
     AppLanguage.english: 'Something went wrong. Please try again.',
     AppLanguage.setswana: 'Go na le phoso. Tsweetswee leka gape.',
   },
+  'creating_profile': {
+    AppLanguage.english: 'Creating your profile...',
+    AppLanguage.setswana: 'Re dira porofaele ya gago...',
+  },
 };
 
 String t(String key, AppLanguage lang) {

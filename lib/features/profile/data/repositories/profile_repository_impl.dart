@@ -288,12 +288,20 @@ class ProfileRepositoryImpl implements ProfileRepository {
     }
 
     if (statusCode == 400 && data is Map<String, dynamic>) {
+      final errors = data['errors'];
+      if (errors is List && errors.isNotEmpty) {
+        final errorMessages = errors.map((e) => e.toString()).join('\n');
+        return ProfileFailure.invalidData(errorMessages);
+      }
       final message = data['message'] as String? ?? 'Invalid data';
       return ProfileFailure.invalidData(message);
     }
 
     if (statusCode != null && statusCode >= 500) {
-      return ProfileFailure.serverError('Server error');
+      final message = (data is Map<String, dynamic>)
+          ? (data['message'] as String? ?? 'Server error')
+          : 'Server error';
+      return ProfileFailure.serverError(message);
     }
 
     return ProfileFailure.fromException(error);
