@@ -1,3 +1,17 @@
+## 1.1.0 - 2026-04-16
+
+### Added
+- **"Digital Earth" Design Ethos overhaul** — Complete visual redesign of the application using a bold, modern, and clean aesthetic.
+- **Forest & Bone palette** — Replaced generic colors with a premium high-contrast theme featuring Deep Emerald (#081C15) and Forest Green (#1B4332) on a warm Bone (#FDFCF9) background.
+- **Plus Jakarta Sans typography** — Implemented a modern geometric typeface app-wide, using heavy weights (ExtraBold/Black) for metrics and headers to improve visual hierarchy and scan-ability.
+- **Hero Focus Dashboards** — Redesigned Farmer, Merchant, and AgriShop dashboards with large summary cards that highlight key metrics at a glance.
+- **AgriKit UI Components** — New suite of reusable widgets including `AgriFocusCard` (high radius corners), `AgriStadiumButton` (fully rounded tactile actions), and `AgriMetricDisplay`.
+- **Stadium-style inputs** — Redesigned all form fields and dropdowns with fully rounded borders and bold, technical labels.
+
+### Fixed
+- **Null-safety in order displays** — Resolved potential crashes when rendering orders with missing or short IDs on dashboard screens.
+- **Deprecated API usage** — Migrated from `withOpacity()` to the new `withValues(alpha: ...)` API throughout the codebase to ensure compatibility with latest Flutter versions.
+
 ## 1.0.19 - 2026-04-16
 
 ### Fixed

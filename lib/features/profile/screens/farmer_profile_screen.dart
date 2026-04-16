@@ -356,36 +356,6 @@ class _FarmerProfileScreenState extends ConsumerState<FarmerProfileScreen> {
     );
   }
 
-  Widget _buildFarmDetailsPlaceholder(BuildContext context, WidgetRef ref) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey[300]!),
-      ),
-      child: Column(
-        children: [
-          Icon(Icons.agriculture_outlined, size: 48, color: Colors.grey[400]),
-          const SizedBox(height: 12),
-          Text(
-            'Farm Details',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: Colors.grey[700],
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            'Complete your profile to add farm information',
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 13, color: Colors.grey[500]),
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildInfoRow(IconData icon, String label, String value) {
     return Row(

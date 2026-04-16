@@ -23,42 +23,50 @@ class AppFormSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: AppColors.darkGray,
-              ),
-            ),
-            if (isRequired)
-              const Text(
-                ' *',
+        Padding(
+          padding: const EdgeInsets.only(left: 4),
+          child: Row(
+            children: [
+              Text(
+                title.toUpperCase(),
                 style: TextStyle(
-                  color: AppColors.alertRed,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w900,
+                  color: AppColors.deepEmerald.withValues(alpha: 0.4),
+                  letterSpacing: 1.5,
                 ),
               ),
-            if (tooltip != null) ...[
-              const SizedBox(width: 8),
-              InfoTooltip(message: tooltip!),
+              if (isRequired)
+                const Text(
+                  ' *',
+                  style: TextStyle(
+                    color: AppColors.alertRed,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              if (tooltip != null) ...[
+                const SizedBox(width: 8),
+                InfoTooltip(message: tooltip!),
+              ],
             ],
-          ],
+          ),
         ),
         if (description != null) ...[
-          const SizedBox(height: 4),
-          Text(
-            description!,
-            style: const TextStyle(
-              fontSize: 14,
-              color: AppColors.mediumGray,
+          const SizedBox(height: 6),
+          Padding(
+            padding: const EdgeInsets.only(left: 4),
+            child: Text(
+              description!,
+              style: TextStyle(
+                fontSize: 13,
+                color: AppColors.deepEmerald.withValues(alpha: 0.5),
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
         ],
-        const SizedBox(height: 12),
+        const SizedBox(height: 16),
         child,
       ],
     );

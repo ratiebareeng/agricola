@@ -30,7 +30,7 @@ class AppDropdownField<T> extends StatelessWidget {
           value: item,
           child: Text(
             itemLabelBuilder(item),
-            style: const TextStyle(fontSize: 16, color: AppColors.darkGray),
+            style: const TextStyle(fontSize: 16, color: AppColors.deepEmerald, fontWeight: FontWeight.w600),
           ),
         );
       }).toList(),
@@ -39,36 +39,36 @@ class AppDropdownField<T> extends StatelessWidget {
       decoration: InputDecoration(
         hintText: hint,
         hintStyle: TextStyle(
-          color: AppColors.mediumGray.withAlpha(70),
+          color: AppColors.deepEmerald.withValues(alpha: 0.2),
           fontSize: 16,
         ),
         prefixIcon: prefixIcon,
         contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 16,
+          horizontal: 24,
+          vertical: 20,
         ),
         filled: true,
-        fillColor: AppColors.lightGray.withAlpha(30),
+        fillColor: AppColors.white,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(32),
           borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppColors.lightGray.withAlpha(50)),
+          borderRadius: BorderRadius.circular(32),
+          borderSide: BorderSide.none,
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.green, width: 1.5),
+          borderRadius: BorderRadius.circular(32),
+          borderSide: const BorderSide(color: AppColors.forestGreen, width: 2),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(32),
           borderSide: const BorderSide(color: AppColors.alertRed, width: 1.5),
         ),
       ),
-      icon: const Icon(Icons.keyboard_arrow_down, color: AppColors.mediumGray),
+      icon: Icon(Icons.keyboard_arrow_down, color: AppColors.deepEmerald.withValues(alpha: 0.3)),
       dropdownColor: AppColors.white,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(24),
     );
   }
 }

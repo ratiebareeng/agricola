@@ -21,24 +21,23 @@ class AuthLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.white,
       appBar: AppBar(
-        backgroundColor: AppColors.white,
+        backgroundColor: Colors.transparent,
         elevation: 0,
         automaticallyImplyLeading: false,
         centerTitle: true,
         title: title != null
             ? Text(
                 title!,
-                style: const TextStyle(
-                  color: AppColors.darkGray,
-                  fontWeight: FontWeight.bold,
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                  color: AppColors.deepEmerald,
+                  fontWeight: FontWeight.w800,
                 ),
               )
             : null,
         leading: showBackButton && (context.canPop() || onBack != null)
             ? IconButton(
-                icon: const Icon(Icons.arrow_back, color: AppColors.darkGray),
+                icon: const Icon(Icons.arrow_back, color: AppColors.deepEmerald),
                 onPressed: onBack ?? () => context.pop(),
               )
             : null,
@@ -46,7 +45,7 @@ class AuthLayout extends StatelessWidget {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
           child: child,
         ),
       ),

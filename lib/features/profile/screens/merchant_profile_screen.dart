@@ -222,36 +222,6 @@ class _MerchantProfileScreenState extends ConsumerState<MerchantProfileScreen> {
     );
   }
 
-  Widget _buildBusinessDetailsPlaceholder(BuildContext context, WidgetRef ref) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey[300]!),
-      ),
-      child: Column(
-        children: [
-          Icon(Icons.store_outlined, size: 48, color: Colors.grey[400]),
-          const SizedBox(height: 12),
-          Text(
-            'Business Details',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: Colors.grey[700],
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            'Complete your profile to add business information',
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 13, color: Colors.grey[500]),
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildCompleteProfileScreen(
     BuildContext context,

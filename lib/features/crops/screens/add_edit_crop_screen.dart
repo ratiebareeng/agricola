@@ -1,6 +1,6 @@
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
-import 'package:agricola/core/widgets/app_buttons.dart';
+import 'package:agricola/core/widgets/agri_kit.dart';
 import 'package:agricola/core/widgets/app_date_field.dart';
 import 'package:agricola/core/widgets/app_dropdown_field.dart';
 import 'package:agricola/core/widgets/app_form_layout.dart';
@@ -43,13 +43,11 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
   String _selectedSizeUnit = 'hectares';
   DateTime _plantingDate = DateTime.now();
   DateTime? _expectedHarvestDate;
-  final TextEditingController _estimatedYieldController =
-      TextEditingController();
+  final TextEditingController _estimatedYieldController = TextEditingController();
   String _selectedYieldUnit = 'kg';
   String? _selectedStorageMethod;
   final TextEditingController _notesController = TextEditingController();
-  final TextEditingController _otherCropNameController =
-      TextEditingController();
+  final TextEditingController _otherCropNameController = TextEditingController();
   bool _otherCropSelected = false;
 
   @override
@@ -65,17 +63,18 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
         child: Column(
           children: [
             Container(
-              padding: const EdgeInsets.symmetric(vertical: 16),
+              padding: const EdgeInsets.symmetric(vertical: 24),
               child: Column(
                 children: [
                   StepIndicator(currentStep: _currentStep, totalSteps: 3),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 24),
                   Text(
-                    _getStepTitle(currentLang),
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.darkGray,
+                    _getStepTitle(currentLang).toUpperCase(),
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w900,
+                      color: AppColors.forestGreen.withValues(alpha: 0.5),
+                      letterSpacing: 2,
                     ),
                   ),
                 ],
@@ -83,6 +82,7 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
             ),
             const SizedBox(height: 16),
             _buildStepContent(currentLang),
+            const SizedBox(height: 120), // Padding for bottom nav
           ],
         ),
       ),
@@ -114,9 +114,9 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
         color: AppColors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withAlpha(13),
-            blurRadius: 10,
-            offset: const Offset(0, -4),
+            color: AppColors.deepEmerald.withValues(alpha: 0.05),
+            blurRadius: 20,
+            offset: const Offset(0, -5),
           ),
         ],
       ),
@@ -125,17 +125,18 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
           children: [
             if (_currentStep > 0) ...[
               Expanded(
-                child: AppSecondaryButton(
+                child: AgriStadiumButton(
                   label: t('back', lang),
-                  onTap: _previousStep,
+                  onPressed: _previousStep,
+                  isPrimary: false,
                 ),
               ),
               const SizedBox(width: 16),
             ],
             Expanded(
-              child: AppPrimaryButton(
+              child: AgriStadiumButton(
                 label: _currentStep < 2 ? t('next', lang) : t('save', lang),
-                onTap: _currentStep < 2 ? _nextStep : _saveCrop,
+                onPressed: _currentStep < 2 ? _nextStep : _saveCrop,
               ),
             ),
           ],
@@ -168,13 +169,14 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Padding(
-                          padding: const EdgeInsets.only(bottom: 8, top: 8),
+                          padding: const EdgeInsets.only(bottom: 12, top: 16, left: 4),
                           child: Text(
-                            t(categoryKey, lang),
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.mediumGray,
+                            t(categoryKey, lang).toUpperCase(),
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w900,
+                              color: AppColors.deepEmerald.withValues(alpha: 0.4),
+                              letterSpacing: 1,
                             ),
                           ),
                         ),
@@ -182,12 +184,10 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
                           spacing: 8,
                           runSpacing: 8,
                           children: crops.map((catalogEntry) {
-                            final isSelected = _selectedCropTypes.contains(
-                              catalogEntry.key,
-                            );
-                            return FilterChip(
-                              label: Text(catalogEntry.displayName(lang)),
-                              selected: isSelected,
+                            final isSelected = _selectedCropTypes.contains(catalogEntry.key);
+                            return _buildCropChip(
+                              label: catalogEntry.displayName(lang),
+                              isSelected: isSelected,
                               onSelected: (selected) {
                                 setState(() {
                                   if (selected) {
@@ -199,23 +199,6 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
                                   _autoCalculateHarvestDate();
                                 });
                               },
-                              selectedColor: AppColors.green.withAlpha(50),
-                              checkmarkColor: AppColors.green,
-                              backgroundColor: AppColors.white,
-                              side: BorderSide(
-                                color: isSelected
-                                    ? AppColors.green
-                                    : AppColors.lightGray,
-                                width: isSelected ? 2 : 1,
-                              ),
-                              labelStyle: TextStyle(
-                                color: isSelected
-                                    ? AppColors.green
-                                    : AppColors.darkGray,
-                                fontWeight: isSelected
-                                    ? FontWeight.bold
-                                    : FontWeight.normal,
-                              ),
                             );
                           }).toList(),
                         ),
@@ -226,21 +209,18 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
                 loading: () => const Center(
                   child: Padding(
                     padding: EdgeInsets.all(20),
-                    child: CircularProgressIndicator(color: AppColors.green),
+                    child: CircularProgressIndicator(color: AppColors.forestGreen),
                   ),
                 ),
                 error: (e, _) => Padding(
                   padding: const EdgeInsets.all(12),
-                  child: Text(
-                    'Failed to load crop catalog',
-                    style: TextStyle(color: AppColors.alertRed),
-                  ),
+                  child: Text('Failed to load crop catalog', style: TextStyle(color: AppColors.alertRed)),
                 ),
               ),
-              const SizedBox(height: 16),
-              FilterChip(
-                label: Text(t('other', lang)),
-                selected: _otherCropSelected,
+              const SizedBox(height: 24),
+              _buildCropChip(
+                label: t('other', lang),
+                isSelected: _otherCropSelected,
                 onSelected: (selected) {
                   setState(() {
                     _otherCropSelected = selected;
@@ -251,27 +231,10 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
                     }
                   });
                 },
-                selectedColor: AppColors.green.withAlpha(50),
-                checkmarkColor: AppColors.green,
-                backgroundColor: AppColors.white,
-                side: BorderSide(
-                  color: _otherCropSelected
-                      ? AppColors.green
-                      : AppColors.lightGray,
-                  width: _otherCropSelected ? 2 : 1,
-                ),
-                labelStyle: TextStyle(
-                  color: _otherCropSelected
-                      ? AppColors.green
-                      : AppColors.darkGray,
-                  fontWeight: _otherCropSelected
-                      ? FontWeight.bold
-                      : FontWeight.normal,
-                ),
               ),
               if (_otherCropSelected)
                 Padding(
-                  padding: const EdgeInsets.only(top: 12),
+                  padding: const EdgeInsets.only(top: 24),
                   child: AppTextField(
                     label: t('specify_other_crop', lang),
                     hint: t('enter_crop_name', lang),
@@ -299,18 +262,18 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(Icons.info_outline, size: 16, color: Colors.amber),
+                const Icon(Icons.info_outline, size: 16, color: AppColors.earthYellow),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     t('maize_cob_hint', lang),
-                    style: const TextStyle(fontSize: 13, color: Colors.black54),
+                    style: TextStyle(fontSize: 12, color: AppColors.deepEmerald.withValues(alpha: 0.5), fontWeight: FontWeight.w600),
                   ),
                 ),
               ],
             ),
           ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 40),
         AppFormSection(
           title: t('field_name', lang),
           tooltip: 'Optional - will auto-generate name if empty',
@@ -324,6 +287,29 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
     );
   }
 
+  Widget _buildCropChip({required String label, required bool isSelected, required Function(bool) onSelected}) {
+    return FilterChip(
+      label: Text(label),
+      selected: isSelected,
+      onSelected: onSelected,
+      selectedColor: AppColors.forestGreen.withValues(alpha: 0.1),
+      checkmarkColor: AppColors.forestGreen,
+      backgroundColor: AppColors.white,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      shape: StadiumBorder(
+        side: BorderSide(
+          color: isSelected ? AppColors.forestGreen : AppColors.deepEmerald.withValues(alpha: 0.05),
+          width: isSelected ? 2 : 1,
+        ),
+      ),
+      labelStyle: TextStyle(
+        color: isSelected ? AppColors.forestGreen : AppColors.deepEmerald.withValues(alpha: 0.6),
+        fontWeight: isSelected ? FontWeight.w900 : FontWeight.w700,
+        fontSize: 13,
+      ),
+    );
+  }
+
   Widget _buildFieldInfoStep(AppLanguage lang) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -332,6 +318,7 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
           title: t('field_size', lang),
           isRequired: true,
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
                 flex: 2,
@@ -349,11 +336,11 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
                   },
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 16),
               Expanded(
                 flex: 2,
                 child: Padding(
-                  padding: const EdgeInsets.only(top: 22),
+                  padding: const EdgeInsets.only(top: 18),
                   child: AppDropdownField<String>(
                     value: _selectedSizeUnit,
                     items: _sizeUnits,
@@ -367,7 +354,7 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
             ],
           ),
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 40),
         AppFormSection(
           title: t('planting_date', lang),
           isRequired: true,
@@ -382,7 +369,7 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
             lastDate: DateTime.now(),
           ),
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 40),
         AppFormSection(
           title: t('expected_harvest_date', lang),
           tooltip: 'Auto-calculated based on crop type',
@@ -422,6 +409,7 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
           tooltip: 'Estimate your expected yield',
           isRequired: true,
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
                 flex: 2,
@@ -440,11 +428,11 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
                   onChanged: (_) => setState(() {}),
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 16),
               Expanded(
                 flex: 2,
                 child: Padding(
-                  padding: const EdgeInsets.only(top: 22),
+                  padding: const EdgeInsets.only(top: 18),
                   child: AppDropdownField<String>(
                     value: _selectedYieldUnit,
                     items: _yieldUnits,
@@ -459,10 +447,10 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
           ),
         ),
         if (hasValidYield) ...[
-          const SizedBox(height: 16),
+          const SizedBox(height: 24),
           _buildLossCalculationCard(lang, double.parse(yieldText)),
         ],
-        const SizedBox(height: 24),
+        const SizedBox(height: 40),
         AppFormSection(
           title: t('storage_method', lang),
           tooltip: 'How will you store your harvest?',
@@ -476,10 +464,10 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
             validator: (value) => value == null ? t('required', lang) : null,
           ),
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 40),
         AppFormSection(
           title: t('notes', lang),
-          description: t('optional', lang),
+          description: t('optional', lang).toUpperCase(),
           child: AppTextField(
             label: '',
             controller: _notesController,
@@ -495,33 +483,25 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
     final loss = yieldValue * 0.15;
     final afterLoss = yieldValue * 0.85;
 
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.warmYellow.withAlpha(26),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.warmYellow.withAlpha(51)),
-      ),
+    return AgriFocusCard(
+      color: AppColors.earthYellow.withValues(alpha: 0.1),
+      padding: const EdgeInsets.all(24),
       child: Column(
         children: [
           Row(
             children: [
-              const Icon(Icons.warning_amber, color: AppColors.warmYellow, size: 20),
-              const SizedBox(width: 8),
+              const Icon(Icons.warning_amber_rounded, color: AppColors.earthYellow, size: 24),
+              const SizedBox(width: 12),
               Text(
-                t('post_harvest_loss', lang),
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.warmYellow,
-                ),
+                t('post_harvest_loss', lang).toUpperCase(),
+                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: AppColors.earthYellow, letterSpacing: 1),
               ),
             ],
           ),
-          const SizedBox(height: 12),
-          _buildLossRow(t('estimated_loss_15', lang), '${loss.toStringAsFixed(1)} ${t(_selectedYieldUnit, lang)}', AppColors.warmYellow),
-          const Divider(height: 20),
-          _buildLossRow(t('expected_after_loss', lang), '${afterLoss.toStringAsFixed(1)} ${t(_selectedYieldUnit, lang)}', AppColors.green, isBold: true),
+          const SizedBox(height: 20),
+          _buildLossRow(t('estimated_loss_15', lang), '${loss.toStringAsFixed(1)} ${t(_selectedYieldUnit, lang)}', AppColors.earthYellow),
+          const Padding(padding: EdgeInsets.symmetric(vertical: 12), child: Divider(height: 1)),
+          _buildLossRow(t('expected_after_loss', lang), '${afterLoss.toStringAsFixed(1)} ${t(_selectedYieldUnit, lang)}', AppColors.forestGreen, isBold: true),
         ],
       ),
     );
@@ -535,15 +515,15 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
           label,
           style: TextStyle(
             fontSize: 14,
-            fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
-            color: isBold ? AppColors.darkGray : AppColors.mediumGray,
+            fontWeight: isBold ? FontWeight.w800 : FontWeight.w600,
+            color: isBold ? AppColors.deepEmerald : AppColors.deepEmerald.withValues(alpha: 0.5),
           ),
         ),
         Text(
           value,
           style: TextStyle(
-            fontSize: isBold ? 16 : 14,
-            fontWeight: FontWeight.bold,
+            fontSize: isBold ? 18 : 14,
+            fontWeight: FontWeight.w900,
             color: valueColor,
           ),
         ),

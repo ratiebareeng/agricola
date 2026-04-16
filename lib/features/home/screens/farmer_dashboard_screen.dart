@@ -1,6 +1,7 @@
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/providers/nav_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
+import 'package:agricola/core/widgets/agri_kit.dart';
 import 'package:agricola/features/crops/crop_helpers.dart';
 import 'package:agricola/features/crops/models/crop_model.dart';
 import 'package:agricola/features/crops/providers/crop_catalog_provider.dart';
@@ -9,8 +10,6 @@ import 'package:agricola/features/crops/screens/add_edit_crop_screen.dart';
 import 'package:agricola/features/crops/screens/crop_details_screen.dart';
 import 'package:agricola/features/home/widgets/crop_card.dart';
 import 'package:agricola/features/home/widgets/crop_card_skeleton.dart';
-import 'package:agricola/features/home/widgets/stat_card.dart';
-import 'package:agricola/features/home/widgets/stat_card_skeleton.dart';
 import 'package:agricola/features/loss_calculator/screens/loss_calculator_screen.dart';
 import 'package:agricola/features/notifications/providers/notifications_provider.dart';
 import 'package:agricola/features/notifications/screens/notifications_screen.dart';
@@ -28,10 +27,9 @@ class FarmerDashboardScreen extends ConsumerWidget {
     final imageMap = ref.watch(cropImageUrlProvider).valueOrNull ?? {};
 
     return Scaffold(
-      backgroundColor: AppColors.lightGray,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -45,18 +43,16 @@ class FarmerDashboardScreen extends ConsumerWidget {
                       children: [
                         Text(
                           t('welcome_message', currentLang),
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.darkGray,
-                          ),
+                          style: Theme.of(context).textTheme.displayMedium,
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Let\'s check your farm status',
+                          'YOUR FARM AT A GLANCE',
                           style: TextStyle(
-                            fontSize: 14,
-                            color: AppColors.mediumGray,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 2,
+                            color: AppColors.forestGreen.withValues(alpha: 0.5),
                           ),
                         ),
                       ],
@@ -65,59 +61,47 @@ class FarmerDashboardScreen extends ConsumerWidget {
                   _FarmerNotificationBell(),
                 ],
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 32),
 
-              // Quick Stats — derived from backend crops
+              // Hero Focus Card
               cropsAsync.when(
-                data: (crops) => _buildStatsGrid(context, crops, currentLang),
-                loading: () => _buildStatsSkeleton(),
-                error: (_, __) => _buildStatsGrid(context, [], currentLang),
+                data: (crops) => _buildHeroCard(context, crops, currentLang),
+                loading: () => const AgriFocusCard(
+                  color: AppColors.deepEmerald,
+                  child: SizedBox(height: 120, child: Center(child: CircularProgressIndicator(color: AppColors.bone))),
+                ),
+                error: (_, __) => _buildHeroCard(context, [], currentLang),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 32),
 
-              // Quick actions row
+              // Quick Actions Row
               Row(
                 children: [
                   Expanded(
-                    child: OutlinedButton.icon(
+                    child: AgriStadiumButton(
+                      label: t('calculate_losses', currentLang),
                       onPressed: () => _openLossCalculator(context),
-                      icon: const Icon(Icons.calculate_outlined),
-                      label: Text(t('calculate_losses', currentLang)),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: AppColors.green,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        side: const BorderSide(color: AppColors.green),
-                      ),
+                      isPrimary: false,
+                      icon: Icons.calculate_outlined,
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 16),
                   Expanded(
-                    child: OutlinedButton.icon(
+                    child: AgriStadiumButton(
+                      label: t('my_orders', currentLang),
                       onPressed: () => Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) =>
-                              const OrdersScreen(showSalesTab: true),
+                          builder: (_) => const OrdersScreen(showSalesTab: true),
                         ),
                       ),
-                      icon: const Icon(Icons.receipt_long_outlined),
-                      label: Text(t('my_orders', currentLang)),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: AppColors.green,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        side: const BorderSide(color: AppColors.green),
-                      ),
+                      isPrimary: false,
+                      icon: Icons.receipt_long_outlined,
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 40),
 
               // My Crops Section header
               Row(
@@ -125,67 +109,41 @@ class FarmerDashboardScreen extends ConsumerWidget {
                 children: [
                   Text(
                     t('my_crops', currentLang),
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.darkGray,
-                    ),
+                    style: Theme.of(context).textTheme.displaySmall,
                   ),
                   TextButton(
                     onPressed: () {
-                      ref.read(selectedTabProvider.notifier).state =
-                          2; // Crops tab
+                      ref.read(selectedTabProvider.notifier).state = 2; // Crops tab
                     },
-                    child: Text(t('view_all', currentLang)),
+                    child: Text(
+                      t('view_all', currentLang).toUpperCase(),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 1,
+                        fontSize: 12,
+                      ),
+                    ),
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
 
-              // Add New Crop Button
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: () => _onAddCrop(context, ref),
-                  icon: const Icon(Icons.add),
-                  label: Text(t('add_new_crop', currentLang)),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.green,
-                    foregroundColor: AppColors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    elevation: 0,
-                  ),
-                ),
+              // Add New Crop Button - Now a bold Primary Stadium
+              AgriStadiumButton(
+                onPressed: () => _onAddCrop(context, ref),
+                icon: Icons.add,
+                label: t('add_new_crop', currentLang),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 24),
 
-              // Crops List — from backend
+              // Crops List
               cropsAsync.when(
-                data: (crops) =>
-                    _buildCropsList(context, crops.take(3).toList(), imageMap),
-                loading: () => Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  child: Column(
-                    children: List.generate(3, (_) => const CropCardSkeleton()),
-                  ),
+                data: (crops) => _buildCropsList(context, crops.take(3).toList(), imageMap),
+                loading: () => Column(
+                  children: List.generate(3, (_) => const CropCardSkeleton()),
                 ),
                 error: (error, _) => Center(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 32),
-                    child: Column(
-                      children: [
-                        const Icon(Icons.error_outline, color: AppColors.alertRed),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Failed to load crops',
-                          style: const TextStyle(color: AppColors.mediumGray),
-                        ),
-                      ],
-                    ),
-                  ),
+                  child: Text('Failed to load crops', style: TextStyle(color: AppColors.deepEmerald.withValues(alpha: 0.5))),
                 ),
               ),
             ],
@@ -195,9 +153,64 @@ class FarmerDashboardScreen extends ConsumerWidget {
     );
   }
 
-  // ---------------------------------------------------------------------------
-  // Crop cards from backend data
-  // ---------------------------------------------------------------------------
+  Widget _buildHeroCard(BuildContext context, List<CropModel> crops, AppLanguage lang) {
+    final now = DateTime.now();
+    final upcomingCount = crops
+        .where(
+          (c) =>
+              c.expectedHarvestDate.isAfter(now) &&
+              c.expectedHarvestDate.isBefore(now.add(const Duration(days: 30))),
+        )
+        .length;
+
+    return AgriFocusCard(
+      color: AppColors.deepEmerald,
+      padding: const EdgeInsets.all(32),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              AgriMetricDisplay(
+                value: '${crops.length}',
+                label: t('total_fields', lang),
+                valueColor: AppColors.bone,
+                labelColor: AppColors.bone.withValues(alpha: 0.5),
+              ),
+              AgriMetricDisplay(
+                value: '$upcomingCount',
+                label: 'HARVESTS', // Custom label for bold look
+                valueColor: AppColors.earthYellow,
+                labelColor: AppColors.earthYellow.withValues(alpha: 0.5),
+              ),
+            ],
+          ),
+          const SizedBox(height: 32),
+          Divider(color: AppColors.bone.withValues(alpha: 0.1)),
+          const SizedBox(height: 24),
+          Row(
+            children: [
+              const Icon(Icons.info_outline, color: AppColors.bone, size: 16),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  upcomingCount > 0
+                      ? 'You have $upcomingCount harvest${upcomingCount > 1 ? 's' : ''} coming up this month.'
+                      : 'Everything is quiet. Time to plan your next field?',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: AppColors.bone.withValues(alpha: 0.6),
+                        fontSize: 14,
+                      ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildCropsList(
     BuildContext context,
     List<CropModel> crops,
@@ -206,19 +219,14 @@ class FarmerDashboardScreen extends ConsumerWidget {
     if (crops.isEmpty) {
       return Center(
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 32),
+          padding: const EdgeInsets.symmetric(vertical: 40),
           child: Column(
             children: [
-              const Icon(
-                Icons.agriculture_outlined,
-                size: 48,
-                color: AppColors.mediumGray,
-              ),
-              const SizedBox(height: 12),
+              Icon(Icons.agriculture_outlined, size: 64, color: AppColors.deepEmerald.withValues(alpha: 0.1)),
+              const SizedBox(height: 16),
               Text(
-                'No crops yet. Tap the button above to add one.',
-                style: const TextStyle(color: AppColors.mediumGray),
-                textAlign: TextAlign.center,
+                'No crops planted yet.',
+                style: TextStyle(color: AppColors.deepEmerald.withValues(alpha: 0.3), fontWeight: FontWeight.w700),
               ),
             ],
           ),
@@ -251,66 +259,6 @@ class FarmerDashboardScreen extends ConsumerWidget {
     );
   }
 
-  // ---------------------------------------------------------------------------
-  // Stats grid built from real crop data
-  // ---------------------------------------------------------------------------
-  Widget _buildStatsGrid(
-    BuildContext context,
-    List<CropModel> crops,
-    AppLanguage lang,
-  ) {
-    final now = DateTime.now();
-    final upcomingCount = crops
-        .where(
-          (c) =>
-              c.expectedHarvestDate.isAfter(now) &&
-              c.expectedHarvestDate.isBefore(now.add(const Duration(days: 30))),
-        )
-        .length;
-
-    return GridView.count(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      crossAxisCount: 2,
-      crossAxisSpacing: 16,
-      mainAxisSpacing: 16,
-      childAspectRatio: 1.5,
-      children: [
-        StatCard(
-          title: t('total_fields', lang),
-          value: '${crops.length}',
-          icon: Icons.landscape,
-          color: AppColors.green,
-        ),
-        StatCard(
-          title: t('upcoming_harvests', lang),
-          value: '$upcomingCount',
-          icon: Icons.agriculture,
-          color: AppColors.green,
-        ),
-        StatCard(title: t('inventory_value', lang), value: '—'),
-        StatCard(
-          title: t('estimated_losses', lang),
-          value: '—',
-          onTap: () => _openLossCalculator(context),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildStatsSkeleton() {
-    return GridView.count(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      crossAxisCount: 2,
-      crossAxisSpacing: 16,
-      mainAxisSpacing: 16,
-      childAspectRatio: 1.5,
-      children: List.generate(4, (_) => const StatCardSkeleton()),
-    );
-  }
-
-  /// Navigate to AddEditCropScreen and persist any new crops via the notifier.
   Future<void> _onAddCrop(BuildContext context, WidgetRef ref) async {
     final result = await Navigator.push<dynamic>(
       context,
@@ -356,7 +304,8 @@ class _FarmerNotificationBell extends ConsumerWidget {
         IconButton(
           icon: const Icon(
             Icons.notifications_outlined,
-            color: AppColors.darkGray,
+            color: AppColors.deepEmerald,
+            size: 28,
           ),
           onPressed: () => Navigator.push(
             context,
@@ -365,21 +314,21 @@ class _FarmerNotificationBell extends ConsumerWidget {
         ),
         if (count > 0)
           Positioned(
-            right: 6,
-            top: 6,
+            right: 8,
+            top: 8,
             child: Container(
               padding: const EdgeInsets.all(4),
               decoration: const BoxDecoration(
-                color: AppColors.alertRed,
+                color: AppColors.earthYellow,
                 shape: BoxShape.circle,
               ),
-              constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
+              constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
               child: Text(
                 '$count',
                 style: const TextStyle(
-                  color: Colors.white,
+                  color: AppColors.deepEmerald,
                   fontSize: 10,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w900,
                 ),
                 textAlign: TextAlign.center,
               ),

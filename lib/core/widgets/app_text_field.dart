@@ -51,7 +51,7 @@ class _AppTextFieldState extends State<AppTextField> {
       resolvedSuffixIcon = IconButton(
         icon: Icon(
           _obscure ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-          color: AppColors.mediumGray,
+          color: AppColors.deepEmerald.withValues(alpha: 0.3),
           size: 22,
         ),
         onPressed: () => setState(() => _obscure = !_obscure),
@@ -63,15 +63,18 @@ class _AppTextFieldState extends State<AppTextField> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          widget.label,
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: AppColors.darkGray,
+        Padding(
+          padding: const EdgeInsets.only(left: 12, bottom: 8),
+          child: Text(
+            widget.label.toUpperCase(),
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w900,
+              color: AppColors.deepEmerald.withValues(alpha: 0.4),
+              letterSpacing: 1,
+            ),
           ),
         ),
-        const SizedBox(height: 8),
         TextFormField(
           initialValue: widget.initialValue,
           controller: widget.controller,
@@ -81,36 +84,36 @@ class _AppTextFieldState extends State<AppTextField> {
           keyboardType: widget.keyboardType,
           maxLines: widget.obscureText ? 1 : widget.maxLines,
           validator: widget.validator,
-          style: const TextStyle(fontSize: 16, color: AppColors.darkGray),
+          style: const TextStyle(fontSize: 16, color: AppColors.deepEmerald, fontWeight: FontWeight.w600),
           decoration: InputDecoration(
             prefixIcon: widget.prefixIcon != null
-                ? Icon(widget.prefixIcon, color: AppColors.green)
+                ? Icon(widget.prefixIcon, color: AppColors.forestGreen, size: 20)
                 : null,
             hintText: widget.hint,
             hintStyle: TextStyle(
-              color: AppColors.mediumGray.withAlpha(70),
+              color: AppColors.deepEmerald.withValues(alpha: 0.2),
               fontSize: 16,
             ),
             contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 16,
+              horizontal: 24,
+              vertical: 20,
             ),
             filled: true,
-            fillColor: AppColors.lightGray.withAlpha(30),
+            fillColor: AppColors.white,
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(32),
               borderSide: BorderSide.none,
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: AppColors.lightGray.withAlpha(50)),
+              borderRadius: BorderRadius.circular(32),
+              borderSide: BorderSide.none,
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: AppColors.green, width: 1.5),
+              borderRadius: BorderRadius.circular(32),
+              borderSide: const BorderSide(color: AppColors.forestGreen, width: 2),
             ),
             errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(32),
               borderSide: const BorderSide(
                 color: AppColors.alertRed,
                 width: 1.5,

@@ -22,12 +22,12 @@ class AppPrimaryButton extends StatelessWidget {
     return ElevatedButton(
       onPressed: isLoading ? null : (onPressed ?? onTap),
       style: ElevatedButton.styleFrom(
-        backgroundColor: AppColors.green,
+        backgroundColor: AppColors.forestGreen,
         foregroundColor: AppColors.white,
-        disabledBackgroundColor: AppColors.green.withAlpha(50),
+        disabledBackgroundColor: AppColors.forestGreen.withAlpha(50),
         elevation: 0,
-        minimumSize: const Size(double.infinity, 56),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        minimumSize: const Size(double.infinity, 64),
+        shape: const StadiumBorder(),
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       ),
       child: isLoading
@@ -50,7 +50,7 @@ class AppPrimaryButton extends StatelessWidget {
                   label,
                   style: const TextStyle(
                     fontSize: 18,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w700,
                     letterSpacing: 0.5,
                   ),
                 ),
@@ -79,19 +79,19 @@ class AppSecondaryButton extends StatelessWidget {
     return OutlinedButton(
       onPressed: isLoading ? null : onTap,
       style: OutlinedButton.styleFrom(
-        foregroundColor: AppColors.green,
-        side: const BorderSide(color: AppColors.green, width: 2),
-        minimumSize: const Size(double.infinity, 56),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        foregroundColor: AppColors.forestGreen,
+        side: const BorderSide(color: AppColors.forestGreen, width: 2),
+        minimumSize: const Size(double.infinity, 64),
+        shape: const StadiumBorder(),
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-        disabledForegroundColor: AppColors.green.withAlpha(50),
+        disabledForegroundColor: AppColors.forestGreen.withAlpha(50),
       ),
       child: isLoading
           ? const SizedBox(
               height: 24,
               width: 24,
               child: CircularProgressIndicator(
-                color: AppColors.green,
+                color: AppColors.forestGreen,
                 strokeWidth: 2.5,
               ),
             )
@@ -106,7 +106,7 @@ class AppSecondaryButton extends StatelessWidget {
                   label,
                   style: const TextStyle(
                     fontSize: 18,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w700,
                     letterSpacing: 0.5,
                   ),
                 ),
@@ -133,13 +133,13 @@ class AppTertiaryButton extends StatelessWidget {
     return TextButton(
       onPressed: onTap,
       style: TextButton.styleFrom(
-        foregroundColor: color ?? AppColors.earthBrown,
+        foregroundColor: color ?? AppColors.forestGreen,
         minimumSize: const Size(double.infinity, 48),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: const StadiumBorder(),
       ),
       child: Text(
         label,
-        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
       ),
     );
   }

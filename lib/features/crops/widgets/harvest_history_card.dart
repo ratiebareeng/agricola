@@ -1,4 +1,5 @@
 import 'package:agricola/core/theme/app_theme.dart';
+import 'package:agricola/core/widgets/agri_kit.dart';
 import 'package:flutter/material.dart';
 
 class HarvestHistoryCard extends StatelessWidget {
@@ -17,11 +18,14 @@ class HarvestHistoryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     Color qualityColor;
     switch (quality.toLowerCase()) {
+      case 'excellent':
+        qualityColor = AppColors.forestGreen;
+        break;
       case 'good':
-        qualityColor = AppColors.green;
+        qualityColor = AppColors.forestGreen;
         break;
       case 'fair':
-        qualityColor = AppColors.warmYellow;
+        qualityColor = AppColors.earthYellow;
         break;
       case 'poor':
         qualityColor = AppColors.alertRed;
@@ -30,62 +34,64 @@ class HarvestHistoryCard extends StatelessWidget {
         qualityColor = AppColors.mediumGray;
     }
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey[200]!),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: AppColors.green.withAlpha(10),
-              borderRadius: BorderRadius.circular(12),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: AgriFocusCard(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColors.bone,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: const Icon(Icons.agriculture, color: AppColors.forestGreen, size: 24),
             ),
-            child: const Icon(Icons.agriculture, color: AppColors.green),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  date,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF1A1A1A),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    date.toUpperCase(),
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w900,
+                      color: AppColors.deepEmerald.withValues(alpha: 0.4),
+                      letterSpacing: 1,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  yield,
-                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: qualityColor.withAlpha(10),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Text(
-              quality,
-              style: TextStyle(
-                color: qualityColor,
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
+                  const SizedBox(height: 4),
+                  Text(
+                    yield,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.deepEmerald,
+                    ),
+                  ),
+                ],
               ),
             ),
-          ),
-        ],
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: qualityColor.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                quality.toUpperCase(),
+                style: TextStyle(
+                  color: qualityColor,
+                  fontSize: 9,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 0.5,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

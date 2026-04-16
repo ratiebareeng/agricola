@@ -23,31 +23,37 @@ class SelectionCard extends StatelessWidget {
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
           color: AppColors.white,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(28),
           border: Border.all(
-            color: isSelected ? AppColors.green : AppColors.lightGray,
-            width: 2,
+            color: isSelected ? AppColors.forestGreen : AppColors.deepEmerald.withValues(alpha: 0.05),
+            width: isSelected ? 2.5 : 1,
           ),
           boxShadow: [
-            if (isSelected)
-              BoxShadow(
-                color: AppColors.green.withAlpha(10),
-                blurRadius: 8,
-                offset: const Offset(0, 4),
-              ),
+            BoxShadow(
+              color: isSelected ? AppColors.forestGreen.withValues(alpha: 0.05) : AppColors.deepEmerald.withValues(alpha: 0.02),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
+            ),
           ],
         ),
         child: Row(
           children: [
-            Icon(
-              icon,
-              size: 32,
-              color: isSelected ? AppColors.green : AppColors.mediumGray,
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: isSelected ? AppColors.forestGreen.withValues(alpha: 0.1) : AppColors.bone,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Icon(
+                icon,
+                size: 28,
+                color: isSelected ? AppColors.forestGreen : AppColors.deepEmerald.withValues(alpha: 0.3),
+              ),
             ),
-            const SizedBox(width: 16),
+            const SizedBox(width: 20),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -56,8 +62,8 @@ class SelectionCard extends StatelessWidget {
                     title,
                     style: TextStyle(
                       fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: isSelected ? AppColors.green : AppColors.darkGray,
+                      fontWeight: FontWeight.w800,
+                      color: isSelected ? AppColors.forestGreen : AppColors.deepEmerald,
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -65,16 +71,17 @@ class SelectionCard extends StatelessWidget {
                     description,
                     style: TextStyle(
                       fontSize: 14,
+                      fontWeight: FontWeight.w500,
                       color: isSelected
-                          ? AppColors.darkGray.withAlpha(80)
-                          : AppColors.mediumGray,
+                          ? AppColors.forestGreen.withValues(alpha: 0.6)
+                          : AppColors.deepEmerald.withValues(alpha: 0.4),
                     ),
                   ),
                 ],
               ),
             ),
             if (isSelected)
-              const Icon(Icons.check_circle, color: AppColors.green, size: 24),
+              const Icon(Icons.check_circle, color: AppColors.forestGreen, size: 24),
           ],
         ),
       ),

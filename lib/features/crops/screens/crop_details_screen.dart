@@ -2,6 +2,7 @@ import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/utils/error_utils.dart';
 import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/core/widgets/app_dialogs.dart';
+import 'package:agricola/core/widgets/agri_kit.dart';
 import 'package:agricola/features/crops/crop_helpers.dart';
 import 'package:agricola/features/crops/models/crop_catalog_entry.dart';
 import 'package:agricola/features/crops/models/crop_model.dart';
@@ -12,11 +13,9 @@ import 'package:agricola/features/crops/providers/harvest_providers.dart';
 import 'package:agricola/features/crops/screens/add_edit_crop_screen.dart';
 import 'package:agricola/features/crops/screens/record_harvest_screen.dart';
 import 'package:agricola/features/crops/widgets/harvest_history_card.dart';
-import 'package:agricola/features/crops/widgets/info_card.dart';
 import 'package:agricola/features/crops/widgets/timeline_view.dart';
 import 'package:agricola/features/inventory/models/inventory_model.dart';
 import 'package:agricola/features/inventory/providers/inventory_providers.dart';
-import 'package:agricola/features/loss_calculator/screens/loss_calculator_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -32,29 +31,22 @@ class CropDetailsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final currentLang = ref.watch(languageProvider);
     final catalog = ref.watch(cropCatalogProvider).valueOrNull ?? [];
-    final catalogEntry = ref
-        .watch(cropCatalogEntryProvider(crop.cropType))
-        .valueOrNull;
+    final catalogEntry = ref.watch(cropCatalogEntryProvider(crop.cropType)).valueOrNull;
     final harvestsState = ref.watch(harvestNotifierProvider(crop.id!));
     final status = _getCropStatus(crop);
     final currentStage = _getCurrentStage(crop);
     final now = DateTime.now();
     final daysSincePlanting = now.difference(crop.plantingDate).inDays;
-    final daysUntilHarvest = crop.expectedHarvestDate
-        .difference(now)
-        .inDays
-        .clamp(0, 999);
+    final daysUntilHarvest = crop.expectedHarvestDate.difference(now).inDays.clamp(0, 999);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
-        title: Text(crop.fieldName),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black87,
+        title: Text(crop.fieldName.toUpperCase(), style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900, letterSpacing: 2)),
+        backgroundColor: Colors.transparent,
         elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.edit_outlined),
+            icon: const Icon(Icons.edit_outlined, color: AppColors.deepEmerald),
             onPressed: () async {
               final result = await Navigator.push<CropModel>(
                 context,
@@ -63,496 +55,243 @@ class CropDetailsScreen extends ConsumerWidget {
                 ),
               );
               if (result != null && context.mounted) {
-                final error = await ref
-                    .read(cropNotifierProvider.notifier)
-                    .updateCrop(result);
+                final error = await ref.read(cropNotifierProvider.notifier).updateCrop(result);
                 if (error != null && context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(t(error, currentLang)),
-                      backgroundColor: Colors.red,
-                    ),
+                    SnackBar(content: Text(t(error, currentLang)), backgroundColor: AppColors.alertRed),
                   );
                 }
               }
             },
           ),
           IconButton(
-            icon: const Icon(Icons.delete_outline),
+            icon: const Icon(Icons.delete_outline, color: AppColors.alertRed),
             onPressed: () => _showDeleteDialog(context, currentLang, ref),
           ),
         ],
       ),
       body: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(20),
-              color: Colors.white,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            // Hero Header
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              cropDisplayName(
-                                crop.cropType,
-                                catalog,
-                                currentLang,
-                              ),
-                              style: const TextStyle(
-                                fontSize: 28,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF1A1A1A),
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.landscape,
-                                  size: 16,
-                                  color: Colors.grey[600],
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  '${crop.fieldSize} ${t(crop.fieldSizeUnit, currentLang)}',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.grey[600],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
                       Text(
-                        t(status, currentLang),
-                        style: TextStyle(
-                          color: _getStatusColor(status),
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        cropDisplayName(crop.cropType, catalog, currentLang),
+                        style: Theme.of(context).textTheme.displayMedium,
                       ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  TimelineView(
-                    plantingDate: crop.plantingDate,
-                    expectedHarvestDate: crop.expectedHarvestDate,
-                  ),
-                  const SizedBox(height: 12),
-                  OutlinedButton.icon(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) =>
-                              LossCalculatorScreen(preselectedCrop: crop),
-                        ),
-                      );
-                    },
-                    icon: const Icon(Icons.calculate_outlined, size: 18),
-                    label: Text(t('calculate_losses', currentLang)),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: const Color(0xFF2D6A4F),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      side: const BorderSide(color: Color(0xFF2D6A4F)),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    t('crop_details', currentLang),
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF1A1A1A),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  GridView.count(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
-                    childAspectRatio: 1.5,
-                    children: [
-                      InfoCard(
-                        label: t('days_since_planting', currentLang),
-                        value: '$daysSincePlanting',
-                        icon: Icons.calendar_today,
-                      ),
-                      InfoCard(
-                        label: t('days_until_harvest', currentLang),
-                        value: '$daysUntilHarvest',
-                        icon: Icons.schedule,
-                      ),
-                      InfoCard(
-                        label: t('current_stage', currentLang),
-                        value: t(currentStage, currentLang),
-                        icon: Icons.eco,
-                      ),
-                      InfoCard(
-                        label: t('estimated_yield', currentLang),
-                        value:
-                            '${crop.estimatedYield} ${t(crop.yieldUnit, currentLang)}',
-                        icon: Icons.agriculture,
-                      ),
-                    ],
-                  ),
-                  if (catalogEntry?.dailyWaterMm != null) ...[
-                    const SizedBox(height: 20),
-                    _buildWaterFieldCard(catalogEntry!, crop, currentLang),
-                  ],
-                  const SizedBox(height: 20),
-                  // TODO: Add real weather data integration here in the future
-                  // Container(
-                  //   width: double.infinity,
-                  //   padding: const EdgeInsets.all(16),
-                  //   decoration: BoxDecoration(
-                  //     color: Colors.blue.withAlpha(10),
-                  //     borderRadius: BorderRadius.circular(12),
-                  //     border: Border.all(color: Colors.blue.withAlpha(30)),
-                  //   ),
-                  //   child: Row(
-                  //     children: [
-                  //       Icon(Icons.wb_sunny, color: Colors.blue[700], size: 24),
-                  //       const SizedBox(width: 12),
-                  //       Expanded(
-                  //         child: Column(
-                  //           crossAxisAlignment: CrossAxisAlignment.start,
-                  //           children: [
-                  //             Text(
-                  //               t('weather', currentLang),
-                  //               style: TextStyle(
-                  //                 fontSize: 12,
-                  //                 color: Colors.blue[900],
-                  //                 fontWeight: FontWeight.w600,
-                  //               ),
-                  //             ),
-                  //             const SizedBox(height: 4),
-                  //             Text(
-                  //               '28°C • Partly Cloudy • 60% Humidity',
-                  //               style: TextStyle(
-                  //                 fontSize: 14,
-                  //                 color: Colors.blue[800],
-                  //               ),
-                  //             ),
-                  //           ],
-                  //         ),
-                  //       ),
-                  //     ],
-                  //   ),
-                  // ),
-                  // const SizedBox(height: 20),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.grey[200]!),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            const Icon(
-                              Icons.inventory_2,
-                              size: 18,
-                              color: Color(0xFF2D6A4F),
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              t('storage_method', currentLang),
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          t(crop.storageMethod, currentLang),
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFF1A1A1A),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  if (crop.notes != null && crop.notes!.isNotEmpty) ...[
-                    const SizedBox(height: 12),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.grey[200]!),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      const SizedBox(height: 4),
+                      Row(
                         children: [
-                          Row(
-                            children: [
-                              const Icon(
-                                Icons.notes,
-                                size: 18,
-                                color: Color(0xFF2D6A4F),
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                t('notes', currentLang),
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.grey[600],
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
+                          Icon(Icons.landscape, size: 14, color: AppColors.forestGreen.withValues(alpha: 0.5)),
+                          const SizedBox(width: 6),
                           Text(
-                            crop.notes!,
-                            style: const TextStyle(
-                              fontSize: 14,
-                              color: Color(0xFF1A1A1A),
+                            '${crop.fieldSize} ${t(crop.fieldSizeUnit, currentLang).toUpperCase()}',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w800,
+                              color: AppColors.forestGreen.withValues(alpha: 0.5),
+                              letterSpacing: 1,
                             ),
                           ),
                         ],
                       ),
-                    ),
-                  ],
-                  const SizedBox(height: 24),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        t('harvest_history', currentLang),
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF1A1A1A),
-                        ),
-                      ),
                     ],
                   ),
-                  const SizedBox(height: 16),
-                  harvestsState.when(
-                    loading: () =>
-                        const Center(child: CircularProgressIndicator()),
-                    error: (error, _) => Text(
-                      t(errorKeyFromException(error), currentLang),
-                      style: const TextStyle(color: Colors.red),
-                    ),
-                    data: (harvests) {
-                      if (harvests.isEmpty) {
-                        return Text(
-                          t('no_harvest_history', currentLang),
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey[600],
-                          ),
-                        );
-                      }
-                      return Column(
-                        children: harvests.map((harvest) {
-                          final date =
-                              '${_monthName(harvest.harvestDate.month)} ${harvest.harvestDate.day}, ${harvest.harvestDate.year}';
-                          return HarvestHistoryCard(
-                            date: date,
-                            yield:
-                                '${harvest.actualYield} ${harvest.yieldUnit}',
-                            quality: harvest.quality,
-                          );
-                        }).toList(),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 20),
+                ),
+                _StatusBadge(status: status, lang: currentLang),
+              ],
+            ),
+            const SizedBox(height: 32),
+
+            TimelineView(
+              plantingDate: crop.plantingDate,
+              expectedHarvestDate: crop.expectedHarvestDate,
+            ),
+            const SizedBox(height: 32),
+
+            Text(
+              t('crop_details', currentLang).toUpperCase(),
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 1, color: AppColors.deepEmerald.withValues(alpha: 0.4)),
+            ),
+            const SizedBox(height: 16),
+            GridView.count(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              crossAxisCount: 2,
+              crossAxisSpacing: 16,
+              mainAxisSpacing: 16,
+              childAspectRatio: 1.4,
+              children: [
+                _DetailMetric(
+                  label: t('days_since_planting', currentLang),
+                  value: '$daysSincePlanting',
+                ),
+                _DetailMetric(
+                  label: t('days_until_harvest', currentLang),
+                  value: '$daysUntilHarvest',
+                  valueColor: AppColors.earthYellow,
+                ),
+                _DetailMetric(
+                  label: t('current_stage', currentLang),
+                  value: t(currentStage, currentLang).toUpperCase(),
+                  isSmallValue: true,
+                ),
+                _DetailMetric(
+                  label: t('estimated_yield', currentLang),
+                  value: '${crop.estimatedYield}${t(crop.yieldUnit, currentLang)}',
+                  isSmallValue: true,
+                ),
+              ],
+            ),
+
+            if (catalogEntry?.dailyWaterMm != null) ...[
+              const SizedBox(height: 32),
+              _buildWaterFieldCard(catalogEntry!, crop, currentLang),
+            ],
+
+            const SizedBox(height: 32),
+            AgriFocusCard(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _InfoRow(icon: Icons.inventory_2_outlined, label: t('storage_method', currentLang), value: t(crop.storageMethod, currentLang)),
+                  if (crop.notes != null && crop.notes!.isNotEmpty) ...[
+                    const Padding(padding: EdgeInsets.symmetric(vertical: 12), child: Divider(height: 1)),
+                    _InfoRow(icon: Icons.notes, label: t('notes', currentLang), value: crop.notes!),
+                  ],
                 ],
               ),
             ),
+
+            const SizedBox(height: 40),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  t('harvest_history', currentLang).toUpperCase(),
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 1, color: AppColors.deepEmerald.withValues(alpha: 0.4)),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            harvestsState.when(
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (error, _) => Text(t(errorKeyFromException(error), currentLang), style: const TextStyle(color: AppColors.alertRed)),
+              data: (harvests) {
+                if (harvests.isEmpty) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 20),
+                    child: Text(
+                      t('no_harvest_history', currentLang),
+                      style: TextStyle(fontSize: 14, color: AppColors.deepEmerald.withValues(alpha: 0.3), fontWeight: FontWeight.w600),
+                    ),
+                  );
+                }
+                return Column(
+                  children: harvests.map((harvest) {
+                    final date = '${_monthName(harvest.harvestDate.month)} ${harvest.harvestDate.day}, ${harvest.harvestDate.year}';
+                    return HarvestHistoryCard(
+                      date: date,
+                      yield: '${harvest.actualYield} ${harvest.yieldUnit}',
+                      quality: harvest.quality,
+                    );
+                  }).toList(),
+                );
+              },
+            ),
+            const SizedBox(height: 100),
           ],
         ),
       ),
-      bottomNavigationBar: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withAlpha(25),
-              blurRadius: 10,
-              offset: const Offset(0, -4),
-            ),
-          ],
-        ),
-        child: ElevatedButton.icon(
-          onPressed: () async {
-            final result = await Navigator.push<HarvestModel>(
-              context,
-              MaterialPageRoute(
-                builder: (context) => RecordHarvestScreen(crop: crop),
-              ),
-            );
-            if (result != null && context.mounted) {
-              final harvestError = await ref
-                  .read(harvestNotifierProvider(crop.id!).notifier)
-                  .addHarvest(result);
-              if (harvestError != null && context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(t(harvestError, currentLang)),
-                    backgroundColor: Colors.red,
-                  ),
-                );
-                return;
-              }
-
-              // Prompt to add to inventory — net amount after losses
-              if (!context.mounted) return;
-              final netAmount =
-                  result.actualYield - (result.lossAmount ?? 0);
-              if (netAmount > 0) {
-                final cropName = cropDisplayName(
-                  crop.cropType,
-                  ref.read(cropCatalogProvider).valueOrNull ?? [],
-                  currentLang,
-                );
-                final addToInventory = await AppDialogs.confirm(
-                  context,
-                  icon: Icons.inventory_2_outlined,
-                  title: t('add_to_inventory', currentLang),
-                  content: t('add_to_inventory_prompt', currentLang)
-                      .replaceAll('{amount}', netAmount.toStringAsFixed(1))
-                      .replaceAll('{unit}', t(result.yieldUnit, currentLang))
-                      .replaceAll('{crop}', cropName),
-                  cancelText: t('not_now', currentLang),
-                  actionText: t('add', currentLang),
-                );
-                if (addToInventory && context.mounted) {
-                  final inventoryItem = InventoryModel(
-                    cropType: crop.cropType,
-                    quantity: netAmount,
-                    unit: result.yieldUnit,
-                    storageDate: result.harvestDate,
-                    storageLocation: result.storageLocation,
-                    condition: _qualityToCondition(result.quality),
-                    notes: result.notes,
-                  );
-                  await ref
-                      .read(inventoryNotifierProvider.notifier)
-                      .addInventory(inventoryItem);
-                }
-              }
-            }
-          },
-          icon: const Icon(Icons.agriculture),
-          label: Text(t('record_harvest', currentLang)),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF2D6A4F),
-            foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            elevation: 0,
-          ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: AgriStadiumButton(
+          onPressed: () => _onRecordHarvest(context, ref, currentLang),
+          icon: Icons.agriculture,
+          label: t('record_harvest', currentLang),
         ),
       ),
     );
   }
 
-  Widget _buildWaterFieldCard(
-    CropCatalogEntry entry,
-    CropModel crop,
-    AppLanguage lang,
-  ) {
+  Future<void> _onRecordHarvest(BuildContext context, WidgetRef ref, AppLanguage currentLang) async {
+    final result = await Navigator.push<HarvestModel>(
+      context,
+      MaterialPageRoute(builder: (context) => RecordHarvestScreen(crop: crop)),
+    );
+    if (result != null && context.mounted) {
+      final harvestError = await ref.read(harvestNotifierProvider(crop.id!).notifier).addHarvest(result);
+      if (harvestError != null && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(t(harvestError, currentLang)), backgroundColor: AppColors.alertRed),
+        );
+        return;
+      }
+
+      // Prompt to add to inventory
+      if (!context.mounted) return;
+      final netAmount = result.actualYield - (result.lossAmount ?? 0);
+      if (netAmount > 0) {
+        final cropName = cropDisplayName(crop.cropType, ref.read(cropCatalogProvider).valueOrNull ?? [], currentLang);
+        final addToInventory = await AppDialogs.confirm(
+          context,
+          icon: Icons.inventory_2_outlined,
+          title: t('add_to_inventory', currentLang),
+          content: t('add_to_inventory_prompt', currentLang)
+              .replaceAll('{amount}', netAmount.toStringAsFixed(1))
+              .replaceAll('{unit}', t(result.yieldUnit, currentLang))
+              .replaceAll('{crop}', cropName),
+          cancelText: t('not_now', currentLang),
+          actionText: t('add', currentLang),
+        );
+        if (addToInventory && context.mounted) {
+          final inventoryItem = InventoryModel(
+            cropType: crop.cropType,
+            quantity: netAmount,
+            unit: result.yieldUnit,
+            storageDate: result.harvestDate,
+            storageLocation: result.storageLocation,
+            condition: _qualityToCondition(result.quality),
+            notes: result.notes,
+          );
+          await ref.read(inventoryNotifierProvider.notifier).addInventory(inventoryItem);
+        }
+      }
+    }
+  }
+
+  Widget _buildWaterFieldCard(CropCatalogEntry entry, CropModel crop, AppLanguage lang) {
     final fieldHa = _fieldSizeInHa(crop);
     final totalLitresPerDay = entry.dailyWaterMm! * fieldHa * 10000;
     final litresPerHour = totalLitresPerDay / 24;
-    final plantCount = entry.plantPopulationPerHa != null
-        ? (entry.plantPopulationPerHa! * fieldHa).round()
-        : null;
+    final plantCount = entry.plantPopulationPerHa != null ? (entry.plantPopulationPerHa! * fieldHa).round() : null;
 
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey[200]!),
-      ),
+    return AgriFocusCard(
+      padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            t('water_field_info', lang),
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF1A1A1A),
-            ),
-          ),
-
-          const SizedBox(height: 16),
-          _waterRow(
-            Icons.opacity,
-            t('total_daily_water', lang),
-            '${_numFmt.format(totalLitresPerDay.round())} L/day',
-          ),
-          const SizedBox(height: 12),
-          _waterRow(
-            Icons.speed,
-            t('hourly_pump_rate', lang),
-            '${_numFmt.format(litresPerHour.round())} L/hr',
-          ),
-          const SizedBox(height: 12),
-          _waterRow(
-            Icons.water_drop_outlined,
-            t('water_rate', lang),
-            '${entry.dailyWaterMm} mm/day',
-          ),
+          Text(t('water_field_info', lang).toUpperCase(),
+              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: AppColors.deepEmerald, letterSpacing: 1)),
+          const SizedBox(height: 24),
+          _waterRow(Icons.opacity, t('total_daily_water', lang), '${_numFmt.format(totalLitresPerDay.round())} L/DAY'),
+          const Padding(padding: EdgeInsets.symmetric(vertical: 12), child: Divider(height: 1)),
+          _waterRow(Icons.speed, t('hourly_pump_rate', lang), '${_numFmt.format(litresPerHour.round())} L/HR'),
+          const Padding(padding: EdgeInsets.symmetric(vertical: 12), child: Divider(height: 1)),
+          _waterRow(Icons.water_drop_outlined, t('water_rate', lang), '${entry.dailyWaterMm} MM/DAY'),
           if (plantCount != null) ...[
-            const SizedBox(height: 12),
-            _waterRow(
-              Icons.grass,
-              t('estimated_plants', lang),
-              _numFmt.format(plantCount),
-            ),
+            const Padding(padding: EdgeInsets.symmetric(vertical: 12), child: Divider(height: 1)),
+            _waterRow(Icons.grass, t('estimated_plants', lang), _numFmt.format(plantCount)),
           ],
         ],
       ),
@@ -569,9 +308,7 @@ class CropDetailsScreen extends ConsumerWidget {
   String _getCropStatus(CropModel crop) {
     final now = DateTime.now();
     final daysSincePlanting = now.difference(crop.plantingDate).inDays;
-    final totalDays = crop.expectedHarvestDate
-        .difference(crop.plantingDate)
-        .inDays;
+    final totalDays = crop.expectedHarvestDate.difference(crop.plantingDate).inDays;
     final progress = daysSincePlanting / totalDays;
 
     if (progress >= 1.0) return 'ready';
@@ -581,9 +318,7 @@ class CropDetailsScreen extends ConsumerWidget {
   String _getCurrentStage(CropModel crop) {
     final now = DateTime.now();
     final daysSincePlanting = now.difference(crop.plantingDate).inDays;
-    final totalDays = crop.expectedHarvestDate
-        .difference(crop.plantingDate)
-        .inDays;
+    final totalDays = crop.expectedHarvestDate.difference(crop.plantingDate).inDays;
     final progress = daysSincePlanting / totalDays;
 
     if (progress < 0.15) return 'germination';
@@ -591,19 +326,6 @@ class CropDetailsScreen extends ConsumerWidget {
     if (progress < 0.70) return 'flowering';
     if (progress < 0.95) return 'ripening';
     return 'harvest_ready';
-  }
-
-  Color _getStatusColor(String status) {
-    switch (status) {
-      case 'growing':
-        return AppColors.green;
-      case 'ready':
-        return AppColors.green;
-      case 'harvested':
-        return AppColors.mediumGray;
-      default:
-        return AppColors.mediumGray;
-    }
   }
 
   String _monthName(int month) {
@@ -625,11 +347,7 @@ class CropDetailsScreen extends ConsumerWidget {
     return months[month];
   }
 
-  void _showDeleteDialog(
-    BuildContext context,
-    AppLanguage lang,
-    WidgetRef ref,
-  ) async {
+  void _showDeleteDialog(BuildContext context, AppLanguage lang, WidgetRef ref) async {
     final confirmed = await AppDialogs.confirm(
       context,
       title: t('confirm_delete', lang),
@@ -641,15 +359,10 @@ class CropDetailsScreen extends ConsumerWidget {
 
     if (confirmed && context.mounted) {
       if (crop.id != null) {
-        final error = await ref
-            .read(cropNotifierProvider.notifier)
-            .deleteCrop(crop.id!);
+        final error = await ref.read(cropNotifierProvider.notifier).deleteCrop(crop.id!);
         if (error != null && context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(t(error, lang)),
-              backgroundColor: Colors.red,
-            ),
+            SnackBar(content: Text(t(error, lang)), backgroundColor: AppColors.alertRed),
           );
           return;
         }
@@ -678,18 +391,112 @@ class CropDetailsScreen extends ConsumerWidget {
   Widget _waterRow(IconData icon, String label, String value) {
     return Row(
       children: [
+        Icon(icon, size: 16, color: AppColors.forestGreen.withValues(alpha: 0.5)),
+        const SizedBox(width: 12),
         Expanded(
           child: Text(
-            label,
-            style: TextStyle(fontSize: 13, color: Colors.grey[600]),
+            label.toUpperCase(),
+            style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: AppColors.deepEmerald.withValues(alpha: 0.4), letterSpacing: 0.5),
           ),
         ),
         Text(
           value,
-          style: const TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w600,
-            color: Color(0xFF1A1A1A),
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: AppColors.deepEmerald),
+        ),
+      ],
+    );
+  }
+}
+
+class _StatusBadge extends StatelessWidget {
+  final String status;
+  final AppLanguage lang;
+  const _StatusBadge({required this.status, required this.lang});
+
+  @override
+  Widget build(BuildContext context) {
+    final color = status == 'ready' ? AppColors.earthYellow : AppColors.forestGreen;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Text(
+        t(status, lang).toUpperCase(),
+        style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1),
+      ),
+    );
+  }
+}
+
+class _DetailMetric extends StatelessWidget {
+  final String label;
+  final String value;
+  final Color? valueColor;
+  final bool isSmallValue;
+
+  const _DetailMetric({required this.label, required this.value, this.valueColor, this.isSmallValue = false});
+
+  @override
+  Widget build(BuildContext context) {
+    return AgriFocusCard(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: isSmallValue ? 16 : 24,
+              fontWeight: FontWeight.w900,
+              color: valueColor ?? AppColors.deepEmerald,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label.toUpperCase(),
+            style: TextStyle(
+              fontSize: 9,
+              fontWeight: FontWeight.w800,
+              color: AppColors.deepEmerald.withValues(alpha: 0.4),
+              letterSpacing: 0.5,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _InfoRow extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String value;
+  const _InfoRow({required this.icon, required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 18, color: AppColors.forestGreen.withValues(alpha: 0.5)),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label.toUpperCase(),
+                style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: AppColors.deepEmerald.withValues(alpha: 0.4), letterSpacing: 0.5),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                value,
+                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.deepEmerald),
+              ),
+            ],
           ),
         ),
       ],

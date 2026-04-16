@@ -1,3 +1,5 @@
+import 'package:agricola/core/theme/app_theme.dart';
+import 'package:agricola/core/widgets/agri_kit.dart';
 import 'package:flutter/material.dart';
 
 class TimelineView extends StatelessWidget {
@@ -18,45 +20,34 @@ class TimelineView extends StatelessWidget {
     final daysPassed = currentDate.difference(plantingDate).inDays;
     final progress = (daysPassed / totalDays).clamp(0.0, 1.0);
 
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withAlpha(25),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
+    return AgriFocusCard(
+      padding: const EdgeInsets.all(24),
       child: Column(
         children: [
           Row(
             children: [
               _buildTimelineNode(
                 icon: Icons.eco,
-                color: Colors.green,
+                color: AppColors.forestGreen,
                 isActive: true,
               ),
               Expanded(
                 child: Stack(
                   children: [
                     Container(
-                      height: 4,
+                      height: 6,
                       decoration: BoxDecoration(
-                        color: Colors.grey[200],
-                        borderRadius: BorderRadius.circular(2),
+                        color: AppColors.bone,
+                        borderRadius: BorderRadius.circular(3),
                       ),
                     ),
                     FractionallySizedBox(
                       widthFactor: progress,
                       child: Container(
-                        height: 4,
+                        height: 6,
                         decoration: BoxDecoration(
-                          color: Colors.green,
-                          borderRadius: BorderRadius.circular(2),
+                          color: AppColors.forestGreen,
+                          borderRadius: BorderRadius.circular(3),
                         ),
                       ),
                     ),
@@ -65,12 +56,13 @@ class TimelineView extends StatelessWidget {
               ),
               _buildTimelineNode(
                 icon: Icons.agriculture,
-                color: progress >= 1.0 ? Colors.green : Colors.grey,
+                color: progress >= 1.0 ? AppColors.forestGreen : AppColors.deepEmerald.withValues(alpha: 0.1),
                 isActive: progress >= 1.0,
+                iconColor: progress >= 1.0 ? Colors.white : AppColors.deepEmerald.withValues(alpha: 0.3),
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 20),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -78,35 +70,35 @@ class TimelineView extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Planted',
-                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                    'PLANTED',
+                    style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: AppColors.deepEmerald.withValues(alpha: 0.4), letterSpacing: 1),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     _formatDate(plantingDate),
                     style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF1A1A1A),
+                      fontSize: 15,
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.deepEmerald,
                     ),
                   ),
                 ],
               ),
               Container(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
+                  horizontal: 14,
+                  vertical: 8,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.green.withAlpha(10),
+                  color: AppColors.forestGreen.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
                   '${(progress * 100).toInt()}%',
                   style: const TextStyle(
                     fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.green,
+                    fontWeight: FontWeight.w900,
+                    color: AppColors.forestGreen,
                   ),
                 ),
               ),
@@ -114,16 +106,16 @@ class TimelineView extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    'Harvest',
-                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                    'HARVEST',
+                    style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: AppColors.deepEmerald.withValues(alpha: 0.4), letterSpacing: 1),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     _formatDate(expectedHarvestDate),
                     style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF1A1A1A),
+                      fontSize: 15,
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.deepEmerald,
                     ),
                   ),
                 ],
@@ -139,15 +131,16 @@ class TimelineView extends StatelessWidget {
     required IconData icon,
     required Color color,
     required bool isActive,
+    Color iconColor = Colors.white,
   }) {
     return Container(
-      width: 40,
-      height: 40,
+      width: 44,
+      height: 44,
       decoration: BoxDecoration(
-        color: isActive ? color : Colors.grey[300],
+        color: color,
         shape: BoxShape.circle,
       ),
-      child: Icon(icon, color: Colors.white, size: 20),
+      child: Icon(icon, color: iconColor, size: 22),
     );
   }
 

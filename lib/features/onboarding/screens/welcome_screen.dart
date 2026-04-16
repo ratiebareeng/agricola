@@ -1,4 +1,3 @@
-import 'package:agricola/core/providers/app_initialization_provider.dart';
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/core/widgets/app_buttons.dart';
