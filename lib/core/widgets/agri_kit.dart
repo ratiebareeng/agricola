@@ -155,6 +155,36 @@ class AgriStadiumButton extends StatelessWidget {
   }
 }
 
+/// A circular icon-only outlined button. Use instead of AgriStadiumButton with empty label.
+class AgriIconButton extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback? onPressed;
+  final double size;
+
+  const AgriIconButton({
+    super.key,
+    required this.icon,
+    this.onPressed,
+    this.size = 56,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: size,
+      height: size,
+      child: OutlinedButton(
+        onPressed: onPressed,
+        style: OutlinedButton.styleFrom(
+          padding: EdgeInsets.zero,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(size / 2)),
+        ),
+        child: Center(child: Icon(icon)),
+      ),
+    );
+  }
+}
+
 class AgriTextButton extends StatelessWidget {
   final String label;
   final VoidCallback? onPressed;

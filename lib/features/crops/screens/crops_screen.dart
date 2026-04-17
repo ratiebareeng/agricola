@@ -40,11 +40,7 @@ class CropsScreen extends ConsumerWidget {
                     // My Crops Section
                     Text(
                       t('my_crops', currentLang),
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF1A1A1A),
-                      ),
+                      style: Theme.of(context).textTheme.displaySmall,
                     ),
 
                     const SizedBox(height: 16),

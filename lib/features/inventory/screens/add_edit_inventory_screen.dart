@@ -393,24 +393,18 @@ class _AddEditInventoryScreenState
 
   Future<void> _pickSingleImage(ImageSource source, AppLanguage lang) async {
     try {
-      final picked = await _imagePicker.pickImage(
-        source: source,
-        maxWidth: 1200,
-        maxHeight: 1200,
-      );
+      final picked = await _imagePicker.pickImage(source: source);
       if (picked == null) return;
-      final file = File(picked.path);
-      final isValid = await ImageUtils.validateImage(file);
-      if (!isValid && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(t('image_too_large', lang)),
-            backgroundColor: Colors.red,
-          ),
-        );
+      final result = await ImageUtils.prepare(File(picked.path), preset: ImagePreset.product);
+      if (!result.ok) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(t(result.errorKey!, lang)), backgroundColor: Colors.red),
+          );
+        }
         return;
       }
-      if (mounted) setState(() => _newImages.add(file));
+      if (mounted) setState(() => _newImages.add(result.file!));
     } catch (_) {
       // silently ignore picker cancellation
     }
@@ -420,17 +414,22 @@ class _AddEditInventoryScreenState
     try {
       final remaining = _maxImages - _totalImageCount;
       if (remaining <= 0) return;
-      final picked = await _imagePicker.pickMultiImage(
-        maxWidth: 1200,
-        maxHeight: 1200,
-      );
+      final picked = await _imagePicker.pickMultiImage();
       if (picked.isEmpty) return;
       final limited = picked.take(remaining).toList();
+      int failed = 0;
       for (final xFile in limited) {
-        final file = File(xFile.path);
-        final isValid = await ImageUtils.validateImage(file);
-        if (!isValid) continue;
-        if (mounted) setState(() => _newImages.add(file));
+        final result = await ImageUtils.prepare(File(xFile.path), preset: ImagePreset.product);
+        if (!result.ok) {
+          failed++;
+          continue;
+        }
+        if (mounted) setState(() => _newImages.add(result.file!));
+      }
+      if (failed > 0 && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${t('some_images_skipped', lang)} ($failed)'), backgroundColor: Colors.orange),
+        );
       }
     } catch (_) {
       // silently ignore picker cancellation

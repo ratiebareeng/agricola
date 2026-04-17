@@ -11,6 +11,7 @@ import 'package:agricola/features/marketplace/providers/marketplace_provider.dar
 import 'package:agricola/features/marketplace/screens/marketplace_detail_screen.dart';
 import 'package:agricola/features/marketplace/widgets/marketplace_filter_bottom_sheet.dart';
 import 'package:agricola/features/marketplace/widgets/marketplace_listing_skeleton.dart';
+import 'package:agricola/core/widgets/app_image_cache.dart';
 import 'package:agricola/features/profile_setup/providers/profile_setup_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -25,6 +26,7 @@ class MarketplaceScreen extends ConsumerStatefulWidget {
 class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
   final _searchController = TextEditingController();
   Timer? _debounce;
+  bool _precached = false;
 
   @override
   Widget build(BuildContext context) {
@@ -52,13 +54,29 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
           _buildActiveFilterChips(currentLang, filter),
           Expanded(
             child: listingsAsync.when(
-              data: (listings) => listings.isEmpty
-                  ? _buildEmptyState(currentLang)
-                  : RefreshIndicator(
-                      onRefresh: () => ref.read(marketplaceNotifierProvider.notifier).refresh(),
-                      color: AppColors.forestGreen,
-                      child: _buildListingsList(listings),
-                    ),
+              data: (listings) {
+                if (!_precached && listings.isNotEmpty) {
+                  _precached = true;
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (mounted) {
+                      precacheNetworkImages(
+                        context,
+                        listings.map((l) => l.imagePath ?? ''),
+                      );
+                    }
+                  });
+                }
+                return listings.isEmpty
+                    ? _buildEmptyState(currentLang)
+                    : RefreshIndicator(
+                        onRefresh: () {
+                          _precached = false;
+                          return ref.read(marketplaceNotifierProvider.notifier).refresh();
+                        },
+                        color: AppColors.forestGreen,
+                        child: _buildListingsList(listings),
+                      );
+              },
               loading: () => ListView(
                 padding: const EdgeInsets.all(24),
                 children: List.generate(4, (_) => const MarketplaceListingSkeleton()),

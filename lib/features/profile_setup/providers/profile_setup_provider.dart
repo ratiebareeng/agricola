@@ -43,21 +43,17 @@ class ProfileSetupNotifier extends StateNotifier<ProfileSetupState> {
       if (state.photoPath != null) {
         final photoFile = File(state.photoPath!);
         if (await photoFile.exists()) {
-          // Validate the image before attempting upload
-          final isValid = await ImageUtils.validateImage(photoFile);
-          if (!isValid) {
+          final prepared = await ImageUtils.prepare(photoFile, preset: ImagePreset.profile);
+          if (!prepared.ok) {
             state = state.copyWith(
               isCreatingProfile: false,
-              errorMessage:
-                  'Invalid image. Please select a JPG or PNG under 5 MB.',
+              errorMessage: prepared.errorKey == 'image_invalid_format'
+                  ? 'Invalid image. Please select a JPG or PNG file.'
+                  : 'Image is too large even after compression. Please choose a smaller photo.',
             );
             return false;
           }
-
-          // Compress before uploading to reduce upload size and failures
-          final compressedFile = await ImageUtils.compressProfileImage(
-            photoFile,
-          );
+          final compressedFile = prepared.file!;
 
           photoUrl = await _ref
               .read(profileControllerProvider.notifier)

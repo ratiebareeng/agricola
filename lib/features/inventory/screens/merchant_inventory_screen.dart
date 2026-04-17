@@ -108,11 +108,7 @@ class _MerchantInventoryScreenState
                         isAgriShop
                             ? t('store_inventory', currentLang)
                             : t('produce_inventory', currentLang),
-                        style: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF1A1A1A),
-                        ),
+                        style: Theme.of(context).textTheme.displaySmall,
                       ),
                       const SizedBox(height: 8),
                       Text(

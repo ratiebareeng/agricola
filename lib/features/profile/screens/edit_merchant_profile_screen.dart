@@ -309,16 +309,14 @@ class _EditMerchantProfileScreenState
 
     if (image == null) return;
 
-    final file = File(image.path);
-    final isValid = await ImageUtils.validateImage(file);
-
-    if (!isValid && mounted) {
-      _showErrorSnackBar('Image must be less than 5MB and in JPG/PNG format');
+    final result = await ImageUtils.prepare(File(image.path), preset: ImagePreset.profile);
+    if (!result.ok) {
+      if (mounted) _showErrorSnackBar(result.errorKey == 'image_invalid_format'
+          ? 'Invalid image. Please select a JPG or PNG file.'
+          : 'Image is too large even after compression. Please choose a smaller photo.');
       return;
     }
-
-    final compressed = await ImageUtils.compressProfileImage(file);
-    setState(() => _newPhoto = compressed);
+    setState(() => _newPhoto = result.file!);
   }
 
   Future<void> _saveProfile() async {

@@ -7,6 +7,7 @@ import 'package:agricola/core/widgets/agri_kit.dart';
 import 'package:agricola/core/widgets/app_dropdown_field.dart';
 import 'package:agricola/core/widgets/app_network_image.dart';
 import 'package:agricola/features/auth/providers/auth_provider.dart';
+import 'package:agricola_core/agricola_core.dart' show UserModel;
 import 'package:agricola/features/inventory/models/inventory_model.dart';
 import 'package:agricola/features/marketplace/models/marketplace_listing.dart';
 import 'package:agricola/features/marketplace/providers/marketplace_provider.dart';
@@ -28,6 +29,13 @@ class AddProductScreen extends ConsumerStatefulWidget {
 
   @override
   ConsumerState<AddProductScreen> createState() => _AddProductScreenState();
+}
+
+String _resolveSellerName(ProfileSetupState profile, UserModel? user) {
+  if (profile.businessName.trim().isNotEmpty) return profile.businessName.trim();
+  final email = user?.email.trim();
+  if (email != null && email.isNotEmpty) return email.split('@').first;
+  return 'Seller';
 }
 
 class _AddProductScreenState extends ConsumerState<AddProductScreen> {
@@ -140,7 +148,7 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
       _titleController = TextEditingController();
       _descriptionController = TextEditingController();
       _priceController = TextEditingController();
-      _quantityController = TextEditingController();
+      _quantityController = TextEditingController(text: '1');
       _phoneController = TextEditingController(text: user?.phoneNumber);
       _existingImageUrls = [];
     }
@@ -352,6 +360,12 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
                     _buildTextField(
                       controller: _quantityController,
                       hint: t('enter_quantity', currentLang),
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      validator: (v) {
+                        final n = double.tryParse((v ?? '').trim());
+                        if (n == null || n <= 0) return t('quantity_must_be_positive', currentLang);
+                        return null;
+                      },
                     ),
                     const SizedBox(height: 40),
                   ],
@@ -543,44 +557,44 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
   Future<void> _pickSingleImage(ImageSource source) async {
     final lang = ref.read(languageProvider);
     try {
-      final picked = await _imagePicker.pickImage(
-        source: source,
-        maxWidth: 1200,
-        maxHeight: 1200,
-      );
+      final picked = await _imagePicker.pickImage(source: source);
       if (picked == null) return;
-      final file = File(picked.path);
-      final isValid = await ImageUtils.validateImage(file);
-      if (!isValid && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(t('image_too_large', lang)),
-            backgroundColor: Colors.red,
-          ),
-        );
+      final result = await ImageUtils.prepare(File(picked.path), preset: ImagePreset.product);
+      if (!result.ok) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(t(result.errorKey!, lang)), backgroundColor: Colors.red),
+          );
+        }
         return;
       }
-      if (mounted) setState(() => _newImages.add(file));
+      if (mounted) setState(() => _newImages.add(result.file!));
     } catch (_) {
       // silently ignore picker cancellation
     }
   }
 
   Future<void> _pickMultipleImages() async {
+    final lang = ref.read(languageProvider);
     try {
       final remaining = 5 - _totalImageCount;
       if (remaining <= 0) return;
-      final picked = await _imagePicker.pickMultiImage(
-        maxWidth: 1200,
-        maxHeight: 1200,
-      );
+      final picked = await _imagePicker.pickMultiImage();
       if (picked.isEmpty) return;
       final limited = picked.take(remaining).toList();
+      int failed = 0;
       for (final xFile in limited) {
-        final file = File(xFile.path);
-        final isValid = await ImageUtils.validateImage(file);
-        if (!isValid) continue;
-        if (mounted) setState(() => _newImages.add(file));
+        final result = await ImageUtils.prepare(File(xFile.path), preset: ImagePreset.product);
+        if (!result.ok) {
+          failed++;
+          continue;
+        }
+        if (mounted) setState(() => _newImages.add(result.file!));
+      }
+      if (failed > 0 && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${t('some_images_skipped', lang)} ($failed)'), backgroundColor: Colors.orange),
+        );
       }
     } catch (_) {
       // silently ignore picker cancellation
@@ -729,7 +743,7 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
         price: price,
         unit: _unit,
         quantity: _quantityController.text.trim(),
-        sellerName: profile.businessName.isNotEmpty ? profile.businessName : 'Unknown',
+        sellerName: _resolveSellerName(profile, user),
         sellerId: user.uid,
         location: profile.location.isNotEmpty ? profile.location : 'Botswana',
         sellerEmail: user.email,

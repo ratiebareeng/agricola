@@ -1,3 +1,24 @@
+## 1.2.1 - 2026-04-17
+
+### Fixed
+- **Heading font sizes** — Standardised all body-level screen headings (My Crops, Inventory View, Store/Produce Inventory) to `displaySmall` (24 px) for visual consistency with the marketplace AppBar title.
+- **Call / email buttons** — Added `LSApplicationQueriesSchemes` (iOS) and `<queries>` intents (Android) for `tel` and `mailto` so the phone and email buttons now reliably open native apps. Error snackbar shown if launch fails. Phone number whitespace stripped before dialling.
+- **Phone icon centering** — Replaced empty-label `AgriStadiumButton` with new `AgriIconButton` widget in the marketplace detail bottom bar so the phone icon is correctly centred in its circular outline button.
+- **Image upload — compress before reject** — Images are now compressed first, then size-checked, so large raw photos (e.g. 12 MB DSLR shots) upload successfully after compression. Invalid format shows a specific error; multi-image picker shows a count of skipped files instead of failing silently.
+- **Seller shown as "Unknown"** — Marketplace listings created by farmers (who have no `businessName`) now show the email prefix as the seller name instead of "Unknown". Merchants still use `businessName`.
+- **Stale inventory "Listed" state** — After deleting or unlisting a marketplace listing, `myListingsNotifierProvider` and `inventoryNotifierProvider` are now invalidated centrally in `MarketplaceNotifier`, so the inventory screen immediately reflects the unlisted state.
+- **Marketplace delete → Unlist** — When a listing is linked to an inventory item (`inventoryId != null`), the owner action icon and confirmation dialog now say "Unlist" instead of "Delete" to match the expected behaviour.
+- **Quantity validation** — Marketplace listing form now defaults quantity to `1` and rejects zero/empty values with a validation error. Sold-out listings (quantity ≤ 0) show a `SOLD OUT` badge, the available metric turns red, and the "Request to Buy" button is disabled (contact seller remains active).
+- **Image loading speed** — Added `AgricolaCacheManager` (30-day stale period, 500-object limit) as the shared cache manager for all `AppNetworkImage` widgets. Images now fade in instantly when served from cache. Marketplace and inventory list screens precache up to 20 image URLs after the initial data load.
+
+### Added
+- **`AgriIconButton`** widget — circular icon-only outlined button for use when no label is needed.
+- **`AgricolaCacheManager`** — shared network image cache manager (`lib/core/widgets/app_image_cache.dart`).
+- **i18n keys** — `image_invalid_format`, `image_too_large_even_compressed`, `some_images_skipped`, `could_not_open_phone_app`, `could_not_open_email_app`, `sold_out`.
+
+### Changed
+- **Splash screen** — Background is now solid `deepEmerald` green with bone-coloured title text and an earth-yellow loading indicator.
+
 ## 1.2.0 - 2026-04-17
 
 ### Fixed

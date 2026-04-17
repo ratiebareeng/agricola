@@ -9,6 +9,8 @@ import 'package:agricola/features/marketplace/data/marketplace_api_service.dart'
 import 'package:agricola/features/marketplace/models/marketplace_filter.dart';
 import 'package:agricola/features/marketplace/models/marketplace_listing.dart';
 import 'package:agricola/features/auth/providers/auth_provider.dart';
+import 'package:agricola/features/home/providers/dashboard_stats_provider.dart';
+import 'package:agricola/features/inventory/providers/inventory_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 // API Service provider
@@ -118,6 +120,11 @@ class MarketplaceNotifier
     loadListings();
   }
 
+  void _invalidateListingCaches() {
+    _ref.invalidate(myListingsNotifierProvider);
+    _ref.invalidate(inventoryNotifierProvider);
+  }
+
   /// Add a listing. Returns null on success, error message on failure.
   Future<String?> addListing(MarketplaceListing listing) async {
     try {
@@ -125,6 +132,7 @@ class MarketplaceNotifier
       final current = state.value ?? [];
       state = AsyncValue.data([created, ...current]);
       _ref.read(analyticsServiceProvider).logListingCreated();
+      _invalidateListingCaches();
       return null;
     } catch (e) {
       return errorKeyFromException(e);
@@ -139,6 +147,7 @@ class MarketplaceNotifier
       state = AsyncValue.data(
         current.map((l) => l.id == listing.id ? updated : l).toList(),
       );
+      _invalidateListingCaches();
       return null;
     } catch (e) {
       return errorKeyFromException(e);
@@ -151,6 +160,7 @@ class MarketplaceNotifier
       await _service.deleteListing(id);
       final current = state.value ?? [];
       state = AsyncValue.data(current.where((l) => l.id != id).toList());
+      _invalidateListingCaches();
       return null;
     } catch (e) {
       return errorKeyFromException(e);

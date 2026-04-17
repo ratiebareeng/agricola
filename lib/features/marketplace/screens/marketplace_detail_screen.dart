@@ -20,6 +20,11 @@ class MarketplaceDetailScreen extends ConsumerWidget {
 
   const MarketplaceDetailScreen({super.key, required this.listing});
 
+  bool get _isSoldOut {
+    final q = double.tryParse(listing.quantity ?? '');
+    return q != null && q <= 0;
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentLang = ref.watch(languageProvider);
@@ -56,7 +61,11 @@ class MarketplaceDetailScreen extends ConsumerWidget {
                       icon: Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(color: AppColors.bone.withValues(alpha: 0.9), shape: BoxShape.circle),
-                        child: const Icon(Icons.delete, color: AppColors.alertRed, size: 20),
+                        child: Icon(
+                          listing.inventoryId != null ? Icons.remove_shopping_cart_outlined : Icons.delete,
+                          color: AppColors.alertRed,
+                          size: 20,
+                        ),
                       ),
                       onPressed: () => _confirmDelete(context, ref, currentLang),
                     ),
@@ -116,7 +125,10 @@ class MarketplaceDetailScreen extends ConsumerWidget {
                           ],
                         ),
                       ),
-                      if (listing.status != null) _buildStatusBadge(listing.status!, currentLang),
+                      if (_isSoldOut)
+                        _buildSoldOutBadge(currentLang)
+                      else if (listing.status != null)
+                        _buildStatusBadge(listing.status!, currentLang),
                     ],
                   ),
                   const SizedBox(height: 32),
@@ -135,10 +147,12 @@ class MarketplaceDetailScreen extends ConsumerWidget {
                           ),
                           if (listing.quantity != null)
                             AgriMetricDisplay(
-                              value: AgriKit.formatQuantity(double.tryParse(listing.quantity!) ?? 0),
+                              value: _isSoldOut
+                                  ? t('sold_out', currentLang).toUpperCase()
+                                  : AgriKit.formatQuantity(double.tryParse(listing.quantity!) ?? 0),
                               label: t('available', currentLang),
-                              valueColor: AppColors.earthYellow,
-                              labelColor: AppColors.earthYellow.withValues(alpha: 0.5),
+                              valueColor: _isSoldOut ? AppColors.alertRed : AppColors.earthYellow,
+                              labelColor: (_isSoldOut ? AppColors.alertRed : AppColors.earthYellow).withValues(alpha: 0.5),
                               alignEnd: true,
                             ),
                         ],
@@ -208,7 +222,7 @@ class MarketplaceDetailScreen extends ConsumerWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    listing.sellerName,
+                                    listing.sellerName.trim().isEmpty ? t('seller', currentLang) : listing.sellerName,
                                     style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppColors.deepEmerald),
                                   ),
                                   const SizedBox(height: 2),
@@ -224,14 +238,14 @@ class MarketplaceDetailScreen extends ConsumerWidget {
                         const SizedBox(height: 32),
                         if (listing.sellerPhone != null)
                           AgriStadiumButton(
-                            onPressed: () => _makePhoneCall(listing.sellerPhone!),
+                            onPressed: () => _makePhoneCall(context, listing.sellerPhone!, currentLang),
                             label: t('call_seller', currentLang).toUpperCase(),
                             icon: Icons.phone_outlined,
                           ),
                         if (listing.sellerEmail != null) ...[
                           const SizedBox(height: 16),
                           AgriStadiumButton(
-                            onPressed: () => _sendEmail(listing.sellerEmail!, listing.title),
+                            onPressed: () => _sendEmail(context, listing.sellerEmail!, listing.title, currentLang),
                             label: t('email_seller', currentLang).toUpperCase(),
                             icon: Icons.email_outlined,
                             isPrimary: false,
@@ -265,21 +279,16 @@ class MarketplaceDetailScreen extends ConsumerWidget {
               : Row(
                   children: [
                     if (listing.sellerPhone != null)
-                      SizedBox(
-                        width: 64,
-                        child: AgriStadiumButton(
-                          onPressed: () => _makePhoneCall(listing.sellerPhone!),
-                          label: '',
-                          icon: Icons.phone_outlined,
-                          isPrimary: false,
-                        ),
+                      AgriIconButton(
+                        onPressed: () => _makePhoneCall(context, listing.sellerPhone!, currentLang),
+                        icon: Icons.phone_outlined,
                       ),
                     if (listing.sellerPhone != null) const SizedBox(width: 16),
                     Expanded(
                       child: AgriStadiumButton(
-                        onPressed: listing.price != null ? () => _showRequestToBuySheet(context, ref, currentLang) : null,
-                        icon: Icons.shopping_cart_outlined,
-                        label: t('request_to_buy', currentLang),
+                        onPressed: (!_isSoldOut && listing.price != null) ? () => _showRequestToBuySheet(context, ref, currentLang) : null,
+                        icon: _isSoldOut ? Icons.remove_shopping_cart_outlined : Icons.shopping_cart_outlined,
+                        label: _isSoldOut ? t('sold_out', currentLang) : t('request_to_buy', currentLang),
                       ),
                     ),
                   ],
@@ -342,6 +351,17 @@ class MarketplaceDetailScreen extends ConsumerWidget {
     );
   }
 
+  Widget _buildSoldOutBadge(AppLanguage lang) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(color: AppColors.alertRed.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
+      child: Text(
+        t('sold_out', lang).toUpperCase(),
+        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: AppColors.alertRed, letterSpacing: 0.5),
+      ),
+    );
+  }
+
   Widget _buildStatusBadge(CropStatus status, AppLanguage lang) {
     Color color;
     String label;
@@ -396,12 +416,13 @@ class MarketplaceDetailScreen extends ConsumerWidget {
   }
 
   void _confirmDelete(BuildContext context, WidgetRef ref, AppLanguage currentLang) async {
+    final isLinked = listing.inventoryId != null;
     final confirmed = await AppDialogs.confirm(
       context,
-      title: t('delete', currentLang),
-      content: t('delete_listing_confirm', currentLang),
+      title: isLinked ? t('unlist', currentLang) : t('delete', currentLang),
+      content: isLinked ? t('unlist_confirm', currentLang) : t('delete_listing_confirm', currentLang),
       cancelText: t('cancel', currentLang),
-      actionText: t('delete', currentLang),
+      actionText: isLinked ? t('unlist', currentLang) : t('delete', currentLang),
       isDestructive: true,
     );
 
@@ -414,7 +435,10 @@ class MarketplaceDetailScreen extends ConsumerWidget {
           );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(t('listing_deleted', currentLang)), backgroundColor: AppColors.forestGreen),
+            SnackBar(
+              content: Text(isLinked ? t('unlisted_success', currentLang) : t('listing_deleted', currentLang)),
+              backgroundColor: AppColors.forestGreen,
+            ),
           );
           Navigator.pop(context, true);
         }
@@ -422,31 +446,32 @@ class MarketplaceDetailScreen extends ConsumerWidget {
     }
   }
 
-  Future<void> _makePhoneCall(String phoneNumber) async {
-    final Uri launchUri = Uri(
-      scheme: 'tel',
-      path: phoneNumber,
-    );
-    if (await canLaunchUrl(launchUri)) {
-      await launchUrl(launchUri);
+  Future<void> _makePhoneCall(BuildContext context, String phoneNumber, AppLanguage lang) async {
+    final cleaned = phoneNumber.replaceAll(RegExp(r'\s+'), '');
+    final uri = Uri(scheme: 'tel', path: cleaned);
+    try {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } catch (_) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(t('could_not_open_phone_app', lang))),
+        );
+      }
     }
   }
 
-  Future<void> _sendEmail(String email, String subject) async {
-    final Uri launchUri = Uri(
-      scheme: 'mailto',
-      path: email,
-      query: encodeQueryParameters(<String, String>{
-        'subject': 'Agricola Marketplace: $subject',
-      }),
-    );
-    if (await canLaunchUrl(launchUri)) {
-      await launchUrl(launchUri);
+  Future<void> _sendEmail(BuildContext context, String email, String subject, AppLanguage lang) async {
+    final params = 'subject=${Uri.encodeComponent('Agricola Marketplace: $subject')}';
+    final uri = Uri(scheme: 'mailto', path: email.trim(), query: params);
+    try {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } catch (_) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(t('could_not_open_email_app', lang))),
+        );
+      }
     }
-  }
-
-  String? encodeQueryParameters(Map<String, String> params) {
-    return params.entries.map((MapEntry<String, String> e) => '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}').join('&');
   }
 }
 

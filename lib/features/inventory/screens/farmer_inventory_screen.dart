@@ -1,4 +1,5 @@
 import 'package:agricola/core/providers/database_provider.dart';
+import 'package:agricola/core/widgets/app_image_cache.dart';
 import 'package:agricola/core/widgets/agri_kit.dart';
 import 'package:agricola/features/inventory/widgets/inventory_item_card_skeleton.dart';
 import 'package:agricola/core/providers/language_provider.dart';
@@ -27,6 +28,7 @@ class FarmerInventoryScreen extends ConsumerStatefulWidget {
 class _FarmerInventoryScreenState extends ConsumerState<FarmerInventoryScreen> {
   String? _selectedCropFilter;
   String? _selectedLocationFilter;
+  bool _precached = false;
 
   Set<String> _getAvailableLocations(List<InventoryModel> inventory) {
     return inventory.map((item) => item.storageLocation).toSet();
@@ -120,6 +122,17 @@ class _FarmerInventoryScreenState extends ConsumerState<FarmerInventoryScreen> {
             ),
           ),
           data: (inventory) {
+            if (!_precached && inventory.isNotEmpty) {
+              _precached = true;
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (mounted) {
+                  precacheNetworkImages(
+                    context,
+                    inventory.expand((i) => i.imageUrls),
+                  );
+                }
+              });
+            }
             final filteredItems = _filterInventory(inventory);
             final availableLocations = _getAvailableLocations(inventory);
             final itemsNeedingAttention = _countItemsNeedingAttention(filteredItems);
@@ -134,7 +147,7 @@ class _FarmerInventoryScreenState extends ConsumerState<FarmerInventoryScreen> {
                     children: [
                       Text(
                         t('inventory_view', currentLang),
-                        style: Theme.of(context).textTheme.displayMedium,
+                        style: Theme.of(context).textTheme.displaySmall,
                       ),
                       const SizedBox(height: 4),
                       Text(
