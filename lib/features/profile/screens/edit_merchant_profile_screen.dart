@@ -158,61 +158,28 @@ class _EditMerchantProfileScreenState
           style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 12),
-        ListTile(
-          contentPadding: EdgeInsets.zero,
-          title: const Text('Agri Shop'),
-          subtitle: const Text('Sell agricultural supplies and equipment'),
-          leading: Radio<MerchantType>(
-            value: MerchantType.agriShop,
-            groupValue: _merchantType,
-            onChanged: isLoading
-                ? null
-                : (value) {
-                    if (value != null) {
-                      setState(() {
-                        _merchantType = value;
-                        _selectedProducts.clear();
-                      });
-                    }
-                  },
-            activeColor: AppColors.green,
-          ),
-          onTap: isLoading
-              ? null
-              : () {
-                  setState(() {
-                    _merchantType = MerchantType.agriShop;
-                    _selectedProducts.clear();
-                  });
-                },
+        _MerchantTypeCard(
+          icon: Icons.storefront_outlined,
+          title: 'Agri Shop',
+          subtitle: 'Sell agricultural supplies and equipment',
+          isSelected: _merchantType == MerchantType.agriShop,
+          isDisabled: isLoading,
+          onTap: () => setState(() {
+            _merchantType = MerchantType.agriShop;
+            _selectedProducts.clear();
+          }),
         ),
-        ListTile(
-          contentPadding: EdgeInsets.zero,
-          title: const Text('Supermarket/Vendor'),
-          subtitle: const Text('Buy produce from farmers'),
-          leading: Radio<MerchantType>(
-            value: MerchantType.supermarketVendor,
-            groupValue: _merchantType,
-            onChanged: isLoading
-                ? null
-                : (value) {
-                    if (value != null) {
-                      setState(() {
-                        _merchantType = value;
-                        _selectedProducts.clear();
-                      });
-                    }
-                  },
-            activeColor: AppColors.green,
-          ),
-          onTap: isLoading
-              ? null
-              : () {
-                  setState(() {
-                    _merchantType = MerchantType.supermarketVendor;
-                    _selectedProducts.clear();
-                  });
-                },
+        const SizedBox(height: 10),
+        _MerchantTypeCard(
+          icon: Icons.local_grocery_store_outlined,
+          title: 'Supermarket / Vendor',
+          subtitle: 'Buy produce from farmers',
+          isSelected: _merchantType == MerchantType.supermarketVendor,
+          isDisabled: isLoading,
+          onTap: () => setState(() {
+            _merchantType = MerchantType.supermarketVendor;
+            _selectedProducts.clear();
+          }),
         ),
       ],
     );
@@ -395,6 +362,79 @@ class _EditMerchantProfileScreenState
   void _showSuccessSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(message), backgroundColor: AppColors.green),
+    );
+  }
+}
+
+class _MerchantTypeCard extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final bool isSelected;
+  final bool isDisabled;
+  final VoidCallback onTap;
+
+  const _MerchantTypeCard({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.isSelected,
+    required this.isDisabled,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: isDisabled ? null : onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: isSelected ? AppColors.forestGreen.withValues(alpha: 0.06) : AppColors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected ? AppColors.forestGreen : AppColors.deepEmerald.withValues(alpha: 0.12),
+            width: isSelected ? 2 : 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              icon,
+              size: 24,
+              color: isSelected ? AppColors.forestGreen : AppColors.deepEmerald.withValues(alpha: 0.4),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: isSelected ? AppColors.forestGreen : AppColors.deepEmerald,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.deepEmerald.withValues(alpha: 0.5),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (isSelected)
+              const Icon(Icons.check_circle, color: AppColors.forestGreen, size: 20),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -253,9 +253,11 @@ class SettingsScreen extends ConsumerWidget {
                 child: const Icon(Icons.email_outlined, size: 18, color: AppColors.forestGreen),
               ),
               const SizedBox(width: 12),
-              const Text(
-                'developer@agricola-app.com',
-                style: TextStyle(fontWeight: FontWeight.w700, color: AppColors.deepEmerald),
+              Flexible(
+                child: Text(
+                  'developer@agricola-app.com',
+                  style: const TextStyle(fontWeight: FontWeight.w700, color: AppColors.deepEmerald),
+                ),
               ),
             ],
           ),

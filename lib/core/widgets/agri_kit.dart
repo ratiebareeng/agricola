@@ -55,6 +55,7 @@ class AgriMetricDisplay extends StatelessWidget {
   final String label;
   final Color? valueColor;
   final Color? labelColor;
+  final bool alignEnd;
 
   const AgriMetricDisplay({
     super.key,
@@ -62,17 +63,20 @@ class AgriMetricDisplay extends StatelessWidget {
     required this.label,
     this.valueColor,
     this.labelColor,
+    this.alignEnd = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    final cross = alignEnd ? CrossAxisAlignment.end : CrossAxisAlignment.start;
+    final fitAlignment = alignEnd ? Alignment.centerRight : Alignment.centerLeft;
     return Column(
       mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: cross,
       children: [
         FittedBox(
           fit: BoxFit.scaleDown,
-          alignment: Alignment.centerLeft,
+          alignment: fitAlignment,
           child: Text(
             value,
             style: Theme.of(context).textTheme.displayLarge?.copyWith(

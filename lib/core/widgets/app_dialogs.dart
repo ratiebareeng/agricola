@@ -37,28 +37,52 @@ class AppDialogs {
           ),
         ),
         actionsPadding: const EdgeInsets.only(right: 16, bottom: 16, left: 16),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            style: TextButton.styleFrom(
-              foregroundColor: AppColors.deepEmerald.withValues(alpha: 0.4),
-              textStyle: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13, letterSpacing: 0.5),
-            ),
-            child: Text(cancelText.toUpperCase()),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: isDestructive ? AppColors.alertRed : AppColors.forestGreen,
-              foregroundColor: AppColors.white,
-              elevation: 0,
-              shape: const StadiumBorder(),
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              textStyle: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13, letterSpacing: 0.5),
-            ),
-            child: Text(actionText.toUpperCase()),
-          ),
-        ],
+        actions: isDestructive
+            ? [
+                // Dangerous action: text link on left, safe Cancel as stadium on right
+                TextButton(
+                  onPressed: () => Navigator.pop(context, true),
+                  style: TextButton.styleFrom(
+                    foregroundColor: AppColors.alertRed,
+                    textStyle: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13, letterSpacing: 0.5),
+                  ),
+                  child: Text(actionText.toUpperCase()),
+                ),
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(context, false),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.forestGreen,
+                    foregroundColor: AppColors.white,
+                    elevation: 0,
+                    shape: const StadiumBorder(),
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    textStyle: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13, letterSpacing: 0.5),
+                  ),
+                  child: Text(cancelText.toUpperCase()),
+                ),
+              ]
+            : [
+                TextButton(
+                  onPressed: () => Navigator.pop(context, false),
+                  style: TextButton.styleFrom(
+                    foregroundColor: AppColors.deepEmerald.withValues(alpha: 0.4),
+                    textStyle: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13, letterSpacing: 0.5),
+                  ),
+                  child: Text(cancelText.toUpperCase()),
+                ),
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(context, true),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.forestGreen,
+                    foregroundColor: AppColors.white,
+                    elevation: 0,
+                    shape: const StadiumBorder(),
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    textStyle: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13, letterSpacing: 0.5),
+                  ),
+                  child: Text(actionText.toUpperCase()),
+                ),
+              ],
       ),
     );
     return result ?? false;

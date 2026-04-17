@@ -1,5 +1,6 @@
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/widgets/agri_kit.dart';
+import 'package:agricola/core/widgets/app_dropdown_field.dart';
 import 'package:agricola/features/crops/crop_helpers.dart';
 import 'package:agricola/features/crops/models/crop_model.dart';
 import 'package:agricola/features/crops/providers/crop_catalog_provider.dart';
@@ -260,18 +261,13 @@ class _LossCalculatorScreenState extends ConsumerState<LossCalculatorScreen> {
               );
             }
 
-            return DropdownButtonFormField<CropModel>(
-              initialValue: _selectedCrop,
-              isExpanded: true,
-              decoration: _inputDecoration(t('choose_crop', lang)),
-              items: crops.map((crop) {
-                return DropdownMenuItem(
-                  value: crop,
-                  child: Text(
-                    '${crop.fieldName} — ${cropDisplayName(crop.cropType, catalog, lang)}',
-                  ),
-                );
-              }).toList(),
+            return AppDropdownField<CropModel>(
+              value: _selectedCrop,
+              items: crops,
+              hint: t('choose_crop', lang),
+              sheetTitle: t('choose_crop', lang),
+              itemLabelBuilder: (crop) =>
+                  '${crop.fieldName} — ${cropDisplayName(crop.cropType, catalog, lang)}',
               onChanged: (crop) {
                 if (crop == null) return;
                 setState(() {
@@ -282,8 +278,7 @@ class _LossCalculatorScreenState extends ConsumerState<LossCalculatorScreen> {
                   _storageMethod = crop.storageMethod;
                 });
               },
-              validator: (v) =>
-                  v == null ? t('required', lang) : null,
+              validator: (v) => v == null ? t('required', lang) : null,
             );
           },
           loading: () => const Center(
@@ -323,12 +318,11 @@ class _LossCalculatorScreenState extends ConsumerState<LossCalculatorScreen> {
             const SizedBox(width: 12),
             Expanded(
               flex: 2,
-              child: DropdownButtonFormField<String>(
-                initialValue: _selectedUnit,
-                decoration: _inputDecoration(null),
-                items: _units.map((u) {
-                  return DropdownMenuItem(value: u, child: Text(t(u, lang)));
-                }).toList(),
+              child: AppDropdownField<String>(
+                value: _selectedUnit,
+                items: _units,
+                itemLabelBuilder: (u) => t(u, lang),
+                sheetTitle: t('unit', lang),
                 onChanged: (v) => setState(() => _selectedUnit = v!),
               ),
             ),
@@ -373,13 +367,11 @@ class _LossCalculatorScreenState extends ConsumerState<LossCalculatorScreen> {
           ),
         ),
         const SizedBox(height: 12),
-        DropdownButtonFormField<String>(
-          initialValue: _storageMethod,
-          isExpanded: true,
-          decoration: _inputDecoration(null),
-          items: _storageMethods.map((m) {
-            return DropdownMenuItem(value: m, child: Text(t(m, lang)));
-          }).toList(),
+        AppDropdownField<String>(
+          value: _storageMethod,
+          items: _storageMethods,
+          itemLabelBuilder: (m) => t(m, lang),
+          sheetTitle: t('storage_method', lang),
           onChanged: (v) => setState(() => _storageMethod = v!),
         ),
         const SizedBox(height: 20),

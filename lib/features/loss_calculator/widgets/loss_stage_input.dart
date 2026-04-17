@@ -1,4 +1,5 @@
 import 'package:agricola/core/providers/language_provider.dart';
+import 'package:agricola/core/widgets/app_dropdown_field.dart';
 import 'package:agricola/features/loss_calculator/loss_calculator_helpers.dart';
 import 'package:flutter/material.dart';
 
@@ -87,35 +88,12 @@ class LossStageInput extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          DropdownButtonFormField<String>(
-            initialValue: selectedCause,
-            isExpanded: true,
-            decoration: InputDecoration(
-              hintText: t('select_cause', lang),
-              filled: true,
-              fillColor: Colors.grey[50],
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide: BorderSide(color: Colors.grey[300]!),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide: BorderSide(color: Colors.grey[300]!),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide: const BorderSide(
-                  color: Color(0xFF2D6A4F),
-                  width: 2,
-                ),
-              ),
-            ),
-            items: causes.map((cause) {
-              return DropdownMenuItem(
-                value: cause,
-                child: Text(t(cause, lang)),
-              );
-            }).toList(),
+          AppDropdownField<String>(
+            value: selectedCause,
+            items: causes,
+            hint: t('select_cause', lang),
+            sheetTitle: t('loss_stage_$stage', lang),
+            itemLabelBuilder: (cause) => t(cause, lang),
             onChanged: onCauseChanged,
           ),
         ],

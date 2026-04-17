@@ -4,7 +4,7 @@ import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/core/utils/image_utils.dart';
 import 'package:agricola/core/widgets/agri_kit.dart';
-import 'package:agricola/core/widgets/app_text_field.dart';
+import 'package:agricola/core/widgets/app_dropdown_field.dart';
 import 'package:agricola/core/widgets/app_network_image.dart';
 import 'package:agricola/features/auth/providers/auth_provider.dart';
 import 'package:agricola/features/inventory/models/inventory_model.dart';
@@ -284,13 +284,13 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
                     const SizedBox(height: 20),
                     _buildSectionTitle(t('category', currentLang)),
                     const SizedBox(height: 8),
-                    _buildDropdownField(
+                    AppDropdownField<String>(
                       value: _category,
                       items: _categories,
+                      itemLabelBuilder: (item) => item,
+                      sheetTitle: t('category', currentLang),
                       onChanged: (value) {
-                        if (value != null) {
-                          setState(() => _category = value);
-                        }
+                        if (value != null) setState(() => _category = value);
                       },
                     ),
                     if (_category == 'Other') ...[
@@ -332,13 +332,13 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
                             children: [
                               _buildSectionTitle(t('unit', currentLang)),
                               const SizedBox(height: 8),
-                              _buildDropdownField(
+                              AppDropdownField<String>(
                                 value: _unit,
                                 items: _units,
+                                itemLabelBuilder: (item) => item,
+                                sheetTitle: t('unit', currentLang),
                                 onChanged: (value) {
-                                  if (value != null) {
-                                    setState(() => _unit = value);
-                                  }
+                                  if (value != null) setState(() => _unit = value);
                                 },
                               ),
                             ],
@@ -671,35 +671,6 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
           vertical: 14,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDropdownField({
-    required String value,
-    required List<String> items,
-    required void Function(String?) onChanged,
-  }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey[300]!),
-      ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-          value: value,
-          isExpanded: true,
-          icon: const Icon(Icons.keyboard_arrow_down),
-          items: items.map((item) {
-            return DropdownMenuItem(
-              value: item,
-              child: Text(item),
-            );
-          }).toList(),
-          onChanged: onChanged,
         ),
       ),
     );

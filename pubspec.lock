@@ -22,10 +22,10 @@ packages:
     description:
       path: "."
       ref: main
-      resolved-ref: "08daefaa01963ce7d5fa5fb3c66594226a5490d8"
+      resolved-ref: f77aa346c215557f2a8c711cc5ceb147ede46dbb
       url: "https://github.com/agricola-dev/agricola-core.git"
     source: git
-    version: "1.0.0"
+    version: "1.1.0"
   analyzer:
     dependency: transitive
     description:

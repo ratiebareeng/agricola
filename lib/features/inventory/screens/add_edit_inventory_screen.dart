@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/core/widgets/agri_kit.dart';
@@ -480,9 +481,12 @@ class _AddEditInventoryScreenState
       if (mounted) {
         setState(() => _isLoading = false);
         final lang = ref.read(languageProvider);
+        final message = kDebugMode
+            ? '${t('error_upload_failed', lang)}: $e'
+            : t('error_upload_failed', lang);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(t('error_upload_failed', lang)),
+            content: Text(message),
             backgroundColor: Colors.red,
           ),
         );

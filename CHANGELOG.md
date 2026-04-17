@@ -1,3 +1,14 @@
+## 1.1.4 - 2026-04-17
+
+### Fixed
+- **Help & Support dialog** — Email address no longer overflows the card edge on narrow screens (wrapped in `Flexible`).
+- **Destructive dialog UX** — Flipped button order for dangerous actions: the safe "Cancel" is now the prominent stadium button, and the destructive action is a subtle red text link. Affects Delete Account, Logout, Cancel Order, Unlist, and Delete Listing dialogs.
+- **Edit Business Profile pre-selection** — Replaced invisible Material 3 `Radio` buttons with clear Digital Earth card selector; merchant type is now visually pre-selected on screen open.
+- **Dropdowns — full migration to modal bottom sheet** — Replaced all raw `DropdownButton` / `DropdownButtonFormField` usages (Add Product, Loss Calculator, Record Harvest, Loss Stage Input) with the updated `AppDropdownField` that opens a draggable bottom sheet with a close X and proper dismiss affordance.
+- **Marketplace detail — Available amount** — "AVAILABLE" metric now right-anchors for a clean space-between layout against "PRICE" in the Hero card.
+- **Translation raw keys** — Added 14 missing EN/Setswana keys to `agricola_core` (`my_orders`, `sales`, `my_requests`, `no_purchase_requests`, `purchase_requests_appear_here`, `photos_optional_hint`, `add_image_slot`, `at_least_one_image_required`, `error_upload_failed`, `contact_phone`, `phone_required_for_listing`, `request_to_buy`, `no_orders_yet`, `orders_will_appear_here`). Upgraded `agricola_core` lock to latest `main` — all previously stale keys are now live.
+- **Inventory upload error** — Error snackbar now shows translated message. In debug builds, the underlying exception is appended for faster root-cause diagnosis.
+
 ## 1.1.3 - 2026-04-17
 
 ### Changed

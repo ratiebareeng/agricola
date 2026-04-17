@@ -11,7 +11,6 @@ import 'package:agricola/features/marketplace/screens/add_product_screen.dart';
 import 'package:agricola/features/orders/models/order_model.dart';
 import 'package:agricola/features/orders/providers/orders_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -125,26 +124,22 @@ class MarketplaceDetailScreen extends ConsumerWidget {
                       color: AppColors.deepEmerald,
                       padding: const EdgeInsets.all(24),
                       child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Expanded(
-                            child: AgriMetricDisplay(
-                              value: 'P${listing.price!.toStringAsFixed(0)}',
-                              label: t('price', currentLang),
-                              valueColor: AppColors.bone,
-                              labelColor: AppColors.bone.withValues(alpha: 0.5),
-                            ),
+                          AgriMetricDisplay(
+                            value: 'P${listing.price!.toStringAsFixed(0)}',
+                            label: t('price', currentLang),
+                            valueColor: AppColors.bone,
+                            labelColor: AppColors.bone.withValues(alpha: 0.5),
                           ),
-                          if (listing.quantity != null) ...[
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: AgriMetricDisplay(
-                                value: AgriKit.formatQuantity(double.tryParse(listing.quantity!) ?? 0),
-                                label: t('available', currentLang),
-                                valueColor: AppColors.earthYellow,
-                                labelColor: AppColors.earthYellow.withValues(alpha: 0.5),
-                              ),
+                          if (listing.quantity != null)
+                            AgriMetricDisplay(
+                              value: AgriKit.formatQuantity(double.tryParse(listing.quantity!) ?? 0),
+                              label: t('available', currentLang),
+                              valueColor: AppColors.earthYellow,
+                              labelColor: AppColors.earthYellow.withValues(alpha: 0.5),
+                              alignEnd: true,
                             ),
-                          ],
                         ],
                       ),
                     ),
