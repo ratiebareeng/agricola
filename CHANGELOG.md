@@ -1,3 +1,17 @@
+## 1.2.0 - 2026-04-17
+
+### Fixed
+- **Merchant tab routing bug** — Non-AgriShop merchant dashboard INVENTORY and ORDERS quick-action buttons were navigating to the wrong tabs (Marketplace and Inventory respectively) because `profileSetupProvider` defaulted to AgriShop when unloaded. Removed the dead `isAgriShop` branch from `MerchantDashboardScreen`; INVENTORY now correctly goes to the Produce tab, ORDERS navigates to the Orders screen, and "View all orders" in Recent Activity no longer miswires to the Inventory tab.
+- **Loss calculator — unnecessary decimals** — Summary values like `20.0%` and `3.0 Kilograms` now display as `20%` and `3 Kilograms` when the value is a whole number. Added `AgriKit.formatPercent()` helper and applied it across the results card and running-total row.
+- **Orders — tap card to view details** — Order cards are now tappable for both buyers and sellers, opening the full details sheet. After placing an order via the marketplace, a "View Orders" snackbar action lets users jump directly to their order list without losing context.
+
+### Added
+- **Loss calculator — "Other" option** — Unit dropdown (kg / bags / tons) and storage method dropdown now include an "Other" option. Selecting it reveals a mandatory free-text field that flows through to all stage inputs and the results summary.
+- **Loss calculator — per-stage monetary impact** — Each stage row in the results breakdown now shows the monetary value lost (e.g. `- P7.95`) alongside the quantity and percentage.
+
+### Changed
+- **Inventory tab — Digital Earth redesign** — Replaced the legacy tinted green/yellow summary cards ("AI-tell" pattern) with a single dark `AgriFocusCard` hero displaying Total Value and Items Needing Attention metrics. Title uses `displayMedium` with an uppercase letter-spaced subtitle. Background updated to `AppColors.bone` for consistency with other Digital Earth screens.
+
 ## 1.1.4 - 2026-04-17
 
 ### Fixed

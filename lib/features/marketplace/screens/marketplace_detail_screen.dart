@@ -10,6 +10,7 @@ import 'package:agricola/features/marketplace/providers/marketplace_provider.dar
 import 'package:agricola/features/marketplace/screens/add_product_screen.dart';
 import 'package:agricola/features/orders/models/order_model.dart';
 import 'package:agricola/features/orders/providers/orders_provider.dart';
+import 'package:agricola/features/orders/screens/orders_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -504,7 +505,8 @@ class _RequestToBuySheetState extends ConsumerState<_RequestToBuySheet> {
     }
 
     Navigator.pop(context);
-    ScaffoldMessenger.of(context).showSnackBar(
+    final ctx = context;
+    ScaffoldMessenger.of(ctx).showSnackBar(
       SnackBar(
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -518,6 +520,15 @@ class _RequestToBuySheetState extends ConsumerState<_RequestToBuySheet> {
         backgroundColor: AppColors.forestGreen,
         behavior: SnackBarBehavior.floating,
         duration: const Duration(seconds: 5),
+        action: SnackBarAction(
+          label: t('view_orders', widget.lang),
+          textColor: AppColors.earthYellow,
+          onPressed: () {
+            if (ctx.mounted) {
+              Navigator.push(ctx, MaterialPageRoute(builder: (_) => const OrdersScreen(showSalesTab: false)));
+            }
+          },
+        ),
       ),
     );
   }

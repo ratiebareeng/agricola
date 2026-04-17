@@ -233,12 +233,27 @@ class _OrderCard extends ConsumerWidget {
     required this.lang,
   });
 
+  void _showDetails(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) => _OrderDetailsSheet(order: order, lang: lang),
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () => _showDetails(context),
+        child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -302,7 +317,7 @@ class _OrderCard extends ConsumerWidget {
             if (isSeller &&
                 (order.status == 'pending' || order.status == 'confirmed')) ...[
               const Divider(height: 24),
-              _SellerActions(order: order, lang: lang),
+              _SellerActions(order: order, lang: lang, onShowDetails: () => _showDetails(context)),
             ],
             if (!isSeller && order.status == 'pending') ...[
               const Divider(height: 24),
@@ -310,6 +325,7 @@ class _OrderCard extends ConsumerWidget {
             ],
           ],
         ),
+      ),
       ),
     );
   }
@@ -327,8 +343,13 @@ class _OrderCard extends ConsumerWidget {
 class _SellerActions extends ConsumerWidget {
   final OrderModel order;
   final AppLanguage lang;
+  final VoidCallback onShowDetails;
 
-  const _SellerActions({required this.order, required this.lang});
+  const _SellerActions({
+    required this.order,
+    required this.lang,
+    required this.onShowDetails,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -339,7 +360,7 @@ class _SellerActions extends ConsumerWidget {
       children: [
         Expanded(
           child: AgriStadiumButton(
-            onPressed: () => _showDetails(context),
+            onPressed: onShowDetails,
             label: t('view_details', lang),
             isPrimary: false,
           ),
@@ -394,17 +415,6 @@ class _SellerActions extends ConsumerWidget {
         ),
       );
     }
-  }
-
-  void _showDetails(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (_) => _OrderDetailsSheet(order: order, lang: lang),
-    );
   }
 }
 

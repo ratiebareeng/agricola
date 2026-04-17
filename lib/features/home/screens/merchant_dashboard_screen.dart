@@ -3,7 +3,6 @@ import 'package:agricola/core/providers/nav_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/core/widgets/agri_kit.dart';
 import 'package:agricola/core/widgets/skeleton_primitives.dart';
-import 'package:agricola/domain/profile/enum/merchant_type.dart';
 import 'package:agricola/features/home/providers/dashboard_stats_provider.dart';
 import 'package:agricola/features/home/widgets/hero_card_skeleton.dart';
 import 'package:agricola/features/marketplace/screens/add_product_screen.dart';
@@ -11,7 +10,6 @@ import 'package:agricola/features/notifications/providers/notifications_provider
 import 'package:agricola/features/notifications/screens/notifications_screen.dart';
 import 'package:agricola/features/orders/models/order_model.dart';
 import 'package:agricola/features/orders/screens/orders_screen.dart';
-import 'package:agricola/features/profile_setup/providers/profile_setup_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -21,8 +19,6 @@ class MerchantDashboardScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentLang = ref.watch(languageProvider);
-    final profile = ref.watch(profileSetupProvider);
-    final isAgriShop = (profile.merchantType ?? MerchantType.agriShop) == MerchantType.agriShop;
     final stats = ref.watch(merchantDashboardStatsProvider);
 
     return Scaffold(
@@ -40,14 +36,12 @@ class MerchantDashboardScreen extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          isAgriShop
-                              ? t('welcome_back_merchant', currentLang)
-                              : t('welcome_back_vendor', currentLang),
+                          t('welcome_back_vendor', currentLang),
                           style: Theme.of(context).textTheme.displayMedium,
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          isAgriShop ? 'TRACK YOUR STORE' : 'BUSINESS PERFORMANCE',
+                          'BUSINESS PERFORMANCE',
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w800,
@@ -62,7 +56,7 @@ class MerchantDashboardScreen extends ConsumerWidget {
                 ],
               ),
               const SizedBox(height: 32),
-              _StatsHero(stats: stats, lang: currentLang, isAgriShop: isAgriShop),
+              _StatsHero(stats: stats, lang: currentLang),
               const SizedBox(height: 40),
               Text(
                 t('quick_actions', currentLang).toUpperCase(),
@@ -74,7 +68,7 @@ class MerchantDashboardScreen extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 20),
-              _QuickActionsGrid(lang: currentLang, isAgriShop: isAgriShop),
+              _QuickActionsGrid(lang: currentLang),
               const SizedBox(height: 40),
               Text(
                 t('recent_activity', currentLang).toUpperCase(),
@@ -99,9 +93,8 @@ class MerchantDashboardScreen extends ConsumerWidget {
 class _StatsHero extends StatelessWidget {
   final MerchantDashboardStats stats;
   final AppLanguage lang;
-  final bool isAgriShop;
 
-  const _StatsHero({required this.stats, required this.lang, required this.isAgriShop});
+  const _StatsHero({required this.stats, required this.lang});
 
   @override
   Widget build(BuildContext context) {
@@ -117,33 +110,18 @@ class _StatsHero extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              if (isAgriShop) ...[
-                AgriMetricDisplay(
-                  value: '${stats.activeOrders}',
-                  label: t('active_orders', lang),
-                  valueColor: AppColors.bone,
-                  labelColor: AppColors.bone.withValues(alpha: 0.5),
-                ),
-                AgriMetricDisplay(
-                  value: 'P${stats.monthlyRevenue.toStringAsFixed(0)}',
-                  label: 'REVENUE',
-                  valueColor: AppColors.earthYellow,
-                  labelColor: AppColors.earthYellow.withValues(alpha: 0.5),
-                ),
-              ] else ...[
-                AgriMetricDisplay(
-                  value: '${stats.totalSuppliers}',
-                  label: 'SUPPLIERS',
-                  valueColor: AppColors.bone,
-                  labelColor: AppColors.bone.withValues(alpha: 0.5),
-                ),
-                AgriMetricDisplay(
-                  value: 'P${stats.monthlyPurchases.toStringAsFixed(0)}',
-                  label: 'PURCHASES',
-                  valueColor: AppColors.earthYellow,
-                  labelColor: AppColors.earthYellow.withValues(alpha: 0.5),
-                ),
-              ],
+              AgriMetricDisplay(
+                value: '${stats.totalSuppliers}',
+                label: 'SUPPLIERS',
+                valueColor: AppColors.bone,
+                labelColor: AppColors.bone.withValues(alpha: 0.5),
+              ),
+              AgriMetricDisplay(
+                value: 'P${stats.monthlyPurchases.toStringAsFixed(0)}',
+                label: 'PURCHASES',
+                valueColor: AppColors.earthYellow,
+                labelColor: AppColors.earthYellow.withValues(alpha: 0.5),
+              ),
             ],
           ),
           const SizedBox(height: 32),
@@ -171,8 +149,7 @@ class _StatsHero extends StatelessWidget {
 
 class _QuickActionsGrid extends ConsumerWidget {
   final AppLanguage lang;
-  final bool isAgriShop;
-  const _QuickActionsGrid({required this.lang, required this.isAgriShop});
+  const _QuickActionsGrid({required this.lang});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -189,7 +166,7 @@ class _QuickActionsGrid extends ConsumerWidget {
               child: AgriStadiumButton(
                 label: 'INVENTORY',
                 isPrimary: false,
-                onPressed: () => ref.read(selectedTabProvider.notifier).state = isAgriShop ? 1 : 2,
+                onPressed: () => ref.read(selectedTabProvider.notifier).state = 2,
               ),
             ),
             const SizedBox(width: 16),
@@ -197,13 +174,7 @@ class _QuickActionsGrid extends ConsumerWidget {
               child: AgriStadiumButton(
                 label: 'ORDERS',
                 isPrimary: false,
-                onPressed: () {
-                  if (isAgriShop) {
-                    ref.read(selectedTabProvider.notifier).state = 2;
-                  } else {
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => const OrdersScreen(showSalesTab: true)));
-                  }
-                },
+                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const OrdersScreen(showSalesTab: true))),
               ),
             ),
           ],
@@ -250,7 +221,7 @@ class _RecentActivitySection extends ConsumerWidget {
         ...stats.recentOrders.take(3).map((order) => _OrderTile(order: order)),
         const SizedBox(height: 12),
         TextButton(
-          onPressed: () => ref.read(selectedTabProvider.notifier).state = 2,
+          onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const OrdersScreen(showSalesTab: true))),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [

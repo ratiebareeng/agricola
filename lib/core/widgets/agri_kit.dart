@@ -9,6 +9,14 @@ class AgriKit {
     }
     return quantity.toString();
   }
+
+  /// Formats a percentage: "20%" when whole, "20.5%" when not.
+  static String formatPercent(double value) {
+    if (value == value.toInt().toDouble()) {
+      return '${value.toInt()}%';
+    }
+    return '${value.toStringAsFixed(1)}%';
+  }
 }
 
 /// The core UI Kit for the "Digital Earth" design ethos.

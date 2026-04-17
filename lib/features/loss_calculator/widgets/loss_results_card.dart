@@ -1,4 +1,5 @@
 import 'package:agricola/core/providers/language_provider.dart';
+import 'package:agricola/core/widgets/agri_kit.dart';
 import 'package:agricola/features/loss_calculator/loss_calculator_helpers.dart';
 import 'package:agricola/features/loss_calculator/models/loss_calculation.dart';
 import 'package:agricola/core/theme/app_theme.dart';
@@ -49,7 +50,7 @@ class LossResultsCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '${calculation.totalLossPercentage.toStringAsFixed(1)}%',
+                        AgriKit.formatPercent(calculation.totalLossPercentage),
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 40,
@@ -57,7 +58,7 @@ class LossResultsCard extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        '${calculation.totalLoss.toStringAsFixed(1)} ${t(calculation.unit, lang)}',
+                        '${AgriKit.formatQuantity(calculation.totalLoss)} ${t(calculation.unit, lang)}',
                         style: const TextStyle(
                           color: Colors.white70,
                           fontSize: 14,
@@ -110,7 +111,7 @@ class LossResultsCard extends StatelessWidget {
                       FittedBox(
                         fit: BoxFit.scaleDown,
                         child: Text(
-                          '${comparison.regionalAverage.toStringAsFixed(1)}%',
+                          AgriKit.formatPercent(comparison.regionalAverage),
                           style: TextStyle(
                             color: Colors.grey[800],
                             fontSize: 40,
@@ -249,7 +250,7 @@ class LossResultsCard extends StatelessWidget {
                 ],
               ),
               Text(
-                '${stage.amount.toStringAsFixed(1)} ${t(calculation.unit, lang)} (${pct.toStringAsFixed(1)}%)',
+                '${AgriKit.formatQuantity(stage.amount)} ${t(calculation.unit, lang)} (${AgriKit.formatPercent(pct)})',
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
                   color: Colors.grey[800],
@@ -267,13 +268,27 @@ class LossResultsCard extends StatelessWidget {
               minHeight: 6,
             ),
           ),
-          if (stage.cause != null) ...[
-            const SizedBox(height: 6),
-            Text(
-              t(stage.cause!, lang),
-              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-            ),
-          ],
+          const SizedBox(height: 6),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              if (stage.cause != null)
+                Text(
+                  t(stage.cause!, lang),
+                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                )
+              else
+                const SizedBox.shrink(),
+              Text(
+                '- ${formatBWP(stage.amount * calculation.marketPricePerUnit)}',
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.alertRed,
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );

@@ -52,13 +52,17 @@ class _LossCalculatorScreenState extends ConsumerState<LossCalculatorScreen> {
   bool _isSaving = false;
   bool _isSaved = false;
 
-  final _units = ['kg', 'bags', 'tons'];
+  final _customUnitController = TextEditingController();
+  final _customStorageController = TextEditingController();
+
+  final _units = ['kg', 'bags', 'tons', 'other'];
   final _storageMethods = [
     'traditional_granary',
     'improved_storage',
     'bags_in_room',
     'open_air',
     'warehouse',
+    'other',
   ];
 
   @override
@@ -81,6 +85,8 @@ class _LossCalculatorScreenState extends ConsumerState<LossCalculatorScreen> {
     _transportLossController.dispose();
     _storageLossController.dispose();
     _processingLossController.dispose();
+    _customUnitController.dispose();
+    _customStorageController.dispose();
     super.dispose();
   }
 
@@ -323,11 +329,22 @@ class _LossCalculatorScreenState extends ConsumerState<LossCalculatorScreen> {
                 items: _units,
                 itemLabelBuilder: (u) => t(u, lang),
                 sheetTitle: t('unit', lang),
-                onChanged: (v) => setState(() => _selectedUnit = v!),
+                onChanged: (v) => setState(() {
+                  _selectedUnit = v!;
+                  if (v != 'other') _customUnitController.clear();
+                }),
               ),
             ),
           ],
         ),
+        if (_selectedUnit == 'other') ...[
+          const SizedBox(height: 12),
+          TextFormField(
+            controller: _customUnitController,
+            decoration: _inputDecoration(t('specify_unit', lang)),
+            validator: (v) => (v == null || v.trim().isEmpty) ? t('required', lang) : null,
+          ),
+        ],
         const SizedBox(height: 24),
 
         // Market price
@@ -372,8 +389,19 @@ class _LossCalculatorScreenState extends ConsumerState<LossCalculatorScreen> {
           items: _storageMethods,
           itemLabelBuilder: (m) => t(m, lang),
           sheetTitle: t('storage_method', lang),
-          onChanged: (v) => setState(() => _storageMethod = v!),
+          onChanged: (v) => setState(() {
+            _storageMethod = v!;
+            if (v != 'other') _customStorageController.clear();
+          }),
         ),
+        if (_storageMethod == 'other') ...[
+          const SizedBox(height: 12),
+          TextFormField(
+            controller: _customStorageController,
+            decoration: _inputDecoration(t('specify_storage_method', lang)),
+            validator: (v) => (v == null || v.trim().isEmpty) ? t('required', lang) : null,
+          ),
+        ],
         const SizedBox(height: 20),
       ],
     );
@@ -403,7 +431,7 @@ class _LossCalculatorScreenState extends ConsumerState<LossCalculatorScreen> {
 
         LossStageInput(
           stage: 'field',
-          unit: _selectedUnit,
+          unit: _effectiveUnit,
           lang: lang,
           amountController: _fieldLossController,
           selectedCause: _fieldCause,
@@ -413,7 +441,7 @@ class _LossCalculatorScreenState extends ConsumerState<LossCalculatorScreen> {
         ),
         LossStageInput(
           stage: 'transport',
-          unit: _selectedUnit,
+          unit: _effectiveUnit,
           lang: lang,
           amountController: _transportLossController,
           selectedCause: _transportCause,
@@ -423,7 +451,7 @@ class _LossCalculatorScreenState extends ConsumerState<LossCalculatorScreen> {
         ),
         LossStageInput(
           stage: 'storage',
-          unit: _selectedUnit,
+          unit: _effectiveUnit,
           lang: lang,
           amountController: _storageLossController,
           selectedCause: _storageCause,
@@ -433,7 +461,7 @@ class _LossCalculatorScreenState extends ConsumerState<LossCalculatorScreen> {
         ),
         LossStageInput(
           stage: 'processing',
-          unit: _selectedUnit,
+          unit: _effectiveUnit,
           lang: lang,
           amountController: _processingLossController,
           selectedCause: _processingCause,
@@ -482,7 +510,7 @@ class _LossCalculatorScreenState extends ConsumerState<LossCalculatorScreen> {
             style: const TextStyle(fontWeight: FontWeight.w600),
           ),
           Text(
-            '${AgriKit.formatQuantity(totalLoss)} ${t(_selectedUnit, lang)} (${pct.toStringAsFixed(1)}%)',
+            '${AgriKit.formatQuantity(totalLoss)} $_effectiveUnit (${AgriKit.formatPercent(pct)})',
             style: TextStyle(
               fontWeight: FontWeight.bold,
               color: pct > 25
@@ -608,6 +636,12 @@ class _LossCalculatorScreenState extends ConsumerState<LossCalculatorScreen> {
     }
   }
 
+  String get _effectiveUnit =>
+      _selectedUnit == 'other' ? _customUnitController.text.trim() : _selectedUnit;
+
+  String get _effectiveStorageMethod =>
+      _storageMethod == 'other' ? _customStorageController.text.trim() : _storageMethod;
+
   void _calculateResult() {
     final harvest = double.tryParse(_harvestAmountController.text) ?? 0;
     final price = double.tryParse(_marketPriceController.text) ?? 0;
@@ -629,9 +663,9 @@ class _LossCalculatorScreenState extends ConsumerState<LossCalculatorScreen> {
     _result = LossCalculation(
       cropType: _selectedCrop?.cropType ?? '',
       harvestAmount: harvest,
-      unit: _selectedUnit,
+      unit: _effectiveUnit,
       marketPricePerUnit: price,
-      storageMethod: _storageMethod,
+      storageMethod: _effectiveStorageMethod,
       stages: stages,
     );
   }
