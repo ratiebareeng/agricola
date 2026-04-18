@@ -21,8 +21,15 @@ void main() async {
     await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform);
 
-    // Send all uncaught Flutter framework errors to Crashlytics
+    // Send all uncaught Flutter framework errors to Crashlytics.
+    // NetworkImageLoadException (e.g. 404 from a stale image URL) is silently
+    // handled at the widget level via DecorationImage.onError — treat it as
+    // non-fatal so it doesn't flood the crash dashboard.
     FlutterError.onError = (errorDetails) {
+      if (errorDetails.exception is NetworkImageLoadException) {
+        FirebaseCrashlytics.instance.recordFlutterError(errorDetails, fatal: false);
+        return;
+      }
       FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
     };
 

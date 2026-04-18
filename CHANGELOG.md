@@ -1,3 +1,8 @@
+## 1.4.2 - 2026-04-18
+
+### Fixed
+- **Crashlytics noise** — `NetworkImageLoadException` (e.g. 404 on a stale image URL) is now recorded as non-fatal instead of fatal. These errors are already silently handled at the widget level via `DecorationImage.onError`.
+
 ## 1.4.1 - 2026-04-18
 
 ### Fixed
