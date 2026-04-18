@@ -13,9 +13,8 @@ class ProfileScreen extends ConsumerWidget {
     // Read from actual user data in Firestore, not cached profile setup data
     final user = ref.watch(currentUserProvider);
 
-    // If user data is not loaded yet, default to merchant screen
     if (user == null) {
-      return const MerchantProfileScreen();
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     if (user.userType == UserType.farmer) {

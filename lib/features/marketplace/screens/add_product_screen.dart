@@ -137,7 +137,9 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
       _titleController = TextEditingController(text: source.cropType);
       _descriptionController =
           TextEditingController(text: source.notes ?? '');
-      _priceController = TextEditingController();
+      _priceController = TextEditingController(
+        text: source.unitPrice != null ? source.unitPrice!.toStringAsFixed(2) : '',
+      );
       _quantityController =
           TextEditingController(text: AgriKit.formatQuantity(source.quantity));
       _phoneController = TextEditingController(text: user?.phoneNumber);

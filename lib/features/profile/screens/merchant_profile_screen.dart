@@ -51,9 +51,7 @@ class _MerchantProfileScreenState extends ConsumerState<MerchantProfileScreen> {
         ref,
         displayableProfile,
       ),
-      CompleteFarmerProfile() => throw StateError(
-        'Farmer profile in merchant screen',
-      ),
+      CompleteFarmerProfile() => _buildErrorScreen(context, null),
     };
   }
 

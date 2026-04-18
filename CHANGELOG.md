@@ -1,3 +1,24 @@
+## 1.4.5 - 2026-04-18
+
+### Fixed
+- **Fatal crash on profile tab** — Farmer users who opened the Profile tab before Firebase user data finished loading were routed to `MerchantProfileScreen`, which then loaded their farmer profile and threw a fatal `StateError`. Fixed by showing a loading spinner until user data is available, and made `MerchantProfileScreen` show an error UI instead of crashing if a farmer profile somehow arrives.
+
+## 1.4.4 - 2026-04-18
+
+### Fixed
+- **Inventory total value** — Items linked to a marketplace listing now contribute their listing price to the total when no `unitPrice` is set on the inventory item itself. Previously such items counted as P0, making the total always show P0 for users who set prices only when listing.
+- **List from inventory price pre-fill** — When creating a marketplace listing from an inventory item, the price field is now pre-filled with the inventory item's `unitPrice` if one exists.
+
+## 1.4.3 - 2026-04-18
+
+### Fixed
+- **Crashlytics noise** — `PathNotFoundException` (cached scaled image evicted by the OS before Flutter could load it) is now recorded as non-fatal instead of fatal, matching the existing treatment of `NetworkImageLoadException`.
+
+## 1.4.2 - 2026-04-18
+
+### Fixed
+- **Crashlytics noise** — `NetworkImageLoadException` (e.g. 404 on a stale image URL) is now recorded as non-fatal instead of fatal. These errors are already silently handled at the widget level via `DecorationImage.onError`.
+
 ## 1.4.1 - 2026-04-18
 
 ### Fixed

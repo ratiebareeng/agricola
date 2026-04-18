@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:agricola/core/routing/app_router.dart';
 import 'package:agricola/core/theme/app_theme.dart';
@@ -21,8 +22,16 @@ void main() async {
     await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform);
 
-    // Send all uncaught Flutter framework errors to Crashlytics
+    // Send all uncaught Flutter framework errors to Crashlytics.
+    // NetworkImageLoadException (stale remote URL) and PathNotFoundException
+    // (cached scaled image evicted by OS before load) are transient image errors
+    // handled at the widget level — treat as non-fatal to avoid flooding the dashboard.
     FlutterError.onError = (errorDetails) {
+      if (errorDetails.exception is NetworkImageLoadException ||
+          errorDetails.exception is PathNotFoundException) {
+        FirebaseCrashlytics.instance.recordFlutterError(errorDetails, fatal: false);
+        return;
+      }
       FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
     };
 
