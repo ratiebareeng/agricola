@@ -1,3 +1,5 @@
+import 'package:agricola/features/marketplace/models/saturation_thresholds.dart';
+
 /// An item available for purchase right now on the marketplace.
 class AvailableNowItem {
   final String id;
@@ -77,22 +79,57 @@ class UpcomingHarvestItem {
           : null,
       daysUntilHarvest: (json['daysUntilHarvest'] as num?)?.toInt() ?? 0,
       location: json['location'] as String?,
-      availabilityWindow: json['availabilityWindow'] ?? 'in_6_weeks',
+      availabilityWindow: json['availabilityWindow'] ?? 'in_8_weeks',
     );
   }
+}
+
+/// Per-window per-crop aggregate used to render the market-saturation banner.
+class SupplyAggregate {
+  final String cropType;
+  final String window;
+  final int totalKg;
+  final int sellerCount;
+  final int avgDaysUntil;
+
+  const SupplyAggregate({
+    required this.cropType,
+    required this.window,
+    required this.totalKg,
+    required this.sellerCount,
+    required this.avgDaysUntil,
+  });
+
+  factory SupplyAggregate.fromJson(Map<String, dynamic> json) {
+    return SupplyAggregate(
+      cropType: (json['cropType'] as String?) ?? '',
+      window: (json['window'] as String?) ?? '',
+      totalKg: (json['totalKg'] as num?)?.toInt() ?? 0,
+      sellerCount: (json['sellerCount'] as num?)?.toInt() ?? 0,
+      avgDaysUntil: (json['avgDaysUntil'] as num?)?.toInt() ?? 0,
+    );
+  }
+
+  SaturationLevel get saturation =>
+      saturationLevelFor(totalKg: totalKg, sellerCount: sellerCount);
 }
 
 class CropAvailabilityData {
   final List<AvailableNowItem> availableNow;
   final List<UpcomingHarvestItem> upcoming;
+  final List<SupplyAggregate> summary;
 
   const CropAvailabilityData({
     required this.availableNow,
     required this.upcoming,
+    required this.summary,
   });
 
-  factory CropAvailabilityData.empty() =>
-      const CropAvailabilityData(availableNow: [], upcoming: []);
+  factory CropAvailabilityData.empty() => const CropAvailabilityData(
+        availableNow: [],
+        upcoming: [],
+        summary: [],
+      );
 
   List<UpcomingHarvestItem> get in2Weeks =>
       upcoming.where((h) => h.availabilityWindow == 'in_2_weeks').toList();
@@ -102,4 +139,11 @@ class CropAvailabilityData {
 
   List<UpcomingHarvestItem> get in6Weeks =>
       upcoming.where((h) => h.availabilityWindow == 'in_6_weeks').toList();
+
+  List<UpcomingHarvestItem> get in8Weeks =>
+      upcoming.where((h) => h.availabilityWindow == 'in_8_weeks').toList();
+
+  List<SupplyAggregate> summaryForWindow(String window) =>
+      summary.where((s) => s.window == window).toList()
+        ..sort((a, b) => b.totalKg.compareTo(a.totalKg));
 }

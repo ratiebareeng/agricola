@@ -22,7 +22,7 @@ class CropAvailabilityNotifier
     load();
   }
 
-  Future<void> load({String? cropType, int weeks = 6}) async {
+  Future<void> load({String? cropType, int weeks = 8}) async {
     _activeCropType = cropType;
     state = const AsyncValue.loading();
     try {

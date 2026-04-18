@@ -1,3 +1,17 @@
+## 1.4.0 - 2026-04-18
+
+### Changed
+- **Crop Availability — open to all stakeholders** — Farmers, merchants, and AgriShops all now access the Crop Availability screen from the marketplace AppBar grass icon. Previously farmers were gated out. The feature is for market transparency: merchants plan preorders, farmers assess saturation before planting.
+
+### Added
+- **Crop Availability — In 8 Weeks tab** — Forecast window extended 6 → 8 weeks; screen now has 5 tabs (Available Now / In 2 / 4 / 6 / 8 weeks).
+- **Market Saturation banner** — Each upcoming tab shows a horizontally scrollable row of per-crop aggregate cards: total expected kg + farmer count + colour-coded supply level (red = saturated, amber = healthy, green = low). Thresholds are cautious flat defaults in `lib/features/marketplace/models/saturation_thresholds.dart`; prod-data calibration plan is in `tasks/todo.md`.
+- **`SupplyAggregate` model** — `crop_availability_model.dart` now exposes `summary`, `in8Weeks` and `summaryForWindow(window)`. New `SaturationLevel` enum.
+- **i18n** — `in_8_weeks`, `market_saturation`, `saturated_supply`, `moderate_supply`, `low_supply`, `farmers_count` (EN + TSN).
+
+### Fixed
+- **"Available Now" was returning stale listings** — backend query now filters `marketplace_listings.created_at >= NOW() - 60 days` (was unfiltered by age). Listings older than 60 days no longer appear as available.
+
 ## 1.3.1 - 2026-04-18
 
 ### Fixed

@@ -9,7 +9,7 @@ class CropAvailabilityApiService {
 
   Future<CropAvailabilityData> getCropAvailability({
     String? cropType,
-    int weeks = 6,
+    int weeks = 8,
   }) async {
     final params = <String, dynamic>{'weeks': weeks};
     if (cropType != null) params['crop_type'] = cropType;
@@ -21,14 +21,22 @@ class CropAvailabilityApiService {
 
     final data = response.data['data'] as Map<String, dynamic>;
 
-    final availableNow = (data['available_now'] as List<dynamic>)
+    final availableNow = (data['available_now'] as List<dynamic>? ?? [])
         .map((j) => AvailableNowItem.fromJson(j as Map<String, dynamic>))
         .toList();
 
-    final upcoming = (data['upcoming'] as List<dynamic>)
+    final upcoming = (data['upcoming'] as List<dynamic>? ?? [])
         .map((j) => UpcomingHarvestItem.fromJson(j as Map<String, dynamic>))
         .toList();
 
-    return CropAvailabilityData(availableNow: availableNow, upcoming: upcoming);
+    final summary = (data['summary'] as List<dynamic>? ?? [])
+        .map((j) => SupplyAggregate.fromJson(j as Map<String, dynamic>))
+        .toList();
+
+    return CropAvailabilityData(
+      availableNow: availableNow,
+      upcoming: upcoming,
+      summary: summary,
+    );
   }
 }

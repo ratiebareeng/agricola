@@ -45,17 +45,16 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         actions: [
-          if (profileState.userType != UserType.farmer)
-            IconButton(
-              icon: const Icon(Icons.grass_outlined),
-              tooltip: t('crop_availability', currentLang),
-              onPressed: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const CropAvailabilityScreen(),
-                ),
+          IconButton(
+            icon: const Icon(Icons.grass_outlined),
+            tooltip: t('crop_availability', currentLang),
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const CropAvailabilityScreen(),
               ),
             ),
+          ),
           _FilterAction(filter: filter, onShowFilters: () => _showFilterBottomSheet(context)),
         ],
       ),
