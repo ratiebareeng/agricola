@@ -200,6 +200,11 @@
 - **Cleaned up language provider** — removed deprecated and unused translation keys to reduce bundle size
 - **Code organization** — consolidated core UI widgets into `agri_kit.dart` for better maintainability
 
+## 1.0.8 - 2026-04-12
+
+### Changed
+- **Opted out of the Android Advertising ID** — removed the `com.google.android.gms.permission.AD_ID` permission (merged in by Firebase Analytics) and set `google_analytics_adid_collection_enabled = false`. Agricola runs no ads and does not share data with ad networks; Firebase Analytics continues to work for product analytics. Aligns with the Botswana Data Protection Act 2018 stance.
+
 ## 1.0.7 - 2026-04-12
 
 ### Fixed
