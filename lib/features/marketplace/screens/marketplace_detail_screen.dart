@@ -1,5 +1,7 @@
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
+import 'package:agricola/core/validation/field_limits.dart';
+import 'package:agricola/core/validation/validators.dart';
 import 'package:agricola/core/widgets/agri_kit.dart';
 import 'package:agricola/core/widgets/app_dialogs.dart';
 import 'package:agricola/core/widgets/app_network_image.dart';
@@ -580,11 +582,15 @@ class _RequestToBuySheetState extends ConsumerState<_RequestToBuySheet> {
               label: t('quantity', widget.lang),
               controller: _qtyController,
               keyboardType: TextInputType.number,
+              inputFormatters: integerQuantityFormatters,
               hint: t('enter_quantity', widget.lang),
               onChanged: (_) => setState(() {}),
               validator: (v) {
                 final n = int.tryParse(v ?? '');
                 if (n == null || n < 1) return t('quantity_must_be_positive', widget.lang);
+                if (n > kMaxQuantity) {
+                  return 'Must be ${kMaxQuantity.toStringAsFixed(0)} or less';
+                }
                 return null;
               },
             ),
@@ -593,6 +599,8 @@ class _RequestToBuySheetState extends ConsumerState<_RequestToBuySheet> {
               label: t('optional_note', widget.lang),
               controller: _noteController,
               maxLines: 2,
+              maxLength: kMaxNotes,
+              showCounter: true,
               hint: t('note_hint', widget.lang),
             ),
             const SizedBox(height: 40),

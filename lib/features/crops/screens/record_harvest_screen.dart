@@ -1,6 +1,9 @@
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
+import 'package:agricola/core/validation/field_limits.dart';
+import 'package:agricola/core/validation/validators.dart';
 import 'package:agricola/core/widgets/agri_kit.dart';
+import 'package:flutter/services.dart';
 import 'package:agricola/core/widgets/app_dropdown_field.dart';
 import 'package:agricola/features/crops/crop_helpers.dart';
 import 'package:agricola/features/crops/models/crop_model.dart';
@@ -173,9 +176,11 @@ class _RecordHarvestScreenState extends ConsumerState<RecordHarvestScreen> {
                           flex: 2,
                           child: TextFormField(
                             controller: _actualYieldController,
-                            keyboardType: TextInputType.number,
+                            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                            inputFormatters: decimalFormatters(maxDigits: kMaxQuantityDigits),
                             decoration: InputDecoration(
                               hintText: '0.0',
+                              counterText: '',
                               filled: true,
                               fillColor: Colors.white,
                               border: OutlineInputBorder(
@@ -198,15 +203,7 @@ class _RecordHarvestScreenState extends ConsumerState<RecordHarvestScreen> {
                                 ),
                               ),
                             ),
-                            validator: (value) {
-                              if (value?.isEmpty ?? true) {
-                                return t('required', currentLang);
-                              }
-                              if (double.tryParse(value!) == null) {
-                                return 'Enter a valid number';
-                              }
-                              return null;
-                            },
+                            validator: validatePositiveQuantity,
                             onChanged: (_) => setState(() {}),
                           ),
                         ),
@@ -367,9 +364,12 @@ class _RecordHarvestScreenState extends ConsumerState<RecordHarvestScreen> {
                           flex: 2,
                           child: TextFormField(
                             controller: _lossAmountController,
-                            keyboardType: TextInputType.number,
+                            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                            inputFormatters: decimalFormatters(maxDigits: kMaxQuantityDigits),
+                            validator: (v) => validateLossAmount(v),
                             decoration: InputDecoration(
                               hintText: t('enter_loss_amount', currentLang),
+                              counterText: '',
                               filled: true,
                               fillColor: Colors.white,
                               border: OutlineInputBorder(
@@ -428,8 +428,10 @@ class _RecordHarvestScreenState extends ConsumerState<RecordHarvestScreen> {
                       const SizedBox(height: 16),
                       TextFormField(
                         controller: _customLossReasonController,
+                        maxLength: kMaxCustomUnit,
                         decoration: InputDecoration(
                           hintText: t('enter_loss_reason', currentLang),
+                          counterText: '',
                           filled: true,
                           fillColor: Colors.white,
                           border: OutlineInputBorder(
@@ -462,8 +464,11 @@ class _RecordHarvestScreenState extends ConsumerState<RecordHarvestScreen> {
                     const SizedBox(height: 12),
                     TextFormField(
                       controller: _storageLocationController,
+                      maxLength: kMaxCustomStorageLocation,
+                      inputFormatters: [LengthLimitingTextInputFormatter(kMaxCustomStorageLocation)],
                       decoration: InputDecoration(
                         hintText: 'E.g., Warehouse A, Home storage',
+                        counterText: '',
                         filled: true,
                         fillColor: Colors.white,
                         border: OutlineInputBorder(
@@ -504,6 +509,7 @@ class _RecordHarvestScreenState extends ConsumerState<RecordHarvestScreen> {
                     TextFormField(
                       controller: _notesController,
                       maxLines: 4,
+                      maxLength: kMaxNotes,
                       decoration: InputDecoration(
                         hintText: 'Add any additional notes...',
                         filled: true,

@@ -1,5 +1,6 @@
 import 'package:agricola/core/providers/analytics_provider.dart';
 import 'package:agricola/core/services/analytics_service.dart';
+import 'package:agricola/core/validation/field_limits.dart';
 import 'package:agricola/domain/profile/enum/merchant_type.dart';
 import 'package:agricola/features/auth/providers/auth_controller.dart';
 import 'package:agricola/features/profile_setup/providers/profile_setup_provider.dart';
@@ -18,7 +19,8 @@ class SignUpNotifier extends StateNotifier<SignUpState> {
   final AuthController _authController;
   final AnalyticsService _analytics;
 
-  SignUpNotifier(this._authController, this._analytics) : super(const SignUpState());
+  SignUpNotifier(this._authController, this._analytics)
+    : super(const SignUpState());
 
   void clearError() {
     state = state.copyWith(errorMessage: null);
@@ -153,8 +155,11 @@ class SignUpNotifier extends StateNotifier<SignUpState> {
     if (state.password.isEmpty) {
       return 'Password is required';
     }
-    if (state.password.length < 6) {
-      return 'Password must be at least 6 characters';
+    if (state.password.length < kMinPassword) {
+      return 'Password must be at least 8 characters';
+    }
+    if (state.password.length > kMaxPassword) {
+      return 'Password must be 128 characters or fewer';
     }
     return null;
   }
@@ -175,7 +180,7 @@ class SignUpNotifier extends StateNotifier<SignUpState> {
   bool _validateForm(String email, String password, String confirmPassword) {
     return email.isNotEmpty &&
         email.contains('@') &&
-        password.length >= 6 &&
+        password.length >= kMinPassword &&
         password == confirmPassword;
   }
 }

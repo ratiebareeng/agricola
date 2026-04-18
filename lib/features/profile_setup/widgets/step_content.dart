@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
+import 'package:agricola/core/validation/field_limits.dart';
+import 'package:agricola/core/validation/validators.dart';
 import 'package:agricola/core/widgets/agri_kit.dart';
 import 'package:agricola/core/widgets/app_text_field.dart';
 import 'package:agricola/domain/profile/enum/merchant_type.dart';
@@ -38,6 +40,8 @@ class StepContent extends ConsumerWidget {
       label: t('business_name', currentLang),
       hint: 'e.g. Fresh Produce Wholesalers',
       initialValue: state.businessName,
+      maxLength: kMaxBusinessName,
+      validator: (v) => validateRequired(v, fieldLabel: 'Business name'),
       onChanged: (value) => notifier.updateBusinessName(value),
     );
   }
@@ -194,6 +198,7 @@ class StepContent extends ConsumerWidget {
             label: '',
             hint: 'Describe your farm size',
             initialValue: state.customFarmSize.isEmpty ? null : state.customFarmSize,
+            maxLength: kMaxCustomFarmSize,
             onChanged: (value) => notifier.updateCustomFarmSize(value),
           ),
         ],

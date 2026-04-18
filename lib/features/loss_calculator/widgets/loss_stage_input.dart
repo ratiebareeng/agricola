@@ -1,4 +1,5 @@
 import 'package:agricola/core/providers/language_provider.dart';
+import 'package:agricola/core/validation/validators.dart';
 import 'package:agricola/core/widgets/app_dropdown_field.dart';
 import 'package:agricola/features/loss_calculator/loss_calculator_helpers.dart';
 import 'package:flutter/material.dart';
@@ -61,9 +62,12 @@ class LossStageInput extends StatelessWidget {
                 flex: 2,
                 child: TextFormField(
                   controller: amountController,
-                  keyboardType: TextInputType.number,
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  inputFormatters: decimalFormatters(),
+                  validator: (v) => validateLossAmount(v),
                   decoration: InputDecoration(
                     hintText: '0.0',
+                    counterText: '',
                     suffixText: t(unit, lang),
                     filled: true,
                     fillColor: Colors.grey[50],

@@ -4,6 +4,8 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
+import 'package:agricola/core/validation/field_limits.dart';
+import 'package:agricola/core/validation/validators.dart';
 import 'package:agricola/core/widgets/agri_kit.dart';
 import 'package:agricola/core/widgets/app_date_field.dart';
 import 'package:agricola/core/widgets/app_network_image.dart';
@@ -201,18 +203,10 @@ class _AddEditInventoryScreenState
                     child: AppTextField(
                       label: '',
                       initialValue: _isEditing ? AgriKit.formatQuantity(_quantity) : '',
-                      keyboardType: TextInputType.number,
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      inputFormatters: decimalFormatters(maxDigits: kMaxQuantityDigits),
                       hint: t('enter_quantity', currentLang),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return t('quantity_required', currentLang);
-                        }
-                        final parsed = double.tryParse(value);
-                        if (parsed == null || parsed <= 0) {
-                          return t('quantity_invalid', currentLang);
-                        }
-                        return null;
-                      },
+                      validator: validatePositiveQuantity,
                       onSaved: (value) => _quantity = double.parse(value!),
                     ),
                   ),
@@ -239,6 +233,7 @@ class _AddEditInventoryScreenState
                 controller: _otherUnitController,
                 label: '',
                 hint: 'Specify unit (e.g. buckets)',
+                maxLength: kMaxCustomUnit,
                 validator: (value) {
                   if (_unit == 'Other' && (value == null || value.trim().isEmpty)) {
                     return t('required', currentLang);
@@ -255,15 +250,9 @@ class _AddEditInventoryScreenState
                 label: '',
                 initialValue: _unitPrice != null ? _unitPrice!.toStringAsFixed(2) : '',
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                inputFormatters: decimalFormatters(),
                 hint: t('enter_unit_price', currentLang),
-                validator: (value) {
-                  if (value == null || value.isEmpty) return null;
-                  final parsed = double.tryParse(value);
-                  if (parsed == null || parsed < 0) {
-                    return t('price_invalid', currentLang);
-                  }
-                  return null;
-                },
+                validator: (v) => validatePrice(v, required: false, allowZero: true),
                 onSaved: (value) {
                   if (value == null || value.isEmpty) {
                     _unitPrice = null;
@@ -300,6 +289,7 @@ class _AddEditInventoryScreenState
                 controller: _otherStorageLocationController,
                 label: '',
                 hint: 'Describe your storage location',
+                maxLength: kMaxCustomStorageLocation,
                 validator: (value) {
                   if (_storageLocation == 'Other' && (value == null || value.trim().isEmpty)) {
                     return t('required', currentLang);
@@ -321,6 +311,8 @@ class _AddEditInventoryScreenState
                 label: '',
                 initialValue: _notes,
                 maxLines: 3,
+                maxLength: kMaxNotes,
+                showCounter: true,
                 hint: t('add_notes', currentLang),
                 onSaved: (value) =>
                     _notes = value?.isEmpty == true ? null : value,

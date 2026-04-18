@@ -1,5 +1,7 @@
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
+import 'package:agricola/core/validation/field_limits.dart';
+import 'package:agricola/core/validation/validators.dart';
 import 'package:agricola/core/widgets/agri_kit.dart';
 import 'package:agricola/core/widgets/app_date_field.dart';
 import 'package:agricola/core/widgets/app_dropdown_field.dart';
@@ -244,6 +246,7 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
                     label: t('specify_other_crop', lang),
                     hint: t('enter_crop_name', lang),
                     controller: _otherCropNameController,
+                    maxLength: kMaxCropType,
                     validator: (value) {
                       if (!_otherCropSelected) return null;
                       return value?.isEmpty ?? true ? t('required', lang) : null;
@@ -286,6 +289,7 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
             label: '',
             controller: _fieldNameController,
             hint: t('enter_field_name', lang),
+            maxLength: kMaxBusinessName,
           ),
         ),
       ],
@@ -330,13 +334,16 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
                 child: AppTextField(
                   label: '',
                   controller: _fieldSizeController,
-                  keyboardType: TextInputType.number,
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  inputFormatters: decimalFormatters(maxDigits: kMaxQuantityDigits),
                   hint: '0.0',
                   validator: (value) {
                     if (value?.isEmpty ?? true) return t('required', lang);
-                    if (double.tryParse(value!) == null) {
+                    final parsed = double.tryParse(value!);
+                    if (parsed == null || !parsed.isFinite || parsed <= 0) {
                       return 'Enter a valid number';
                     }
+                    if (parsed > kMaxQuantity) return 'Value too large';
                     return null;
                   },
                 ),
@@ -421,15 +428,10 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
                 child: AppTextField(
                   label: '',
                   controller: _estimatedYieldController,
-                  keyboardType: TextInputType.number,
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  inputFormatters: decimalFormatters(maxDigits: kMaxQuantityDigits),
                   hint: '0.0',
-                  validator: (value) {
-                    if (value?.isEmpty ?? true) return t('required', lang);
-                    if (double.tryParse(value!) == null) {
-                      return 'Enter a valid number';
-                    }
-                    return null;
-                  },
+                  validator: validatePositiveQuantity,
                   onChanged: (_) => setState(() {}),
                 ),
               ),
@@ -457,6 +459,7 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
             controller: _otherYieldUnitController,
             label: '',
             hint: 'Specify unit (e.g. buckets)',
+            maxLength: kMaxCustomUnit,
             validator: (value) {
               if (_selectedYieldUnit == 'other' && (value == null || value.trim().isEmpty)) {
                 return t('required', lang);
@@ -489,6 +492,7 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
             controller: _otherStorageMethodController,
             label: '',
             hint: 'Describe your storage method',
+            maxLength: kMaxCustomStorageLocation,
             validator: (value) {
               if (_selectedStorageMethod == 'other' && (value == null || value.trim().isEmpty)) {
                 return t('required', lang);
@@ -505,6 +509,8 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
             label: '',
             controller: _notesController,
             maxLines: 4,
+            maxLength: kMaxNotes,
+            showCounter: true,
             hint: 'Add any additional information...',
           ),
         ),

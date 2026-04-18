@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/core/utils/image_utils.dart';
 import 'package:agricola/core/utils/url_utils.dart';
+import 'package:agricola/core/validation/field_limits.dart';
+import 'package:agricola/core/validation/validators.dart';
 import 'package:agricola/core/widgets/app_filter_chip_group.dart';
 import 'package:agricola/core/widgets/app_form_layout.dart';
 import 'package:agricola/core/widgets/app_form_section.dart';
@@ -103,9 +105,11 @@ class _EditFarmerProfileScreenState
               child: AppTextField(
                 controller: _phoneController,
                 label: '',
-                hint: 'e.g. +267 71 234 567',
+                hint: 'e.g. 71234567',
                 prefixIcon: Icons.phone_outlined,
                 keyboardType: TextInputType.phone,
+                inputFormatters: botswanaPhoneFormatters,
+                validator: (v) => validateBotswanaPhone(v, required: false),
               ),
             ),
             const SizedBox(height: 24),
@@ -120,6 +124,9 @@ class _EditFarmerProfileScreenState
                 validator: (value) {
                   if (value == null || value.isEmpty) return 'Village is required';
                   if (value.length < 2) return 'Village name is too short';
+                  if (value.length > kMaxVillage) {
+                    return 'Village must be $kMaxVillage characters or fewer';
+                  }
                   return null;
                 },
               ),
@@ -171,6 +178,7 @@ class _EditFarmerProfileScreenState
                       controller: _customFarmSizeController,
                       label: '',
                       hint: 'Describe your farm size',
+                      maxLength: kMaxCustomFarmSize,
                       validator: (value) {
                         if (_farmSize == 'Other' && (value == null || value.trim().isEmpty)) {
                           return 'Please describe your farm size';

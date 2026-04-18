@@ -1,8 +1,10 @@
 import 'dart:async';
 
 import 'package:agricola/core/theme/app_theme.dart';
+import 'package:agricola/core/validation/field_limits.dart';
 import 'package:agricola/features/profile_setup/services/location_search_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class LocationAutocompleteField extends StatefulWidget {
   final String? initialValue;
@@ -120,6 +122,7 @@ class _LocationAutocompleteFieldState extends State<LocationAutocompleteField> {
             TextField(
               controller: _controller,
               onChanged: _onTextChanged,
+              inputFormatters: [LengthLimitingTextInputFormatter(kMaxVillage)],
               decoration: InputDecoration(
                 labelText: widget.label.isEmpty ? null : widget.label,
                 hintText: widget.hint,

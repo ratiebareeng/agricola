@@ -1,5 +1,6 @@
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
+import 'package:agricola/core/validation/field_limits.dart';
 import 'package:agricola/core/widgets/agri_kit.dart';
 import 'package:agricola/core/widgets/app_text_field.dart';
 import 'package:agricola/features/auth/providers/sign_in_provider.dart';
@@ -58,6 +59,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
               hint: 'example@email.com',
               controller: _emailController,
               keyboardType: TextInputType.emailAddress,
+              maxLength: kMaxEmail,
               validator: (_) => signInNotifier.validateEmail(),
             ),
             const SizedBox(height: 24),
@@ -66,6 +68,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
               hint: '********',
               controller: _passwordController,
               obscureText: true,
+              maxLength: kMaxPassword,
               validator: (_) => signInNotifier.validatePassword(),
             ),
             const SizedBox(height: 32),

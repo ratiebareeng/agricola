@@ -3,9 +3,12 @@ import 'dart:io';
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/core/utils/image_utils.dart';
+import 'package:agricola/core/validation/field_limits.dart';
+import 'package:agricola/core/validation/validators.dart';
 import 'package:agricola/core/widgets/agri_kit.dart';
 import 'package:agricola/core/widgets/app_dropdown_field.dart';
 import 'package:agricola/core/widgets/app_network_image.dart';
+import 'package:flutter/services.dart';
 import 'package:agricola/features/auth/providers/auth_provider.dart';
 import 'package:agricola_core/agricola_core.dart' show UserModel;
 import 'package:agricola/features/inventory/models/inventory_model.dart';
@@ -256,6 +259,7 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
                     _buildTextField(
                       controller: _titleController,
                       hint: t('enter_product_name', currentLang),
+                      maxLength: kMaxListingTitle,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return t('required_field', currentLang);
@@ -270,6 +274,8 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
                       controller: _descriptionController,
                       hint: t('enter_description', currentLang),
                       maxLines: 3,
+                      maxLength: kMaxDescription,
+                      showCounter: true,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return t('required_field', currentLang);
@@ -284,12 +290,8 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
                       controller: _phoneController,
                       hint: t('enter_phone_number', currentLang),
                       keyboardType: TextInputType.phone,
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return t('phone_required_for_listing', currentLang);
-                        }
-                        return null;
-                      },
+                      inputFormatters: botswanaPhoneFormatters,
+                      validator: (v) => validateBotswanaPhone(v, required: true),
                     ),
                     const SizedBox(height: 20),
                     _buildSectionTitle(t('category', currentLang)),
@@ -308,6 +310,7 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
                       _buildTextField(
                         controller: _otherCategoryController,
                         hint: 'Specify category (e.g. Mushrooms)',
+                        maxLength: kMaxCropType,
                         validator: (value) {
                           if (_category == 'Other' && (value == null || value.isEmpty)) {
                             return t('required_field', currentLang);
@@ -329,8 +332,10 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
                               _buildTextField(
                                 controller: _priceController,
                                 hint: '0.00',
-                                keyboardType: TextInputType.number,
+                                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                                inputFormatters: decimalFormatters(),
                                 prefix: 'P ',
+                                validator: (v) => validatePrice(v, required: true, allowZero: false),
                               ),
                             ],
                           ),
@@ -363,11 +368,8 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
                       controller: _quantityController,
                       hint: t('enter_quantity', currentLang),
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                      validator: (v) {
-                        final n = double.tryParse((v ?? '').trim());
-                        if (n == null || n <= 0) return t('quantity_must_be_positive', currentLang);
-                        return null;
-                      },
+                      inputFormatters: decimalFormatters(maxDigits: kMaxQuantityDigits),
+                      validator: validatePositiveQuantity,
                     ),
                     const SizedBox(height: 40),
                   ],
@@ -657,15 +659,21 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
     TextInputType keyboardType = TextInputType.text,
     String? prefix,
     String? Function(String?)? validator,
+    int? maxLength,
+    List<TextInputFormatter>? inputFormatters,
+    bool showCounter = false,
   }) {
     return TextFormField(
       controller: controller,
       maxLines: maxLines,
       keyboardType: keyboardType,
       validator: validator,
+      maxLength: maxLength,
+      inputFormatters: inputFormatters,
       decoration: InputDecoration(
         hintText: hint,
         prefixText: prefix,
+        counterText: showCounter ? null : '',
         filled: true,
         fillColor: Colors.white,
         border: OutlineInputBorder(

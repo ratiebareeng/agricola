@@ -1,5 +1,6 @@
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
+import 'package:agricola/core/validation/validators.dart';
 import 'package:agricola/core/widgets/agri_kit.dart';
 import 'package:agricola/features/marketplace/providers/marketplace_provider.dart';
 import 'package:flutter/material.dart';
@@ -98,6 +99,7 @@ class _MarketplaceFilterBottomSheetState
                   decoration: InputDecoration(
                     labelText: t('min_price', currentLang),
                     prefixText: 'P ',
+                    counterText: '',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -106,7 +108,8 @@ class _MarketplaceFilterBottomSheetState
                       vertical: 12,
                     ),
                   ),
-                  keyboardType: TextInputType.number,
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  inputFormatters: decimalFormatters(),
                 ),
               ),
               const SizedBox(width: 16),
@@ -116,6 +119,7 @@ class _MarketplaceFilterBottomSheetState
                   decoration: InputDecoration(
                     labelText: t('max_price', currentLang),
                     prefixText: 'P ',
+                    counterText: '',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -124,7 +128,8 @@ class _MarketplaceFilterBottomSheetState
                       vertical: 12,
                     ),
                   ),
-                  keyboardType: TextInputType.number,
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  inputFormatters: decimalFormatters(),
                 ),
               ),
             ],

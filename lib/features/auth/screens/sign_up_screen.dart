@@ -1,6 +1,7 @@
 import 'dart:developer' as developer;
 
 import 'package:agricola/core/providers/language_provider.dart';
+import 'package:agricola/core/validation/field_limits.dart';
 import 'package:agricola/core/widgets/agri_kit.dart';
 import 'package:agricola/core/widgets/app_text_field.dart';
 import 'package:agricola/features/auth/providers/sign_up_provider.dart';
@@ -67,6 +68,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
               hint: 'example@email.com',
               controller: _emailController,
               keyboardType: TextInputType.emailAddress,
+              maxLength: kMaxEmail,
               validator: (_) => signUpNotifier.validateEmail(),
             ),
             const SizedBox(height: 24),
@@ -75,6 +77,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
               hint: '********',
               controller: _passwordController,
               obscureText: true,
+              maxLength: kMaxPassword,
               validator: (_) => signUpNotifier.validatePassword(),
             ),
             const SizedBox(height: 24),
@@ -83,6 +86,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
               hint: '********',
               controller: _confirmPasswordController,
               obscureText: true,
+              maxLength: kMaxPassword,
               validator: (_) => signUpNotifier.validateConfirmPassword(),
             ),
             const SizedBox(height: 40),
@@ -125,10 +129,14 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
       ref.read(signUpProvider.notifier).updateEmail(_emailController.text);
     });
     _passwordController.addListener(() {
-      ref.read(signUpProvider.notifier).updatePassword(_passwordController.text);
+      ref
+          .read(signUpProvider.notifier)
+          .updatePassword(_passwordController.text);
     });
     _confirmPasswordController.addListener(() {
-      ref.read(signUpProvider.notifier).updateConfirmPassword(_confirmPasswordController.text);
+      ref
+          .read(signUpProvider.notifier)
+          .updateConfirmPassword(_confirmPasswordController.text);
     });
   }
 

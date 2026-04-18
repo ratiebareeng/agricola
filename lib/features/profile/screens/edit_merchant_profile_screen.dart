@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/core/utils/image_utils.dart';
 import 'package:agricola/core/utils/url_utils.dart';
+import 'package:agricola/core/validation/field_limits.dart';
+import 'package:agricola/core/validation/validators.dart';
 import 'package:agricola/core/widgets/agri_kit.dart';
 import 'package:agricola/core/widgets/app_text_field.dart';
 import 'package:agricola/domain/profile/enum/merchant_type.dart';
@@ -127,15 +129,13 @@ class _EditMerchantProfileScreenState
       controller: _businessNameController,
       label: 'Business Name',
       prefixIcon: Icons.business_outlined,
+      maxLength: kMaxBusinessName,
       validator: (value) {
         if (value == null || value.isEmpty) {
           return 'Business name is required';
         }
         if (value.length < 3) {
           return 'Business name must be at least 3 characters';
-        }
-        if (value.length > 100) {
-          return 'Business name cannot exceed 100 characters';
         }
         return null;
       },
@@ -146,9 +146,11 @@ class _EditMerchantProfileScreenState
     return AppTextField(
       controller: _phoneController,
       label: 'Phone Number',
-      hint: 'e.g. +267 71 234 567',
+      hint: 'e.g. 71234567',
       prefixIcon: Icons.phone_outlined,
       keyboardType: TextInputType.phone,
+      inputFormatters: botswanaPhoneFormatters,
+      validator: (v) => validateBotswanaPhone(v, required: false),
     );
   }
 
@@ -161,6 +163,9 @@ class _EditMerchantProfileScreenState
       validator: (value) {
         if (value == null || value.isEmpty) return 'Location is required';
         if (value.length < 2) return 'Location name is too short';
+        if (value.length > kMaxVillage) {
+          return 'Location must be $kMaxVillage characters or fewer';
+        }
         return null;
       },
     );

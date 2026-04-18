@@ -1,5 +1,6 @@
 import 'package:agricola/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class AppTextField extends StatefulWidget {
   final String label;
@@ -15,6 +16,12 @@ class AppTextField extends StatefulWidget {
   final String? initialValue;
   final int? maxLines;
 
+  /// Hard cap enforced at the keyboard layer. Suppresses Flutter's built-in
+  /// counter — use [showCounter] to re-enable a compact "n/max" display.
+  final int? maxLength;
+  final List<TextInputFormatter>? inputFormatters;
+  final bool showCounter;
+
   const AppTextField({
     super.key,
     required this.label,
@@ -29,6 +36,9 @@ class AppTextField extends StatefulWidget {
     this.onSaved,
     this.initialValue,
     this.maxLines = 1,
+    this.maxLength,
+    this.inputFormatters,
+    this.showCounter = false,
   });
 
   @override
@@ -83,9 +93,12 @@ class _AppTextFieldState extends State<AppTextField> {
           obscureText: _obscure,
           keyboardType: widget.keyboardType,
           maxLines: widget.obscureText ? 1 : widget.maxLines,
+          maxLength: widget.maxLength,
+          inputFormatters: widget.inputFormatters,
           validator: widget.validator,
           style: const TextStyle(fontSize: 16, color: AppColors.deepEmerald, fontWeight: FontWeight.w600),
           decoration: InputDecoration(
+            counterText: widget.showCounter ? null : '',
             prefixIcon: widget.prefixIcon != null
                 ? Icon(widget.prefixIcon, color: AppColors.forestGreen, size: 20)
                 : null,

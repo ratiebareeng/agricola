@@ -1,3 +1,13 @@
+## 1.4.8 - 2026-04-18
+
+### Security / Validation
+- **App-wide field length limits** — Added `lib/core/validation/field_limits.dart` as a single source of truth for all max lengths and numeric ceilings, and `lib/core/validation/validators.dart` with shared validators (`validateBotswanaPhone`, `validatePositiveQuantity`, `validatePrice`, `validateLossAmount`, `validatePassword`).
+- **`AppTextField` extended** — New `maxLength`, `inputFormatters`, and `showCounter` params; hard caps enforced at the keyboard layer via `LengthLimitingTextInputFormatter`, suppressing Flutter's default counter unless opted in.
+- **Phone fields (all)** — Digits-only, 8-character hard cap, starts-with-7 validation applied to: marketplace listing contact, edit farmer profile, edit merchant profile.
+- **Numeric fields (all)** — `decimalFormatters()` / `integerQuantityFormatters` applied to every quantity and price input; upper ceilings (P10M unit price, P100M offer, 1M kg quantity) guard against infinity/NaN in totals. Covers: inventory, purchases, marketplace, crops, loss calculator, harvest recording, filter bottom sheet.
+- **Text fields (all)** — Length caps applied to: seller name (100), business name (100), product title (100), crop type (50), custom unit (30), storage location (100), farm size (50), village (100), notes/description (500/1000).
+- **Password minimum raised** — 6 → 8 characters in `SignUpNotifier.validatePassword` and `_validateForm`.
+
 ## 1.4.7 - 2026-04-18
 
 ### Fixed

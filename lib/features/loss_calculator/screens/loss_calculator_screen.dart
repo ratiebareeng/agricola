@@ -12,7 +12,10 @@ import 'package:agricola/features/loss_calculator/widgets/loss_results_card.dart
 import 'package:agricola/features/loss_calculator/widgets/loss_stage_input.dart';
 import 'package:agricola/features/loss_calculator/widgets/prevention_tips_card.dart';
 import 'package:agricola/core/theme/app_theme.dart';
+import 'package:agricola/core/validation/field_limits.dart';
+import 'package:agricola/core/validation/validators.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class LossCalculatorScreen extends ConsumerStatefulWidget {
@@ -310,15 +313,10 @@ class _LossCalculatorScreenState extends ConsumerState<LossCalculatorScreen> {
               flex: 3,
               child: TextFormField(
                 controller: _harvestAmountController,
-                keyboardType: TextInputType.number,
-                decoration: _inputDecoration('0.0'),
-                validator: (v) {
-                  if (v == null || v.isEmpty) return t('required', lang);
-                  if (double.tryParse(v) == null) {
-                    return t('enter_valid_number', lang);
-                  }
-                  return null;
-                },
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                inputFormatters: decimalFormatters(maxDigits: kMaxQuantityDigits),
+                decoration: _inputDecoration('0.0').copyWith(counterText: ''),
+                validator: validatePositiveQuantity,
               ),
             ),
             const SizedBox(width: 12),
@@ -341,7 +339,9 @@ class _LossCalculatorScreenState extends ConsumerState<LossCalculatorScreen> {
           const SizedBox(height: 12),
           TextFormField(
             controller: _customUnitController,
-            decoration: _inputDecoration(t('specify_unit', lang)),
+            maxLength: kMaxCustomUnit,
+            inputFormatters: [LengthLimitingTextInputFormatter(kMaxCustomUnit)],
+            decoration: _inputDecoration(t('specify_unit', lang)).copyWith(counterText: ''),
             validator: (v) => (v == null || v.trim().isEmpty) ? t('required', lang) : null,
           ),
         ],
@@ -359,18 +359,14 @@ class _LossCalculatorScreenState extends ConsumerState<LossCalculatorScreen> {
         const SizedBox(height: 12),
         TextFormField(
           controller: _marketPriceController,
-          keyboardType: TextInputType.number,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          inputFormatters: decimalFormatters(),
           decoration: _inputDecoration('0.00').copyWith(
             prefixText: 'P ',
             suffixText: '/ ${t(_selectedUnit, lang)}',
+            counterText: '',
           ),
-          validator: (v) {
-            if (v == null || v.isEmpty) return t('required', lang);
-            if (double.tryParse(v) == null) {
-              return t('enter_valid_number', lang);
-            }
-            return null;
-          },
+          validator: (v) => validatePrice(v, required: true, allowZero: false),
         ),
         const SizedBox(height: 24),
 

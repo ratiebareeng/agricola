@@ -1,5 +1,7 @@
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
+import 'package:agricola/core/validation/field_limits.dart';
+import 'package:agricola/core/validation/validators.dart';
 import 'package:agricola/core/widgets/agri_kit.dart';
 import 'package:agricola/core/widgets/app_form_layout.dart';
 import 'package:agricola/core/widgets/app_text_field.dart';
@@ -80,6 +82,7 @@ class _AddPurchaseScreenState extends ConsumerState<AddPurchaseScreen> {
               label: t('seller_name', lang),
               hint: t('seller_name_hint', lang),
               prefixIcon: Icons.person_outline,
+              maxLength: kMaxSellerName,
               validator: (v) => (v == null || v.trim().isEmpty) ? 'Required' : null,
             ),
             const SizedBox(height: 24),
@@ -102,14 +105,9 @@ class _AddPurchaseScreenState extends ConsumerState<AddPurchaseScreen> {
                     controller: _quantityController,
                     label: t('quantity', lang),
                     prefixIcon: Icons.scale_outlined,
-                    keyboardType: TextInputType.number,
-                    validator: (v) {
-                      if (v == null || v.isEmpty) return 'Required';
-                      if (double.tryParse(v) == null || double.parse(v) <= 0) {
-                        return 'Must be > 0';
-                      }
-                      return null;
-                    },
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    inputFormatters: decimalFormatters(maxDigits: kMaxQuantityDigits),
+                    validator: validatePositiveQuantity,
                     onChanged: (_) => setState(() {}),
                   ),
                 ),
@@ -133,6 +131,7 @@ class _AddPurchaseScreenState extends ConsumerState<AddPurchaseScreen> {
                 controller: _otherUnitController,
                 label: '',
                 hint: 'Specify unit (e.g. buckets)',
+                maxLength: kMaxCustomUnit,
                 validator: (value) {
                   if (_unit == 'Other' && (value == null || value.trim().isEmpty)) {
                     return 'Required';
@@ -146,15 +145,10 @@ class _AddPurchaseScreenState extends ConsumerState<AddPurchaseScreen> {
               controller: _pricePerUnitController,
               label: t('price_per_unit', lang),
               prefixIcon: Icons.attach_money,
-              keyboardType: TextInputType.number,
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              inputFormatters: decimalFormatters(),
               hint: 'P 0.00',
-              validator: (v) {
-                if (v == null || v.isEmpty) return 'Required';
-                if (double.tryParse(v) == null || double.parse(v) <= 0) {
-                  return 'Must be > 0';
-                }
-                return null;
-              },
+              validator: (v) => validatePrice(v, required: true, allowZero: false),
               onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: 32),
@@ -181,6 +175,8 @@ class _AddPurchaseScreenState extends ConsumerState<AddPurchaseScreen> {
               label: t('notes', lang),
               prefixIcon: Icons.notes_outlined,
               maxLines: 3,
+              maxLength: kMaxNotes,
+              showCounter: true,
               hint: 'Optional notes...',
             ),
             const SizedBox(height: 40),
