@@ -40,6 +40,7 @@ class _AddEditInventoryScreenState
   late String _cropType;
   late double _quantity;
   late String _unit;
+  double? _unitPrice;
   late DateTime _storageDate;
   late String _storageLocation;
   late String _condition;
@@ -95,6 +96,7 @@ class _AddEditInventoryScreenState
       _cropType = item.cropType;
       _quantity = item.quantity;
       _unit = item.unit;
+      _unitPrice = item.unitPrice;
       _storageDate = item.storageDate;
       _storageLocation = item.storageLocation;
       _condition = item.condition;
@@ -104,6 +106,7 @@ class _AddEditInventoryScreenState
       _cropType = 'maize_corn';
       _quantity = 0;
       _unit = _units.first;
+      _unitPrice = null;
       _storageDate = DateTime.now();
       _storageLocation = _storageLocations.first;
       _condition = 'good';
@@ -200,6 +203,32 @@ class _AddEditInventoryScreenState
                     ),
                   ),
                 ],
+              ),
+            ),
+            const SizedBox(height: 24),
+            AppFormSection(
+              title: t('unit_price', currentLang),
+              description: t('optional', currentLang),
+              child: AppTextField(
+                label: '',
+                initialValue: _unitPrice != null ? _unitPrice!.toStringAsFixed(2) : '',
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                hint: t('enter_unit_price', currentLang),
+                validator: (value) {
+                  if (value == null || value.isEmpty) return null;
+                  final parsed = double.tryParse(value);
+                  if (parsed == null || parsed < 0) {
+                    return t('price_invalid', currentLang);
+                  }
+                  return null;
+                },
+                onSaved: (value) {
+                  if (value == null || value.isEmpty) {
+                    _unitPrice = null;
+                  } else {
+                    _unitPrice = double.tryParse(value);
+                  }
+                },
               ),
             ),
             const SizedBox(height: 24),
@@ -465,6 +494,7 @@ class _AddEditInventoryScreenState
         cropType: _cropType,
         quantity: _quantity,
         unit: _unit,
+        unitPrice: _unitPrice,
         storageDate: _storageDate,
         storageLocation: _storageLocation,
         condition: _condition,

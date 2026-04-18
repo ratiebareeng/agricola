@@ -7,6 +7,7 @@ class InventoryItemCard extends StatelessWidget {
   final String cropType;
   final double quantity;
   final String unit;
+  final double? unitPrice;
   final DateTime storageDate;
   final String storageLocation;
   final String condition;
@@ -21,6 +22,7 @@ class InventoryItemCard extends StatelessWidget {
     required this.cropType,
     required this.quantity,
     required this.unit,
+    this.unitPrice,
     required this.storageDate,
     required this.storageLocation,
     required this.condition,
@@ -94,13 +96,28 @@ class InventoryItemCard extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 4),
-                      Text(
-                        '${AgriKit.formatQuantity(quantity)} ${t(unit, language)}',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.grey[700],
-                        ),
+                      Row(
+                        children: [
+                          Text(
+                            '${AgriKit.formatQuantity(quantity)} ${t(unit, language)}',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.grey[700],
+                            ),
+                          ),
+                          if (unitPrice != null) ...[
+                            const SizedBox(width: 8),
+                            Text(
+                              '· P${(quantity * unitPrice!).toStringAsFixed(0)}',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.forestGreen,
+                              ),
+                            ),
+                          ],
+                        ],
                       ),
                     ],
                   ),

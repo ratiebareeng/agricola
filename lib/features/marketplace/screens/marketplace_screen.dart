@@ -12,6 +12,7 @@ import 'package:agricola/features/marketplace/screens/marketplace_detail_screen.
 import 'package:agricola/features/marketplace/widgets/marketplace_filter_bottom_sheet.dart';
 import 'package:agricola/features/marketplace/widgets/marketplace_listing_skeleton.dart';
 import 'package:agricola/core/widgets/app_image_cache.dart';
+import 'package:agricola/features/marketplace/screens/crop_availability_screen.dart';
 import 'package:agricola/features/profile_setup/providers/profile_setup_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -44,6 +45,17 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         actions: [
+          if (profileState.userType != UserType.farmer)
+            IconButton(
+              icon: const Icon(Icons.grass_outlined),
+              tooltip: t('crop_availability', currentLang),
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const CropAvailabilityScreen(),
+                ),
+              ),
+            ),
           _FilterAction(filter: filter, onShowFilters: () => _showFilterBottomSheet(context)),
         ],
       ),

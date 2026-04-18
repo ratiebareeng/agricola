@@ -1,10 +1,13 @@
 import 'package:agricola/core/utils/json_extensions.dart';
 
+const _sentinel = Object();
+
 class InventoryModel {
   final String? id;
   final String cropType;
   final double quantity;
   final String unit;
+  final double? unitPrice;
   final DateTime storageDate;
   final String storageLocation;
   final String condition;
@@ -18,6 +21,7 @@ class InventoryModel {
     required this.cropType,
     required this.quantity,
     required this.unit,
+    this.unitPrice,
     required this.storageDate,
     required this.storageLocation,
     required this.condition,
@@ -38,6 +42,7 @@ class InventoryModel {
       cropType: json['cropType'],
       quantity: (json['quantity'] as num).toDouble(),
       unit: json['unit'],
+      unitPrice: json['unitPrice'] != null ? (json['unitPrice'] as num).toDouble() : null,
       storageDate: DateTime.parse(json['storageDate']),
       storageLocation: json['storageLocation'],
       condition: json['condition'],
@@ -53,6 +58,7 @@ class InventoryModel {
     String? cropType,
     double? quantity,
     String? unit,
+    Object? unitPrice = _sentinel,
     DateTime? storageDate,
     String? storageLocation,
     String? condition,
@@ -66,6 +72,7 @@ class InventoryModel {
       cropType: cropType ?? this.cropType,
       quantity: quantity ?? this.quantity,
       unit: unit ?? this.unit,
+      unitPrice: unitPrice == _sentinel ? this.unitPrice : unitPrice as double?,
       storageDate: storageDate ?? this.storageDate,
       storageLocation: storageLocation ?? this.storageLocation,
       condition: condition ?? this.condition,
@@ -82,6 +89,7 @@ class InventoryModel {
       'cropType': cropType,
       'quantity': quantity,
       'unit': unit,
+      'unitPrice': unitPrice,
       'storageDate': storageDate.toIso8601String(),
       'storageLocation': storageLocation,
       'condition': condition,

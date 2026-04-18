@@ -103,23 +103,30 @@ class ProfileSetupCompleteScreen extends ConsumerWidget {
   }
 
   Widget _buildFeaturesList(BuildContext context, AppLanguage lang) {
-    final features = [
-      {
-        'icon': Icons.crop,
-        'title': t('track_crops', lang),
-        'desc': t('track_crops_desc', lang),
-      },
-      {
-        'icon': Icons.inventory,
-        'title': t('manage_inventory', lang),
-        'desc': t('manage_inventory_desc', lang),
-      },
-      {
-        'icon': Icons.analytics,
-        'title': t('view_analytics', lang),
-        'desc': t('view_analytics_desc', lang),
-      },
-    ];
+    final userType = profileData['userType'] ?? 'farmer';
+    final merchantType = profileData['merchantType'] as String?;
+    final isAgriShop = merchantType == 'agriShop';
+
+    final List<Map<String, Object>> features;
+    if (userType == 'farmer') {
+      features = [
+        {'icon': Icons.grass, 'title': t('track_crops', lang), 'desc': t('track_crops_desc', lang)},
+        {'icon': Icons.inventory_2_outlined, 'title': t('manage_inventory', lang), 'desc': t('manage_inventory_desc', lang)},
+        {'icon': Icons.storefront_outlined, 'title': t('marketplace', lang), 'desc': t('marketplace_farmer_feature_desc', lang)},
+      ];
+    } else if (isAgriShop) {
+      features = [
+        {'icon': Icons.people_alt_outlined, 'title': t('source_from_farmers', lang), 'desc': t('source_from_farmers_desc', lang)},
+        {'icon': Icons.receipt_long_outlined, 'title': t('manage_orders', lang), 'desc': t('manage_orders_desc', lang)},
+        {'icon': Icons.inventory_2_outlined, 'title': t('manage_inventory', lang), 'desc': t('manage_inventory_desc', lang)},
+      ];
+    } else {
+      features = [
+        {'icon': Icons.storefront_outlined, 'title': t('list_products', lang), 'desc': t('list_products_desc', lang)},
+        {'icon': Icons.receipt_long_outlined, 'title': t('manage_orders', lang), 'desc': t('manage_orders_desc', lang)},
+        {'icon': Icons.analytics_outlined, 'title': t('view_analytics', lang), 'desc': t('view_analytics_desc', lang)},
+      ];
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

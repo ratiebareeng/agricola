@@ -183,6 +183,7 @@ class _MerchantInventoryScreenState
                               ),
                               quantity: item.quantity,
                               unit: item.unit,
+                              unitPrice: item.unitPrice,
                               storageDate: item.storageDate,
                               storageLocation: item.storageLocation,
                               condition: item.condition,

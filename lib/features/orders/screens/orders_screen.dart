@@ -527,7 +527,12 @@ class _OrderDetailsSheet extends StatelessWidget {
       minChildSize: 0.4,
       maxChildSize: 0.9,
       expand: false,
-      builder: (_, scroll) => SingleChildScrollView(
+      builder: (_, scroll) => Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: SingleChildScrollView(
         controller: scroll,
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -611,6 +616,7 @@ class _OrderDetailsSheet extends StatelessWidget {
               style: TextStyle(color: Colors.grey[600], fontSize: 14),
             ),
           ],
+        ),
         ),
       ),
     );

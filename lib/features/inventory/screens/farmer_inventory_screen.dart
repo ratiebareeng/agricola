@@ -60,7 +60,7 @@ class _FarmerInventoryScreenState extends ConsumerState<FarmerInventoryScreen> {
   double _calculateTotalValue(List<InventoryModel> filteredInventory) {
     return filteredInventory.fold(
       0,
-      (sum, item) => sum + (item.quantity * 2.5),
+      (sum, item) => sum + (item.unitPrice != null ? item.quantity * item.unitPrice! : 0),
     );
   }
 
@@ -272,6 +272,7 @@ class _FarmerInventoryScreenState extends ConsumerState<FarmerInventoryScreen> {
                               cropType: cropDisplayName(item.cropType, catalog, currentLang),
                               quantity: item.quantity,
                               unit: item.unit,
+                              unitPrice: item.unitPrice,
                               storageDate: item.storageDate,
                               storageLocation: item.storageLocation,
                               condition: item.condition,

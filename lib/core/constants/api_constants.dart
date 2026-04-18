@@ -19,6 +19,7 @@ class ApiConstants {
   static const String purchasesEndpoint = '$apiPrefix/purchases';
   static const String feedbackEndpoint = '$apiPrefix/feedback';
   static const String lossCalculatorEndpoint = '$apiPrefix/loss-calculator';
+  static const String cropAvailabilityEndpoint = '$apiPrefix/crop-availability';
 
   // Timeout configuration from environment
   static Duration get requestTimeout => EnvironmentConfig.apiTimeout;

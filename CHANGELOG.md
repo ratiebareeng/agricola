@@ -1,3 +1,14 @@
+## 1.3.0 - 2026-04-18
+
+### Added
+- **Crop Availability screen** — Merchants and AgriShops can browse farmers' current marketplace listings and upcoming harvests by time window (Available Now, In 2 Weeks, In 4 Weeks, In 6 Weeks). Accessible via the grass icon in the marketplace AppBar (merchants only).
+- **Inventory unit price** — Inventory add/edit form now includes an optional "Unit Price (P)" field. The inventory card shows `· P{total}` beside quantity when a price is set. Total value in the header card now uses actual unit prices instead of a hardcoded estimate.
+- **Merchant feature showcase** — Profile setup complete screen now shows user-type-specific feature highlights: farmers see crops/inventory/marketplace, AgriShops see source-from-farmers/orders/inventory, other merchants see list-products/orders/analytics.
+
+### Fixed
+- **Order detail bottom sheet invisible** — The sheet now has a white background and rounded top corners (was transparent, making content unreadable on dark backgrounds).
+- **"Kilograms" → "kg"** — Unit label translated to abbreviated "kg" instead of full "Kilograms" throughout the inventory list.
+
 ## 1.2.1 - 2026-04-17
 
 ### Fixed
