@@ -1,3 +1,8 @@
+## 1.4.5 - 2026-04-18
+
+### Fixed
+- **Fatal crash on profile tab** — Farmer users who opened the Profile tab before Firebase user data finished loading were routed to `MerchantProfileScreen`, which then loaded their farmer profile and threw a fatal `StateError`. Fixed by showing a loading spinner until user data is available, and made `MerchantProfileScreen` show an error UI instead of crashing if a farmer profile somehow arrives.
+
 ## 1.4.4 - 2026-04-18
 
 ### Fixed
