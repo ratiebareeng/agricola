@@ -1,3 +1,8 @@
+## 1.4.3 - 2026-04-18
+
+### Fixed
+- **Crashlytics noise** — `PathNotFoundException` (cached scaled image evicted by the OS before Flutter could load it) is now recorded as non-fatal instead of fatal, matching the existing treatment of `NetworkImageLoadException`.
+
 ## 1.4.2 - 2026-04-18
 
 ### Fixed
