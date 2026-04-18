@@ -127,7 +127,7 @@ class AuthController extends StateNotifier<AsyncValue<void>> {
     );
 
     result.fold(
-      (failure) => state = AsyncValue.error(failure, StackTrace.current),
+      (failure) => state = const AsyncValue.data(null),
       (user) {
         state = const AsyncValue.data(null);
         if (user.isProfileComplete) {
