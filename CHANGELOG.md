@@ -1,3 +1,8 @@
+## 1.4.1 - 2026-04-18
+
+### Fixed
+- **Order status confirmation** — Seller status changes (Confirm / Ship / Delivered) now require a confirmation dialog before proceeding, preventing accidental irreversible status updates. Matches the existing pattern used for buyer order cancellation.
+
 ## 1.4.0 - 2026-04-18
 
 ### Changed

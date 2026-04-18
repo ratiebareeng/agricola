@@ -402,8 +402,43 @@ class _SellerActions extends ConsumerWidget {
     }
   }
 
+  String _dialogTitleKey(String s) {
+    switch (s) {
+      case 'pending':
+        return 'confirm_order';
+      case 'confirmed':
+        return 'ship_order';
+      case 'shipped':
+        return 'mark_delivered';
+      default:
+        return 'confirm_order';
+    }
+  }
+
+  String _dialogContentKey(String s) {
+    switch (s) {
+      case 'pending':
+        return 'confirm_order_confirm';
+      case 'confirmed':
+        return 'ship_order_confirm';
+      case 'shipped':
+        return 'mark_delivered_confirm';
+      default:
+        return 'confirm_order_confirm';
+    }
+  }
+
   Future<void> _updateStatus(
       BuildContext context, WidgetRef ref, String next) async {
+    final confirmed = await AppDialogs.confirm(
+      context,
+      title: t(_dialogTitleKey(order.status), lang),
+      content: t(_dialogContentKey(order.status), lang),
+      cancelText: t('cancel', lang),
+      actionText: _actionLabel(order.status),
+    );
+    if (!confirmed || !context.mounted) return;
+
     final error = await ref
         .read(sellerOrdersProvider.notifier)
         .updateOrderStatus(order.id!, next);
