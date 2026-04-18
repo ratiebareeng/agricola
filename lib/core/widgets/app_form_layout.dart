@@ -1,5 +1,5 @@
 import 'package:agricola/core/theme/app_theme.dart';
-import 'package:agricola/core/widgets/app_buttons.dart';
+import 'package:agricola/core/widgets/agri_kit.dart';
 import 'package:flutter/material.dart';
 
 class AppFormLayout extends StatelessWidget {
@@ -25,17 +25,13 @@ class AppFormLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
         title: Text(
           title,
-          style: const TextStyle(
-            color: AppColors.darkGray,
-            fontWeight: FontWeight.bold,
-          ),
+          style: Theme.of(context).textTheme.displaySmall?.copyWith(fontSize: 18),
         ),
-        backgroundColor: AppColors.white,
-        foregroundColor: AppColors.darkGray,
+        backgroundColor: Colors.transparent,
+        foregroundColor: AppColors.deepEmerald,
         elevation: 0,
         actions: actions,
       ),
@@ -43,7 +39,7 @@ class AppFormLayout extends StatelessWidget {
         children: [
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24.0),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
               child: child,
             ),
           ),
@@ -55,16 +51,16 @@ class AppFormLayout extends StatelessWidget {
                 color: AppColors.white,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withAlpha(13),
-                    blurRadius: 10,
-                    offset: const Offset(0, -4),
+                    color: AppColors.deepEmerald.withValues(alpha: 0.05),
+                    blurRadius: 20,
+                    offset: const Offset(0, -5),
                   ),
                 ],
               ),
               child: SafeArea(
-                child: AppPrimaryButton(
+                child: AgriStadiumButton(
                   label: submitLabel!,
-                  onTap: onSubmit,
+                  onPressed: onSubmit,
                   isLoading: isLoading,
                 ),
               ),

@@ -2,11 +2,13 @@ import 'dart:io';
 
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
+import 'package:agricola/core/widgets/agri_kit.dart';
 import 'package:agricola/core/widgets/app_text_field.dart';
 import 'package:agricola/domain/profile/enum/merchant_type.dart';
 import 'package:agricola/features/crops/providers/crop_catalog_provider.dart';
 import 'package:agricola/features/profile_setup/providers/profile_setup_provider.dart';
 import 'package:agricola/features/profile_setup/widgets/district_map_picker.dart';
+import 'package:agricola/features/profile_setup/widgets/location_autocomplete_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
@@ -138,56 +140,64 @@ class StepContent extends ConsumerWidget {
   }
 
   Widget _buildFarmSizeStep(WidgetRef ref) {
-    final sizes = [
+    const sizes = [
       '< 1 Hectare',
       '1-5 Hectares',
       '5-10 Hectares',
       '10+ Hectares',
+      'Other',
     ];
     final state = ref.watch(profileSetupProvider);
     final notifier = ref.read(profileSetupProvider.notifier);
     final currentLang = ref.watch(languageProvider);
 
     return Column(
-      children: sizes.map((size) {
-        final isSelected = state.farmSize == size;
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 12.0),
-          child: InkWell(
-            onTap: () => notifier.updateFarmSize(size),
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: isSelected ? AppColors.green : Colors.grey[300]!,
-                  width: isSelected ? 2 : 1,
-                ),
-                borderRadius: BorderRadius.circular(12),
-                color: isSelected
-                    ? AppColors.green.withAlpha(25)
-                    : Colors.white,
-              ),
-              child: Row(
-                children: [
-                  Text(
-                    t(size, currentLang),
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: isSelected
-                          ? FontWeight.w600
-                          : FontWeight.normal,
-                      color: isSelected ? AppColors.green : Colors.black87,
-                    ),
+      children: [
+        ...sizes.map((size) {
+          final isSelected = state.farmSize == size;
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 12.0),
+            child: InkWell(
+              onTap: () => notifier.updateFarmSize(size),
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: isSelected ? AppColors.green : Colors.grey[300]!,
+                    width: isSelected ? 2 : 1,
                   ),
-                  const Spacer(),
-                  if (isSelected)
-                    const Icon(Icons.check_circle, color: AppColors.green),
-                ],
+                  borderRadius: BorderRadius.circular(12),
+                  color: isSelected ? AppColors.green.withAlpha(25) : Colors.white,
+                ),
+                child: Row(
+                  children: [
+                    Text(
+                      t(size, currentLang),
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                        color: isSelected ? AppColors.green : Colors.black87,
+                      ),
+                    ),
+                    const Spacer(),
+                    if (isSelected) const Icon(Icons.check_circle, color: AppColors.green),
+                  ],
+                ),
               ),
             ),
+          );
+        }),
+        if (state.farmSize == 'Other') ...[
+          const SizedBox(height: 4),
+          AppTextField(
+            key: const ValueKey('custom_farm_size'),
+            label: '',
+            hint: 'Describe your farm size',
+            initialValue: state.customFarmSize.isEmpty ? null : state.customFarmSize,
+            onChanged: (value) => notifier.updateCustomFarmSize(value),
           ),
-        );
-      }).toList(),
+        ],
+      ],
     );
   }
 
@@ -195,31 +205,7 @@ class StepContent extends ConsumerWidget {
     final state = ref.watch(profileSetupProvider);
     final notifier = ref.read(profileSetupProvider.notifier);
     final currentLang = ref.watch(languageProvider);
-
-    // Use same locations list for both farmers and merchants
-    final locations = [
-      'Gaborone',
-      'Francistown',
-      'Maun',
-      'Serowe',
-      'Molepolole',
-      'Kanye',
-      'Mochudi',
-      'Mahalapye',
-      'Palapye',
-      'Tlokweng',
-      'Ramotswa',
-      'Mogoditshane',
-      'Gabane',
-      'Lobatse',
-      'Thamaga',
-      'Letlhakane',
-      'Tonota',
-      'Moshupa',
-      'Jwaneng',
-      'Ghanzi',
-      'Other',
-    ];
+    final currentValue = isFarmer ? state.village : state.location;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -232,39 +218,19 @@ class StepContent extends ConsumerWidget {
             fontWeight: FontWeight.w500,
           ),
         ),
-        const SizedBox(height: 16),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey[300]!),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton<String>(
-              value: isFarmer
-                  ? (state.village.isEmpty ? null : state.village)
-                  : (state.location.isEmpty ? null : state.location),
-              hint: Text(isFarmer ? t('select_village', currentLang) : t('select_location', currentLang)),
-              isExpanded: true,
-              items: locations.map((location) {
-                return DropdownMenuItem(value: location, child: Text(location));
-              }).toList(),
-              onChanged: (value) {
-                if (value != null) {
-                  if (isFarmer) {
-                    notifier.updateVillage(value);
-                  } else {
-                    notifier.updateLocation(value);
-                  }
-                }
-              },
-            ),
-          ),
+        const SizedBox(height: 12),
+        LocationAutocompleteField(
+          key: ValueKey('location_autocomplete_$isFarmer'),
+          initialValue: currentValue.isEmpty ? null : currentValue,
+          label: '',
+          hint: isFarmer ? 'Search your village or area' : 'Search your business location',
+          onChanged: (value) => isFarmer
+              ? notifier.updateVillage(value)
+              : notifier.updateLocation(value),
         ),
         const SizedBox(height: 12),
-        OutlinedButton.icon(
+        AgriStadiumButton(
           onPressed: () async {
-            final current = isFarmer ? state.village : state.location;
             final picked = await showModalBottomSheet<String>(
               context: ref.context,
               isScrollControlled: true,
@@ -274,7 +240,7 @@ class StepContent extends ConsumerWidget {
               builder: (_) => SizedBox(
                 height: MediaQuery.of(ref.context).size.height * 0.75,
                 child: DistrictMapPicker(
-                  selectedLocation: current.isEmpty ? null : current,
+                  selectedLocation: currentValue.isEmpty ? null : currentValue,
                 ),
               ),
             );
@@ -286,26 +252,10 @@ class StepContent extends ConsumerWidget {
               }
             }
           },
-          icon: const Icon(Icons.map_outlined, size: 18),
-          label: Text(t('view_on_map', currentLang)),
-          style: OutlinedButton.styleFrom(
-            foregroundColor: AppColors.green,
-            side: const BorderSide(color: AppColors.green),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ),
+          icon: Icons.map_outlined,
+          label: t('view_on_map', currentLang),
+          isPrimary: false,
         ),
-        if ((isFarmer && state.village == 'Other') || (!isFarmer && state.location == 'Other')) ...[
-          const SizedBox(height: 16),
-          AppTextField(
-            key: ValueKey('custom_village_${state.userType.name}_${state.merchantType?.name}_${state.currentStep}'),
-            label: t('specify_location', currentLang),
-            hint: isFarmer ? 'Enter your village/area' : 'Enter your business location',
-            initialValue: state.customVillage,
-            onChanged: (value) => notifier.updateCustomVillage(value),
-          ),
-        ],
       ],
     );
   }
@@ -384,10 +334,11 @@ class StepContent extends ConsumerWidget {
             style: TextStyle(fontSize: 14, color: Colors.grey[600]),
           ),
           const SizedBox(height: 16),
-          TextButton.icon(
+          AgriStadiumButton(
             onPressed: () => _pickImage(ref),
-            icon: const Icon(Icons.upload),
-            label: Text(t('upload_photo', currentLang)),
+            icon: Icons.upload,
+            label: t('upload_photo', currentLang),
+            isPrimary: false,
           ),
         ],
       ),

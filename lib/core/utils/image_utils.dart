@@ -9,17 +9,61 @@ import 'package:path_provider/path_provider.dart';
 const _jpegMagic = [0xFF, 0xD8, 0xFF];
 const _pngMagic = [0x89, 0x50, 0x4E, 0x47];
 
-class ImageUtils {
-  /// Compress image for profile upload
-  /// Target: < 500KB, max 800x800
-  /// Throws if the file is not a valid image.
-  static Future<File> compressProfileImage(File imageFile) async {
-    final dir = await getTemporaryDirectory();
-    final targetPath = path.join(
-      dir.path,
-      'compressed_${path.basename(imageFile.path)}',
-    );
+const _maxUploadBytes = 5 * 1024 * 1024; // 5 MB post-compression safety ceiling
 
+enum ImagePreset { profile, product }
+
+class PreparedImage {
+  final File? file;
+  final String? errorKey;
+  const PreparedImage._({this.file, this.errorKey});
+
+  factory PreparedImage.ok(File f) => PreparedImage._(file: f);
+  factory PreparedImage.err(String key) => PreparedImage._(errorKey: key);
+
+  bool get ok => file != null;
+}
+
+class ImageUtils {
+  /// Validates extension + magic bytes, compresses, then checks final size.
+  /// Returns a PreparedImage — check .ok before using .file.
+  static Future<PreparedImage> prepare(File raw, {required ImagePreset preset}) async {
+    final ext = path.extension(raw.path).toLowerCase();
+    if (!['.jpg', '.jpeg', '.png'].contains(ext)) {
+      return PreparedImage.err('image_invalid_format');
+    }
+
+    if (!await _hasValidMagicBytes(raw)) {
+      return PreparedImage.err('image_invalid_format');
+    }
+
+    final File compressed;
+    try {
+      compressed = preset == ImagePreset.profile
+          ? await _compressProfile(raw)
+          : await _compressProduct(raw);
+    } catch (_) {
+      return PreparedImage.err('image_invalid_format');
+    }
+
+    if (await compressed.length() > _maxUploadBytes) {
+      return PreparedImage.err('image_too_large_even_compressed');
+    }
+
+    return PreparedImage.ok(compressed);
+  }
+
+  /// Compress image for profile upload — target <500 KB, max 800×800.
+  static Future<File> compressProfileImage(File imageFile) => _compressProfile(imageFile);
+
+  /// Compress image for product/marketplace upload — target <1 MB, max 1200×1200.
+  static Future<File> compressProductImage(File imageFile) => _compressProduct(imageFile);
+
+  // ---- private ----
+
+  static Future<File> _compressProfile(File imageFile) async {
+    final dir = await getTemporaryDirectory();
+    final targetPath = path.join(dir.path, 'compressed_${path.basename(imageFile.path)}');
     final result = await FlutterImageCompress.compressAndGetFile(
       imageFile.absolute.path,
       targetPath,
@@ -28,24 +72,13 @@ class ImageUtils {
       minHeight: 800,
       format: CompressFormat.jpeg,
     );
-
-    if (result == null) {
-      throw FormatException('File is not a valid image: ${imageFile.path}');
-    }
-
+    if (result == null) throw FormatException('Not a valid image: ${imageFile.path}');
     return File(result.path);
   }
 
-  /// Compress image for product/marketplace upload
-  /// Target: < 1MB, max 1200x1200
-  /// Throws if the file is not a valid image.
-  static Future<File> compressProductImage(File imageFile) async {
+  static Future<File> _compressProduct(File imageFile) async {
     final dir = await getTemporaryDirectory();
-    final targetPath = path.join(
-      dir.path,
-      'product_${path.basename(imageFile.path)}',
-    );
-
+    final targetPath = path.join(dir.path, 'product_${path.basename(imageFile.path)}');
     final result = await FlutterImageCompress.compressAndGetFile(
       imageFile.absolute.path,
       targetPath,
@@ -54,59 +87,18 @@ class ImageUtils {
       minHeight: 1200,
       format: CompressFormat.jpeg,
     );
-
-    if (result == null) {
-      throw FormatException('File is not a valid image: ${imageFile.path}');
-    }
-
+    if (result == null) throw FormatException('Not a valid image: ${imageFile.path}');
     return File(result.path);
   }
 
-  /// Validate image file
-  /// Checks: size < 5MB, allowed extension, and magic bytes match a real image
-  static Future<bool> validateImage(File imageFile) async {
-    final bytes = await imageFile.length();
-    if (bytes > 5 * 1024 * 1024) {
-      return false;
-    }
-
-    final ext = path.extension(imageFile.path).toLowerCase();
-    if (!['.jpg', '.jpeg', '.png'].contains(ext)) {
-      return false;
-    }
-
-    // Verify magic bytes to ensure the file is actually an image
-    if (!await _hasValidMagicBytes(imageFile)) {
-      return false;
-    }
-
-    return true;
-  }
-
-  /// Check file header bytes against known image format signatures.
   static Future<bool> _hasValidMagicBytes(File file) async {
     try {
       final raf = await file.open(mode: FileMode.read);
       try {
         final Uint8List header = await raf.read(4);
         if (header.length < 3) return false;
-
-        // JPEG: FF D8 FF
-        if (header[0] == _jpegMagic[0] &&
-            header[1] == _jpegMagic[1] &&
-            header[2] == _jpegMagic[2]) {
-          return true;
-        }
-
-        // PNG: 89 50 4E 47
-        if (header.length >= 4 &&
-            header[0] == _pngMagic[0] &&
-            header[1] == _pngMagic[1] &&
-            header[2] == _pngMagic[2] &&
-            header[3] == _pngMagic[3]) {
-          return true;
-        }
-
+        if (header[0] == _jpegMagic[0] && header[1] == _jpegMagic[1] && header[2] == _jpegMagic[2]) return true;
+        if (header.length >= 4 && header[0] == _pngMagic[0] && header[1] == _pngMagic[1] && header[2] == _pngMagic[2] && header[3] == _pngMagic[3]) return true;
         return false;
       } finally {
         await raf.close();

@@ -4,7 +4,7 @@ import 'package:agricola/core/providers/analytics_provider.dart';
 import 'package:agricola/core/providers/app_initialization_provider.dart';
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
-import 'package:agricola/core/widgets/app_buttons.dart';
+import 'package:agricola/core/widgets/agri_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -132,26 +132,28 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     children: [
                       if (_currentPage > 0) ...[
                         Expanded(
-                          child: AppSecondaryButton(
+                          child: AgriStadiumButton(
                             label: t('back', currentLang),
-                            onTap: _previousPage,
+                            onPressed: _previousPage,
+                            isPrimary: false,
                           ),
                         ),
                         const SizedBox(width: 16),
                       ],
                       Expanded(
-                        child: AppPrimaryButton(
+                        child: AgriStadiumButton(
                           label: _currentPage == slides.length - 1
                               ? t('get_started', currentLang)
                               : t('next', currentLang),
-                          onTap: () => _nextPage(slides.length),
+                          onPressed: () => _nextPage(slides.length),
                         ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 16),
                   if (_currentPage < slides.length - 1)
-                    TextButton(
+                    AgriTextButton(
+                      label: t('skip', currentLang),
                       onPressed: () {
                         _pageController.animateToPage(
                           slides.length - 1,
@@ -159,13 +161,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                           curve: Curves.easeInOut,
                         );
                       },
-                      child: Text(
-                        t('skip', currentLang),
-                        style: const TextStyle(
-                          color: AppColors.mediumGray,
-                          fontSize: 16,
-                        ),
-                      ),
+                      color: AppColors.mediumGray,
                     )
                   else
                     const SizedBox(height: 48), // Placeholder for alignment

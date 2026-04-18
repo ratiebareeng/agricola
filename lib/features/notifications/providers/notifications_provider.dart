@@ -1,4 +1,5 @@
 import 'package:agricola/core/providers/language_provider.dart';
+import 'package:agricola/core/widgets/agri_kit.dart';
 import 'package:agricola/features/crops/crop_helpers.dart';
 import 'package:agricola/features/crops/models/crop_model.dart';
 import 'package:agricola/features/crops/providers/crop_catalog_provider.dart';
@@ -130,8 +131,8 @@ AppNotification _criticalCondition(InventoryModel item, String displayName, AppL
         ? '$displayName in critical condition'
         : '$displayName e mo maemong a maswe',
     body: isEn
-        ? '${item.quantity} ${item.unit} at ${item.storageLocation} needs immediate attention.'
-        : '${item.quantity} ${item.unit} kwa ${item.storageLocation} e tlhoka tlhokomelo ka bonako.',
+        ? '${AgriKit.formatQuantity(item.quantity)} ${item.unit} at ${item.storageLocation} needs immediate attention.'
+        : '${AgriKit.formatQuantity(item.quantity)} ${item.unit} kwa ${item.storageLocation} e tlhoka tlhokomelo ka bonako.',
     type: NotificationType.lowStock,
     priority: NotificationPriority.high,
     createdAt: item.updatedAt,
@@ -146,8 +147,8 @@ AppNotification _needsAttention(InventoryModel item, String displayName, AppLang
         ? '$displayName needs attention'
         : '$displayName e tlhoka tlhokomelo',
     body: isEn
-        ? '${item.quantity} ${item.unit} at ${item.storageLocation} condition is declining.'
-        : '${item.quantity} ${item.unit} kwa ${item.storageLocation} maemo a a fokotsa.',
+        ? '${AgriKit.formatQuantity(item.quantity)} ${item.unit} at ${item.storageLocation} condition is declining.'
+        : '${AgriKit.formatQuantity(item.quantity)} ${item.unit} kwa ${item.storageLocation} maemo a a fokotsa.',
     type: NotificationType.lowStock,
     priority: NotificationPriority.medium,
     createdAt: item.updatedAt,

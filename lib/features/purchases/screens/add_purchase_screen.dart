@@ -1,5 +1,9 @@
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
+import 'package:agricola/core/widgets/agri_kit.dart';
+import 'package:agricola/core/widgets/app_form_layout.dart';
+import 'package:agricola/core/widgets/app_text_field.dart';
+import 'package:agricola/core/widgets/app_dropdown_field.dart';
 import 'package:agricola/features/crops/models/crop_catalog_entry.dart';
 import 'package:agricola/features/crops/providers/crop_catalog_provider.dart';
 import 'package:agricola/features/purchases/models/purchase_model.dart';
@@ -27,7 +31,8 @@ class _AddPurchaseScreenState extends ConsumerState<AddPurchaseScreen> {
   DateTime _purchaseDate = DateTime.now();
   bool _isSaving = false;
 
-  final List<String> _units = ['kg', 'bags', 'tons', 'crates', 'bundles'];
+  final List<String> _units = ['kg', 'bags', 'tons', 'crates', 'bundles', 'Other'];
+  final TextEditingController _otherUnitController = TextEditingController();
 
   @override
   void dispose() {
@@ -35,6 +40,7 @@ class _AddPurchaseScreenState extends ConsumerState<AddPurchaseScreen> {
     _quantityController.dispose();
     _pricePerUnitController.dispose();
     _notesController.dispose();
+    _otherUnitController.dispose();
     super.dispose();
   }
 
@@ -59,265 +65,127 @@ class _AddPurchaseScreenState extends ConsumerState<AddPurchaseScreen> {
       return entry?.displayName(lang) ?? t(key, lang);
     }
 
-    return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF1A1A1A)),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Text(
-          t('record_new_purchase', lang),
-          style: const TextStyle(color: Color(0xFF1A1A1A), fontSize: 18),
-        ),
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildTextField(
-                      controller: _sellerNameController,
-                      label: t('seller_name', lang),
-                      hint: t('seller_name_hint', lang),
-                      icon: Icons.person_outline,
-                      validator: (v) =>
-                          (v == null || v.trim().isEmpty) ? 'Required' : null,
-                    ),
-                    const SizedBox(height: 16),
-                    _buildDropdown<String>(
-                      label: t('crop_type', lang),
-                      icon: Icons.eco_outlined,
-                      value: _cropType,
-                      items: cropKeys
-                          .map((k) => DropdownMenuItem(
-                                value: k,
-                                child: Text(cropLabel(k)),
-                              ))
-                          .toList(),
-                      onChanged: (v) => setState(() => _cropType = v),
-                      validator: (v) => v == null ? 'Required' : null,
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Expanded(
-                          flex: 2,
-                          child: _buildTextField(
-                            controller: _quantityController,
-                            label: t('quantity', lang),
-                            icon: Icons.scale_outlined,
-                            keyboardType: TextInputType.number,
-                            validator: (v) {
-                              if (v == null || v.isEmpty) return 'Required';
-                              if (double.tryParse(v) == null ||
-                                  double.parse(v) <= 0) {
-                                return 'Must be > 0';
-                              }
-                              return null;
-                            },
-                            onChanged: (_) => setState(() {}),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: _buildDropdown<String>(
-                            label: t('unit', lang),
-                            icon: Icons.straighten,
-                            value: _unit,
-                            items: _units
-                                .map((u) => DropdownMenuItem(
-                                      value: u,
-                                      child: Text(u),
-                                    ))
-                                .toList(),
-                            onChanged: (v) =>
-                                setState(() => _unit = v ?? 'kg'),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    _buildTextField(
-                      controller: _pricePerUnitController,
-                      label: t('price_per_unit', lang),
-                      icon: Icons.attach_money,
-                      keyboardType: TextInputType.number,
-                      prefix: 'P ',
-                      validator: (v) {
-                        if (v == null || v.isEmpty) return 'Required';
-                        if (double.tryParse(v) == null ||
-                            double.parse(v) <= 0) {
-                          return 'Must be > 0';
-                        }
-                        return null;
-                      },
-                      onChanged: (_) => setState(() {}),
-                    ),
-                    const SizedBox(height: 16),
-                    _buildTotalAmountDisplay(lang),
-                    const SizedBox(height: 16),
-                    _buildDatePicker(lang),
-                    const SizedBox(height: 16),
-                    _buildTextField(
-                      controller: _notesController,
-                      label: t('notes', lang),
-                      icon: Icons.notes_outlined,
-                      maxLines: 3,
-                    ),
-                  ],
-                ),
-              ),
+    return AppFormLayout(
+      title: t('record_new_purchase', lang),
+      submitLabel: t('record_purchase', lang).toUpperCase(),
+      onSubmit: _isSaving ? null : _savePurchase,
+      isLoading: _isSaving,
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            AppTextField(
+              controller: _sellerNameController,
+              label: t('seller_name', lang),
+              hint: t('seller_name_hint', lang),
+              prefixIcon: Icons.person_outline,
+              validator: (v) => (v == null || v.trim().isEmpty) ? 'Required' : null,
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(20),
-            child: SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _isSaving ? null : _savePurchase,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.green,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+            const SizedBox(height: 24),
+            AppDropdownField<String>(
+              hint: t('crop_type', lang),
+              prefixIcon: const Icon(Icons.eco_outlined, color: AppColors.forestGreen, size: 20),
+              value: _cropType,
+              items: cropKeys,
+              itemLabelBuilder: (k) => cropLabel(k),
+              onChanged: (v) => setState(() => _cropType = v),
+              validator: (v) => v == null ? 'Required' : null,
+            ),
+            const SizedBox(height: 24),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  flex: 2,
+                  child: AppTextField(
+                    controller: _quantityController,
+                    label: t('quantity', lang),
+                    prefixIcon: Icons.scale_outlined,
+                    keyboardType: TextInputType.number,
+                    validator: (v) {
+                      if (v == null || v.isEmpty) return 'Required';
+                      if (double.tryParse(v) == null || double.parse(v) <= 0) {
+                        return 'Must be > 0';
+                      }
+                      return null;
+                    },
+                    onChanged: (_) => setState(() {}),
                   ),
-                  elevation: 0,
                 ),
-                child: _isSaving
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(
-                          color: Colors.white,
-                          strokeWidth: 2,
-                        ),
-                      )
-                    : Text(
-                        t('record_purchase', lang),
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 18),
+                    child: AppDropdownField<String>(
+                      value: _unit,
+                      items: _units,
+                      itemLabelBuilder: (u) => u,
+                      onChanged: (v) => setState(() => _unit = v ?? 'kg'),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            if (_unit == 'Other') ...[
+              const SizedBox(height: 12),
+              AppTextField(
+                controller: _otherUnitController,
+                label: '',
+                hint: 'Specify unit (e.g. buckets)',
+                validator: (value) {
+                  if (_unit == 'Other' && (value == null || value.trim().isEmpty)) {
+                    return 'Required';
+                  }
+                  return null;
+                },
+              ),
+            ],
+            const SizedBox(height: 24),
+            AppTextField(
+              controller: _pricePerUnitController,
+              label: t('price_per_unit', lang),
+              prefixIcon: Icons.attach_money,
+              keyboardType: TextInputType.number,
+              hint: 'P 0.00',
+              validator: (v) {
+                if (v == null || v.isEmpty) return 'Required';
+                if (double.tryParse(v) == null || double.parse(v) <= 0) {
+                  return 'Must be > 0';
+                }
+                return null;
+              },
+              onChanged: (_) => setState(() {}),
+            ),
+            const SizedBox(height: 32),
+            AgriFocusCard(
+              color: AppColors.deepEmerald,
+              padding: const EdgeInsets.all(24),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  AgriMetricDisplay(
+                    value: 'P${_totalAmount.toStringAsFixed(0)}',
+                    label: t('total_amount', lang),
+                    valueColor: AppColors.bone,
+                    labelColor: AppColors.bone.withValues(alpha: 0.5),
+                  ),
+                ],
               ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String label,
-    required IconData icon,
-    String? hint,
-    String? prefix,
-    TextInputType? keyboardType,
-    int maxLines = 1,
-    String? Function(String?)? validator,
-    ValueChanged<String>? onChanged,
-  }) {
-    return TextFormField(
-      controller: controller,
-      keyboardType: keyboardType,
-      maxLines: maxLines,
-      validator: validator,
-      onChanged: onChanged,
-      decoration: InputDecoration(
-        labelText: label,
-        hintText: hint,
-        prefixText: prefix,
-        prefixIcon: Icon(icon, color: AppColors.green),
-        filled: true,
-        fillColor: Colors.white,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey[300]!),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey[300]!),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.green, width: 2),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDropdown<T>({
-    required String label,
-    required IconData icon,
-    required T? value,
-    required List<DropdownMenuItem<T>> items,
-    required ValueChanged<T?>? onChanged,
-    String? Function(T?)? validator,
-  }) {
-    return DropdownButtonFormField<T>(
-      initialValue: value,
-      items: items,
-      onChanged: onChanged,
-      validator: validator,
-      decoration: InputDecoration(
-        labelText: label,
-        prefixIcon: Icon(icon, color: AppColors.green),
-        filled: true,
-        fillColor: Colors.white,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey[300]!),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey[300]!),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.green, width: 2),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTotalAmountDisplay(AppLanguage lang) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.green.withAlpha(15),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.green.withAlpha(50)),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            t('total_amount', lang),
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: Colors.black87,
+            const SizedBox(height: 32),
+            _buildDatePicker(lang),
+            const SizedBox(height: 24),
+            AppTextField(
+              controller: _notesController,
+              label: t('notes', lang),
+              prefixIcon: Icons.notes_outlined,
+              maxLines: 3,
+              hint: 'Optional notes...',
             ),
-          ),
-          Text(
-            'P ${_totalAmount.toStringAsFixed(2)}',
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: AppColors.green,
-            ),
-          ),
-        ],
+            const SizedBox(height: 40),
+          ],
+        ),
       ),
     );
   }
@@ -333,7 +201,18 @@ class _AddPurchaseScreenState extends ConsumerState<AddPurchaseScreen> {
           builder: (context, child) {
             return Theme(
               data: Theme.of(context).copyWith(
-                colorScheme: const ColorScheme.light(primary: AppColors.green),
+                colorScheme: const ColorScheme.light(
+                  primary: AppColors.forestGreen,
+                  onPrimary: AppColors.white,
+                  surface: AppColors.bone,
+                  onSurface: AppColors.deepEmerald,
+                ),
+                textButtonTheme: TextButtonThemeData(
+                  style: TextButton.styleFrom(
+                    foregroundColor: AppColors.forestGreen,
+                    textStyle: const TextStyle(fontWeight: FontWeight.w800),
+                  ),
+                ),
               ),
               child: child!,
             );
@@ -343,26 +222,39 @@ class _AddPurchaseScreenState extends ConsumerState<AddPurchaseScreen> {
           setState(() => _purchaseDate = picked);
         }
       },
-      child: InputDecorator(
-        decoration: InputDecoration(
-          labelText: t('purchase_date', lang),
-          prefixIcon:
-              const Icon(Icons.calendar_today_outlined, color: AppColors.green),
-          filled: true,
-          fillColor: Colors.white,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: Colors.grey[300]!),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 12, bottom: 8),
+            child: Text(
+              t('purchase_date', lang).toUpperCase(),
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w900,
+                color: AppColors.deepEmerald.withValues(alpha: 0.4),
+                letterSpacing: 1,
+              ),
+            ),
           ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: Colors.grey[300]!),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+            decoration: BoxDecoration(
+              color: AppColors.white,
+              borderRadius: BorderRadius.circular(32),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.calendar_today_outlined, color: AppColors.forestGreen, size: 20),
+                const SizedBox(width: 12),
+                Text(
+                  DateFormat('dd MMM yyyy').format(_purchaseDate),
+                  style: const TextStyle(fontSize: 16, color: AppColors.deepEmerald, fontWeight: FontWeight.w600),
+                ),
+              ],
+            ),
           ),
-        ),
-        child: Text(
-          DateFormat('dd MMM yyyy').format(_purchaseDate),
-          style: const TextStyle(fontSize: 16),
-        ),
+        ],
       ),
     );
   }
@@ -373,22 +265,23 @@ class _AddPurchaseScreenState extends ConsumerState<AddPurchaseScreen> {
     setState(() => _isSaving = true);
 
     final lang = ref.read(languageProvider);
+    final effectiveUnit = _unit == 'Other'
+        ? _otherUnitController.text.trim()
+        : _unit;
+
     final purchase = PurchaseModel(
       userId: '', // Backend infers from auth token
       sellerName: _sellerNameController.text.trim(),
       cropType: _cropType!,
       quantity: double.parse(_quantityController.text),
-      unit: _unit,
+      unit: effectiveUnit,
       pricePerUnit: double.parse(_pricePerUnitController.text),
       totalAmount: _totalAmount,
       purchaseDate: _purchaseDate,
-      notes: _notesController.text.trim().isEmpty
-          ? null
-          : _notesController.text.trim(),
+      notes: _notesController.text.trim().isEmpty ? null : _notesController.text.trim(),
     );
 
-    final error =
-        await ref.read(purchasesNotifierProvider.notifier).addPurchase(purchase);
+    final error = await ref.read(purchasesNotifierProvider.notifier).addPurchase(purchase);
 
     if (!mounted) return;
     setState(() => _isSaving = false);
@@ -397,7 +290,8 @@ class _AddPurchaseScreenState extends ConsumerState<AddPurchaseScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(t('purchase_saved', lang)),
-          backgroundColor: AppColors.green,
+          backgroundColor: AppColors.forestGreen,
+          behavior: SnackBarBehavior.floating,
         ),
       );
       Navigator.pop(context);
@@ -405,7 +299,8 @@ class _AddPurchaseScreenState extends ConsumerState<AddPurchaseScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(t(error, lang)),
-          backgroundColor: Colors.red,
+          backgroundColor: AppColors.alertRed,
+          behavior: SnackBarBehavior.floating,
         ),
       );
     }

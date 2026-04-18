@@ -1,7 +1,7 @@
 import 'dart:developer' as developer;
 
 import 'package:agricola/core/providers/language_provider.dart';
-import 'package:agricola/core/widgets/app_buttons.dart';
+import 'package:agricola/core/widgets/agri_kit.dart';
 import 'package:agricola/core/widgets/app_text_field.dart';
 import 'package:agricola/features/auth/providers/sign_up_provider.dart';
 import 'package:agricola/features/auth/widgets/auth_footer_link.dart';
@@ -85,10 +85,10 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
               obscureText: true,
               validator: (_) => signUpNotifier.validateConfirmPassword(),
             ),
-            const SizedBox(height: 32),
-            AppPrimaryButton(
+            const SizedBox(height: 40),
+            AgriStadiumButton(
               label: t('sign_up', currentLang),
-              onTap: () => _onSignUp(signUpNotifier),
+              onPressed: () => _onSignUp(signUpNotifier),
               isLoading: signUpState.isLoading,
             ),
             const SizedBox(height: 32),
@@ -125,14 +125,10 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
       ref.read(signUpProvider.notifier).updateEmail(_emailController.text);
     });
     _passwordController.addListener(() {
-      ref
-          .read(signUpProvider.notifier)
-          .updatePassword(_passwordController.text);
+      ref.read(signUpProvider.notifier).updatePassword(_passwordController.text);
     });
     _confirmPasswordController.addListener(() {
-      ref
-          .read(signUpProvider.notifier)
-          .updateConfirmPassword(_confirmPasswordController.text);
+      ref.read(signUpProvider.notifier).updateConfirmPassword(_confirmPasswordController.text);
     });
   }
 

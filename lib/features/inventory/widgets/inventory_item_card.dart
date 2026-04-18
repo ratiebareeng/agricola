@@ -1,11 +1,13 @@
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
+import 'package:agricola/core/widgets/agri_kit.dart';
 import 'package:flutter/material.dart';
 
 class InventoryItemCard extends StatelessWidget {
   final String cropType;
   final double quantity;
   final String unit;
+  final double? unitPrice;
   final DateTime storageDate;
   final String storageLocation;
   final String condition;
@@ -13,12 +15,14 @@ class InventoryItemCard extends StatelessWidget {
   final VoidCallback? onTap;
   final bool isListed;
   final bool isSynced;
+  final String imageUrl;
 
   const InventoryItemCard({
     super.key,
     required this.cropType,
     required this.quantity,
     required this.unit,
+    this.unitPrice,
     required this.storageDate,
     required this.storageLocation,
     required this.condition,
@@ -26,6 +30,7 @@ class InventoryItemCard extends StatelessWidget {
     this.onTap,
     this.isListed = false,
     this.isSynced = true,
+    this.imageUrl = '',
   });
 
   @override
@@ -55,10 +60,27 @@ class InventoryItemCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(
-                  Icons.inventory_2,
-                  color: conditionColor,
-                  size: 32,
+                Container(
+                  width: 56,
+                  height: 56,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    color: Colors.grey[100],
+                    image: imageUrl.isEmpty
+                        ? null
+                        : DecorationImage(
+                            image: NetworkImage(imageUrl),
+                            fit: BoxFit.cover,
+                            onError: (_, __) {},
+                          ),
+                  ),
+                  child: imageUrl.isEmpty
+                      ? Icon(
+                          Icons.local_florist_outlined,
+                          color: Colors.grey[500],
+                          size: 28,
+                        )
+                      : null,
                 ),
                 const SizedBox(width: 16),
                 Expanded(
@@ -74,13 +96,28 @@ class InventoryItemCard extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 4),
-                      Text(
-                        '$quantity ${t(unit, language)}',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.grey[700],
-                        ),
+                      Row(
+                        children: [
+                          Text(
+                            '${AgriKit.formatQuantity(quantity)} ${t(unit, language)}',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.grey[700],
+                            ),
+                          ),
+                          if (unitPrice != null) ...[
+                            const SizedBox(width: 8),
+                            Text(
+                              '· P${(quantity * unitPrice!).toStringAsFixed(0)}',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.forestGreen,
+                              ),
+                            ),
+                          ],
+                        ],
                       ),
                     ],
                   ),

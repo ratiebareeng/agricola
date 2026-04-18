@@ -1,7 +1,7 @@
 import 'package:agricola/core/providers/analytics_provider.dart';
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
-import 'package:agricola/core/widgets/app_buttons.dart';
+import 'package:agricola/core/widgets/agri_kit.dart';
 import 'package:agricola/core/widgets/selection_card.dart';
 import 'package:agricola/features/auth/providers/auth_controller.dart';
 import 'package:agricola/features/auth/widgets/auth_footer_link.dart';
@@ -36,13 +36,19 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
         children: [
           Text(
             t('select_account_type', currentLang),
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: AppColors.darkGray,
+            style: Theme.of(context).textTheme.displaySmall,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'JOIN THE AGRICOLA INFRASTRUCTURE',
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w900,
+              color: AppColors.forestGreen.withValues(alpha: 0.5),
+              letterSpacing: 2,
             ),
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 40),
           SelectionCard(
             title: t('farmer', currentLang),
             description: t('farmer_desc', currentLang),
@@ -78,10 +84,10 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
               });
             },
           ),
-          const SizedBox(height: 32),
-          AppPrimaryButton(
+          const SizedBox(height: 40),
+          AgriStadiumButton(
             label: t('continue', currentLang),
-            onTap: _selectedUserType != null ? _onContinue : null,
+            onPressed: _selectedUserType != null ? _onContinue : null,
           ),
           const SizedBox(height: 24),
           AuthFooterLink(
@@ -89,13 +95,14 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
             linkText: t('sign_in', currentLang),
             onTap: () => context.push('/sign-in'),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 32),
           OrDivider(text: t('or', currentLang)),
-          const SizedBox(height: 24),
+          const SizedBox(height: 32),
           // Continue as Guest button
-          AppSecondaryButton(
+          AgriStadiumButton(
             label: t('continue_as_guest', currentLang),
-            onTap: _onContinueAsGuest,
+            onPressed: _onContinueAsGuest,
+            isPrimary: false,
           ),
           const SizedBox(height: 16),
         ],

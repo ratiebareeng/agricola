@@ -1,4 +1,6 @@
 import 'package:agricola/core/providers/database_provider.dart';
+import 'package:agricola/core/widgets/app_image_cache.dart';
+import 'package:agricola/core/widgets/agri_kit.dart';
 import 'package:agricola/features/inventory/widgets/inventory_item_card_skeleton.dart';
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
@@ -26,6 +28,7 @@ class FarmerInventoryScreen extends ConsumerStatefulWidget {
 class _FarmerInventoryScreenState extends ConsumerState<FarmerInventoryScreen> {
   String? _selectedCropFilter;
   String? _selectedLocationFilter;
+  bool _precached = false;
 
   Set<String> _getAvailableLocations(List<InventoryModel> inventory) {
     return inventory.map((item) => item.storageLocation).toSet();
@@ -57,7 +60,7 @@ class _FarmerInventoryScreenState extends ConsumerState<FarmerInventoryScreen> {
   double _calculateTotalValue(List<InventoryModel> filteredInventory) {
     return filteredInventory.fold(
       0,
-      (sum, item) => sum + (item.quantity * 2.5),
+      (sum, item) => sum + (item.unitPrice != null ? item.quantity * item.unitPrice! : 0),
     );
   }
 
@@ -65,6 +68,7 @@ class _FarmerInventoryScreenState extends ConsumerState<FarmerInventoryScreen> {
   Widget build(BuildContext context) {
     final currentLang = ref.watch(languageProvider);
     final catalog = ref.watch(cropCatalogProvider).valueOrNull ?? [];
+    final imageMap = ref.watch(cropImageUrlProvider).valueOrNull ?? {};
     final inventoryAsync = ref.watch(inventoryNotifierProvider);
     final myListingsAsync = ref.watch(myListingsNotifierProvider);
     final offlineEnabled = ref.watch(offlineModeEnabledProvider);
@@ -83,11 +87,11 @@ class _FarmerInventoryScreenState extends ConsumerState<FarmerInventoryScreen> {
     });
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: AppColors.bone,
       body: SafeArea(
         child: inventoryAsync.when(
           loading: () => Padding(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(24),
             child: Column(
               children: List.generate(4, (_) => const InventoryItemCardSkeleton()),
             ),
@@ -118,6 +122,17 @@ class _FarmerInventoryScreenState extends ConsumerState<FarmerInventoryScreen> {
             ),
           ),
           data: (inventory) {
+            if (!_precached && inventory.isNotEmpty) {
+              _precached = true;
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (mounted) {
+                  precacheNetworkImages(
+                    context,
+                    inventory.expand((i) => i.imageUrls),
+                  );
+                }
+              });
+            }
             final filteredItems = _filterInventory(inventory);
             final availableLocations = _getAvailableLocations(inventory);
             final itemsNeedingAttention = _countItemsNeedingAttention(filteredItems);
@@ -125,109 +140,48 @@ class _FarmerInventoryScreenState extends ConsumerState<FarmerInventoryScreen> {
 
             return Column(
               children: [
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  color: Colors.white,
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         t('inventory_view', currentLang),
-                        style: const TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF1A1A1A),
+                        style: Theme.of(context).textTheme.displaySmall,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'TRACK YOUR STOCK',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 2,
+                          color: AppColors.forestGreen.withValues(alpha: 0.5),
                         ),
                       ),
-                      const SizedBox(height: 20),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Container(
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: Colors.green.withAlpha(10),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Icon(
-                                        Icons.account_balance_wallet,
-                                        size: 18,
-                                        color: Colors.green[700],
-                                      ),
-                                      const SizedBox(width: 6),
-                                      Text(
-                                        t('total_value', currentLang),
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: Colors.green[700],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    'P ${totalValue.toStringAsFixed(2)}',
-                                    style: TextStyle(
-                                      fontSize: 22,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.green[800],
-                                    ),
-                                  ),
-                                ],
-                              ),
+                      const SizedBox(height: 24),
+                      AgriFocusCard(
+                        color: AppColors.deepEmerald,
+                        padding: const EdgeInsets.all(28),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            AgriMetricDisplay(
+                              value: 'P${totalValue.toStringAsFixed(0)}',
+                              label: t('total_value', currentLang),
+                              valueColor: AppColors.bone,
+                              labelColor: AppColors.bone.withValues(alpha: 0.5),
                             ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Container(
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: AppColors.warmYellow.withAlpha(10),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      const Icon(
-                                        Icons.warning_amber,
-                                        size: 18,
-                                        color: AppColors.warmYellow,
-                                      ),
-                                      const SizedBox(width: 6),
-                                      Expanded(
-                                        child: Text(
-                                          t('items_needing_attention', currentLang),
-                                          style: const TextStyle(
-                                            fontSize: 12,
-                                            color: AppColors.warmYellow,
-                                          ),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    '$itemsNeedingAttention',
-                                    style: const TextStyle(
-                                      fontSize: 22,
-                                      fontWeight: FontWeight.bold,
-                                      color: AppColors.warmYellow,
-                                    ),
-                                  ),
-                                ],
-                              ),
+                            AgriMetricDisplay(
+                              value: '$itemsNeedingAttention',
+                              label: t('items_needing_attention', currentLang),
+                              valueColor: itemsNeedingAttention > 0
+                                  ? AppColors.earthYellow
+                                  : AppColors.bone,
+                              labelColor: AppColors.bone.withValues(alpha: 0.5),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                       const SizedBox(height: 16),
                       SingleChildScrollView(
@@ -310,7 +264,7 @@ class _FarmerInventoryScreenState extends ConsumerState<FarmerInventoryScreen> {
                           ),
                         )
                       : ListView.builder(
-                          padding: const EdgeInsets.all(20),
+                          padding: const EdgeInsets.fromLTRB(24, 16, 24, 20),
                           itemCount: filteredItems.length,
                           itemBuilder: (context, index) {
                             final item = filteredItems[index];
@@ -318,10 +272,14 @@ class _FarmerInventoryScreenState extends ConsumerState<FarmerInventoryScreen> {
                               cropType: cropDisplayName(item.cropType, catalog, currentLang),
                               quantity: item.quantity,
                               unit: item.unit,
+                              unitPrice: item.unitPrice,
                               storageDate: item.storageDate,
                               storageLocation: item.storageLocation,
                               condition: item.condition,
                               language: currentLang,
+                              imageUrl: item.imageUrls.isNotEmpty
+                                  ? item.imageUrls.first
+                                  : imageUrlForCrop(item.cropType, imageMap),
                               isListed: listedIds.contains(item.id),
                               isSynced: !unsyncedInventoryIds.contains(item.id),
                               onTap: () async {
@@ -347,18 +305,10 @@ class _FarmerInventoryScreenState extends ConsumerState<FarmerInventoryScreen> {
                   child: SafeArea(
                     child: SizedBox(
                       width: double.infinity,
-                      child: ElevatedButton.icon(
+                      child: AgriStadiumButton(
                         onPressed: () => _addInventory(context, currentLang),
-                        icon: const Icon(Icons.add),
-                        label: Text(t('add_inventory', currentLang)),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF2D6A4F),
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
+                        icon: Icons.add,
+                        label: t('add_inventory', currentLang),
                       ),
                     ),
                   ),
@@ -507,7 +457,7 @@ class _FarmerInventoryScreenState extends ConsumerState<FarmerInventoryScreen> {
               const SizedBox(height: 24),
               SizedBox(
                 width: double.infinity,
-                child: ElevatedButton(
+                child: AgriStadiumButton(
                   onPressed: () {
                     setState(() {
                       _selectedCropFilter = tempCropFilter;
@@ -515,15 +465,7 @@ class _FarmerInventoryScreenState extends ConsumerState<FarmerInventoryScreen> {
                     });
                     Navigator.pop(context);
                   },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF2D6A4F),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: Text(t('apply_filters', lang)),
+                  label: t('apply_filters', lang),
                 ),
               ),
             ],

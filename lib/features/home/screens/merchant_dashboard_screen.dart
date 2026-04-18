@@ -1,19 +1,15 @@
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/providers/nav_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
-import 'package:agricola/core/widgets/app_dialogs.dart';
+import 'package:agricola/core/widgets/agri_kit.dart';
 import 'package:agricola/core/widgets/skeleton_primitives.dart';
-import 'package:agricola/domain/profile/enum/merchant_type.dart';
 import 'package:agricola/features/home/providers/dashboard_stats_provider.dart';
-import 'package:agricola/features/home/widgets/stat_card.dart';
-import 'package:agricola/features/home/widgets/stat_card_skeleton.dart';
+import 'package:agricola/features/home/widgets/hero_card_skeleton.dart';
 import 'package:agricola/features/marketplace/screens/add_product_screen.dart';
 import 'package:agricola/features/notifications/providers/notifications_provider.dart';
 import 'package:agricola/features/notifications/screens/notifications_screen.dart';
 import 'package:agricola/features/orders/models/order_model.dart';
-import 'package:agricola/features/profile_setup/providers/profile_setup_provider.dart';
-import 'package:agricola/features/purchases/screens/add_purchase_screen.dart';
-import 'package:agricola/features/reports/screens/reports_screen.dart';
+import 'package:agricola/features/orders/screens/orders_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -23,572 +19,307 @@ class MerchantDashboardScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentLang = ref.watch(languageProvider);
-    final profile = ref.watch(profileSetupProvider);
-    final isAgriShop =
-        (profile.merchantType ?? MerchantType.agriShop) ==
-        MerchantType.agriShop;
     final stats = ref.watch(merchantDashboardStatsProvider);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        isAgriShop
-                            ? t('welcome_back_merchant', currentLang)
-                            : t('welcome_back_vendor', currentLang),
-                        style: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF1A1A1A),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          t('welcome_back_vendor', currentLang),
+                          style: Theme.of(context).textTheme.displayMedium,
                         ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        isAgriShop
-                            ? 'Check your store performance'
-                            : 'Track your business metrics',
-                        style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-                      ),
-                    ],
+                        const SizedBox(height: 4),
+                        Text(
+                          'BUSINESS PERFORMANCE',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 2,
+                            color: AppColors.forestGreen.withValues(alpha: 0.5),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-
                   _NotificationBell(),
                 ],
               ),
-              const SizedBox(height: 24),
-              _buildStatsGrid(context, ref, currentLang, isAgriShop, stats),
-              const SizedBox(height: 24),
-              _buildRecentActivitySection(context, ref, currentLang, stats),
-              const SizedBox(height: 24),
-              _buildQuickActionsSection(context, ref, currentLang, isAgriShop),
-              const SizedBox(height: 80),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildEmptyRecentActivity(AppLanguage lang) {
-    return Padding(
-      padding: const EdgeInsets.all(32),
-      child: Center(
-        child: Column(
-          children: [
-            Icon(
-              Icons.receipt_long_outlined,
-              size: 64,
-              color: Colors.grey[300],
-            ),
-            const SizedBox(height: 16),
-            Text(
-              t('no_recent_orders', lang),
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: Colors.grey[700],
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              t('orders_will_appear_here', lang),
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 14, color: Colors.grey[500]),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              t('add_products_to_start', lang),
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 13,
-                color: Colors.grey[400],
-                fontStyle: FontStyle.italic,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildOrdersList(
-    BuildContext context,
-    WidgetRef ref,
-    List<OrderModel> orders,
-    AppLanguage lang,
-  ) {
-    return Column(
-      children: [
-        ...orders.asMap().entries.map((entry) {
-          final index = entry.key;
-          final order = entry.value;
-          return Column(
-            children: [
-              _buildOrderTile(context, order),
-              if (index < orders.length - 1)
-                Divider(height: 1, color: Colors.grey[200]),
-            ],
-          );
-        }),
-        Divider(height: 1, color: Colors.grey[200]),
-        InkWell(
-          onTap: () {
-            // Navigate to orders tab (index 2 for AgriShop)
-            ref.read(selectedTabProvider.notifier).state = 2;
-          },
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  t('view_all_orders', lang),
-                  style: const TextStyle(
-                    color: AppColors.green,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(width: 4),
-                const Icon(
-                  Icons.arrow_forward,
-                  size: 16,
-                  color: AppColors.green,
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildOrderTile(BuildContext context, OrderModel order) {
-    final statusConfig = _getStatusConfig(order.status);
-
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Row(
-        children: [
-          Icon(statusConfig.icon, color: statusConfig.color, size: 20),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Order #${order.id}',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  '${order.items.length} ${order.items.length == 1 ? 'item' : 'items'} • ${_formatDate(order.createdAt)}',
-                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                ),
-              ],
-            ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
+              const SizedBox(height: 32),
+              _StatsHero(stats: stats, lang: currentLang),
+              const SizedBox(height: 40),
               Text(
-                'P ${order.totalAmount.toStringAsFixed(2)}',
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                statusConfig.label,
+                t('quick_actions', currentLang).toUpperCase(),
                 style: TextStyle(
-                  fontSize: 10,
-                  color: statusConfig.color,
-                  fontWeight: FontWeight.w600,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 1,
+                  color: AppColors.deepEmerald.withValues(alpha: 0.4),
                 ),
               ),
+              const SizedBox(height: 20),
+              _QuickActionsGrid(lang: currentLang),
+              const SizedBox(height: 40),
+              Text(
+                t('recent_activity', currentLang).toUpperCase(),
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 1,
+                  color: AppColors.deepEmerald.withValues(alpha: 0.4),
+                ),
+              ),
+              const SizedBox(height: 20),
+              _RecentActivitySection(stats: stats, lang: currentLang),
+              const SizedBox(height: 100),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _StatsHero extends StatelessWidget {
+  final MerchantDashboardStats stats;
+  final AppLanguage lang;
+
+  const _StatsHero({required this.stats, required this.lang});
+
+  @override
+  Widget build(BuildContext context) {
+    if (stats.isLoading) {
+      return const HeroCardSkeleton();
+    }
+
+    return AgriFocusCard(
+      color: AppColors.deepEmerald,
+      padding: const EdgeInsets.all(32),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              AgriMetricDisplay(
+                value: '${stats.totalSuppliers}',
+                label: 'SUPPLIERS',
+                valueColor: AppColors.bone,
+                labelColor: AppColors.bone.withValues(alpha: 0.5),
+              ),
+              AgriMetricDisplay(
+                value: 'P${stats.monthlyPurchases.toStringAsFixed(0)}',
+                label: 'PURCHASES',
+                valueColor: AppColors.earthYellow,
+                labelColor: AppColors.earthYellow.withValues(alpha: 0.5),
+              ),
+            ],
+          ),
+          const SizedBox(height: 32),
+          Divider(color: AppColors.bone.withValues(alpha: 0.1)),
+          const SizedBox(height: 24),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                '${stats.totalProducts} Total Listings',
+                style: const TextStyle(color: AppColors.bone, fontWeight: FontWeight.w600, fontSize: 13),
+              ),
+              if (stats.lowStockItems > 0)
+                Text(
+                  '${stats.lowStockItems} LOW STOCK',
+                  style: const TextStyle(color: AppColors.alertRed, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1),
+                ),
             ],
           ),
         ],
       ),
     );
   }
+}
 
-  Widget _buildQuickActionsSection(
-    BuildContext context,
-    WidgetRef ref,
-    AppLanguage lang,
-    bool isAgriShop,
-  ) {
+class _QuickActionsGrid extends ConsumerWidget {
+  final AppLanguage lang;
+  const _QuickActionsGrid({required this.lang});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          t('quick_actions', lang),
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: Colors.black87,
-          ),
+        AgriStadiumButton(
+          label: t('add_new_product', lang),
+          onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AddProductScreen())),
         ),
         const SizedBox(height: 16),
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withAlpha(25),
-                blurRadius: 10,
-                offset: const Offset(0, 2),
+        Row(
+          children: [
+            Expanded(
+              child: AgriStadiumButton(
+                label: 'INVENTORY',
+                isPrimary: false,
+                onPressed: () => ref.read(selectedTabProvider.notifier).state = 2,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: AgriStadiumButton(
+                label: 'ORDERS',
+                isPrimary: false,
+                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const OrdersScreen(showSalesTab: true))),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _RecentActivitySection extends ConsumerWidget {
+  final MerchantDashboardStats stats;
+  final AppLanguage lang;
+
+  const _RecentActivitySection({required this.stats, required this.lang});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    if (stats.isLoading) {
+      return Column(
+        children: List.generate(3, (_) => const SkeletonBox(width: double.infinity, height: 80, borderRadius: 24)),
+      );
+    }
+
+    if (stats.recentOrders.isEmpty) {
+      return AgriFocusCard(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            children: [
+              Icon(Icons.receipt_long_outlined, size: 48, color: AppColors.deepEmerald.withValues(alpha: 0.1)),
+              const SizedBox(height: 16),
+              Text(
+                'No recent activity.',
+                style: TextStyle(color: AppColors.deepEmerald.withValues(alpha: 0.3), fontWeight: FontWeight.w700),
               ),
             ],
           ),
-          child: Column(
+        ),
+      );
+    }
+
+    return Column(
+      children: [
+        ...stats.recentOrders.take(3).map((order) => _OrderTile(order: order)),
+        const SizedBox(height: 12),
+        TextButton(
+          onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const OrdersScreen(showSalesTab: true))),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _buildQuickActionTile(
-                context,
-                icon: Icons.add_circle_outline,
-                iconColor: AppColors.green,
-                title: t('add_new_product', lang),
-                subtitle: t('add_to_catalog', lang),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const AddProductScreen(),
-                    ),
-                  );
-                },
-              ),
-              const Divider(height: 24),
-              _buildQuickActionTile(
-                context,
-                icon: Icons.receipt_long_outlined,
-                iconColor: AppColors.green,
-                title: t('view_orders', lang),
-                subtitle: t('manage_customer_orders', lang),
-                onTap: () {
-                  // AgriShop: Orders is index 2
-                  // Non-AgriShop: No orders tab, show coming soon
-                  if (isAgriShop) {
-                    ref.read(selectedTabProvider.notifier).state = 2;
-                  } else {
-                    _showComingSoonDialog(context, lang);
-                  }
-                },
-              ),
-              const Divider(height: 24),
-              _buildQuickActionTile(
-                context,
-                icon: Icons.inventory_outlined,
-                iconColor: AppColors.green,
-                title: t('check_inventory', lang),
-                subtitle: t('manage_stock_levels', lang),
-                onTap: () {
-                  // AgriShop: Inventory is index 1
-                  // Non-AgriShop: Inventory is index 2
-                  ref.read(selectedTabProvider.notifier).state = isAgriShop
-                      ? 1
-                      : 2;
-                },
-              ),
-              if (!isAgriShop) ...[
-                const Divider(height: 24),
-                _buildQuickActionTile(
-                  context,
-                  icon: Icons.shopping_bag_outlined,
-                  iconColor: AppColors.green,
-                  title: t('record_purchase', lang),
-                  subtitle: t('record_from_farmers', lang),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const AddPurchaseScreen(),
-                      ),
-                    );
-                  },
-                ),
-              ],
-              const Divider(height: 24),
-              _buildQuickActionTile(
-                context,
-                icon: Icons.analytics_outlined,
-                iconColor: AppColors.green,
-                title: t('view_analytics', lang),
-                subtitle: t('business_insights', lang),
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const MerchantReportsScreen(),
-                  ),
+              Text(
+                t('view_all_orders', lang).toUpperCase(),
+                style: const TextStyle(
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 1,
+                  fontSize: 12,
+                  color: AppColors.forestGreen,
                 ),
               ),
+              const SizedBox(width: 4),
+              const Icon(Icons.arrow_forward, size: 16, color: AppColors.forestGreen),
             ],
           ),
         ),
       ],
     );
   }
+}
 
-  Widget _buildQuickActionTile(
-    BuildContext context, {
-    required IconData icon,
-    required Color iconColor,
-    required String title,
-    required String subtitle,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4),
+class _OrderTile extends StatelessWidget {
+  final OrderModel order;
+  const _OrderTile({required this.order});
+
+  @override
+  Widget build(BuildContext context) {
+    final statusColor = _getStatusColor(order.status);
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: AgriFocusCard(
+        padding: const EdgeInsets.all(16),
         child: Row(
           children: [
-            Icon(icon, color: iconColor, size: 24),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: statusColor.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(Icons.receipt_long_outlined, color: statusColor, size: 20),
+            ),
             const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black87,
-                    ),
+                    'Order #${(order.id ?? '').length > 8 ? order.id!.substring(0, 8).toUpperCase() : (order.id ?? '').toUpperCase()}',
+                    style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15, color: AppColors.deepEmerald),
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    subtitle,
-                    style: TextStyle(fontSize: 13, color: Colors.grey[600]),
+                    '${order.items.length} items • ${_formatDate(order.createdAt)}',
+                    style: TextStyle(fontSize: 12, color: AppColors.deepEmerald.withValues(alpha: 0.4), fontWeight: FontWeight.w600),
                   ),
                 ],
               ),
             ),
-            Icon(Icons.chevron_right, color: Colors.grey[400]),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  'P${order.totalAmount.toStringAsFixed(0)}',
+                  style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: AppColors.deepEmerald),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  order.status.toUpperCase(),
+                  style: TextStyle(fontSize: 9, color: statusColor, fontWeight: FontWeight.w900, letterSpacing: 1),
+                ),
+              ],
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildRecentActivitySection(
-    BuildContext context,
-    WidgetRef ref,
-    AppLanguage lang,
-    MerchantDashboardStats stats,
-  ) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          t('recent_activity', lang),
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: Colors.black87,
-          ),
-        ),
-        const SizedBox(height: 16),
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withAlpha(25),
-                blurRadius: 10,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: stats.isLoading
-              ? Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: ShimmerWrapper(
-                    child: Column(
-                      children: List.generate(
-                        3,
-                        (i) => Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          child: Row(
-                            children: [
-                              const SkeletonBox(
-                                width: 40,
-                                height: 40,
-                                borderRadius: 10,
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const SkeletonLine(width: 100, height: 14),
-                                    const SizedBox(height: 4),
-                                    const SkeletonLine(width: 140, height: 12),
-                                  ],
-                                ),
-                              ),
-                              const SkeletonLine(width: 60, height: 14),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                )
-              : stats.recentOrders.isEmpty
-              ? _buildEmptyRecentActivity(lang)
-              : _buildOrdersList(context, ref, stats.recentOrders, lang),
-        ),
-      ],
-    );
+  Color _getStatusColor(String status) {
+    return switch (status) {
+      'pending' => AppColors.earthYellow,
+      'confirmed' => AppColors.forestGreen,
+      'shipped' => AppColors.mediumGray,
+      'delivered' => AppColors.forestGreen,
+      'cancelled' => AppColors.alertRed,
+      _ => AppColors.mediumGray,
+    };
   }
 
-  Widget _buildStatsGrid(
-    BuildContext context,
-    WidgetRef ref,
-    AppLanguage lang,
-    bool isAgriShop,
-    MerchantDashboardStats stats,
-  ) {
-    if (stats.isLoading) {
-      return GridView.count(
-        crossAxisCount: 2,
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        mainAxisSpacing: 12,
-        crossAxisSpacing: 12,
-        childAspectRatio: 1.25,
-        children: List.generate(4, (_) => const StatCardSkeleton()),
-      );
-    }
-
-    return GridView.count(
-      crossAxisCount: 2,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      mainAxisSpacing: 12,
-      crossAxisSpacing: 12,
-      childAspectRatio: 1.25,
-      children: [
-        if (isAgriShop) ...[
-          StatCard(
-            title: t('total_products', lang),
-            value: '${stats.totalProducts}',
-            icon: Icons.inventory_2,
-            color: AppColors.green,
-            subtitle: stats.totalProducts == 1 ? 'product' : 'products',
-          ),
-          StatCard(
-            title: t('active_orders', lang),
-            value: '${stats.activeOrders}',
-            icon: Icons.shopping_cart,
-            color: AppColors.green,
-            subtitle: stats.activeOrders == 1 ? 'order' : 'orders',
-          ),
-          StatCard(
-            title: t('monthly_revenue', lang),
-            value: 'P ${stats.monthlyRevenue.toStringAsFixed(2)}',
-            subtitle: 'this month',
-          ),
-          StatCard(
-            title: t('low_stock_items', lang),
-            value: '${stats.lowStockItems}',
-            subtitle: stats.lowStockItems == 0 ? 'all good' : 'need attention',
-          ),
-        ] else ...[
-          StatCard(
-            title: t('total_products', lang),
-            value: '${stats.totalProducts}',
-            subtitle: stats.totalProducts == 1 ? 'listing' : 'listings',
-          ),
-          StatCard(
-            title: t('monthly_purchases', lang),
-            value: 'P ${stats.monthlyPurchases.toStringAsFixed(2)}',
-            icon: Icons.shopping_bag,
-            color: AppColors.green,
-            subtitle: 'this month',
-          ),
-          StatCard(
-            title: t('total_suppliers', lang),
-            value: '${stats.totalSuppliers}',
-            icon: Icons.people,
-            color: AppColors.green,
-            subtitle: stats.totalSuppliers == 1 ? 'supplier' : 'suppliers',
-          ),
-          StatCard(
-            title: t('low_stock_items', lang),
-            value: '${stats.lowStockItems}',
-            subtitle: stats.lowStockItems == 0 ? 'all good' : 'need attention',
-          ),
-        ],
-      ],
-    );
-  }
-
-  String _formatDate(DateTime date) {
-    final now = DateTime.now();
-    final diff = now.difference(date);
-
-    if (diff.inMinutes < 60) {
-      return '${diff.inMinutes}m ago';
-    } else if (diff.inHours < 24) {
-      return '${diff.inHours}h ago';
-    } else if (diff.inDays < 7) {
-      return '${diff.inDays}d ago';
-    } else {
-      return '${date.day}/${date.month}/${date.year}';
-    }
-  }
-
-  _StatusConfig _getStatusConfig(String status) {
-    switch (status) {
-      case 'pending':
-        return _StatusConfig('Pending', AppColors.warmYellow, Icons.schedule);
-      case 'confirmed':
-        return _StatusConfig('Confirmed', AppColors.green, Icons.check_circle);
-      case 'shipped':
-        return _StatusConfig(
-          'Shipped',
-          AppColors.mediumGray,
-          Icons.local_shipping,
-        );
-      case 'delivered':
-        return _StatusConfig('Delivered', AppColors.green, Icons.done_all);
-      case 'cancelled':
-        return _StatusConfig('Cancelled', AppColors.alertRed, Icons.cancel);
-      default:
-        return _StatusConfig(status, AppColors.mediumGray, Icons.help_outline);
-    }
-  }
-
-  void _showComingSoonDialog(BuildContext context, AppLanguage lang) {
-    AppDialogs.info(
-      context,
-      title: t('coming_soon', lang),
-      content: t('feature_under_development', lang),
-      okayText: t('okay', lang),
-      icon: Icons.construction,
-    );
+  static String _formatDate(DateTime date) {
+    final diff = DateTime.now().difference(date);
+    if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
+    if (diff.inHours < 24) return '${diff.inHours}h ago';
+    if (diff.inDays < 7) return '${diff.inDays}d ago';
+    return '${date.day}/${date.month}';
   }
 }
 
@@ -600,33 +331,20 @@ class _NotificationBell extends ConsumerWidget {
     return Stack(
       children: [
         IconButton(
-          icon: const Icon(
-            Icons.notifications_outlined,
-            color: Color(0xFF1A1A1A),
-          ),
-          onPressed: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const NotificationsScreen()),
-          ),
+          icon: const Icon(Icons.notifications_outlined, color: AppColors.deepEmerald, size: 28),
+          onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationsScreen())),
         ),
         if (count > 0)
           Positioned(
-            right: 6,
-            top: 6,
+            right: 8,
+            top: 8,
             child: Container(
               padding: const EdgeInsets.all(4),
-              decoration: const BoxDecoration(
-                color: AppColors.alertRed,
-                shape: BoxShape.circle,
-              ),
-              constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
+              decoration: const BoxDecoration(color: AppColors.earthYellow, shape: BoxShape.circle),
+              constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
               child: Text(
                 '$count',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: const TextStyle(color: AppColors.deepEmerald, fontSize: 10, fontWeight: FontWeight.w900),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -634,12 +352,4 @@ class _NotificationBell extends ConsumerWidget {
       ],
     );
   }
-}
-
-class _StatusConfig {
-  final String label;
-  final Color color;
-  final IconData icon;
-
-  _StatusConfig(this.label, this.color, this.icon);
 }

@@ -1,4 +1,5 @@
 import 'package:agricola/core/providers/language_provider.dart';
+import 'package:agricola/core/widgets/agri_kit.dart';
 import 'package:agricola/domain/profile/enum/merchant_type.dart';
 import 'package:agricola/features/crops/crop_helpers.dart';
 import 'package:agricola/features/crops/providers/crop_catalog_provider.dart';
@@ -27,6 +28,7 @@ class _MerchantInventoryScreenState
   Widget build(BuildContext context) {
     final currentLang = ref.watch(languageProvider);
     final catalog = ref.watch(cropCatalogProvider).valueOrNull ?? [];
+    final imageMap = ref.watch(cropImageUrlProvider).valueOrNull ?? {};
     final profile = ref.watch(profileSetupProvider);
     final isAgriShop =
         (profile.merchantType ?? MerchantType.agriShop) ==
@@ -106,11 +108,7 @@ class _MerchantInventoryScreenState
                         isAgriShop
                             ? t('store_inventory', currentLang)
                             : t('produce_inventory', currentLang),
-                        style: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF1A1A1A),
-                        ),
+                        style: Theme.of(context).textTheme.displaySmall,
                       ),
                       const SizedBox(height: 8),
                       Text(
@@ -185,10 +183,14 @@ class _MerchantInventoryScreenState
                               ),
                               quantity: item.quantity,
                               unit: item.unit,
+                              unitPrice: item.unitPrice,
                               storageDate: item.storageDate,
                               storageLocation: item.storageLocation,
                               condition: item.condition,
                               language: currentLang,
+                              imageUrl: item.imageUrls.isNotEmpty
+                                  ? item.imageUrls.first
+                                  : imageUrlForCrop(item.cropType, imageMap),
                               isListed: listedIds.contains(item.id),
                               onTap: () async {
                                 final result = await Navigator.push<bool>(
@@ -217,22 +219,12 @@ class _MerchantInventoryScreenState
                   child: SafeArea(
                     child: SizedBox(
                       width: double.infinity,
-                      child: ElevatedButton.icon(
+                      child: AgriStadiumButton(
                         onPressed: () => _addInventory(context, currentLang),
-                        icon: const Icon(Icons.add),
-                        label: Text(
-                          isAgriShop
+                        icon: Icons.add,
+                        label: isAgriShop
                               ? t('add_product', currentLang)
                               : t('add_inventory', currentLang),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF2D6A4F),
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
                       ),
                     ),
                   ),

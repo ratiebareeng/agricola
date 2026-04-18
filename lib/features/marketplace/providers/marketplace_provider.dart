@@ -8,8 +8,9 @@ import 'package:agricola/core/providers/offline_settings_provider.dart';
 import 'package:agricola/features/marketplace/data/marketplace_api_service.dart';
 import 'package:agricola/features/marketplace/models/marketplace_filter.dart';
 import 'package:agricola/features/marketplace/models/marketplace_listing.dart';
-import 'package:agricola/features/profile_setup/providers/profile_setup_provider.dart';
 import 'package:agricola/features/auth/providers/auth_provider.dart';
+import 'package:agricola/features/home/providers/dashboard_stats_provider.dart';
+import 'package:agricola/features/inventory/providers/inventory_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 // API Service provider
@@ -63,16 +64,9 @@ class MarketplaceNotifier
     loadListings();
   }
 
-  /// Determine the listing type filter based on user type
-  ListingType? _getListingTypeForUser() {
-    final profileState = _ref.read(profileSetupProvider);
-    if (profileState.userType == UserType.farmer) {
-      return ListingType.supplies; // Farmers see supplies
-    } else if (profileState.userType == UserType.merchant) {
-      return ListingType.produce; // Merchants see produce
-    }
-    return null; // Default: see all
-  }
+  /// No automatic type filter — all users see all listings.
+  /// Users can filter by type via the filter sheet.
+  ListingType? _getListingTypeForUser() => null;
 
   /// Load listings from backend (or local cache when offline)
   Future<void> loadListings() async {
@@ -126,6 +120,11 @@ class MarketplaceNotifier
     loadListings();
   }
 
+  void _invalidateListingCaches() {
+    _ref.invalidate(myListingsNotifierProvider);
+    _ref.invalidate(inventoryNotifierProvider);
+  }
+
   /// Add a listing. Returns null on success, error message on failure.
   Future<String?> addListing(MarketplaceListing listing) async {
     try {
@@ -133,6 +132,7 @@ class MarketplaceNotifier
       final current = state.value ?? [];
       state = AsyncValue.data([created, ...current]);
       _ref.read(analyticsServiceProvider).logListingCreated();
+      _invalidateListingCaches();
       return null;
     } catch (e) {
       return errorKeyFromException(e);
@@ -147,6 +147,7 @@ class MarketplaceNotifier
       state = AsyncValue.data(
         current.map((l) => l.id == listing.id ? updated : l).toList(),
       );
+      _invalidateListingCaches();
       return null;
     } catch (e) {
       return errorKeyFromException(e);
@@ -159,6 +160,7 @@ class MarketplaceNotifier
       await _service.deleteListing(id);
       final current = state.value ?? [];
       state = AsyncValue.data(current.where((l) => l.id != id).toList());
+      _invalidateListingCaches();
       return null;
     } catch (e) {
       return errorKeyFromException(e);

@@ -4,7 +4,6 @@ class ValidationRules {
   static const int maxBusinessNameLength = 100;
   static const int minVillageLength = 2;
   static const int maxVillageLength = 100;
-  static const int maxPrimaryCropsCount = 5;
   static const int maxPhotoSizeBytes = 5 * 1024 * 1024; // 5MB
 
   // Error messages

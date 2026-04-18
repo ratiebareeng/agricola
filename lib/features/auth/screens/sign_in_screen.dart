@@ -1,6 +1,6 @@
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
-import 'package:agricola/core/widgets/app_buttons.dart';
+import 'package:agricola/core/widgets/agri_kit.dart';
 import 'package:agricola/core/widgets/app_text_field.dart';
 import 'package:agricola/features/auth/providers/sign_in_provider.dart';
 import 'package:agricola/features/auth/widgets/auth_footer_link.dart';
@@ -69,28 +69,21 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
               validator: (_) => signInNotifier.validatePassword(),
             ),
             const SizedBox(height: 32),
-            AppPrimaryButton(
+            AgriStadiumButton(
               label: t('sign_in', currentLang),
-              onTap: () => _onSignIn(signInNotifier),
+              onPressed: () => _onSignIn(signInNotifier),
               isLoading: signInState.isLoading,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 24),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                TextButton(
+                AgriTextButton(
+                  label: t('forgot_password', currentLang),
                   onPressed: signInState.isLoading
                       ? null
                       : () => signInNotifier.sendPasswordResetEmail(),
-                  child: Text(
-                    'Forgot Password?',
-                    style: TextStyle(
-                      color: signInState.isLoading
-                          ? AppColors.mediumGray
-                          : AppColors.green,
-                      fontSize: 16,
-                    ),
-                  ),
+                  color: AppColors.mediumGray,
                 ),
               ],
             ),
@@ -103,7 +96,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
             AuthFooterLink(
               text: t('dont_have_account', currentLang),
               linkText: t('sign_up', currentLang),
-              onTap: () => context.push('/sign-up'),
+              onTap: () => context.push('/register'),
             ),
           ],
         ),

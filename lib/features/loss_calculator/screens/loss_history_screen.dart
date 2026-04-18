@@ -1,5 +1,6 @@
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
+import 'package:agricola/core/widgets/agri_kit.dart';
 import 'package:agricola/core/widgets/app_dialogs.dart';
 import 'package:agricola/features/loss_calculator/loss_calculator_helpers.dart';
 import 'package:agricola/features/loss_calculator/models/loss_calculation.dart';
@@ -83,11 +84,12 @@ class LossHistoryScreen extends ConsumerWidget {
                 style: TextStyle(color: Colors.grey[600]),
               ),
               const SizedBox(height: 12),
-              OutlinedButton(
+              AgriStadiumButton(
                 onPressed: () => ref
                     .read(lossCalculatorNotifierProvider.notifier)
                     .loadCalculations(),
-                child: Text(t('retry', lang)),
+                label: t('retry', lang),
+                isPrimary: false,
               ),
             ],
           ),
@@ -197,7 +199,7 @@ class _CalculationCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 12),
                 _statChip(
-                  '${calculation.totalLoss.toStringAsFixed(1)} ${t(calculation.unit, lang)}',
+                  '${AgriKit.formatQuantity(calculation.totalLoss)} ${t(calculation.unit, lang)}',
                   t('total_loss', lang),
                   Colors.grey[700]!,
                 ),

@@ -1,6 +1,7 @@
 import 'package:agricola/core/providers/analytics_provider.dart';
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
+import 'package:agricola/core/widgets/agri_kit.dart';
 import 'package:agricola/features/auth/providers/auth_provider.dart';
 import 'package:agricola/features/profile/providers/profile_controller_provider.dart';
 import 'package:flutter/material.dart';
@@ -20,13 +21,13 @@ class ProfileSetupCompleteScreen extends ConsumerWidget {
     final errorMessage = profileState.errorMessage;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.bone,
       body: SafeArea(
         child: Column(
           children: [
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.all(24),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
                 child: Column(
                   children: [
                     const SizedBox(height: 40),
@@ -34,145 +35,129 @@ class ProfileSetupCompleteScreen extends ConsumerWidget {
                       height: 120,
                       width: 120,
                       decoration: BoxDecoration(
-                        color: AppColors.green.withAlpha(10),
+                        color: AppColors.forestGreen.withValues(alpha: 0.1),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
                         Icons.check_circle,
                         size: 80,
-                        color: AppColors.green,
+                        color: AppColors.forestGreen,
                       ),
                     ),
                     const SizedBox(height: 32),
                     Text(
                       t('profile_complete', currentLang),
-                      style: const TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: Theme.of(context).textTheme.displayMedium,
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 12),
                     Text(
                       t('ready_to_start', currentLang),
-                      style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+                      style: TextStyle(fontSize: 16, color: AppColors.deepEmerald.withValues(alpha: 0.5), fontWeight: FontWeight.w500),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 40),
-                    _buildSummaryCard(currentLang),
-                    const SizedBox(height: 24),
-                    _buildFeaturesList(currentLang),
+                    _buildSummaryCard(context, currentLang),
+                    const SizedBox(height: 32),
+                    _buildFeaturesList(context, currentLang),
                   ],
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(24),
-              child: SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: isCreatingProfile
-                      ? null
-                      : () => _handleGetStarted(context, ref),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.green,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                  ),
-                  child: isCreatingProfile
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 2,
-                          ),
-                        )
-                      : Text(
-                          t('go_to_dashboard', currentLang),
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
                 ),
               ),
             ),
             if (errorMessage != null)
               Padding(
-                padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
                 child: Container(
-                  padding: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: AppColors.alertRed.withAlpha(15),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: AppColors.alertRed.withAlpha(50)),
+                    color: AppColors.alertRed.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: AppColors.alertRed.withValues(alpha: 0.3)),
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.error_outline, color: AppColors.alertRed),
-                      const SizedBox(width: 8),
+                      const Icon(Icons.error_outline, color: AppColors.alertRed, size: 20),
+                      const SizedBox(width: 12),
                       Expanded(
                         child: Text(
                           errorMessage,
-                          style: const TextStyle(color: AppColors.alertRed),
+                          style: const TextStyle(color: AppColors.alertRed, fontWeight: FontWeight.w600, fontSize: 13),
                         ),
                       ),
                     ],
                   ),
                 ),
               ),
+            Padding(
+              padding: const EdgeInsets.all(24),
+              child: AgriStadiumButton(
+                onPressed: isCreatingProfile ? null : () => _handleGetStarted(context, ref),
+                isLoading: isCreatingProfile,
+                label: t('go_to_dashboard', currentLang).toUpperCase(),
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildFeaturesList(AppLanguage lang) {
-    final features = [
-      {
-        'icon': Icons.crop,
-        'title': t('track_crops', lang),
-        'desc': t('track_crops_desc', lang),
-      },
-      {
-        'icon': Icons.inventory,
-        'title': t('manage_inventory', lang),
-        'desc': t('manage_inventory_desc', lang),
-      },
-      {
-        'icon': Icons.analytics,
-        'title': t('view_analytics', lang),
-        'desc': t('view_analytics_desc', lang),
-      },
-    ];
+  Widget _buildFeaturesList(BuildContext context, AppLanguage lang) {
+    final userType = profileData['userType'] ?? 'farmer';
+    final merchantType = profileData['merchantType'] as String?;
+    final isAgriShop = merchantType == 'agriShop';
+
+    final List<Map<String, Object>> features;
+    if (userType == 'farmer') {
+      features = [
+        {'icon': Icons.grass, 'title': t('track_crops', lang), 'desc': t('track_crops_desc', lang)},
+        {'icon': Icons.inventory_2_outlined, 'title': t('manage_inventory', lang), 'desc': t('manage_inventory_desc', lang)},
+        {'icon': Icons.storefront_outlined, 'title': t('marketplace', lang), 'desc': t('marketplace_farmer_feature_desc', lang)},
+      ];
+    } else if (isAgriShop) {
+      features = [
+        {'icon': Icons.people_alt_outlined, 'title': t('source_from_farmers', lang), 'desc': t('source_from_farmers_desc', lang)},
+        {'icon': Icons.receipt_long_outlined, 'title': t('manage_orders', lang), 'desc': t('manage_orders_desc', lang)},
+        {'icon': Icons.inventory_2_outlined, 'title': t('manage_inventory', lang), 'desc': t('manage_inventory_desc', lang)},
+      ];
+    } else {
+      features = [
+        {'icon': Icons.storefront_outlined, 'title': t('list_products', lang), 'desc': t('list_products_desc', lang)},
+        {'icon': Icons.receipt_long_outlined, 'title': t('manage_orders', lang), 'desc': t('manage_orders_desc', lang)},
+        {'icon': Icons.analytics_outlined, 'title': t('view_analytics', lang), 'desc': t('view_analytics_desc', lang)},
+      ];
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          t('whats_next', lang),
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          t('whats_next', lang).toUpperCase(),
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w900,
+            color: AppColors.deepEmerald.withValues(alpha: 0.4),
+            letterSpacing: 1.5,
+          ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 20),
         ...features.map(
           (feature) => Padding(
-            padding: const EdgeInsets.only(bottom: 16),
+            padding: const EdgeInsets.only(bottom: 24),
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
                   height: 48,
                   width: 48,
                   decoration: BoxDecoration(
-                    color: AppColors.green.withAlpha(10),
-                    borderRadius: BorderRadius.circular(12),
+                    color: AppColors.forestGreen.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(16),
                   ),
                   child: Icon(
                     feature['icon'] as IconData,
-                    color: AppColors.green,
+                    color: AppColors.forestGreen,
+                    size: 24,
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -184,13 +169,19 @@ class ProfileSetupCompleteScreen extends ConsumerWidget {
                         feature['title'] as String,
                         style: const TextStyle(
                           fontSize: 16,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.deepEmerald,
                         ),
                       ),
-                      const SizedBox(height: 2),
+                      const SizedBox(height: 4),
                       Text(
                         feature['desc'] as String,
-                        style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: AppColors.deepEmerald.withValues(alpha: 0.6),
+                          fontWeight: FontWeight.w500,
+                          height: 1.4,
+                        ),
                       ),
                     ],
                   ),
@@ -207,22 +198,28 @@ class ProfileSetupCompleteScreen extends ConsumerWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 20, color: AppColors.green),
-        const SizedBox(width: 12),
+        Icon(icon, size: 18, color: AppColors.forestGreen.withValues(alpha: 0.5)),
+        const SizedBox(width: 16),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                label,
-                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                label.toUpperCase(),
+                style: TextStyle(
+                  fontSize: 9,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.deepEmerald.withValues(alpha: 0.4),
+                  letterSpacing: 0.5,
+                ),
               ),
               const SizedBox(height: 2),
               Text(
                 value,
                 style: const TextStyle(
                   fontSize: 14,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.deepEmerald,
                 ),
               ),
             ],
@@ -232,38 +229,38 @@ class ProfileSetupCompleteScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildSummaryCard(AppLanguage lang) {
+  Widget _buildSummaryCard(BuildContext context, AppLanguage lang) {
     final userType = profileData['userType'] ?? 'farmer';
     final isFarmer = userType == 'farmer';
 
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.grey[50],
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey[200]!),
-      ),
+    return AgriFocusCard(
+      padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            t('your_profile', lang),
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            t('your_profile', lang).toUpperCase(),
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w900,
+              color: AppColors.deepEmerald.withValues(alpha: 0.4),
+              letterSpacing: 1,
+            ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 24),
           if (isFarmer) ...[
             _buildInfoRow(
               Icons.location_on,
               t('location', lang),
               profileData['location'] ?? 'Not set',
             ),
-            const Divider(height: 24),
+            const Padding(padding: EdgeInsets.symmetric(vertical: 12), child: Divider(height: 1)),
             _buildInfoRow(
               Icons.agriculture,
               t('crops', lang),
               (profileData['crops'] as List?)?.join(', ') ?? 'Not set',
             ),
-            const Divider(height: 24),
+            const Padding(padding: EdgeInsets.symmetric(vertical: 12), child: Divider(height: 1)),
             _buildInfoRow(
               Icons.landscape,
               t('farm_size', lang),
@@ -275,13 +272,13 @@ class ProfileSetupCompleteScreen extends ConsumerWidget {
               t('business_name', lang),
               profileData['businessName'] ?? 'Not set',
             ),
-            const Divider(height: 24),
+            const Padding(padding: EdgeInsets.symmetric(vertical: 12), child: Divider(height: 1)),
             _buildInfoRow(
               Icons.location_on,
               t('location', lang),
               profileData['location'] ?? 'Not set',
             ),
-            const Divider(height: 24),
+            const Padding(padding: EdgeInsets.symmetric(vertical: 12), child: Divider(height: 1)),
             _buildInfoRow(
               Icons.inventory,
               t('products', lang),

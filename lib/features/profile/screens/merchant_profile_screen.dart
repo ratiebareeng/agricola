@@ -1,6 +1,7 @@
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/utils/url_utils.dart';
 import 'package:agricola/core/theme/app_theme.dart';
+import 'package:agricola/core/widgets/agri_kit.dart';
 import 'package:agricola/core/widgets/language_select_content.dart';
 import 'package:agricola/domain/profile/enum/merchant_type.dart';
 import 'package:agricola/features/auth/providers/auth_provider.dart';
@@ -222,36 +223,6 @@ class _MerchantProfileScreenState extends ConsumerState<MerchantProfileScreen> {
     );
   }
 
-  Widget _buildBusinessDetailsPlaceholder(BuildContext context, WidgetRef ref) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey[300]!),
-      ),
-      child: Column(
-        children: [
-          Icon(Icons.store_outlined, size: 48, color: Colors.grey[400]),
-          const SizedBox(height: 12),
-          Text(
-            'Business Details',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: Colors.grey[700],
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            'Complete your profile to add business information',
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 13, color: Colors.grey[500]),
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildCompleteProfileScreen(
     BuildContext context,
@@ -308,16 +279,19 @@ class _MerchantProfileScreenState extends ConsumerState<MerchantProfileScreen> {
               style: TextStyle(fontSize: 16, color: Colors.grey[600]),
             ),
             const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                final user = ref.read(currentUserProvider);
-                if (user != null) {
-                  ref
-                      .read(profileControllerProvider.notifier)
-                      .loadProfile(userId: user.uid);
-                }
-              },
-              child: const Text('Retry'),
+            SizedBox(
+              width: 200,
+              child: AgriStadiumButton(
+                onPressed: () {
+                  final user = ref.read(currentUserProvider);
+                  if (user != null) {
+                    ref
+                        .read(profileControllerProvider.notifier)
+                        .loadProfile(userId: user.uid);
+                  }
+                },
+                label: 'Retry',
+              ),
             ),
           ],
         ),
@@ -497,48 +471,26 @@ class _MerchantProfileScreenState extends ConsumerState<MerchantProfileScreen> {
             style: TextStyle(color: Colors.white.withAlpha(90), fontSize: 14),
           ),
           const SizedBox(height: 16),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () {
-                if (user == null) return;
+          AgriStadiumButton(
+            onPressed: () {
+              if (user == null) return;
 
-                // Determine the user type string for the route
-                String userTypeParam;
-                if (user.userType == UserType.farmer) {
-                  userTypeParam = 'farmer';
-                } else if (user.merchantType == MerchantType.agriShop) {
-                  userTypeParam = 'agriShop';
-                } else if (user.merchantType ==
-                    MerchantType.supermarketVendor) {
-                  userTypeParam = 'supermarketVendor';
-                } else {
-                  userTypeParam =
-                      'agriShop'; // Default to agriShop for other merchant types
-                }
+              // Determine the user type string for the route
+              String userTypeParam;
+              if (user.merchantType == MerchantType.agriShop) {
+                userTypeParam = 'agriShop';
+              } else if (user.merchantType ==
+                  MerchantType.supermarketVendor) {
+                userTypeParam = 'supermarketVendor';
+              } else {
+                userTypeParam =
+                    'agriShop'; // Default to agriShop for other merchant types
+              }
 
-                context.push('/profile-setup?type=$userTypeParam');
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-                foregroundColor: AppColors.green,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Complete Profile',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(width: 8),
-                  Icon(Icons.arrow_forward, size: 20),
-                ],
-              ),
-            ),
+              context.push('/profile-setup?type=$userTypeParam');
+            },
+            label: 'Complete Profile',
+            icon: Icons.arrow_forward,
           ),
         ],
       ),

@@ -2,7 +2,8 @@ import 'dart:async';
 
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
-import 'package:agricola/core/utils/error_utils.dart';
+import 'package:agricola/core/utils/url_utils.dart';
+import 'package:agricola/core/widgets/agri_kit.dart';
 import 'package:agricola/domain/profile/enum/merchant_type.dart';
 import 'package:agricola/features/marketplace/models/marketplace_filter.dart';
 import 'package:agricola/features/marketplace/models/marketplace_listing.dart';
@@ -10,6 +11,8 @@ import 'package:agricola/features/marketplace/providers/marketplace_provider.dar
 import 'package:agricola/features/marketplace/screens/marketplace_detail_screen.dart';
 import 'package:agricola/features/marketplace/widgets/marketplace_filter_bottom_sheet.dart';
 import 'package:agricola/features/marketplace/widgets/marketplace_listing_skeleton.dart';
+import 'package:agricola/core/widgets/app_image_cache.dart';
+import 'package:agricola/features/marketplace/screens/crop_availability_screen.dart';
 import 'package:agricola/features/profile_setup/providers/profile_setup_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -24,6 +27,7 @@ class MarketplaceScreen extends ConsumerStatefulWidget {
 class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
   final _searchController = TextEditingController();
   Timer? _debounce;
+  bool _precached = false;
 
   @override
   Widget build(BuildContext context) {
@@ -33,43 +37,25 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
     final profileState = ref.watch(profileSetupProvider);
 
     return Scaffold(
-      backgroundColor: Colors.grey[50],
       appBar: AppBar(
         title: Text(
           t('marketplace', currentLang),
-          style: const TextStyle(fontWeight: FontWeight.bold),
+          style: Theme.of(context).textTheme.displaySmall,
         ),
-        backgroundColor: AppColors.white,
+        backgroundColor: Colors.transparent,
         elevation: 0,
         actions: [
-          Stack(
-            children: [
-              IconButton(
-                onPressed: () => _showFilterBottomSheet(context),
-                icon: const Icon(Icons.filter_list),
+          IconButton(
+            icon: const Icon(Icons.grass_outlined),
+            tooltip: t('crop_availability', currentLang),
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const CropAvailabilityScreen(),
               ),
-              if (filter.activeFilterCount > 0)
-                Positioned(
-                  right: 8,
-                  top: 8,
-                  child: Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: const BoxDecoration(
-                      color: AppColors.green,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Text(
-                      '${filter.activeFilterCount}',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-            ],
+            ),
           ),
+          _FilterAction(filter: filter, onShowFilters: () => _showFilterBottomSheet(context)),
         ],
       ),
       body: Column(
@@ -79,17 +65,31 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
           _buildActiveFilterChips(currentLang, filter),
           Expanded(
             child: listingsAsync.when(
-              data: (listings) => listings.isEmpty
-                  ? _buildEmptyState(currentLang)
-                  : RefreshIndicator(
-                      onRefresh: () => ref
-                          .read(marketplaceNotifierProvider.notifier)
-                          .refresh(),
-                      color: AppColors.green,
-                      child: _buildListingsList(listings),
-                    ),
+              data: (listings) {
+                if (!_precached && listings.isNotEmpty) {
+                  _precached = true;
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (mounted) {
+                      precacheNetworkImages(
+                        context,
+                        listings.map((l) => l.imagePath ?? ''),
+                      );
+                    }
+                  });
+                }
+                return listings.isEmpty
+                    ? _buildEmptyState(currentLang)
+                    : RefreshIndicator(
+                        onRefresh: () {
+                          _precached = false;
+                          return ref.read(marketplaceNotifierProvider.notifier).refresh();
+                        },
+                        color: AppColors.forestGreen,
+                        child: _buildListingsList(listings),
+                      );
+              },
               loading: () => ListView(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(24),
                 children: List.generate(4, (_) => const MarketplaceListingSkeleton()),
               ),
               error: (error, _) => _buildErrorState(currentLang, error),
@@ -113,7 +113,7 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Row(
@@ -122,19 +122,17 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
               _buildFilterChip(
                 label: _formatPriceRange(filter, lang),
                 onRemove: () {
-                  ref.read(marketplaceFilterProvider.notifier).state = filter
-                      .copyWith(clearMinPrice: true, clearMaxPrice: true);
+                  ref.read(marketplaceFilterProvider.notifier).state =
+                      filter.copyWith(clearMinPrice: true, clearMaxPrice: true);
                   ref.read(marketplaceNotifierProvider.notifier).loadListings();
                 },
               ),
             if (filter.category != null) ...[
-              if (filter.minPrice != null || filter.maxPrice != null)
-                const SizedBox(width: 8),
+              if (filter.minPrice != null || filter.maxPrice != null) const SizedBox(width: 8),
               _buildFilterChip(
                 label: filter.category!,
                 onRemove: () {
-                  ref.read(marketplaceFilterProvider.notifier).state = filter
-                      .copyWith(clearCategory: true);
+                  ref.read(marketplaceFilterProvider.notifier).state = filter.copyWith(clearCategory: true);
                   ref.read(marketplaceNotifierProvider.notifier).loadListings();
                 },
               ),
@@ -156,16 +154,15 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      color: Colors.grey[50],
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
       child: Row(
         children: [
-          const Icon(Icons.info_outline, size: 20, color: AppColors.green),
+          const Icon(Icons.info_outline, size: 18, color: AppColors.forestGreen),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               hint,
-              style: const TextStyle(fontSize: 13, color: AppColors.darkGray),
+              style: TextStyle(fontSize: 12, color: AppColors.deepEmerald.withValues(alpha: 0.5), fontWeight: FontWeight.w600),
             ),
           ),
         ],
@@ -184,24 +181,12 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
           Icon(
             hasFilters ? Icons.search_off : Icons.storefront_outlined,
             size: 80,
-            color: Colors.grey[400],
+            color: AppColors.deepEmerald.withValues(alpha: 0.05),
           ),
           const SizedBox(height: 16),
           Text(
             t(hasFilters ? 'no_results' : 'marketplace_empty', lang),
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: Colors.grey[600],
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            t(
-              hasFilters ? 'try_different_search' : 'marketplace_empty_hint',
-              lang,
-            ),
-            style: TextStyle(fontSize: 14, color: Colors.grey[500]),
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppColors.deepEmerald.withValues(alpha: 0.3)),
           ),
         ],
       ),
@@ -215,32 +200,13 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline, size: 64, color: Colors.red[300]),
+            const Icon(Icons.error_outline, size: 64, color: AppColors.alertRed),
             const SizedBox(height: 16),
-            Text(
-              t('error_loading', lang),
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: Colors.grey[600],
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              t(errorKeyFromException(error), lang),
-              style: TextStyle(fontSize: 14, color: Colors.grey[500]),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton.icon(
-              onPressed: () =>
-                  ref.read(marketplaceNotifierProvider.notifier).loadListings(),
-              icon: const Icon(Icons.refresh),
-              label: Text(t('retry', lang)),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.green,
-                foregroundColor: Colors.white,
-              ),
+            Text(t('error_loading', lang), style: const TextStyle(fontWeight: FontWeight.w800)),
+            const SizedBox(height: 24),
+            AgriStadiumButton(
+              onPressed: () => ref.read(marketplaceNotifierProvider.notifier).loadListings(),
+              label: t('retry', lang),
             ),
           ],
         ),
@@ -248,31 +214,24 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
     );
   }
 
-  Widget _buildFilterChip({
-    required String label,
-    required VoidCallback onRemove,
-  }) {
+  Widget _buildFilterChip({required String label, required VoidCallback onRemove}) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
+        color: AppColors.forestGreen.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.grey[300]!),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            label,
-            style: const TextStyle(
-              fontSize: 13,
-              color: AppColors.green,
-              fontWeight: FontWeight.w500,
-            ),
+            label.toUpperCase(),
+            style: const TextStyle(fontSize: 10, color: AppColors.forestGreen, fontWeight: FontWeight.w900, letterSpacing: 0.5),
           ),
-          const SizedBox(width: 6),
+          const SizedBox(width: 8),
           GestureDetector(
             onTap: onRemove,
-            child: const Icon(Icons.close, size: 16, color: AppColors.green),
+            child: const Icon(Icons.close, size: 14, color: AppColors.forestGreen),
           ),
         ],
       ),
@@ -282,146 +241,108 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
   Widget _buildListingCard(MarketplaceListing listing) {
     final currentLang = ref.watch(languageProvider);
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: InkWell(
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20),
+      child: AgriFocusCard(
+        padding: const EdgeInsets.all(16),
         onTap: () {
           Navigator.push(
             context,
-            MaterialPageRoute(
-              builder: (context) => MarketplaceDetailScreen(listing: listing),
-            ),
+            MaterialPageRoute(builder: (context) => MarketplaceDetailScreen(listing: listing)),
           );
         },
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          listing.title,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.location_on,
-                              size: 14,
-                              color: Colors.grey[600],
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              listing.location,
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Thumbnail with high radius
+                Builder(builder: (context) {
+                  final imageUrl = listing.imagePath;
+                  final hasImage = imageUrl != null && isNetworkUrl(imageUrl);
+                  return Container(
+                    width: 80,
+                    height: 80,
+                    margin: const EdgeInsets.only(right: 16),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      color: AppColors.bone,
+                      image: hasImage
+                          ? DecorationImage(
+                              image: NetworkImage(imageUrl),
+                              fit: BoxFit.cover,
+                              onError: (_, __) {},
+                            )
+                          : null,
                     ),
-                  ),
-                  if (listing.status != null)
-                    _buildStatusBadge(listing.status!, currentLang),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Text(
-                listing.description,
-                style: TextStyle(fontSize: 14, color: Colors.grey[700]),
-              ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  Text(
-                    listing.category,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: AppColors.green,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  if (listing.quantity != null)
-                    Text(
-                      listing.quantity!,
-                      style: TextStyle(fontSize: 13, color: Colors.grey[600]),
-                    ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
+                    child: hasImage ? null : const Icon(Icons.storefront_outlined, color: AppColors.forestGreen, size: 32),
+                  );
+                }),
+                Expanded(
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (listing.price != null)
-                        Text(
-                          'P ${listing.price!.toStringAsFixed(2)}',
-                          style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.green,
-                          ),
-                        ),
-                      if (listing.unit != null)
-                        Text(
-                          listing.unit!,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                    ],
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
                       Text(
-                        listing.sellerName,
-                        style: const TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                        ),
+                        listing.title,
+                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppColors.deepEmerald),
                       ),
-                      if (listing.harvestDate != null)
-                        Text(
-                          '${t('harvest', currentLang)}: ${listing.harvestDate}',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey[600],
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          Icon(Icons.location_on, size: 14, color: AppColors.deepEmerald.withValues(alpha: 0.3)),
+                          const SizedBox(width: 4),
+                          Text(
+                            listing.location,
+                            style: TextStyle(fontSize: 12, color: AppColors.deepEmerald.withValues(alpha: 0.4), fontWeight: FontWeight.w600),
                           ),
-                        ),
+                        ],
+                      ),
                     ],
                   ),
-                ],
-              ),
-            ],
-          ),
+                ),
+                if (listing.status != null) _buildStatusBadge(listing.status!, currentLang),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Text(
+              listing.description,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(fontSize: 14, color: AppColors.deepEmerald.withValues(alpha: 0.7), height: 1.4),
+            ),
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (listing.price != null)
+                      Text(
+                        'P${listing.price!.toStringAsFixed(0)}',
+                        style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: AppColors.deepEmerald),
+                      ),
+                    if (listing.unit != null)
+                      Text(
+                        listing.unit!.toUpperCase(),
+                        style: TextStyle(fontSize: 10, color: AppColors.forestGreen.withValues(alpha: 0.5), fontWeight: FontWeight.w800, letterSpacing: 1),
+                      ),
+                  ],
+                ),
+                AgriStadiumButton(
+                  label: 'VIEW',
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => MarketplaceDetailScreen(listing: listing)),
+                    );
+                  },
+                  isPrimary: false,
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
@@ -429,7 +350,7 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
 
   Widget _buildListingsList(List<MarketplaceListing> listings) {
     return ListView.builder(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(24),
       itemCount: listings.length,
       itemBuilder: (context, index) {
         return _buildListingCard(listings[index]);
@@ -439,47 +360,33 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
 
   Widget _buildSearchBar(AppLanguage lang) {
     final profileState = ref.watch(profileSetupProvider);
-    final String hint = profileState.userType == UserType.farmer
-        ? t('search_supplies', lang)
-        : t('search_produce', lang);
+    final String hint = profileState.userType == UserType.farmer ? t('search_supplies', lang) : t('search_produce', lang);
 
     return Container(
-      color: Colors.white,
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       child: TextField(
         controller: _searchController,
+        style: const TextStyle(fontWeight: FontWeight.w600, color: AppColors.deepEmerald),
         decoration: InputDecoration(
-          hintText: hint,
-          prefixIcon: const Icon(Icons.search, color: AppColors.green),
+          hintText: hint.toUpperCase(),
+          hintStyle: TextStyle(fontSize: 12, letterSpacing: 1, fontWeight: FontWeight.w800, color: AppColors.deepEmerald.withValues(alpha: 0.2)),
+          prefixIcon: const Icon(Icons.search, color: AppColors.forestGreen),
           suffixIcon: _searchController.text.isNotEmpty
               ? IconButton(
                   icon: const Icon(Icons.clear),
                   onPressed: () {
                     _searchController.clear();
                     final currentFilter = ref.read(marketplaceFilterProvider);
-                    ref.read(marketplaceFilterProvider.notifier).state =
-                        currentFilter.copyWith(searchQuery: '');
-                    ref
-                        .read(marketplaceNotifierProvider.notifier)
-                        .loadListings();
+                    ref.read(marketplaceFilterProvider.notifier).state = currentFilter.copyWith(searchQuery: '');
+                    ref.read(marketplaceNotifierProvider.notifier).loadListings();
                     setState(() {});
                   },
                 )
               : null,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: Colors.grey[300]!),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: Colors.grey[300]!),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: AppColors.green, width: 2),
-          ),
           filled: true,
-          fillColor: Colors.grey[50],
+          fillColor: AppColors.white,
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(32), borderSide: BorderSide.none),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
         ),
         onChanged: (value) {
           _onSearchChanged(value);
@@ -492,45 +399,36 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
   Widget _buildStatusBadge(CropStatus status, AppLanguage lang) {
     Color color;
     String label;
-    IconData icon;
 
     switch (status) {
       case CropStatus.harvested:
-        color = AppColors.green;
+        color = AppColors.forestGreen;
         label = t('harvested', lang);
-        icon = Icons.check_circle;
         break;
       case CropStatus.readyToHarvest:
-        color = AppColors.warmYellow;
+        color = AppColors.earthYellow;
         label = t('ready_soon', lang);
-        icon = Icons.schedule;
         break;
       case CropStatus.growing:
-        color = AppColors.green;
+        color = AppColors.forestGreen;
         label = t('growing', lang);
-        icon = Icons.grass;
         break;
       case CropStatus.planted:
         color = AppColors.mediumGray;
         label = t('planted', lang);
-        icon = Icons.spa;
         break;
     }
 
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, size: 14, color: color),
-        const SizedBox(width: 4),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-            color: color,
-          ),
-        ),
-      ],
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Text(
+        label.toUpperCase(),
+        style: TextStyle(fontSize: 9, fontWeight: FontWeight.w900, color: color, letterSpacing: 0.5),
+      ),
     );
   }
 
@@ -549,8 +447,7 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
     _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 300), () {
       final currentFilter = ref.read(marketplaceFilterProvider);
-      ref.read(marketplaceFilterProvider.notifier).state = currentFilter
-          .copyWith(searchQuery: query);
+      ref.read(marketplaceFilterProvider.notifier).state = currentFilter.copyWith(searchQuery: query);
       ref.read(marketplaceNotifierProvider.notifier).loadListings();
     });
   }
@@ -558,11 +455,43 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
   void _showFilterBottomSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(32))),
       isScrollControlled: true,
       builder: (context) => const MarketplaceFilterBottomSheet(),
+    );
+  }
+}
+
+class _FilterAction extends StatelessWidget {
+  final MarketplaceFilter filter;
+  final VoidCallback onShowFilters;
+
+  const _FilterAction({required this.filter, required this.onShowFilters});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 8),
+      child: Stack(
+        children: [
+          IconButton(onPressed: onShowFilters, icon: const Icon(Icons.tune, color: AppColors.deepEmerald)),
+          if (filter.activeFilterCount > 0)
+            Positioned(
+              right: 8,
+              top: 8,
+              child: Container(
+                padding: const EdgeInsets.all(4),
+                decoration: const BoxDecoration(color: AppColors.earthYellow, shape: BoxShape.circle),
+                constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                child: Text(
+                  '${filter.activeFilterCount}',
+                  style: const TextStyle(color: AppColors.deepEmerald, fontSize: 10, fontWeight: FontWeight.w900),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }

@@ -43,21 +43,17 @@ class ProfileSetupNotifier extends StateNotifier<ProfileSetupState> {
       if (state.photoPath != null) {
         final photoFile = File(state.photoPath!);
         if (await photoFile.exists()) {
-          // Validate the image before attempting upload
-          final isValid = await ImageUtils.validateImage(photoFile);
-          if (!isValid) {
+          final prepared = await ImageUtils.prepare(photoFile, preset: ImagePreset.profile);
+          if (!prepared.ok) {
             state = state.copyWith(
               isCreatingProfile: false,
-              errorMessage:
-                  'Invalid image. Please select a JPG or PNG under 5 MB.',
+              errorMessage: prepared.errorKey == 'image_invalid_format'
+                  ? 'Invalid image. Please select a JPG or PNG file.'
+                  : 'Image is too large even after compression. Please choose a smaller photo.',
             );
             return false;
           }
-
-          // Compress before uploading to reduce upload size and failures
-          final compressedFile = await ImageUtils.compressProfileImage(
-            photoFile,
-          );
+          final compressedFile = prepared.file!;
 
           photoUrl = await _ref
               .read(profileControllerProvider.notifier)
@@ -81,6 +77,10 @@ class ProfileSetupNotifier extends StateNotifier<ProfileSetupState> {
       }
 
       if (state.userType == UserType.farmer) {
+        final effectiveFarmSize = state.farmSize == 'Other'
+            ? state.customFarmSize
+            : state.farmSize;
+
         // Create farmer profile model
         final farmerProfile = FarmerProfileModel(
           id: '', // Will be assigned by backend
@@ -90,7 +90,7 @@ class ProfileSetupNotifier extends StateNotifier<ProfileSetupState> {
               ? state.customVillage
               : null,
           primaryCrops: state.selectedCrops,
-          farmSize: state.farmSize,
+          farmSize: effectiveFarmSize,
           photoUrl: photoUrl,
           createdAt: DateTime.now(),
           updatedAt: DateTime.now(),
@@ -109,25 +109,25 @@ class ProfileSetupNotifier extends StateNotifier<ProfileSetupState> {
         }
 
         // Create profile in backend
-        final success = await _ref
+        final error = await _ref
             .read(profileControllerProvider.notifier)
             .createFarmerProfile(profile: farmerProfile);
 
-        if (success) {
+        if (error == null) {
           // Mark profile as complete in Firestore
           await _ref
               .read(authControllerProvider.notifier)
               .markProfileAsComplete();
 
           state = state.copyWith(isCreatingProfile: false, clearError: true);
+          return true;
         } else {
           state = state.copyWith(
             isCreatingProfile: false,
-            errorMessage: 'Failed to create profile. Please try again.',
+            errorMessage: error,
           );
+          return false;
         }
-
-        return success;
       } else {
         // Validate merchant type is set
         if (state.merchantType == null) {
@@ -167,25 +167,25 @@ class ProfileSetupNotifier extends StateNotifier<ProfileSetupState> {
         }
 
         // Create profile in backend
-        final success = await _ref
+        final error = await _ref
             .read(profileControllerProvider.notifier)
             .createMerchantProfile(profile: merchantProfile);
 
-        if (success) {
+        if (error == null) {
           // Mark profile as complete in Firestore
           await _ref
               .read(authControllerProvider.notifier)
               .markProfileAsComplete();
 
           state = state.copyWith(isCreatingProfile: false, clearError: true);
+          return true;
         } else {
           state = state.copyWith(
             isCreatingProfile: false,
-            errorMessage: 'Failed to create profile. Please try again.',
+            errorMessage: error,
           );
+          return false;
         }
-
-        return success;
       }
     } catch (e) {
       state = state.copyWith(
@@ -351,6 +351,11 @@ class ProfileSetupNotifier extends StateNotifier<ProfileSetupState> {
     saveProfile();
   }
 
+  void updateCustomFarmSize(String value) {
+    state = state.copyWith(customFarmSize: value);
+    saveProfile();
+  }
+
   void updateFarmSize(String value) {
     state = state.copyWith(farmSize: value);
     saveProfile();
@@ -378,6 +383,7 @@ class ProfileSetupState {
   final String customVillage;
   final List<String> selectedCrops;
   final String farmSize;
+  final String customFarmSize;
 
   // Merchant Fields
   final String businessName;
@@ -400,6 +406,7 @@ class ProfileSetupState {
     this.customVillage = '',
     this.selectedCrops = const [],
     this.farmSize = '',
+    this.customFarmSize = '',
     this.businessName = '',
     this.location = '',
     this.selectedProducts = const [],
@@ -417,6 +424,7 @@ class ProfileSetupState {
     String? customVillage,
     List<String>? selectedCrops,
     String? farmSize,
+    String? customFarmSize,
     String? businessName,
     String? location,
     List<String>? selectedProducts,
@@ -434,6 +442,7 @@ class ProfileSetupState {
       customVillage: customVillage ?? this.customVillage,
       selectedCrops: selectedCrops ?? this.selectedCrops,
       farmSize: farmSize ?? this.farmSize,
+      customFarmSize: customFarmSize ?? this.customFarmSize,
       businessName: businessName ?? this.businessName,
       location: location ?? this.location,
       selectedProducts: selectedProducts ?? this.selectedProducts,

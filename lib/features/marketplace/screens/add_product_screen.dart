@@ -3,8 +3,11 @@ import 'dart:io';
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
 import 'package:agricola/core/utils/image_utils.dart';
-import 'package:agricola/core/utils/url_utils.dart';
+import 'package:agricola/core/widgets/agri_kit.dart';
+import 'package:agricola/core/widgets/app_dropdown_field.dart';
+import 'package:agricola/core/widgets/app_network_image.dart';
 import 'package:agricola/features/auth/providers/auth_provider.dart';
+import 'package:agricola_core/agricola_core.dart' show UserModel;
 import 'package:agricola/features/inventory/models/inventory_model.dart';
 import 'package:agricola/features/marketplace/models/marketplace_listing.dart';
 import 'package:agricola/features/marketplace/providers/marketplace_provider.dart';
@@ -28,23 +31,44 @@ class AddProductScreen extends ConsumerStatefulWidget {
   ConsumerState<AddProductScreen> createState() => _AddProductScreenState();
 }
 
+String _resolveSellerName(ProfileSetupState profile, UserModel? user) {
+  if (profile.businessName.trim().isNotEmpty) return profile.businessName.trim();
+  final email = user?.email.trim();
+  if (email != null && email.isNotEmpty) return email.split('@').first;
+  return 'Seller';
+}
+
 class _AddProductScreenState extends ConsumerState<AddProductScreen> {
   final _formKey = GlobalKey<FormState>();
   final _imagePicker = ImagePicker();
   bool _isLoading = false;
 
-  File? _selectedImage;
-  String? _existingImageUrl;
+  late List<String> _existingImageUrls;
+  final List<File> _newImages = [];
+
+  int get _totalImageCount => _existingImageUrls.length + _newImages.length;
 
   late TextEditingController _titleController;
   late TextEditingController _descriptionController;
   late TextEditingController _priceController;
   late TextEditingController _quantityController;
+  late TextEditingController _phoneController;
 
-  String _category = 'Seeds';
+  String _category = 'Vegetables';
   String _unit = 'kg';
+  late ListingType _listingType;
+  final _otherCategoryController = TextEditingController();
 
   final List<String> _categories = [
+    'Vegetables',
+    'Fruits',
+    'Grains & Cereals',
+    'Legumes',
+    'Roots & Tubers',
+    'Herbs & Spices',
+    'Livestock',
+    'Poultry',
+    'Dairy & Eggs',
     'Seeds',
     'Fertilizers',
     'Pesticides',
@@ -52,10 +76,27 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
     'Irrigation',
     'Animal Feed',
     'Packaging',
+    'Processed Foods',
     'Other',
   ];
 
-  final List<String> _units = ['kg', 'bags', 'litres', 'pieces', 'boxes'];
+  final List<String> _units = [
+    'kg',
+    'g',
+    'tons',
+    'bags',
+    'sacks',
+    'crates',
+    'litres',
+    'ml',
+    'pieces',
+    'boxes',
+    'bundles',
+    'heads',
+    'dozen',
+    'bales',
+    'trays',
+  ];
 
   bool get _isEditing => widget.existingProduct != null;
 
@@ -67,6 +108,7 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
     super.initState();
     final product = widget.existingProduct;
     final source = widget.sourceInventory;
+    final user = ref.read(currentUserProvider);
 
     if (product != null) {
       // Editing existing listing
@@ -77,23 +119,38 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
           TextEditingController(text: product.price?.toString() ?? '');
       _quantityController =
           TextEditingController(text: product.quantity ?? '');
-      _category = product.category;
-      _unit = product.unit ?? 'kg';
-      _existingImageUrl = product.imagePath;
+      _phoneController = TextEditingController(text: product.sellerPhone ?? user?.phoneNumber);
+      _category = _categories.contains(product.category) ? product.category : 'Other';
+      if (!_categories.contains(product.category)) {
+        _otherCategoryController.text = product.category;
+      }
+      _unit = _units.contains(product.unit) ? (product.unit ?? 'kg') : 'kg';
+      _listingType = product.type;
+      _existingImageUrls = [
+        if (product.imagePath != null && product.imagePath!.isNotEmpty)
+          product.imagePath!,
+        ...?product.additionalImages,
+      ];
     } else if (source != null) {
-      // Pre-fill from inventory
+      // Pre-fill from inventory — always produce when listing a harvest
+      _listingType = ListingType.produce;
       _titleController = TextEditingController(text: source.cropType);
       _descriptionController =
           TextEditingController(text: source.notes ?? '');
       _priceController = TextEditingController();
       _quantityController =
-          TextEditingController(text: source.quantity.toString());
+          TextEditingController(text: AgriKit.formatQuantity(source.quantity));
+      _phoneController = TextEditingController(text: user?.phoneNumber);
       _unit = _units.contains(source.unit) ? source.unit : 'kg';
+      _existingImageUrls = List<String>.from(source.imageUrls);
     } else {
+      _listingType = ListingType.produce;
       _titleController = TextEditingController();
       _descriptionController = TextEditingController();
       _priceController = TextEditingController();
-      _quantityController = TextEditingController();
+      _quantityController = TextEditingController(text: '1');
+      _phoneController = TextEditingController(text: user?.phoneNumber);
+      _existingImageUrls = [];
     }
   }
 
@@ -103,6 +160,8 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
     _descriptionController.dispose();
     _priceController.dispose();
     _quantityController.dispose();
+    _phoneController.dispose();
+    _otherCategoryController.dispose();
     super.dispose();
   }
 
@@ -172,6 +231,24 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
                       ),
                       const SizedBox(height: 20),
                     ],
+                    _buildSectionTitle(t('listing_type', currentLang)),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        _buildTypeChip(
+                          ListingType.produce,
+                          t('produce', currentLang),
+                          Icons.eco_outlined,
+                        ),
+                        const SizedBox(width: 8),
+                        _buildTypeChip(
+                          ListingType.supplies,
+                          t('supplies', currentLang),
+                          Icons.store_outlined,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
                     _buildSectionTitle(t('product_name', currentLang)),
                     const SizedBox(height: 8),
                     _buildTextField(
@@ -199,17 +276,44 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
                       },
                     ),
                     const SizedBox(height: 20),
-                    _buildSectionTitle(t('category', currentLang)),
+                    _buildSectionTitle(t('contact_phone', currentLang)),
                     const SizedBox(height: 8),
-                    _buildDropdownField(
-                      value: _category,
-                      items: _categories,
-                      onChanged: (value) {
-                        if (value != null) {
-                          setState(() => _category = value);
+                    _buildTextField(
+                      controller: _phoneController,
+                      hint: t('enter_phone_number', currentLang),
+                      keyboardType: TextInputType.phone,
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return t('phone_required_for_listing', currentLang);
                         }
+                        return null;
                       },
                     ),
+                    const SizedBox(height: 20),
+                    _buildSectionTitle(t('category', currentLang)),
+                    const SizedBox(height: 8),
+                    AppDropdownField<String>(
+                      value: _category,
+                      items: _categories,
+                      itemLabelBuilder: (item) => item,
+                      sheetTitle: t('category', currentLang),
+                      onChanged: (value) {
+                        if (value != null) setState(() => _category = value);
+                      },
+                    ),
+                    if (_category == 'Other') ...[
+                      const SizedBox(height: 10),
+                      _buildTextField(
+                        controller: _otherCategoryController,
+                        hint: 'Specify category (e.g. Mushrooms)',
+                        validator: (value) {
+                          if (_category == 'Other' && (value == null || value.isEmpty)) {
+                            return t('required_field', currentLang);
+                          }
+                          return null;
+                        },
+                      ),
+                    ],
                     const SizedBox(height: 20),
                     Row(
                       children: [
@@ -236,13 +340,13 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
                             children: [
                               _buildSectionTitle(t('unit', currentLang)),
                               const SizedBox(height: 8),
-                              _buildDropdownField(
+                              AppDropdownField<String>(
                                 value: _unit,
                                 items: _units,
+                                itemLabelBuilder: (item) => item,
+                                sheetTitle: t('unit', currentLang),
                                 onChanged: (value) {
-                                  if (value != null) {
-                                    setState(() => _unit = value);
-                                  }
+                                  if (value != null) setState(() => _unit = value);
                                 },
                               ),
                             ],
@@ -256,6 +360,12 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
                     _buildTextField(
                       controller: _quantityController,
                       hint: t('enter_quantity', currentLang),
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      validator: (v) {
+                        final n = double.tryParse((v ?? '').trim());
+                        if (n == null || n <= 0) return t('quantity_must_be_positive', currentLang);
+                        return null;
+                      },
                     ),
                     const SizedBox(height: 40),
                   ],
@@ -276,37 +386,12 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
               ],
             ),
             child: SafeArea(
-              child: SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _isLoading ? null : _saveProduct,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.green,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: _isLoading
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 2,
-                          ),
-                        )
-                      : Text(
-                          _isEditing
-                              ? t('update_product', currentLang)
-                              : t('add_product', currentLang),
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                ),
+              child: AgriStadiumButton(
+                label: _isEditing
+                    ? t('update_product', currentLang)
+                    : t('add_product', currentLang),
+                onPressed: _saveProduct,
+                isLoading: _isLoading,
               ),
             ),
           ),
@@ -316,174 +401,240 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
   }
 
   Widget _buildImagePicker(AppLanguage lang) {
-    final hasImage = _selectedImage != null ||
-        (_existingImageUrl != null && isNetworkUrl(_existingImageUrl));
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionTitle(t('product_image', lang)),
+        Row(
+          children: [
+            _buildSectionTitle(t('product_image', lang)),
+            const SizedBox(width: 4),
+            const Text('*', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+          ],
+        ),
         const SizedBox(height: 8),
-        GestureDetector(
-          onTap: _showImageSourcePicker,
-          child: Container(
-            height: 180,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.grey[300]!),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              for (int i = 0; i < _existingImageUrls.length; i++)
+                _buildExistingImageSlot(_existingImageUrls[i], i),
+              for (int i = 0; i < _newImages.length; i++)
+                _buildNewImageSlot(_newImages[i], i),
+              if (_totalImageCount < 5) _buildAddSlot(lang),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(top: 8),
+          child: Text(
+            _totalImageCount == 0 
+              ? t('at_least_one_image_required', lang)
+              : '$_totalImageCount / 5 ${t('photos', lang).toLowerCase()}',
+            style: TextStyle(
+              fontSize: 12, 
+              color: _totalImageCount == 0 ? Colors.red : Colors.grey[500],
+              fontWeight: _totalImageCount == 0 ? FontWeight.w500 : FontWeight.normal,
             ),
-            child: hasImage
-                ? ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        if (_selectedImage != null)
-                          Image.file(_selectedImage!, fit: BoxFit.cover)
-                        else
-                          Image.network(
-                            _existingImageUrl!,
-                            fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) =>
-                                _buildImagePlaceholder(lang),
-                          ),
-                        Positioned(
-                          top: 8,
-                          right: 8,
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              _buildImageActionButton(
-                                icon: Icons.edit,
-                                onTap: _showImageSourcePicker,
-                              ),
-                              const SizedBox(width: 8),
-                              _buildImageActionButton(
-                                icon: Icons.close,
-                                onTap: () => setState(() {
-                                  _selectedImage = null;
-                                  _existingImageUrl = null;
-                                }),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
-                : _buildImagePlaceholder(lang),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildImagePlaceholder(AppLanguage lang) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(Icons.add_a_photo, size: 40, color: Colors.grey[400]),
-        const SizedBox(height: 8),
-        Text(
-          t('tap_to_add_image', lang),
-          style: TextStyle(fontSize: 14, color: Colors.grey[500]),
-        ),
-      ],
+  Widget _buildExistingImageSlot(String url, int index) {
+    return _imageSlot(
+      child: AppNetworkImage(
+        url: url,
+        errorWidget: Icon(Icons.broken_image_outlined, color: Colors.grey[400]),
+      ),
+      onRemove: () => setState(() => _existingImageUrls.removeAt(index)),
     );
   }
 
-  Widget _buildImageActionButton({
-    required IconData icon,
-    required VoidCallback onTap,
-  }) {
+  Widget _buildNewImageSlot(File file, int index) {
+    return _imageSlot(
+      child: Image.file(file, fit: BoxFit.cover),
+      onRemove: () => setState(() => _newImages.removeAt(index)),
+    );
+  }
+
+  Widget _imageSlot({required Widget child, required VoidCallback onRemove}) {
+    return Container(
+      width: 88,
+      height: 88,
+      margin: const EdgeInsets.only(right: 10),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        color: Colors.grey[100],
+      ),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: child,
+          ),
+          Positioned(
+            top: 4,
+            right: 4,
+            child: GestureDetector(
+              onTap: onRemove,
+              child: Container(
+                width: 22,
+                height: 22,
+                decoration: const BoxDecoration(
+                  color: Colors.black54,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.close, size: 14, color: Colors.white),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAddSlot(AppLanguage lang) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: _showImageSourcePicker,
       child: Container(
-        padding: const EdgeInsets.all(6),
+        width: 88,
+        height: 88,
         decoration: BoxDecoration(
-          color: Colors.black.withAlpha(120),
-          shape: BoxShape.circle,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: Colors.grey[300]!, width: 1.5),
+          color: Colors.grey[50],
         ),
-        child: Icon(icon, size: 18, color: Colors.white),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.add_a_photo_outlined, size: 28, color: Colors.grey[400]),
+            const SizedBox(height: 4),
+            Text(
+              t('add_image_slot', lang),
+              style: TextStyle(fontSize: 10, color: Colors.grey[500]),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   void _showImageSourcePicker() {
+    final lang = ref.read(languageProvider);
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
-      builder: (context) {
-        final lang = ref.read(languageProvider);
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ListTile(
-                  leading: const Icon(Icons.camera_alt, color: AppColors.green),
-                  title: Text(t('take_photo', lang)),
-                  onTap: () {
-                    Navigator.pop(context);
-                    _pickImage(ImageSource.camera);
-                  },
-                ),
-                ListTile(
-                  leading: const Icon(Icons.photo_library, color: AppColors.green),
-                  title: Text(t('choose_from_gallery', lang)),
-                  onTap: () {
-                    Navigator.pop(context);
-                    _pickImage(ImageSource.gallery);
-                  },
-                ),
-              ],
+      builder: (_) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.camera_alt_outlined),
+              title: Text(t('take_photo', lang)),
+              onTap: () {
+                Navigator.pop(context);
+                _pickSingleImage(ImageSource.camera);
+              },
             ),
-          ),
-        );
-      },
+            ListTile(
+              leading: const Icon(Icons.photo_library_outlined),
+              title: Text(t('choose_from_gallery', lang)),
+              onTap: () {
+                Navigator.pop(context);
+                _pickMultipleImages();
+              },
+            ),
+          ],
+        ),
+      ),
     );
   }
 
-  Future<void> _pickImage(ImageSource source) async {
+  Future<void> _pickSingleImage(ImageSource source) async {
+    final lang = ref.read(languageProvider);
     try {
-      final picked = await _imagePicker.pickImage(
-        source: source,
-        maxWidth: 1200,
-        maxHeight: 1200,
-      );
-      if (picked != null) {
-        final file = File(picked.path);
-        final isValid = await ImageUtils.validateImage(file);
-        if (!isValid && mounted) {
-          final lang = ref.read(languageProvider);
+      final picked = await _imagePicker.pickImage(source: source);
+      if (picked == null) return;
+      final result = await ImageUtils.prepare(File(picked.path), preset: ImagePreset.product);
+      if (!result.ok) {
+        if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(t('image_too_large', lang)),
-              backgroundColor: Colors.red,
-            ),
+            SnackBar(content: Text(t(result.errorKey!, lang)), backgroundColor: Colors.red),
           );
-          return;
         }
-        setState(() {
-          _selectedImage = file;
-          _existingImageUrl = null;
-        });
+        return;
       }
-    } catch (e) {
-      if (mounted) {
+      if (mounted) setState(() => _newImages.add(result.file!));
+    } catch (_) {
+      // silently ignore picker cancellation
+    }
+  }
+
+  Future<void> _pickMultipleImages() async {
+    final lang = ref.read(languageProvider);
+    try {
+      final remaining = 5 - _totalImageCount;
+      if (remaining <= 0) return;
+      final picked = await _imagePicker.pickMultiImage();
+      if (picked.isEmpty) return;
+      final limited = picked.take(remaining).toList();
+      int failed = 0;
+      for (final xFile in limited) {
+        final result = await ImageUtils.prepare(File(xFile.path), preset: ImagePreset.product);
+        if (!result.ok) {
+          failed++;
+          continue;
+        }
+        if (mounted) setState(() => _newImages.add(result.file!));
+      }
+      if (failed > 0 && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error picking image: $e'),
-            backgroundColor: Colors.red,
-          ),
+          SnackBar(content: Text('${t('some_images_skipped', lang)} ($failed)'), backgroundColor: Colors.orange),
         );
       }
+    } catch (_) {
+      // silently ignore picker cancellation
     }
+  }
+
+  Widget _buildTypeChip(ListingType type, String label, IconData icon) {
+    final selected = _listingType == type;
+    return GestureDetector(
+      onTap: () => setState(() => _listingType = type),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(
+            color: selected ? AppColors.green : Colors.grey[300]!,
+            width: selected ? 2 : 1,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 16,
+              color: selected ? AppColors.green : Colors.grey[500],
+            ),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 14,
+                color: selected ? AppColors.green : Colors.grey[600],
+                fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildSectionTitle(String title) {
@@ -539,37 +690,18 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
     );
   }
 
-  Widget _buildDropdownField({
-    required String value,
-    required List<String> items,
-    required void Function(String?) onChanged,
-  }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey[300]!),
-      ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-          value: value,
-          isExpanded: true,
-          icon: const Icon(Icons.keyboard_arrow_down),
-          items: items.map((item) {
-            return DropdownMenuItem(
-              value: item,
-              child: Text(item),
-            );
-          }).toList(),
-          onChanged: onChanged,
-        ),
-      ),
-    );
-  }
-
   Future<void> _saveProduct() async {
     if (!_formKey.currentState!.validate()) return;
+
+    if (_totalImageCount == 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(t('at_least_one_image_required', ref.read(languageProvider))),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
 
     setState(() => _isLoading = true);
 
@@ -583,34 +715,42 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
 
       final price = double.tryParse(_priceController.text);
 
-      // Upload image if a new one was selected
-      String? imageUrl = _existingImageUrl;
-      if (_selectedImage != null) {
-        final compressed =
-            await ImageUtils.compressProductImage(_selectedImage!);
-        final storageService = ref.read(firebaseStorageServiceProvider);
-        imageUrl = await storageService.uploadMarketplaceImage(
+      // Upload any new images
+      final storageService = ref.read(firebaseStorageServiceProvider);
+      final allImageUrls = List<String>.from(_existingImageUrls);
+      for (int i = 0; i < _newImages.length; i++) {
+        final compressed = await ImageUtils.compressProductImage(_newImages[i]);
+        final url = await storageService.uploadMarketplaceImage(
           compressed,
           user.uid,
-          listingId: widget.existingProduct?.id,
+          index: allImageUrls.length + i,
         );
+        allImageUrls.add(url);
       }
+
+      final effectiveCategory = _category == 'Other'
+          ? _otherCategoryController.text.trim().isNotEmpty
+              ? _otherCategoryController.text.trim()
+              : 'Other'
+          : _category;
 
       final listing = MarketplaceListing(
         id: widget.existingProduct?.id ?? '',
         title: _titleController.text.trim(),
         description: _descriptionController.text.trim(),
-        type: ListingType.supplies,
-        category: _category,
+        type: _listingType,
+        category: effectiveCategory,
         price: price,
         unit: _unit,
         quantity: _quantityController.text.trim(),
-        sellerName: profile.businessName.isNotEmpty ? profile.businessName : 'Unknown',
+        sellerName: _resolveSellerName(profile, user),
         sellerId: user.uid,
         location: profile.location.isNotEmpty ? profile.location : 'Botswana',
         sellerEmail: user.email,
+        sellerPhone: _phoneController.text.trim(),
         inventoryId: widget.sourceInventory?.id,
-        imagePath: imageUrl,
+        imagePath: allImageUrls.isNotEmpty ? allImageUrls.first : null,
+        additionalImages: allImageUrls.length > 1 ? allImageUrls.sublist(1) : null,
       );
 
       String? error;
@@ -641,7 +781,8 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
           Navigator.pop(context, true);
         }
       }
-    } catch (e) {
+    } catch (e, st) {
+      debugPrint('Marketplace upload error: $e\n$st');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),

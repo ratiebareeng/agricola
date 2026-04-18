@@ -11,7 +11,6 @@ import 'package:agricola/features/orders/models/order_model.dart';
 import 'package:agricola/features/auth/providers/auth_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// Provides the OrdersApiService with auto-wired Dio client
 final ordersApiServiceProvider = Provider<OrdersApiService>((ref) {
   return OrdersApiService(ref.watch(httpClientProvider));
 });
@@ -20,20 +19,36 @@ final ordersLocalDaoProvider = Provider<OrdersLocalDao>((ref) {
   return OrdersLocalDao(ref.watch(databaseProvider));
 });
 
-/// Provides the OrdersNotifier for managing order state
-final ordersNotifierProvider =
+/// Seller view — orders where I am the seller (AgriShop / merchant).
+final sellerOrdersProvider =
     StateNotifierProvider<OrdersNotifier, AsyncValue<List<OrderModel>>>((ref) {
-  // Re-fetch orders when user changes
   ref.watch(currentUserProvider);
-  
   return OrdersNotifier(
     service: ref.watch(ordersApiServiceProvider),
     localDao: ref.watch(ordersLocalDaoProvider),
     isOnline: () => ref.read(isOnlineProvider),
     offlineEnabled: () => ref.read(offlineModeEnabledProvider),
     analytics: ref.watch(analyticsServiceProvider),
+    role: 'seller',
   );
 });
+
+/// Buyer view — orders I have placed as a buyer.
+final buyerOrdersProvider =
+    StateNotifierProvider<OrdersNotifier, AsyncValue<List<OrderModel>>>((ref) {
+  ref.watch(currentUserProvider);
+  return OrdersNotifier(
+    service: ref.watch(ordersApiServiceProvider),
+    localDao: ref.watch(ordersLocalDaoProvider),
+    isOnline: () => ref.read(isOnlineProvider),
+    offlineEnabled: () => ref.read(offlineModeEnabledProvider),
+    analytics: ref.watch(analyticsServiceProvider),
+    role: 'buyer',
+  );
+});
+
+/// Legacy alias — used by AgriShopOrdersScreen (seller role).
+final ordersNotifierProvider = sellerOrdersProvider;
 
 class OrdersNotifier extends StateNotifier<AsyncValue<List<OrderModel>>> {
   final OrdersApiService _service;
@@ -41,6 +56,7 @@ class OrdersNotifier extends StateNotifier<AsyncValue<List<OrderModel>>> {
   final bool Function() _isOnline;
   final bool Function() _offlineEnabled;
   final AnalyticsService _analytics;
+  final String _role;
 
   OrdersNotifier({
     required OrdersApiService service,
@@ -48,17 +64,18 @@ class OrdersNotifier extends StateNotifier<AsyncValue<List<OrderModel>>> {
     required bool Function() isOnline,
     required bool Function() offlineEnabled,
     required AnalyticsService analytics,
+    required String role,
   })  : _service = service,
         _localDao = localDao,
         _isOnline = isOnline,
         _offlineEnabled = offlineEnabled,
         _analytics = analytics,
+        _role = role,
         super(const AsyncValue.loading()) {
     loadOrders();
   }
 
-  /// Fetch orders from backend (or local cache when offline). Read-only offline.
-  Future<void> loadOrders({String? role = 'seller'}) async {
+  Future<void> loadOrders() async {
     state = const AsyncValue.loading();
     try {
       if (_offlineEnabled() && !_isOnline()) {
@@ -67,7 +84,7 @@ class OrdersNotifier extends StateNotifier<AsyncValue<List<OrderModel>>> {
         return;
       }
 
-      final orders = await _service.getUserOrders(role: role);
+      final orders = await _service.getUserOrders(role: _role);
       if (_offlineEnabled()) await _localDao.cacheAll(orders);
       state = AsyncValue.data(orders);
     } catch (e, st) {
@@ -82,7 +99,27 @@ class OrdersNotifier extends StateNotifier<AsyncValue<List<OrderModel>>> {
     }
   }
 
-  /// Update order status. Returns null on success, error message on failure.
+  /// Create a new order (buyer). Returns null on success, error key on failure.
+  Future<String?> createOrder({
+    required String sellerId,
+    required double totalAmount,
+    required List<OrderItem> items,
+  }) async {
+    try {
+      final created = await _service.createOrder(
+        sellerId: sellerId,
+        totalAmount: totalAmount,
+        items: items,
+      );
+      final current = state.value ?? [];
+      state = AsyncValue.data([created, ...current]);
+      _analytics.logOrderCreated();
+      return null;
+    } catch (e) {
+      return errorKeyFromException(e);
+    }
+  }
+
   Future<String?> updateOrderStatus(String id, String status) async {
     try {
       final updated = await _service.updateOrderStatus(id, status);
@@ -97,7 +134,6 @@ class OrdersNotifier extends StateNotifier<AsyncValue<List<OrderModel>>> {
     }
   }
 
-  /// Cancel an order. Returns null on success, error message on failure.
   Future<String?> cancelOrder(String id) async {
     try {
       await _service.cancelOrder(id);

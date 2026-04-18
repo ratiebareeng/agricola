@@ -2,17 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppColors {
-  // Primary
-  static const Color green = Color(0xFF2D8659);
-  static const Color earthBrown = Color(0xFF8B6F47);
-  static const Color skyBlue = Color(0xFF4A90E2);
+  // Brand - Digital Earth
+  static const Color deepEmerald = Color(0xFF081C15);
+  static const Color forestGreen = Color(0xFF1B4332);
+  static const Color bone = Color(0xFFFDFCF9);
+  static const Color earthYellow = Color(0xFFD4A373);
 
-  // Secondary
-  static const Color warmYellow = Color(0xFFF5A623);
+  // Legacy/UI Support - Aliases for compatibility
+  static const Color green = forestGreen;
+  static const Color earthBrown = earthYellow;
+  static const Color skyBlue = forestGreen; // Or a specific blue if needed
+  static const Color successGreen = forestGreen;
   static const Color alertRed = Color(0xFFE74C3C);
-  static const Color successGreen = Color(0xFF2D8659);
-
-  // Neutrals
+  static const Color warmYellow = Color(0xFFF5A623);
   static const Color darkGray = Color(0xFF2C3E50);
   static const Color mediumGray = Color(0xFF95A5A6);
   static const Color lightGray = Color(0xFFECF0F1);
@@ -23,46 +25,49 @@ class AppTheme {
   static ThemeData get darkTheme {
     return ThemeData(
       useMaterial3: true,
-      primaryColor: AppColors.green,
-      scaffoldBackgroundColor: AppColors.darkGray,
+      primaryColor: AppColors.forestGreen,
+      scaffoldBackgroundColor: AppColors.deepEmerald,
       colorScheme: ColorScheme.fromSeed(
-        seedColor: AppColors.green,
-        primary: AppColors.green,
-        secondary: AppColors.earthBrown,
+        seedColor: AppColors.forestGreen,
+        primary: AppColors.forestGreen,
+        secondary: AppColors.earthYellow,
         error: AppColors.alertRed,
-        surface: AppColors.darkGray,
+        surface: AppColors.deepEmerald,
+        brightness: Brightness.dark,
       ),
-      textTheme: GoogleFonts.openSansTextTheme().copyWith(
-        displayLarge: GoogleFonts.openSans(
-          fontSize: 28,
-          fontWeight: FontWeight.w600,
-          color: AppColors.white,
+      textTheme: GoogleFonts.plusJakartaSansTextTheme().copyWith(
+        displayLarge: GoogleFonts.plusJakartaSans(
+          fontSize: 48,
+          fontWeight: FontWeight.w800,
+          color: AppColors.bone,
+          letterSpacing: -1,
         ),
-        displayMedium: GoogleFonts.openSans(
+        displayMedium: GoogleFonts.plusJakartaSans(
+          fontSize: 32,
+          fontWeight: FontWeight.w800,
+          color: AppColors.bone,
+          letterSpacing: -0.5,
+        ),
+        displaySmall: GoogleFonts.plusJakartaSans(
           fontSize: 24,
-          fontWeight: FontWeight.w600,
-          color: AppColors.white,
+          fontWeight: FontWeight.w700,
+          color: AppColors.bone,
         ),
-        displaySmall: GoogleFonts.openSans(
+        headlineMedium: GoogleFonts.plusJakartaSans(
           fontSize: 20,
-          fontWeight: FontWeight.w600,
-          color: AppColors.white,
+          fontWeight: FontWeight.w700,
+          color: AppColors.bone,
         ),
-        headlineMedium: GoogleFonts.openSans(
+        bodyLarge: GoogleFonts.plusJakartaSans(
           fontSize: 18,
-          fontWeight: FontWeight.w600,
-          color: AppColors.white,
-        ),
-        bodyLarge: GoogleFonts.openSans(
-          fontSize: 18,
-          fontWeight: FontWeight.w400,
-          color: AppColors.white,
+          fontWeight: FontWeight.w500,
+          color: AppColors.bone,
           height: 1.5,
         ),
-        bodyMedium: GoogleFonts.openSans(
+        bodyMedium: GoogleFonts.plusJakartaSans(
           fontSize: 16,
-          fontWeight: FontWeight.w400,
-          color: AppColors.white,
+          fontWeight: FontWeight.w500,
+          color: AppColors.bone.withValues(alpha: 0.7),
           height: 1.5,
         ),
       ),
@@ -72,74 +77,74 @@ class AppTheme {
   static ThemeData get lightTheme {
     return ThemeData(
       useMaterial3: true,
-      primaryColor: AppColors.green,
-      scaffoldBackgroundColor: AppColors.white,
+      primaryColor: AppColors.forestGreen,
+      scaffoldBackgroundColor: AppColors.bone,
       colorScheme: ColorScheme.fromSeed(
-        seedColor: AppColors.green,
-        primary: AppColors.green,
-        secondary: AppColors.earthBrown,
+        seedColor: AppColors.forestGreen,
+        primary: AppColors.forestGreen,
+        secondary: AppColors.deepEmerald,
         error: AppColors.alertRed,
         surface: AppColors.white,
+        brightness: Brightness.light,
       ),
-      textTheme: GoogleFonts.openSansTextTheme().copyWith(
-        displayLarge: GoogleFonts.openSans(
-          fontSize: 28,
-          fontWeight: FontWeight.w600,
-          color: AppColors.darkGray,
+      textTheme: GoogleFonts.plusJakartaSansTextTheme().copyWith(
+        displayLarge: GoogleFonts.plusJakartaSans(
+          fontSize: 48,
+          fontWeight: FontWeight.w800,
+          color: AppColors.deepEmerald,
+          letterSpacing: -1,
         ),
-        displayMedium: GoogleFonts.openSans(
+        displayMedium: GoogleFonts.plusJakartaSans(
+          fontSize: 32,
+          fontWeight: FontWeight.w800,
+          color: AppColors.deepEmerald,
+          letterSpacing: -0.5,
+        ),
+        displaySmall: GoogleFonts.plusJakartaSans(
           fontSize: 24,
-          fontWeight: FontWeight.w600,
-          color: AppColors.darkGray,
+          fontWeight: FontWeight.w700,
+          color: AppColors.deepEmerald,
         ),
-        displaySmall: GoogleFonts.openSans(
+        headlineMedium: GoogleFonts.plusJakartaSans(
           fontSize: 20,
-          fontWeight: FontWeight.w600,
-          color: AppColors.darkGray,
+          fontWeight: FontWeight.w700,
+          color: AppColors.deepEmerald,
         ),
-        headlineMedium: GoogleFonts.openSans(
+        bodyLarge: GoogleFonts.plusJakartaSans(
           fontSize: 18,
-          fontWeight: FontWeight.w600,
-          color: AppColors.darkGray,
-        ),
-        bodyLarge: GoogleFonts.openSans(
-          fontSize: 18,
-          fontWeight: FontWeight.w400,
-          color: AppColors.darkGray,
+          fontWeight: FontWeight.w500,
+          color: AppColors.deepEmerald,
           height: 1.5,
         ),
-        bodyMedium: GoogleFonts.openSans(
+        bodyMedium: GoogleFonts.plusJakartaSans(
           fontSize: 16,
-          fontWeight: FontWeight.w400,
-          color: AppColors.darkGray,
+          fontWeight: FontWeight.w500,
+          color: AppColors.deepEmerald.withValues(alpha: 0.7),
           height: 1.5,
         ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.green,
+          backgroundColor: AppColors.forestGreen,
           foregroundColor: AppColors.white,
-          minimumSize: const Size(double.infinity, 56),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          textStyle: GoogleFonts.openSans(
+          minimumSize: const Size(double.infinity, 64),
+          shape: const StadiumBorder(),
+          elevation: 0,
+          textStyle: GoogleFonts.plusJakartaSans(
             fontSize: 18,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w700,
           ),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.green,
-          side: const BorderSide(color: AppColors.green, width: 2),
-          minimumSize: const Size(double.infinity, 56),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          textStyle: GoogleFonts.openSans(
+          foregroundColor: AppColors.forestGreen,
+          side: const BorderSide(color: AppColors.forestGreen, width: 2),
+          minimumSize: const Size(double.infinity, 64),
+          shape: const StadiumBorder(),
+          textStyle: GoogleFonts.plusJakartaSans(
             fontSize: 18,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w700,
           ),
         ),
       ),

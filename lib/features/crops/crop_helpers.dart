@@ -54,12 +54,10 @@ String cropDisplayName(
       .join(' ');
 }
 
-/// Fallback image URL when no crop-specific image is available.
-const _fallbackImageUrl =
-    'https://images.unsplash.com/photo-1551754655-cd27e38d2076?q=80&w=2070&auto=format&fit=crop';
-
-/// Look up a crop image from the server-provided [imageMap].
-/// Falls back to a generic maize image if the crop has no entry.
+/// Look up a crop image URL from the server-provided [imageMap].
+/// Returns an empty string when no image is available — consumers should
+/// render an icon placeholder in that case. The previous maize fallback was
+/// removed because it caused mismatched images (e.g. "Rape" showing corn).
 String imageUrlForCrop(String cropType, Map<String, String> imageMap) {
-  return imageMap[cropType.toLowerCase()] ?? _fallbackImageUrl;
+  return imageMap[cropType.toLowerCase()] ?? '';
 }

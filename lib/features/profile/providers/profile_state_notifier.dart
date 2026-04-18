@@ -101,7 +101,7 @@ class ProfileStateNotifier extends StateNotifier<ProfileState> {
     state = const ProfileState();
   }
 
-  Future<bool> createFarmerProfile({
+  Future<String?> createFarmerProfile({
     required FarmerProfileModel profile,
   }) async {
     state = state.setLoading(true);
@@ -109,7 +109,7 @@ class ProfileStateNotifier extends StateNotifier<ProfileState> {
     final currentUser = _ref.read(currentUserProvider);
     if (currentUser == null) {
       state = const ProfileState(errorMessage: 'User not authenticated');
-      return false;
+      return 'error_auth_required';
     }
 
     final result = await _repository.createFarmerProfile(profile: profile);
@@ -117,7 +117,7 @@ class ProfileStateNotifier extends StateNotifier<ProfileState> {
     return result.fold(
       (failure) {
         state = ProfileState(errorMessage: failure.message);
-        return false;
+        return failure.message;
       },
       (createdProfile) async {
         final displayableProfile = CompleteFarmerProfile.fromModels(
@@ -135,12 +135,12 @@ class ProfileStateNotifier extends StateNotifier<ProfileState> {
         _ref.invalidate(authStateProvider);
         // Wait a moment for the stream to update
         await Future.delayed(const Duration(milliseconds: 500));
-        return true;
+        return null;
       },
     );
   }
 
-  Future<bool> createMerchantProfile({
+  Future<String?> createMerchantProfile({
     required MerchantProfileModel profile,
   }) async {
     state = state.setLoading(true);
@@ -148,7 +148,7 @@ class ProfileStateNotifier extends StateNotifier<ProfileState> {
     final currentUser = _ref.read(currentUserProvider);
     if (currentUser == null) {
       state = const ProfileState(errorMessage: 'User not authenticated');
-      return false;
+      return 'error_auth_required';
     }
 
     final result = await _repository.createMerchantProfile(profile: profile);
@@ -156,7 +156,7 @@ class ProfileStateNotifier extends StateNotifier<ProfileState> {
     return result.fold(
       (failure) {
         state = ProfileState(errorMessage: failure.message);
-        return false;
+        return failure.message;
       },
       (createdProfile) async {
         final displayableProfile = CompleteMerchantProfile.fromModels(
@@ -174,7 +174,7 @@ class ProfileStateNotifier extends StateNotifier<ProfileState> {
         _ref.invalidate(authStateProvider);
         // Wait a moment for the stream to update
         await Future.delayed(const Duration(milliseconds: 500));
-        return true;
+        return null;
       },
     );
   }

@@ -70,6 +70,33 @@ class FirebaseStorageService {
     return await snapshot.ref.getDownloadURL();
   }
 
+  /// Upload an inventory item image.
+  /// Returns the download URL.
+  Future<String> uploadInventoryImage(
+    File file,
+    String userId, {
+    String? itemId,
+    int index = 0,
+  }) async {
+    final folder = itemId ?? DateTime.now().millisecondsSinceEpoch.toString();
+    final fileName = 'image_$index${path.extension(file.path)}';
+    final ref = _storage.ref().child('inventory/$userId/$folder/$fileName');
+
+    final uploadTask = ref.putFile(
+      file,
+      SettableMetadata(
+        contentType: _getContentType(file.path),
+        customMetadata: {
+          'uploadedBy': userId,
+          'uploadedAt': DateTime.now().toIso8601String(),
+        },
+      ),
+    );
+
+    final snapshot = await uploadTask;
+    return await snapshot.ref.getDownloadURL();
+  }
+
   String _getContentType(String filePath) {
     final ext = path.extension(filePath).toLowerCase();
     switch (ext) {

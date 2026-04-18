@@ -1,3 +1,205 @@
+## 1.4.1 - 2026-04-18
+
+### Fixed
+- **Order status confirmation** — Seller status changes (Confirm / Ship / Delivered) now require a confirmation dialog before proceeding, preventing accidental irreversible status updates. Matches the existing pattern used for buyer order cancellation.
+
+## 1.4.0 - 2026-04-18
+
+### Changed
+- **Crop Availability — open to all stakeholders** — Farmers, merchants, and AgriShops all now access the Crop Availability screen from the marketplace AppBar grass icon. Previously farmers were gated out. The feature is for market transparency: merchants plan preorders, farmers assess saturation before planting.
+
+### Added
+- **Crop Availability — In 8 Weeks tab** — Forecast window extended 6 → 8 weeks; screen now has 5 tabs (Available Now / In 2 / 4 / 6 / 8 weeks).
+- **Market Saturation banner** — Each upcoming tab shows a horizontally scrollable row of per-crop aggregate cards: total expected kg + farmer count + colour-coded supply level (red = saturated, amber = healthy, green = low). Thresholds are cautious flat defaults in `lib/features/marketplace/models/saturation_thresholds.dart`; prod-data calibration plan is in `tasks/todo.md`.
+- **`SupplyAggregate` model** — `crop_availability_model.dart` now exposes `summary`, `in8Weeks` and `summaryForWindow(window)`. New `SaturationLevel` enum.
+- **i18n** — `in_8_weeks`, `market_saturation`, `saturated_supply`, `moderate_supply`, `low_supply`, `farmers_count` (EN + TSN).
+
+### Fixed
+- **"Available Now" was returning stale listings** — backend query now filters `marketplace_listings.created_at >= NOW() - 60 days` (was unfiltered by age). Listings older than 60 days no longer appear as available.
+
+## 1.3.1 - 2026-04-18
+
+### Fixed
+- **Phone number in edit profile** — Both farmer and merchant edit profile screens now include an editable phone number field. Phone is stored in the profile backend (new `phone_number` column via migration 018).
+- **Farm size preselection** — Standardised farm size options to `< 1 Hectare / 1-5 Hectares / 5-10 Hectares / 10+ Hectares / Other` across both profile setup and edit farmer screens. Previously the edit screen used mismatched labels so the saved value was never pre-selected.
+- **Farm size widget** — Replaced `AppRadioGroup` with card-based selector in `EditFarmerProfileScreen` to match the profile setup step and the merchant edit screen.
+- **"Other" option in all dropdowns** — Added `Other` to yield units, storage methods (crops), inventory units, storage locations, and purchase units. Selecting `Other` reveals a text field for the custom value, which is saved in place of the generic option.
+
+## 1.3.0 - 2026-04-18
+
+### Added
+- **Crop Availability screen** — Merchants and AgriShops can browse farmers' current marketplace listings and upcoming harvests by time window (Available Now, In 2 Weeks, In 4 Weeks, In 6 Weeks). Accessible via the grass icon in the marketplace AppBar (merchants only).
+- **Inventory unit price** — Inventory add/edit form now includes an optional "Unit Price (P)" field. The inventory card shows `· P{total}` beside quantity when a price is set. Total value in the header card now uses actual unit prices instead of a hardcoded estimate.
+- **Merchant feature showcase** — Profile setup complete screen now shows user-type-specific feature highlights: farmers see crops/inventory/marketplace, AgriShops see source-from-farmers/orders/inventory, other merchants see list-products/orders/analytics.
+
+### Fixed
+- **Order detail bottom sheet invisible** — The sheet now has a white background and rounded top corners (was transparent, making content unreadable on dark backgrounds).
+- **"Kilograms" → "kg"** — Unit label translated to abbreviated "kg" instead of full "Kilograms" throughout the inventory list.
+
+## 1.2.1 - 2026-04-17
+
+### Fixed
+- **Heading font sizes** — Standardised all body-level screen headings (My Crops, Inventory View, Store/Produce Inventory) to `displaySmall` (24 px) for visual consistency with the marketplace AppBar title.
+- **Call / email buttons** — Added `LSApplicationQueriesSchemes` (iOS) and `<queries>` intents (Android) for `tel` and `mailto` so the phone and email buttons now reliably open native apps. Error snackbar shown if launch fails. Phone number whitespace stripped before dialling.
+- **Phone icon centering** — Replaced empty-label `AgriStadiumButton` with new `AgriIconButton` widget in the marketplace detail bottom bar so the phone icon is correctly centred in its circular outline button.
+- **Image upload — compress before reject** — Images are now compressed first, then size-checked, so large raw photos (e.g. 12 MB DSLR shots) upload successfully after compression. Invalid format shows a specific error; multi-image picker shows a count of skipped files instead of failing silently.
+- **Seller shown as "Unknown"** — Marketplace listings created by farmers (who have no `businessName`) now show the email prefix as the seller name instead of "Unknown". Merchants still use `businessName`.
+- **Stale inventory "Listed" state** — After deleting or unlisting a marketplace listing, `myListingsNotifierProvider` and `inventoryNotifierProvider` are now invalidated centrally in `MarketplaceNotifier`, so the inventory screen immediately reflects the unlisted state.
+- **Marketplace delete → Unlist** — When a listing is linked to an inventory item (`inventoryId != null`), the owner action icon and confirmation dialog now say "Unlist" instead of "Delete" to match the expected behaviour.
+- **Quantity validation** — Marketplace listing form now defaults quantity to `1` and rejects zero/empty values with a validation error. Sold-out listings (quantity ≤ 0) show a `SOLD OUT` badge, the available metric turns red, and the "Request to Buy" button is disabled (contact seller remains active).
+- **Image loading speed** — Added `AgricolaCacheManager` (30-day stale period, 500-object limit) as the shared cache manager for all `AppNetworkImage` widgets. Images now fade in instantly when served from cache. Marketplace and inventory list screens precache up to 20 image URLs after the initial data load.
+
+### Added
+- **`AgriIconButton`** widget — circular icon-only outlined button for use when no label is needed.
+- **`AgricolaCacheManager`** — shared network image cache manager (`lib/core/widgets/app_image_cache.dart`).
+- **i18n keys** — `image_invalid_format`, `image_too_large_even_compressed`, `some_images_skipped`, `could_not_open_phone_app`, `could_not_open_email_app`, `sold_out`.
+
+### Changed
+- **Splash screen** — Background is now solid `deepEmerald` green with bone-coloured title text and an earth-yellow loading indicator.
+
+## 1.2.0 - 2026-04-17
+
+### Fixed
+- **Merchant tab routing bug** — Non-AgriShop merchant dashboard INVENTORY and ORDERS quick-action buttons were navigating to the wrong tabs (Marketplace and Inventory respectively) because `profileSetupProvider` defaulted to AgriShop when unloaded. Removed the dead `isAgriShop` branch from `MerchantDashboardScreen`; INVENTORY now correctly goes to the Produce tab, ORDERS navigates to the Orders screen, and "View all orders" in Recent Activity no longer miswires to the Inventory tab.
+- **Loss calculator — unnecessary decimals** — Summary values like `20.0%` and `3.0 Kilograms` now display as `20%` and `3 Kilograms` when the value is a whole number. Added `AgriKit.formatPercent()` helper and applied it across the results card and running-total row.
+- **Orders — tap card to view details** — Order cards are now tappable for both buyers and sellers, opening the full details sheet. After placing an order via the marketplace, a "View Orders" snackbar action lets users jump directly to their order list without losing context.
+
+### Added
+- **Loss calculator — "Other" option** — Unit dropdown (kg / bags / tons) and storage method dropdown now include an "Other" option. Selecting it reveals a mandatory free-text field that flows through to all stage inputs and the results summary.
+- **Loss calculator — per-stage monetary impact** — Each stage row in the results breakdown now shows the monetary value lost (e.g. `- P7.95`) alongside the quantity and percentage.
+
+### Changed
+- **Inventory tab — Digital Earth redesign** — Replaced the legacy tinted green/yellow summary cards ("AI-tell" pattern) with a single dark `AgriFocusCard` hero displaying Total Value and Items Needing Attention metrics. Title uses `displayMedium` with an uppercase letter-spaced subtitle. Background updated to `AppColors.bone` for consistency with other Digital Earth screens.
+
+## 1.1.4 - 2026-04-17
+
+### Fixed
+- **Help & Support dialog** — Email address no longer overflows the card edge on narrow screens (wrapped in `Flexible`).
+- **Destructive dialog UX** — Flipped button order for dangerous actions: the safe "Cancel" is now the prominent stadium button, and the destructive action is a subtle red text link. Affects Delete Account, Logout, Cancel Order, Unlist, and Delete Listing dialogs.
+- **Edit Business Profile pre-selection** — Replaced invisible Material 3 `Radio` buttons with clear Digital Earth card selector; merchant type is now visually pre-selected on screen open.
+- **Dropdowns — full migration to modal bottom sheet** — Replaced all raw `DropdownButton` / `DropdownButtonFormField` usages (Add Product, Loss Calculator, Record Harvest, Loss Stage Input) with the updated `AppDropdownField` that opens a draggable bottom sheet with a close X and proper dismiss affordance.
+- **Marketplace detail — Available amount** — "AVAILABLE" metric now right-anchors for a clean space-between layout against "PRICE" in the Hero card.
+- **Translation raw keys** — Added 14 missing EN/Setswana keys to `agricola_core` (`my_orders`, `sales`, `my_requests`, `no_purchase_requests`, `purchase_requests_appear_here`, `photos_optional_hint`, `add_image_slot`, `at_least_one_image_required`, `error_upload_failed`, `contact_phone`, `phone_required_for_listing`, `request_to_buy`, `no_orders_yet`, `orders_will_appear_here`). Upgraded `agricola_core` lock to latest `main` — all previously stale keys are now live.
+- **Inventory upload error** — Error snackbar now shows translated message. In debug builds, the underlying exception is appended for faster root-cause diagnosis.
+
+## 1.1.3 - 2026-04-17
+
+### Changed
+- **UI component refactoring** — migrated button components (`AppPrimaryButton`, `AppSecondaryButton`, `AppTextButton`) into unified `AgriKit` library; added `AgriTextButton` for consistent text button styling and `AgriKit.formatQuantity()` utility for quantity formatting
+- **Cleaned up language provider** — removed deprecated and unused translation keys to reduce bundle size
+- **Code organization** — consolidated core UI widgets into `agri_kit.dart` for better maintainability
+
+## 1.1.2 - 2026-04-17
+
+### Fixed
+- **Profile setup error handling** — surface backend validation errors for profile creation flow instead of generic failure messages; improved error message extraction from 400 responses
+
+## 1.1.1 - 2026-04-16
+
+### Added
+- **Direct Seller Contact** — Added prominent **Call** and **Email** action buttons to the Marketplace Detail screen, powered by `url_launcher`.
+- **Integrated url_launcher** — Added dependency to support native phone and email application launching.
+
+### Fixed
+- **Metric Scaling** — Improved `AgriMetricDisplay` with `FittedBox` to prevent UI overflow when displaying long values (e.g., large quantities).
+- **Redesign Completion** — Migrated remaining legacy UI components to the "Digital Earth" ethos, including Settings, Purchase forms, Profile completion, and shared Dialogs.
+- **Button Consistency** — Styled all remaining `TextButton` and `ElevatedButton` instances to follow the bold, high-contrast aesthetic.
+- **SwitchListTile Deprecation** — Replaced deprecated `activeColor` with `activeThumbColor` in Settings.
+
+## 1.1.0 - 2026-04-16
+
+### Added
+- **"Digital Earth" Design Ethos overhaul** — Complete visual redesign of the application using a bold, modern, and clean aesthetic.
+- **Forest & Bone palette** — Replaced generic colors with a premium high-contrast theme featuring Deep Emerald (#081C15) and Forest Green (#1B4332) on a warm Bone (#FDFCF9) background.
+- **Plus Jakarta Sans typography** — Implemented a modern geometric typeface app-wide, using heavy weights (ExtraBold/Black) for metrics and headers to improve visual hierarchy and scan-ability.
+- **Hero Focus Dashboards** — Redesigned Farmer, Merchant, and AgriShop dashboards with large summary cards that highlight key metrics at a glance.
+- **AgriKit UI Components** — New suite of reusable widgets including `AgriFocusCard` (high radius corners), `AgriStadiumButton` (fully rounded tactile actions), and `AgriMetricDisplay`.
+- **Stadium-style inputs** — Redesigned all form fields and dropdowns with fully rounded borders and bold, technical labels.
+
+### Fixed
+- **Null-safety in order displays** — Resolved potential crashes when rendering orders with missing or short IDs on dashboard screens.
+- **Deprecated API usage** — Migrated from `withOpacity()` to the new `withValues(alpha: ...)` API throughout the codebase to ensure compatibility with latest Flutter versions.
+
+## 1.0.19 - 2026-04-16
+
+### Fixed
+- **Location search partial matching** — Replaced pure Nominatim lookups with a hybrid approach: 160+ bundled Botswana settlements are filtered locally by prefix/contains match (instant, offline-capable), with Nominatim running in parallel for 4+ character queries to surface less-common locations not in the local list.
+- **Edit inventory image upload** — Images added while editing an existing inventory item now upload to a timestamp-based folder (same as add mode) instead of an item-ID-based path, resolving the Firebase Storage path mismatch that caused the "Photo upload failed" error. Same fix applied to edit marketplace listing.
+
+### Added
+- **Image caching** — All `Image.network()` calls replaced with `CachedNetworkImage` via a new shared `AppNetworkImage` widget. Images are cached on-device after first load, eliminating re-downloads on every screen visit (inventory detail, marketplace detail, image pickers).
+
+## 1.0.18 - 2026-04-16
+
+### Fixed
+- **Inventory delete guard** — Deleting an inventory item that is listed on the marketplace now shows a warning dialog ("Delete Both") and automatically removes the marketplace listing first, preventing orphaned listings. Combined success message shown on completion.
+
+## 1.0.17 - 2026-04-16
+
+### Fixed
+- **Multi-photo selection** — Gallery picker in both inventory edit and marketplace add-product forms now uses `pickMultiImage`, letting users select up to 5 photos in a single gallery session instead of one at a time. Camera remains single-shot.
+- **Inventory edit add-photo** — Fixed silent image-picker failure on the edit inventory screen (matched the multi-image approach used by the marketplace form).
+- **Inventory detail layout** — Changed sticky bottom button `SafeArea` to `top: false`, preventing unexpected top padding inside the Scaffold body that was compressing the scrollable content area.
+- **Marketplace two-way trading (R-??)** — Farmers can now list produce for sale (not just supplies). `AddProductScreen` now has a "Listing Type" toggle (Produce / Supplies) that defaults to Produce when listing from inventory or creating a new listing, and restores the existing type when editing. Marketplace provider no longer force-filters by user type — all users see all listings; type filtering is available via the filter sheet.
+
+## 1.0.16 - 2026-04-16
+
+### Added
+- **Farm location autocomplete (R-01)** — Replaced the hardcoded dropdown of 20 towns with a live search field backed by Nominatim (OpenStreetMap geocoding, filtered to Botswana). Users can type any village, settlement, or area and select from real suggestions. Works in profile setup (farmer + merchant) and both edit-profile screens. The map picker is retained as an optional visual fallback.
+
+## 1.0.15 - 2026-04-16
+
+### Fixed
+- **Inventory detail redesign** — Replaced the tinted-green header container with a full-width hero image (PageView with animated dots for multi-photo items), clean bold crop name, green quantity, and plain colour-coded condition text. Removed blank-sheet effect caused by short content; content now fills screen correctly.
+- **Password visibility toggle** — `AppTextField` is now stateful; when `obscureText: true`, a visibility icon button is shown automatically in the suffix position. Works on both sign-in and sign-up screens.
+- **Order card detail** — Order cards now list each item by name with quantity (e.g. "Maize × 3") instead of "1 item". Total amount moved inline with the timestamp row.
+- **Seller orders auto-refresh** — `OrdersScreen` now triggers a fresh load of both seller and buyer providers every time the screen is visited, so newly placed purchase requests appear immediately without requiring a manual pull-to-refresh.
+- **Farmer seller orders** — Farmers' "My Orders" dashboard button now shows both the Sales tab (incoming purchase requests for their listings) and the My Requests tab (`showSalesTab: true`).
+- **Product categories expanded** — Marketplace listing form now includes Vegetables, Fruits, Grains & Cereals, Legumes, Roots & Tubers, Herbs & Spices, Livestock, Poultry, Dairy & Eggs, Processed Foods, plus the original agricultural supply categories. Selecting "Other" reveals a free-text field to specify the category.
+- **Quantity units expanded** — Both the marketplace add-product form and the inventory add/edit form now offer a full set of farming units: kg, g, tons, bags, sacks, crates, litres, ml, pieces, boxes, bundles, heads, dozen, bales, trays.
+
+## 1.0.14 - 2026-04-16
+
+### Added
+- **Request-to-Buy CTA on product pages (R-05)** — Non-owner marketplace detail page now has a "Request to Buy" primary button alongside a phone contact shortcut. Tapping it opens a bottom sheet with quantity input (validated), optional note, and live total preview. Submitting creates a `pending` order via `POST /api/v1/orders` with success feedback explaining that the seller will arrange payment and delivery off-platform.
+- **Tabbed Orders screen (Sales | My Requests)** — Replaced the AgriShop-only orders view with a unified `OrdersScreen` supporting both seller (Sales) and buyer (My Requests) tabs. Buyers can cancel pending requests. Sellers can confirm → ship → delivered.
+- **Orders entry for all user types** — Farmers get a "My Orders" quick-action button on their dashboard (alongside the existing Loss Calculator). Non-AgriShop merchants now navigate to the full Orders screen from "View Orders" instead of a coming-soon dialog.
+
+## 1.0.13 - 2026-04-16
+
+### Fixed
+- **Crop limit removed (R-02)** — Profile setup and edit farmer profile no longer enforce a hard cap of 5 crops. Farmers can now select as many crops as they grow. Removed `maxPrimaryCropsCount` constant, dropped the upper-bound validation from `ProfileValidators`, and removed `maxSelection: 5` from the edit profile chip group.
+
+## 1.0.12 - 2026-04-16
+
+### Fixed
+- **Sign-up bypasses account type selection** — "Don't have an account? Sign up" link on the sign-in screen was navigating directly to `/sign-up`, skipping the account type selection screen (`/register`). Now correctly routes to `/register` first so users choose Farmer, Agri Shop, or Supermarket Vendor before entering credentials.
+
+## 1.0.11 - 2026-04-16
+
+### Added
+- **Real photo uploads for inventory and marketplace** — Users can attach up to 5 real photos per inventory item and marketplace listing. Inventory `AddEditInventoryScreen` has a horizontal scroll image picker (camera + gallery). Marketplace `AddProductScreen` upgraded from single-image to the same multi-image pattern. Marketplace list cards now show a thumbnail. Marketplace detail view shows all images in a swipeable PageView with dot indicators. `FirebaseStorage` now has `uploadInventoryImage()` at `inventory/{userId}/{itemId}/`. Backend migration 016 adds `image_urls TEXT[]` to the inventory table.
+
+### Fixed
+- **Inventory image mismatch + harvest-to-inventory gap (R-07)** — Inventory cards and detail screens now show the actual crop thumbnail (same `imageUrlForCrop` logic as crop cards, with a neutral `local_florist_outlined` icon as fallback). After a harvest is saved, a one-tap confirm dialog appears — "Add {amount} {unit} of {crop} to inventory?" — pre-filled from the harvest form. Dismissing with "Not now" is instant; confirming creates the inventory entry automatically with quality mapped to condition.
+
+## 1.0.9 - 2026-04-16
+
+### Fixed
+- **Crop image mismatch (R-06)** — removed the maize fallback in `imageUrlForCrop` that was showing a corn photo for any crop without its own image (e.g. "Rape" displayed maize). `CropCard` now renders a neutral icon placeholder when no image URL is available. Backend migration 015 also backfills all 49 previously-NULL crop image URLs, so the placeholder path is reserved for genuinely unknown crop types.
+
+## 1.0.8 - 2026-04-16
+
+### Fixed
+- **Profile setup error handling** — surface backend validation messages from profile creation and avoid a generic failure state when creating user profiles.
+
+## 1.1.2 - 2026-04-17
+
+### Changed
+- **UI component refactoring** — migrated button components (`AppPrimaryButton`, `AppSecondaryButton`, `AppTextButton`) into unified `AgriKit` library; added `AgriTextButton` for consistent text button styling and `AgriKit.formatQuantity()` utility for quantity formatting
+- **Cleaned up language provider** — removed deprecated and unused translation keys to reduce bundle size
+- **Code organization** — consolidated core UI widgets into `agri_kit.dart` for better maintainability
+
 ## 1.0.8 - 2026-04-12
 
 ### Changed

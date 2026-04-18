@@ -1,5 +1,7 @@
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
+import 'package:agricola/core/widgets/agri_kit.dart';
+import 'package:agricola/core/widgets/app_dropdown_field.dart';
 import 'package:agricola/features/crops/crop_helpers.dart';
 import 'package:agricola/features/crops/models/crop_model.dart';
 import 'package:agricola/features/crops/providers/crop_catalog_provider.dart';
@@ -210,39 +212,13 @@ class _RecordHarvestScreenState extends ConsumerState<RecordHarvestScreen> {
                         ),
                         const SizedBox(width: 12),
                         Expanded(
-                          child: DropdownButtonFormField<String>(
-                            initialValue: _selectedYieldUnit,
-                            decoration: InputDecoration(
-                              filled: true,
-                              fillColor: Colors.white,
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(
-                                  color: Colors.grey[300]!,
-                                ),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(
-                                  color: Colors.grey[300]!,
-                                ),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: const BorderSide(
-                                  color: Color(0xFF2D6A4F),
-                                  width: 2,
-                                ),
-                              ),
-                            ),
-                            items: _yieldUnits.map((unit) {
-                              return DropdownMenuItem(
-                                value: unit,
-                                child: Text(t(unit, currentLang)),
-                              );
-                            }).toList(),
+                          child: AppDropdownField<String>(
+                            value: _selectedYieldUnit,
+                            items: _yieldUnits,
+                            itemLabelBuilder: (unit) => t(unit, currentLang),
+                            sheetTitle: t('unit', currentLang),
                             onChanged: (value) {
-                              setState(() => _selectedYieldUnit = value!);
+                              if (value != null) setState(() => _selectedYieldUnit = value);
                             },
                           ),
                         ),
@@ -299,7 +275,7 @@ class _RecordHarvestScreenState extends ConsumerState<RecordHarvestScreen> {
                                   ),
                                 ),
                                 Text(
-                                  '${widget.crop.estimatedYield} ${t(_selectedYieldUnit, currentLang)}',
+                                  '${AgriKit.formatQuantity(widget.crop.estimatedYield)} ${t(_selectedYieldUnit, currentLang)}',
                                   style: const TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w600,
@@ -339,7 +315,7 @@ class _RecordHarvestScreenState extends ConsumerState<RecordHarvestScreen> {
                                   ),
                                 ),
                                 Text(
-                                  '${difference >= 0 ? '+' : ''}${difference.toStringAsFixed(1)} ${t(_selectedYieldUnit, currentLang)}',
+                                  '${difference >= 0 ? '+' : ''}${AgriKit.formatQuantity(difference)} ${t(_selectedYieldUnit, currentLang)}',
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
@@ -440,37 +416,13 @@ class _RecordHarvestScreenState extends ConsumerState<RecordHarvestScreen> {
                       ],
                     ),
                     const SizedBox(height: 16),
-                    DropdownButtonFormField<String>(
-                      initialValue: _selectedLossReason,
-                      decoration: InputDecoration(
-                        hintText: t('loss_reason', currentLang),
-                        filled: true,
-                        fillColor: Colors.white,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: Colors.grey[300]!),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: Colors.grey[300]!),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(
-                            color: Color(0xFF2D6A4F),
-                            width: 2,
-                          ),
-                        ),
-                      ),
-                      items: _lossReasons.map((reason) {
-                        return DropdownMenuItem(
-                          value: reason,
-                          child: Text(t(reason, currentLang)),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        setState(() => _selectedLossReason = value);
-                      },
+                    AppDropdownField<String>(
+                      value: _selectedLossReason,
+                      items: _lossReasons,
+                      hint: t('loss_reason', currentLang),
+                      sheetTitle: t('loss_reason', currentLang),
+                      itemLabelBuilder: (reason) => t(reason, currentLang),
+                      onChanged: (value) => setState(() => _selectedLossReason = value),
                     ),
                     if (_selectedLossReason == 'other_loss') ...[
                       const SizedBox(height: 16),
@@ -593,34 +545,19 @@ class _RecordHarvestScreenState extends ConsumerState<RecordHarvestScreen> {
               child: Row(
                 children: [
                   Expanded(
-                    child: OutlinedButton(
+                    child: AgriStadiumButton(
                       onPressed: () => Navigator.pop(context),
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        side: const BorderSide(color: Color(0xFF2D6A4F)),
-                      ),
-                      child: Text(t('cancel', currentLang)),
+                      label: t('cancel', currentLang),
+                      isPrimary: false,
                     ),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
                     flex: 2,
-                    child: ElevatedButton.icon(
+                    child: AgriStadiumButton(
                       onPressed: _saveHarvest,
-                      icon: const Icon(Icons.inventory_2),
-                      label: Text(t('save_to_inventory', currentLang)),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF2D6A4F),
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        elevation: 0,
-                      ),
+                      icon: Icons.inventory_2,
+                      label: t('save_to_inventory', currentLang),
                     ),
                   ),
                 ],
@@ -651,7 +588,8 @@ class _RecordHarvestScreenState extends ConsumerState<RecordHarvestScreen> {
 
   double? _calculateDifference() {
     if (_actualYieldController.text.isNotEmpty) {
-      final actual = double.parse(_actualYieldController.text);
+      final actual = double.tryParse(_actualYieldController.text);
+      if (actual == null) return null;
       return actual - widget.crop.estimatedYield;
     }
     return null;

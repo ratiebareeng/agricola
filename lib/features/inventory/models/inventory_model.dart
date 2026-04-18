@@ -1,14 +1,18 @@
 import 'package:agricola/core/utils/json_extensions.dart';
 
+const _sentinel = Object();
+
 class InventoryModel {
   final String? id;
   final String cropType;
   final double quantity;
   final String unit;
+  final double? unitPrice;
   final DateTime storageDate;
   final String storageLocation;
   final String condition;
   final String? notes;
+  final List<String> imageUrls;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -17,25 +21,33 @@ class InventoryModel {
     required this.cropType,
     required this.quantity,
     required this.unit,
+    this.unitPrice,
     required this.storageDate,
     required this.storageLocation,
     required this.condition,
     this.notes,
+    this.imageUrls = const [],
     DateTime? createdAt,
     DateTime? updatedAt,
   }) : createdAt = createdAt ?? DateTime.now(),
        updatedAt = updatedAt ?? DateTime.now();
 
   factory InventoryModel.fromJson(Map<String, dynamic> json) {
+    final rawUrls = json['imageUrls'];
+    final imageUrls = rawUrls is List
+        ? rawUrls.map((e) => e.toString()).toList()
+        : <String>[];
     return InventoryModel(
       id: json.optionalString('id'),
       cropType: json['cropType'],
       quantity: (json['quantity'] as num).toDouble(),
       unit: json['unit'],
+      unitPrice: json['unitPrice'] != null ? (json['unitPrice'] as num).toDouble() : null,
       storageDate: DateTime.parse(json['storageDate']),
       storageLocation: json['storageLocation'],
       condition: json['condition'],
       notes: json['notes'],
+      imageUrls: imageUrls,
       createdAt: DateTime.parse(json['createdAt']),
       updatedAt: DateTime.parse(json['updatedAt']),
     );
@@ -46,10 +58,12 @@ class InventoryModel {
     String? cropType,
     double? quantity,
     String? unit,
+    Object? unitPrice = _sentinel,
     DateTime? storageDate,
     String? storageLocation,
     String? condition,
     String? notes,
+    List<String>? imageUrls,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -58,10 +72,12 @@ class InventoryModel {
       cropType: cropType ?? this.cropType,
       quantity: quantity ?? this.quantity,
       unit: unit ?? this.unit,
+      unitPrice: unitPrice == _sentinel ? this.unitPrice : unitPrice as double?,
       storageDate: storageDate ?? this.storageDate,
       storageLocation: storageLocation ?? this.storageLocation,
       condition: condition ?? this.condition,
       notes: notes ?? this.notes,
+      imageUrls: imageUrls ?? this.imageUrls,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -73,10 +89,12 @@ class InventoryModel {
       'cropType': cropType,
       'quantity': quantity,
       'unit': unit,
+      'unitPrice': unitPrice,
       'storageDate': storageDate.toIso8601String(),
       'storageLocation': storageLocation,
       'condition': condition,
       'notes': notes,
+      'imageUrls': imageUrls,
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
     };

@@ -97,7 +97,7 @@ void main() {
           () => mockProfileNotifier.createFarmerProfile(
             profile: any(named: 'profile'),
           ),
-        ).thenAnswer((_) async => true);
+        ).thenAnswer((_) async => null);
 
         when(
           () => mockAuthController.markProfileAsComplete(),
@@ -198,7 +198,7 @@ void main() {
         () => mockProfileNotifier.createFarmerProfile(
           profile: any(named: 'profile'),
         ),
-      ).thenAnswer((_) async => false); // Backend failure
+      ).thenAnswer((_) async => 'Server error'); // Backend failure
 
       // Act
       final success = await notifier.completeSetup();
@@ -233,7 +233,7 @@ void main() {
         capturedProfile =
             invocation.namedArguments[const Symbol('profile')]
                 as FarmerProfileModel;
-        return true;
+        return null;
       });
 
       when(
@@ -280,7 +280,7 @@ void main() {
         capturedProfile =
             invocation.namedArguments[const Symbol('profile')]
                 as FarmerProfileModel;
-        return true;
+        return null;
       });
 
       when(
@@ -317,7 +317,7 @@ void main() {
           () => mockProfileNotifier.createMerchantProfile(
             profile: any(named: 'profile'),
           ),
-        ).thenAnswer((_) async => true);
+        ).thenAnswer((_) async => null);
 
         when(
           () => mockAuthController.markProfileAsComplete(),
@@ -396,7 +396,7 @@ void main() {
         () => mockProfileNotifier.createMerchantProfile(
           profile: any(named: 'profile'),
         ),
-      ).thenAnswer((_) async => false);
+      ).thenAnswer((_) async => null);
 
       // Act
       final success = await notifier.completeSetup();
@@ -428,7 +428,7 @@ void main() {
         () => mockProfileNotifier.createMerchantProfile(
           profile: any(named: 'profile'),
         ),
-      ).thenAnswer((_) async => false);
+      ).thenAnswer((_) async => null);
 
       // Act
       final success = await notifier.completeSetup();
@@ -456,7 +456,7 @@ void main() {
         () => mockProfileNotifier.createMerchantProfile(
           profile: any(named: 'profile'),
         ),
-      ).thenAnswer((_) async => false); // Backend failure
+      ).thenAnswer((_) async => null); // Backend failure
 
       // Act
       final success = await notifier.completeSetup();
@@ -493,7 +493,7 @@ void main() {
         capturedProfile =
             invocation.namedArguments[const Symbol('profile')]
                 as MerchantProfileModel;
-        return true;
+        return null;
       });
 
       when(
@@ -528,7 +528,7 @@ void main() {
         capturedProfile =
             invocation.namedArguments[const Symbol('profile')]
                 as MerchantProfileModel;
-        return true;
+        return null;
       });
 
       when(

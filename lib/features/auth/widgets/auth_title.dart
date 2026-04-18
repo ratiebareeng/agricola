@@ -18,19 +18,17 @@ class AuthTitle extends StatelessWidget {
       children: [
         Text(
           title,
-          style: const TextStyle(
-            fontSize: 32,
-            fontWeight: FontWeight.bold,
-            color: AppColors.darkGray,
-          ),
+          style: Theme.of(context).textTheme.displayMedium,
         ),
         if (subtitle != null) ...[
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
           Text(
             subtitle!,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 16,
-              color: AppColors.mediumGray,
+              color: AppColors.deepEmerald.withValues(alpha: 0.5),
+              fontWeight: FontWeight.w500,
+              height: 1.5,
             ),
           ),
         ],

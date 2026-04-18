@@ -1,6 +1,7 @@
 import 'package:agricola/core/providers/database_provider.dart';
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/providers/offline_settings_provider.dart';
+import 'package:agricola/core/widgets/agri_kit.dart';
 import 'package:agricola/features/crops/crop_helpers.dart';
 import 'package:agricola/features/crops/models/crop_model.dart';
 import 'package:agricola/features/crops/providers/crop_catalog_provider.dart';
@@ -39,11 +40,7 @@ class CropsScreen extends ConsumerWidget {
                     // My Crops Section
                     Text(
                       t('my_crops', currentLang),
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF1A1A1A),
-                      ),
+                      style: Theme.of(context).textTheme.displaySmall,
                     ),
 
                     const SizedBox(height: 16),
@@ -83,19 +80,10 @@ class CropsScreen extends ConsumerWidget {
               padding: const EdgeInsets.all(16),
               child: SizedBox(
                 width: double.infinity,
-                child: ElevatedButton.icon(
+                child: AgriStadiumButton(
                   onPressed: () => _onAddCrop(context, ref),
-                  icon: const Icon(Icons.add),
-                  label: Text(t('add_new_crop', currentLang)),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF2D6A4F),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    elevation: 0,
-                  ),
+                  icon: Icons.add,
+                  label: t('add_new_crop', currentLang),
                 ),
               ),
             ),

@@ -83,6 +83,9 @@ class AnalyticsService {
   Future<void> logPurchaseRecorded() =>
       _analytics.logEvent(name: 'purchase_recorded');
 
+  Future<void> logOrderCreated() =>
+      _analytics.logEvent(name: 'order_created');
+
   Future<void> logOrderStatusUpdated({required String status}) =>
       _analytics.logEvent(
         name: 'order_status_updated',

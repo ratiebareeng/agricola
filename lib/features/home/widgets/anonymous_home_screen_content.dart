@@ -1,6 +1,6 @@
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
-import 'package:agricola/core/widgets/app_buttons.dart';
+import 'package:agricola/core/widgets/agri_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -11,59 +11,58 @@ class AnonymousHomeScreenContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.bone,
       body: SafeArea(
         child: Center(
           child: Padding(
-            padding: const EdgeInsets.all(24.0),
+            padding: const EdgeInsets.symmetric(horizontal: 32.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
-                  Icons.lock_open_outlined,
-                  size: 80,
-                  color: AppColors.green.withAlpha(178),
+                Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: AppColors.forestGreen.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.lock_open_outlined,
+                    size: 64,
+                    color: AppColors.forestGreen,
+                  ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 40),
                 Text(
                   t('welcome_to_agricola', lang),
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.darkGray,
-                  ),
+                  style: Theme.of(context).textTheme.displayMedium,
                 ),
                 const SizedBox(height: 16),
                 Text(
                   t('sign_in_to_access_features', lang),
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
-                    color: AppColors.mediumGray,
+                    color: AppColors.deepEmerald.withValues(alpha: 0.5),
+                    fontWeight: FontWeight.w500,
                     height: 1.5,
                   ),
                 ),
-                const SizedBox(height: 40),
-                AppPrimaryButton(
+                const SizedBox(height: 56),
+                AgriStadiumButton(
                   label: t('sign_in', lang),
-                  onTap: () => context.go('/sign-in'),
+                  onPressed: () => context.go('/sign-in'),
                 ),
                 const SizedBox(height: 16),
-                AppSecondaryButton(
+                AgriStadiumButton(
                   label: t('sign_up', lang),
-                  onTap: () => context.go('/register'),
+                  onPressed: () => context.go('/register'),
+                  isPrimary: false,
                 ),
-                const SizedBox(height: 24),
-                TextButton(
+                const SizedBox(height: 32),
+                AgriTextButton(
+                  label: t('browse_marketplace', lang),
                   onPressed: () => context.go('/marketplace'),
-                  child: Text(
-                    t('browse_marketplace', lang),
-                    style: const TextStyle(
-                      color: AppColors.green,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
                 ),
               ],
             ),

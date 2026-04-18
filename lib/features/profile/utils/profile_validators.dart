@@ -26,10 +26,6 @@ class ProfileValidators {
       return ValidationRules.cropsRequired;
     }
 
-    if (crops.length > ValidationRules.maxPrimaryCropsCount) {
-      return 'Select up to ${ValidationRules.maxPrimaryCropsCount} crops';
-    }
-
     return null;
   }
 
@@ -42,10 +38,6 @@ class ProfileValidators {
 
     if (profile.primaryCrops.isEmpty) {
       return ValidationRules.cropsRequired;
-    }
-
-    if (profile.primaryCrops.length > ValidationRules.maxPrimaryCropsCount) {
-      return 'Select up to ${ValidationRules.maxPrimaryCropsCount} crops';
     }
 
     if (profile.farmSize.isEmpty) {

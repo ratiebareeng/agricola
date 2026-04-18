@@ -1,15 +1,26 @@
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
+import 'package:agricola/core/widgets/agri_kit.dart';
 import 'package:agricola/core/widgets/app_date_field.dart';
+import 'package:agricola/core/widgets/app_network_image.dart';
 import 'package:agricola/core/widgets/app_dropdown_field.dart';
 import 'package:agricola/core/widgets/app_form_layout.dart';
 import 'package:agricola/core/widgets/app_form_section.dart';
 import 'package:agricola/core/widgets/app_text_field.dart';
+import 'package:agricola/core/utils/image_utils.dart';
+import 'package:agricola/features/auth/providers/auth_provider.dart';
 import 'package:agricola/features/crops/models/crop_catalog_entry.dart';
 import 'package:agricola/features/crops/providers/crop_catalog_provider.dart';
 import 'package:agricola/features/inventory/models/inventory_model.dart';
+import 'package:agricola/features/profile/providers/profile_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
+
+const _maxImages = 5;
 
 class AddEditInventoryScreen extends ConsumerStatefulWidget {
   final InventoryModel? existingItem;
@@ -24,16 +35,41 @@ class AddEditInventoryScreen extends ConsumerStatefulWidget {
 class _AddEditInventoryScreenState
     extends ConsumerState<AddEditInventoryScreen> {
   final _formKey = GlobalKey<FormState>();
+  final _imagePicker = ImagePicker();
 
   late String _cropType;
   late double _quantity;
   late String _unit;
+  double? _unitPrice;
   late DateTime _storageDate;
   late String _storageLocation;
   late String _condition;
   String? _notes;
+  bool _isLoading = false;
 
-  final List<String> _units = ['kg', 'bags', 'tons'];
+  // Existing URLs from the server (kept when editing)
+  late List<String> _existingImageUrls;
+  // Newly picked local files (not yet uploaded)
+  final List<File> _newImages = [];
+
+  int get _totalImageCount => _existingImageUrls.length + _newImages.length;
+
+  final List<String> _units = [
+    'kg',
+    'g',
+    'tons',
+    'bags',
+    'sacks',
+    'crates',
+    'litres',
+    'pieces',
+    'bundles',
+    'heads',
+    'dozen',
+    'bales',
+    'trays',
+    'Other',
+  ];
 
   final List<String> _conditions = [
     'excellent',
@@ -49,20 +85,70 @@ class _AddEditInventoryScreenState
     'Cold Storage',
     'Silo',
     'Sold Fresh',
+    'Other',
   ];
 
+  final TextEditingController _otherUnitController = TextEditingController();
+  final TextEditingController _otherStorageLocationController = TextEditingController();
+
   bool get _isEditing => widget.existingItem != null;
+
+  @override
+  void dispose() {
+    _otherUnitController.dispose();
+    _otherStorageLocationController.dispose();
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    final standardUnits = _units.where((u) => u != 'Other').toList();
+    final standardLocations = _storageLocations.where((l) => l != 'Other').toList();
+
+    if (_isEditing) {
+      final item = widget.existingItem!;
+      _cropType = item.cropType;
+      _quantity = item.quantity;
+      _unitPrice = item.unitPrice;
+      _storageDate = item.storageDate;
+      _condition = item.condition;
+      _notes = item.notes;
+      _existingImageUrls = List<String>.from(item.imageUrls);
+
+      if (standardUnits.contains(item.unit)) {
+        _unit = item.unit;
+      } else {
+        _unit = 'Other';
+        _otherUnitController.text = item.unit;
+      }
+
+      if (standardLocations.contains(item.storageLocation)) {
+        _storageLocation = item.storageLocation;
+      } else {
+        _storageLocation = 'Other';
+        _otherStorageLocationController.text = item.storageLocation;
+      }
+    } else {
+      _cropType = 'maize_corn';
+      _quantity = 0;
+      _unit = _units.first;
+      _unitPrice = null;
+      _storageDate = DateTime.now();
+      _storageLocation = _storageLocations.first;
+      _condition = 'good';
+      _notes = null;
+      _existingImageUrls = [];
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final currentLang = ref.watch(languageProvider);
     final catalogAsync = ref.watch(cropCatalogProvider);
-    final cropKeys = catalogAsync.valueOrNull
-            ?.map((e) => e.key)
-            .toList() ??
-        [];
-    
+    final cropKeys = catalogAsync.valueOrNull?.map((e) => e.key).toList() ?? [];
     final catalogEntries = catalogAsync.valueOrNull ?? <CropCatalogEntry>[];
+
     String cropLabel(String key) {
       final entry = catalogEntries.cast<CropCatalogEntry?>().firstWhere(
         (e) => e?.key == key,
@@ -78,16 +164,25 @@ class _AddEditInventoryScreenState
       submitLabel: _isEditing
           ? t('update_inventory', currentLang)
           : t('save_inventory', currentLang),
-      onSubmit: _saveInventory,
+      isLoading: _isLoading,
+      onSubmit: _isLoading ? null : _saveInventory,
       child: Form(
         key: _formKey,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             AppFormSection(
+              title: t('photos', currentLang),
+              description: t('photos_optional_hint', currentLang),
+              child: _buildImagePicker(currentLang),
+            ),
+            const SizedBox(height: 24),
+            AppFormSection(
               title: t('crop_type', currentLang),
               child: AppDropdownField<String>(
-                value: cropKeys.contains(_cropType) ? _cropType : (cropKeys.isNotEmpty ? cropKeys.first : _cropType),
+                value: cropKeys.contains(_cropType)
+                    ? _cropType
+                    : (cropKeys.isNotEmpty ? cropKeys.first : _cropType),
                 items: cropKeys.isEmpty ? [_cropType] : cropKeys,
                 itemLabelBuilder: cropLabel,
                 onChanged: (value) {
@@ -103,8 +198,8 @@ class _AddEditInventoryScreenState
                   Expanded(
                     flex: 2,
                     child: AppTextField(
-                      label: '', // Label is handled by AppFormSection
-                      initialValue: _isEditing ? _quantity.toString() : '',
+                      label: '',
+                      initialValue: _isEditing ? AgriKit.formatQuantity(_quantity) : '',
                       keyboardType: TextInputType.number,
                       hint: t('enter_quantity', currentLang),
                       validator: (value) {
@@ -123,7 +218,7 @@ class _AddEditInventoryScreenState
                   const SizedBox(width: 12),
                   Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.only(top: 22), // Align with text field
+                      padding: const EdgeInsets.only(top: 22),
                       child: AppDropdownField<String>(
                         value: _unit,
                         items: _units,
@@ -135,6 +230,46 @@ class _AddEditInventoryScreenState
                     ),
                   ),
                 ],
+              ),
+            ),
+            if (_unit == 'Other') ...[
+              const SizedBox(height: 12),
+              AppTextField(
+                controller: _otherUnitController,
+                label: '',
+                hint: 'Specify unit (e.g. buckets)',
+                validator: (value) {
+                  if (_unit == 'Other' && (value == null || value.trim().isEmpty)) {
+                    return t('required', currentLang);
+                  }
+                  return null;
+                },
+              ),
+            ],
+            const SizedBox(height: 24),
+            AppFormSection(
+              title: t('unit_price', currentLang),
+              description: t('optional', currentLang),
+              child: AppTextField(
+                label: '',
+                initialValue: _unitPrice != null ? _unitPrice!.toStringAsFixed(2) : '',
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                hint: t('enter_unit_price', currentLang),
+                validator: (value) {
+                  if (value == null || value.isEmpty) return null;
+                  final parsed = double.tryParse(value);
+                  if (parsed == null || parsed < 0) {
+                    return t('price_invalid', currentLang);
+                  }
+                  return null;
+                },
+                onSaved: (value) {
+                  if (value == null || value.isEmpty) {
+                    _unitPrice = null;
+                  } else {
+                    _unitPrice = double.tryParse(value);
+                  }
+                },
               ),
             ),
             const SizedBox(height: 24),
@@ -158,6 +293,20 @@ class _AddEditInventoryScreenState
                 },
               ),
             ),
+            if (_storageLocation == 'Other') ...[
+              const SizedBox(height: 12),
+              AppTextField(
+                controller: _otherStorageLocationController,
+                label: '',
+                hint: 'Describe your storage location',
+                validator: (value) {
+                  if (_storageLocation == 'Other' && (value == null || value.trim().isEmpty)) {
+                    return t('required', currentLang);
+                  }
+                  return null;
+                },
+              ),
+            ],
             const SizedBox(height: 24),
             AppFormSection(
               title: t('condition', currentLang),
@@ -172,7 +321,8 @@ class _AddEditInventoryScreenState
                 initialValue: _notes,
                 maxLines: 3,
                 hint: t('add_notes', currentLang),
-                onSaved: (value) => _notes = value?.isEmpty == true ? null : value,
+                onSaved: (value) =>
+                    _notes = value?.isEmpty == true ? null : value,
               ),
             ),
             const SizedBox(height: 32),
@@ -182,26 +332,256 @@ class _AddEditInventoryScreenState
     );
   }
 
-  @override
-  void initState() {
-    super.initState();
-    if (_isEditing) {
-      final item = widget.existingItem!;
-      _cropType = item.cropType;
-      _quantity = item.quantity;
-      _unit = item.unit;
-      _storageDate = item.storageDate;
-      _storageLocation = item.storageLocation;
-      _condition = item.condition;
-      _notes = item.notes;
-    } else {
-      _cropType = 'maize_corn';
-      _quantity = 0;
-      _unit = _units.first;
-      _storageDate = DateTime.now();
-      _storageLocation = _storageLocations.first;
-      _condition = 'good';
-      _notes = null;
+  Widget _buildImagePicker(AppLanguage lang) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              // Existing uploaded images
+              for (int i = 0; i < _existingImageUrls.length; i++)
+                _buildExistingImageSlot(_existingImageUrls[i], i),
+              // New local images not yet uploaded
+              for (int i = 0; i < _newImages.length; i++)
+                _buildNewImageSlot(_newImages[i], i),
+              // Add button (only when under the limit)
+              if (_totalImageCount < _maxImages) _buildAddSlot(lang),
+            ],
+          ),
+        ),
+        if (_totalImageCount > 0)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Text(
+              '$_totalImageCount / $_maxImages ${t('photos', lang).toLowerCase()}',
+              style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildExistingImageSlot(String url, int index) {
+    return _imageSlot(
+      child: AppNetworkImage(
+        url: url,
+        errorWidget: Icon(Icons.broken_image_outlined, color: Colors.grey[400]),
+      ),
+      onRemove: () => setState(() => _existingImageUrls.removeAt(index)),
+    );
+  }
+
+  Widget _buildNewImageSlot(File file, int index) {
+    return _imageSlot(
+      child: Image.file(file, fit: BoxFit.cover),
+      onRemove: () => setState(() => _newImages.removeAt(index)),
+    );
+  }
+
+  Widget _imageSlot({required Widget child, required VoidCallback onRemove}) {
+    return Container(
+      width: 88,
+      height: 88,
+      margin: const EdgeInsets.only(right: 10),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        color: Colors.grey[100],
+      ),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: child,
+          ),
+          Positioned(
+            top: 4,
+            right: 4,
+            child: GestureDetector(
+              onTap: onRemove,
+              child: Container(
+                width: 22,
+                height: 22,
+                decoration: const BoxDecoration(
+                  color: Colors.black54,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.close, size: 14, color: Colors.white),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAddSlot(AppLanguage lang) {
+    return GestureDetector(
+      onTap: () => _showImageSourcePicker(lang),
+      child: Container(
+        width: 88,
+        height: 88,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: Colors.grey[300]!, width: 1.5),
+          color: Colors.grey[50],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.add_a_photo_outlined, size: 28, color: Colors.grey[400]),
+            const SizedBox(height: 4),
+            Text(
+              t('add_image_slot', lang),
+              style: TextStyle(fontSize: 10, color: Colors.grey[500]),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showImageSourcePicker(AppLanguage lang) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (_) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.camera_alt_outlined),
+              title: Text(t('take_photo', lang)),
+              onTap: () {
+                Navigator.pop(context);
+                _pickSingleImage(ImageSource.camera, lang);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library_outlined),
+              title: Text(t('choose_from_gallery', lang)),
+              onTap: () {
+                Navigator.pop(context);
+                _pickMultipleImages(lang);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _pickSingleImage(ImageSource source, AppLanguage lang) async {
+    try {
+      final picked = await _imagePicker.pickImage(source: source);
+      if (picked == null) return;
+      final result = await ImageUtils.prepare(File(picked.path), preset: ImagePreset.product);
+      if (!result.ok) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(t(result.errorKey!, lang)), backgroundColor: Colors.red),
+          );
+        }
+        return;
+      }
+      if (mounted) setState(() => _newImages.add(result.file!));
+    } catch (_) {
+      // silently ignore picker cancellation
+    }
+  }
+
+  Future<void> _pickMultipleImages(AppLanguage lang) async {
+    try {
+      final remaining = _maxImages - _totalImageCount;
+      if (remaining <= 0) return;
+      final picked = await _imagePicker.pickMultiImage();
+      if (picked.isEmpty) return;
+      final limited = picked.take(remaining).toList();
+      int failed = 0;
+      for (final xFile in limited) {
+        final result = await ImageUtils.prepare(File(xFile.path), preset: ImagePreset.product);
+        if (!result.ok) {
+          failed++;
+          continue;
+        }
+        if (mounted) setState(() => _newImages.add(result.file!));
+      }
+      if (failed > 0 && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${t('some_images_skipped', lang)} ($failed)'), backgroundColor: Colors.orange),
+        );
+      }
+    } catch (_) {
+      // silently ignore picker cancellation
+    }
+  }
+
+  void _saveInventory() {
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+    _formKey.currentState?.save();
+    _uploadAndSave();
+  }
+
+  Future<void> _uploadAndSave() async {
+    setState(() => _isLoading = true);
+
+    try {
+      final user = ref.read(currentUserProvider);
+      final storageService = ref.read(firebaseStorageServiceProvider);
+      final uploadedUrls = List<String>.from(_existingImageUrls);
+
+      for (int i = 0; i < _newImages.length; i++) {
+        final compressed = await ImageUtils.compressProductImage(_newImages[i]);
+        final url = await storageService.uploadInventoryImage(
+          compressed,
+          user?.uid ?? 'unknown',
+          index: uploadedUrls.length + i,
+        );
+        uploadedUrls.add(url);
+      }
+
+      final effectiveUnit = _unit == 'Other'
+          ? _otherUnitController.text.trim()
+          : _unit;
+      final effectiveStorageLocation = _storageLocation == 'Other'
+          ? _otherStorageLocationController.text.trim()
+          : _storageLocation;
+
+      final item = InventoryModel(
+        id: widget.existingItem?.id,
+        cropType: _cropType,
+        quantity: _quantity,
+        unit: effectiveUnit,
+        unitPrice: _unitPrice,
+        storageDate: _storageDate,
+        storageLocation: effectiveStorageLocation,
+        condition: _condition,
+        notes: _notes,
+        imageUrls: uploadedUrls,
+        createdAt: widget.existingItem?.createdAt,
+        updatedAt: DateTime.now(),
+      );
+
+      if (mounted) Navigator.pop(context, item);
+    } catch (e, st) {
+      debugPrint('Inventory upload error: $e\n$st');
+      if (mounted) {
+        setState(() => _isLoading = false);
+        final lang = ref.read(languageProvider);
+        final message = kDebugMode
+            ? '${t('error_upload_failed', lang)}: $e'
+            : t('error_upload_failed', lang);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(message),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -237,7 +617,8 @@ class _AddEditInventoryScreenState
                   t(condition, lang),
                   style: TextStyle(
                     fontSize: 13,
-                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                    fontWeight:
+                        isSelected ? FontWeight.bold : FontWeight.normal,
                     color: isSelected ? color : AppColors.darkGray,
                   ),
                 ),
@@ -278,27 +659,6 @@ class _AddEditInventoryScreenState
         return Icons.error;
       default:
         return Icons.help;
-    }
-  }
-
-  void _saveInventory() {
-    if (_formKey.currentState?.validate() ?? false) {
-      _formKey.currentState?.save();
-
-      final item = InventoryModel(
-        id: widget.existingItem?.id,
-        cropType: _cropType,
-        quantity: _quantity,
-        unit: _unit,
-        storageDate: _storageDate,
-        storageLocation: _storageLocation,
-        condition: _condition,
-        notes: _notes,
-        createdAt: widget.existingItem?.createdAt,
-        updatedAt: DateTime.now(),
-      );
-
-      Navigator.pop(context, item);
     }
   }
 }

@@ -2,6 +2,7 @@ import 'package:agricola/core/providers/database_provider.dart';
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/providers/offline_settings_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
+import 'package:agricola/core/widgets/agri_kit.dart';
 import 'package:agricola/core/widgets/app_dialogs.dart';
 import 'package:agricola/core/widgets/language_select_content.dart';
 import 'package:agricola/features/auth/providers/auth_controller.dart';
@@ -20,15 +21,16 @@ class SettingsScreen extends ConsumerWidget {
     final currentLang = ref.watch(languageProvider);
 
     return Scaffold(
-      backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        title: Text(t('settings', currentLang)),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black87,
+        title: Text(
+          t('settings', currentLang).toUpperCase(),
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900, letterSpacing: 2),
+        ),
+        backgroundColor: Colors.transparent,
         elevation: 0,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -40,7 +42,7 @@ class SettingsScreen extends ConsumerWidget {
               ],
             ),
 
-            const SizedBox(height: 24),
+            const SizedBox(height: 32),
 
             // Offline mode section
             _SectionHeader(title: t('offlineModeTitle', currentLang)),
@@ -50,7 +52,7 @@ class SettingsScreen extends ConsumerWidget {
               ],
             ),
 
-            const SizedBox(height: 24),
+            const SizedBox(height: 32),
 
             // Account section
             _SectionHeader(title: t('account', currentLang)),
@@ -61,7 +63,10 @@ class SettingsScreen extends ConsumerWidget {
                   title: t('change_password', currentLang),
                   onTap: () => _showChangePasswordDialog(context, ref),
                 ),
-                const Divider(height: 1),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  child: Divider(height: 1),
+                ),
                 _SettingsTile(
                   icon: Icons.delete_forever,
                   title: t('delete_account', currentLang),
@@ -71,7 +76,7 @@ class SettingsScreen extends ConsumerWidget {
               ],
             ),
 
-            const SizedBox(height: 24),
+            const SizedBox(height: 32),
 
             // Support section
             _SectionHeader(title: t('support', currentLang)),
@@ -82,7 +87,10 @@ class SettingsScreen extends ConsumerWidget {
                   title: t('report_bug', currentLang),
                   onTap: () => showFeedbackOverlay(context, ref),
                 ),
-                const Divider(height: 1),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  child: Divider(height: 1),
+                ),
                 _SettingsTile(
                   icon: Icons.help_outline,
                   title: t('help_support', currentLang),
@@ -91,7 +99,7 @@ class SettingsScreen extends ConsumerWidget {
               ],
             ),
 
-            const SizedBox(height: 24),
+            const SizedBox(height: 32),
 
             // About section
             _SectionHeader(title: t('about', currentLang)),
@@ -101,26 +109,14 @@ class SettingsScreen extends ConsumerWidget {
               ],
             ),
 
-            const SizedBox(height: 32),
+            const SizedBox(height: 48),
 
             // Logout
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton.icon(
-                onPressed: () => _showLogoutDialog(context, ref),
-                icon: const Icon(Icons.logout, color: Colors.red),
-                label: Text(
-                  t('logout', currentLang),
-                  style: const TextStyle(color: Colors.red),
-                ),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  side: const BorderSide(color: Colors.red),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
+            AgriStadiumButton(
+              onPressed: () => _showLogoutDialog(context, ref),
+              icon: Icons.logout,
+              label: t('logout', currentLang).toUpperCase(),
+              isPrimary: false,
             ),
 
             const SizedBox(height: 80),
@@ -131,7 +127,7 @@ class SettingsScreen extends ConsumerWidget {
   }
 
   // -------------------------------------------------------------------------
-  // Dialogs (moved from profile screens, shared for all user types)
+  // Dialogs
   // -------------------------------------------------------------------------
 
   void _showChangePasswordDialog(BuildContext context, WidgetRef ref) async {
@@ -143,6 +139,7 @@ class SettingsScreen extends ConsumerWidget {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(t('no_email_error', currentLang)),
+          backgroundColor: AppColors.alertRed,
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -164,17 +161,15 @@ class SettingsScreen extends ConsumerWidget {
         result.fold(
           (failure) => ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(
-                '${t('reset_failed', currentLang)}: ${failure.message}',
-              ),
-              backgroundColor: Colors.red,
+              content: Text('${t('reset_failed', currentLang)}: ${failure.message}'),
+              backgroundColor: AppColors.alertRed,
               behavior: SnackBarBehavior.floating,
             ),
           ),
           (_) => ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(t('reset_email_sent', currentLang)),
-              backgroundColor: Colors.green,
+              backgroundColor: AppColors.forestGreen,
               behavior: SnackBarBehavior.floating,
             ),
           ),
@@ -246,24 +241,30 @@ class SettingsScreen extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            isEn
-                ? 'Need help with Agricola? Contact us:'
-                : 'A o tlhoka thuso ka Agricola? Ikgolaganye le rona:',
+            isEn ? 'Need help with Agricola? Contact us:' : 'A o tlhoka thuso ka Agricola? Ikgolaganye le rona:',
+            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15, color: AppColors.deepEmerald),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
           Row(
             children: [
-              const Icon(Icons.email_outlined, size: 18, color: AppColors.green),
-              const SizedBox(width: 8),
-              const Text('developer@agricola-app.com'),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(color: AppColors.forestGreen.withValues(alpha: 0.1), shape: BoxShape.circle),
+                child: const Icon(Icons.email_outlined, size: 18, color: AppColors.forestGreen),
+              ),
+              const SizedBox(width: 12),
+              Flexible(
+                child: Text(
+                  'developer@agricola-app.com',
+                  style: const TextStyle(fontWeight: FontWeight.w700, color: AppColors.deepEmerald),
+                ),
+              ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
           Text(
-            isEn
-                ? 'You can also use the Report Bug feature to send feedback with a screenshot.'
-                : 'O ka dirisa Report Bug go romela maikutlo ka setshwantsho.',
-            style: TextStyle(fontSize: 13, color: Colors.grey[600]),
+            isEn ? 'You can also use the Report Bug feature to send feedback with a screenshot.' : 'O ka dirisa Report Bug go romela maikutlo ka setshwantsho.',
+            style: TextStyle(fontSize: 13, color: AppColors.deepEmerald.withValues(alpha: 0.5), fontWeight: FontWeight.w500),
           ),
         ],
       ),
@@ -272,10 +273,6 @@ class SettingsScreen extends ConsumerWidget {
   }
 }
 
-// ---------------------------------------------------------------------------
-// Reusable settings widgets
-// ---------------------------------------------------------------------------
-
 class _SectionHeader extends StatelessWidget {
   final String title;
   const _SectionHeader({required this.title});
@@ -283,13 +280,14 @@ class _SectionHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: 4, bottom: 8),
+      padding: const EdgeInsets.only(left: 4, bottom: 12),
       child: Text(
-        title,
+        title.toUpperCase(),
         style: TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-          color: Colors.grey[600],
+          fontSize: 11,
+          fontWeight: FontWeight.w900,
+          color: AppColors.deepEmerald.withValues(alpha: 0.4),
+          letterSpacing: 1.5,
         ),
       ),
     );
@@ -302,18 +300,8 @@ class _SettingsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withAlpha(15),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+    return AgriFocusCard(
+      padding: EdgeInsets.zero,
       child: Column(children: children),
     );
   }
@@ -335,18 +323,28 @@ class _SettingsTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: Icon(
-        icon,
-        color: isDestructive ? Colors.red : AppColors.green,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
+      leading: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: (isDestructive ? AppColors.alertRed : AppColors.forestGreen).withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Icon(
+          icon,
+          color: isDestructive ? AppColors.alertRed : AppColors.forestGreen,
+          size: 20,
+        ),
       ),
       title: Text(
         title,
         style: TextStyle(
-          color: isDestructive ? Colors.red : Colors.black87,
-          fontWeight: FontWeight.w500,
+          color: isDestructive ? AppColors.alertRed : AppColors.deepEmerald,
+          fontWeight: FontWeight.w700,
+          fontSize: 15,
         ),
       ),
-      trailing: Icon(Icons.chevron_right, color: Colors.grey[400]),
+      trailing: Icon(Icons.chevron_right, color: AppColors.deepEmerald.withValues(alpha: 0.2)),
       onTap: onTap,
     );
   }
@@ -361,10 +359,18 @@ class _LanguageTile extends ConsumerWidget {
     final currentLabel = lang == AppLanguage.english ? 'English' : 'Setswana';
 
     return ListTile(
-      leading: const Icon(Icons.language, color: AppColors.green),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
+      leading: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: AppColors.forestGreen.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: const Icon(Icons.language, color: AppColors.forestGreen, size: 20),
+      ),
       title: Text(
         t('language', lang),
-        style: const TextStyle(fontWeight: FontWeight.w500),
+        style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: AppColors.deepEmerald),
       ),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
@@ -373,12 +379,12 @@ class _LanguageTile extends ConsumerWidget {
             currentLabel,
             style: TextStyle(
               fontSize: 14,
-              color: Colors.grey[600],
-              fontWeight: FontWeight.w500,
+              color: AppColors.deepEmerald.withValues(alpha: 0.4),
+              fontWeight: FontWeight.w700,
             ),
           ),
           const SizedBox(width: 4),
-          Icon(Icons.chevron_right, color: Colors.grey[400]),
+          Icon(Icons.chevron_right, color: AppColors.deepEmerald.withValues(alpha: 0.2)),
         ],
       ),
       onTap: () {
@@ -386,7 +392,12 @@ class _LanguageTile extends ConsumerWidget {
         showDialog(
           context: context,
           builder: (context) => AlertDialog(
-            title: Text(t('select_language', lang)),
+            backgroundColor: AppColors.white,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+            title: Text(
+              t('select_language', lang),
+              style: const TextStyle(fontWeight: FontWeight.w800, color: AppColors.deepEmerald),
+            ),
             content: LanguageSelectContent(
               currentLang: lang,
               notifier: notifier,
@@ -405,12 +416,20 @@ class _AboutTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: const Icon(Icons.info_outline, color: AppColors.green),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
+      leading: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: AppColors.forestGreen.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: const Icon(Icons.info_outline, color: AppColors.forestGreen, size: 20),
+      ),
       title: Text(
         t('about', lang),
-        style: const TextStyle(fontWeight: FontWeight.w500),
+        style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: AppColors.deepEmerald),
       ),
-      trailing: Icon(Icons.chevron_right, color: Colors.grey[400]),
+      trailing: Icon(Icons.chevron_right, color: AppColors.deepEmerald.withValues(alpha: 0.2)),
       onTap: () async {
         final info = await PackageInfo.fromPlatform();
         if (!context.mounted) return;
@@ -427,13 +446,10 @@ class _AboutTile extends StatelessWidget {
                 isEn
                     ? 'Empowering smallholder farmers in Botswana with modern tools for crop management, marketplace access, and business growth.'
                     : 'Re thusa balemi ba bannye mo Botswana ka didirisiwa tsa segompieno tsa go laola dijalo, phitlhelelo ya mmaraka, le kgolo ya kgwebo.',
-                style: TextStyle(fontSize: 14, color: Colors.grey[700]),
+                style: TextStyle(fontSize: 15, color: AppColors.deepEmerald.withValues(alpha: 0.7), fontWeight: FontWeight.w500, height: 1.5),
               ),
-              const SizedBox(height: 16),
-              _aboutRow(
-                isEn ? 'Version' : 'Phetolelo',
-                '${info.version} (${info.buildNumber})',
-              ),
+              const SizedBox(height: 24),
+              _aboutRow(isEn ? 'Version' : 'Phetolelo', '${info.version} (${info.buildNumber})'),
             ],
           ),
           okayText: t('okay', lang),
@@ -443,18 +459,18 @@ class _AboutTile extends StatelessWidget {
   }
 
   static Widget _aboutRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(label, style: TextStyle(fontSize: 13, color: Colors.grey[600])),
-          Text(
-            value,
-            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
-          ),
-        ],
-      ),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label.toUpperCase(),
+          style: TextStyle(fontSize: 10, color: AppColors.deepEmerald.withValues(alpha: 0.4), fontWeight: FontWeight.w900, letterSpacing: 1),
+        ),
+        Text(
+          value,
+          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: AppColors.deepEmerald),
+        ),
+      ],
     );
   }
 }
@@ -477,49 +493,78 @@ class _OfflineModeTile extends ConsumerWidget {
     return Column(
       children: [
         SwitchListTile(
-          secondary: Icon(
-            Icons.cloud_off_outlined,
-            color: isEnabled ? AppColors.green : Colors.grey,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+          secondary: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: (isEnabled ? AppColors.forestGreen : AppColors.deepEmerald).withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(
+              Icons.cloud_off_outlined,
+              color: isEnabled ? AppColors.forestGreen : AppColors.deepEmerald.withValues(alpha: 0.4),
+              size: 20,
+            ),
           ),
           title: Text(
             t('offlineModeToggle', lang),
-            style: const TextStyle(fontWeight: FontWeight.w500),
+            style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: AppColors.deepEmerald),
           ),
           subtitle: Text(
             t('offlineModeDesc', lang),
-            style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+            style: TextStyle(fontSize: 12, color: AppColors.deepEmerald.withValues(alpha: 0.5), fontWeight: FontWeight.w500),
           ),
           value: isEnabled,
-          activeColor: AppColors.green,
-          onChanged: (_) =>
-              ref.read(offlineModeEnabledProvider.notifier).toggle(),
+          activeThumbColor: AppColors.forestGreen,
+          onChanged: (_) => ref.read(offlineModeEnabledProvider.notifier).toggle(),
         ),
         if (isEnabled) ...[
-          const Divider(height: 1),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: Divider(height: 1),
+          ),
           ListTile(
-            leading: const Icon(Icons.storage_outlined, color: AppColors.green),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
+            leading: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: AppColors.forestGreen.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(Icons.storage_outlined, color: AppColors.forestGreen, size: 20),
+            ),
             title: Text(
               t('cacheSize', lang),
-              style: const TextStyle(fontWeight: FontWeight.w500),
+              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: AppColors.deepEmerald),
             ),
             trailing: Text(
               cacheSize.whenOrNull(data: _formatBytes) ?? '...',
               style: TextStyle(
                 fontSize: 14,
-                color: Colors.grey[600],
-                fontWeight: FontWeight.w500,
+                color: AppColors.deepEmerald.withValues(alpha: 0.4),
+                fontWeight: FontWeight.w700,
               ),
             ),
           ),
-          const Divider(height: 1),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: Divider(height: 1),
+          ),
           ListTile(
-            leading: const Icon(Icons.delete_sweep_outlined,
-                color: AppColors.green),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
+            leading: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: AppColors.forestGreen.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(Icons.delete_sweep_outlined, color: AppColors.forestGreen, size: 20),
+            ),
             title: Text(
               t('clearCache', lang),
-              style: const TextStyle(fontWeight: FontWeight.w500),
+              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: AppColors.deepEmerald),
             ),
-            trailing: Icon(Icons.chevron_right, color: Colors.grey[400]),
+            trailing: Icon(Icons.chevron_right, color: AppColors.deepEmerald.withValues(alpha: 0.2)),
             onTap: () => _showClearCacheDialog(context, ref),
           ),
         ],
@@ -544,7 +589,7 @@ class _OfflineModeTile extends ConsumerWidget {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(t('cacheCleared', lang)),
-            backgroundColor: AppColors.green,
+            backgroundColor: AppColors.forestGreen,
             behavior: SnackBarBehavior.floating,
           ),
         );
