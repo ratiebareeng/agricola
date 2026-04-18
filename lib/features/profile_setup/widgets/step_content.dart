@@ -140,56 +140,64 @@ class StepContent extends ConsumerWidget {
   }
 
   Widget _buildFarmSizeStep(WidgetRef ref) {
-    final sizes = [
+    const sizes = [
       '< 1 Hectare',
       '1-5 Hectares',
       '5-10 Hectares',
       '10+ Hectares',
+      'Other',
     ];
     final state = ref.watch(profileSetupProvider);
     final notifier = ref.read(profileSetupProvider.notifier);
     final currentLang = ref.watch(languageProvider);
 
     return Column(
-      children: sizes.map((size) {
-        final isSelected = state.farmSize == size;
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 12.0),
-          child: InkWell(
-            onTap: () => notifier.updateFarmSize(size),
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: isSelected ? AppColors.green : Colors.grey[300]!,
-                  width: isSelected ? 2 : 1,
-                ),
-                borderRadius: BorderRadius.circular(12),
-                color: isSelected
-                    ? AppColors.green.withAlpha(25)
-                    : Colors.white,
-              ),
-              child: Row(
-                children: [
-                  Text(
-                    t(size, currentLang),
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: isSelected
-                          ? FontWeight.w600
-                          : FontWeight.normal,
-                      color: isSelected ? AppColors.green : Colors.black87,
-                    ),
+      children: [
+        ...sizes.map((size) {
+          final isSelected = state.farmSize == size;
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 12.0),
+            child: InkWell(
+              onTap: () => notifier.updateFarmSize(size),
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: isSelected ? AppColors.green : Colors.grey[300]!,
+                    width: isSelected ? 2 : 1,
                   ),
-                  const Spacer(),
-                  if (isSelected)
-                    const Icon(Icons.check_circle, color: AppColors.green),
-                ],
+                  borderRadius: BorderRadius.circular(12),
+                  color: isSelected ? AppColors.green.withAlpha(25) : Colors.white,
+                ),
+                child: Row(
+                  children: [
+                    Text(
+                      t(size, currentLang),
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                        color: isSelected ? AppColors.green : Colors.black87,
+                      ),
+                    ),
+                    const Spacer(),
+                    if (isSelected) const Icon(Icons.check_circle, color: AppColors.green),
+                  ],
+                ),
               ),
             ),
+          );
+        }),
+        if (state.farmSize == 'Other') ...[
+          const SizedBox(height: 4),
+          AppTextField(
+            key: const ValueKey('custom_farm_size'),
+            label: '',
+            hint: 'Describe your farm size',
+            initialValue: state.customFarmSize.isEmpty ? null : state.customFarmSize,
+            onChanged: (value) => notifier.updateCustomFarmSize(value),
           ),
-        );
-      }).toList(),
+        ],
+      ],
     );
   }
 

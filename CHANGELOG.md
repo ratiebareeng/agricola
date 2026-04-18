@@ -1,3 +1,11 @@
+## 1.3.1 - 2026-04-18
+
+### Fixed
+- **Phone number in edit profile** — Both farmer and merchant edit profile screens now include an editable phone number field. Phone is stored in the profile backend (new `phone_number` column via migration 018).
+- **Farm size preselection** — Standardised farm size options to `< 1 Hectare / 1-5 Hectares / 5-10 Hectares / 10+ Hectares / Other` across both profile setup and edit farmer screens. Previously the edit screen used mismatched labels so the saved value was never pre-selected.
+- **Farm size widget** — Replaced `AppRadioGroup` with card-based selector in `EditFarmerProfileScreen` to match the profile setup step and the merchant edit screen.
+- **"Other" option in all dropdowns** — Added `Other` to yield units, storage methods (crops), inventory units, storage locations, and purchase units. Selecting `Other` reveals a text field for the custom value, which is saved in place of the generic option.
+
 ## 1.3.0 - 2026-04-18
 
 ### Added

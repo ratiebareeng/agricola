@@ -11,6 +11,7 @@ class MerchantProfileModel extends Equatable {
   final String? customLocation;
   final List<String> productsOffered;
   final String? photoUrl;
+  final String? phoneNumber;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -23,6 +24,7 @@ class MerchantProfileModel extends Equatable {
     this.customLocation,
     required this.productsOffered,
     this.photoUrl,
+    this.phoneNumber,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -37,6 +39,7 @@ class MerchantProfileModel extends Equatable {
       customLocation: json['customLocation'] as String?,
       productsOffered: List<String>.from(json['productsOffered'] ?? []),
       photoUrl: json['photoUrl'] as String?,
+      phoneNumber: json['phoneNumber'] as String?,
       createdAt: json['createdAt'] != null
           ? DateTime.parse(json['createdAt'] as String)
           : DateTime.now(),
@@ -63,6 +66,7 @@ class MerchantProfileModel extends Equatable {
     customLocation,
     productsOffered,
     photoUrl,
+    phoneNumber,
     createdAt,
     updatedAt,
   ];
@@ -76,6 +80,7 @@ class MerchantProfileModel extends Equatable {
     String? customLocation,
     List<String>? productsOffered,
     String? photoUrl,
+    String? phoneNumber,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -88,6 +93,7 @@ class MerchantProfileModel extends Equatable {
       customLocation: customLocation ?? this.customLocation,
       productsOffered: productsOffered ?? this.productsOffered,
       photoUrl: photoUrl ?? this.photoUrl,
+      phoneNumber: phoneNumber ?? this.phoneNumber,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -102,6 +108,7 @@ class MerchantProfileModel extends Equatable {
       'customLocation': customLocation,
       'productsOffered': productsOffered,
       'photoUrl': photoUrl,
+      'phoneNumber': phoneNumber,
     };
   }
 
@@ -115,6 +122,7 @@ class MerchantProfileModel extends Equatable {
       'customLocation': customLocation,
       'productsOffered': productsOffered,
       'photoUrl': photoUrl,
+      'phoneNumber': phoneNumber,
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
     };
@@ -128,6 +136,7 @@ class MerchantProfileModel extends Equatable {
       'customLocation': customLocation,
       'productsOffered': productsOffered,
       'photoUrl': photoUrl,
+      'phoneNumber': phoneNumber,
     };
   }
 }

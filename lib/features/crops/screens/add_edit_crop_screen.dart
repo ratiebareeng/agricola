@@ -27,7 +27,7 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
   int _currentStep = 0;
 
   final List<String> _sizeUnits = ['hectares', 'Metres (m\u00B2)'];
-  final List<String> _yieldUnits = ['kg', 'bags', 'tons', 'heads', 'cobs'];
+  final List<String> _yieldUnits = ['kg', 'bags', 'tons', 'heads', 'cobs', 'other'];
   final List<String> _storageMethods = [
     'traditional_granary',
     'improved_storage',
@@ -35,6 +35,7 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
     'open_air',
     'warehouse',
     'sold_fresh',
+    'other',
   ];
   Set<String> _selectedCropTypes = {};
 
@@ -46,6 +47,8 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
   final TextEditingController _estimatedYieldController = TextEditingController();
   String _selectedYieldUnit = 'kg';
   String? _selectedStorageMethod;
+  final TextEditingController _otherYieldUnitController = TextEditingController();
+  final TextEditingController _otherStorageMethodController = TextEditingController();
   final TextEditingController _notesController = TextEditingController();
   final TextEditingController _otherCropNameController = TextEditingController();
   bool _otherCropSelected = false;
@@ -94,6 +97,8 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
     _fieldNameController.dispose();
     _fieldSizeController.dispose();
     _estimatedYieldController.dispose();
+    _otherYieldUnitController.dispose();
+    _otherStorageMethodController.dispose();
     _notesController.dispose();
     _otherCropNameController.dispose();
     super.dispose();
@@ -446,6 +451,20 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
             ],
           ),
         ),
+        if (_selectedYieldUnit == 'other') ...[
+          const SizedBox(height: 12),
+          AppTextField(
+            controller: _otherYieldUnitController,
+            label: '',
+            hint: 'Specify unit (e.g. buckets)',
+            validator: (value) {
+              if (_selectedYieldUnit == 'other' && (value == null || value.trim().isEmpty)) {
+                return t('required', lang);
+              }
+              return null;
+            },
+          ),
+        ],
         if (hasValidYield) ...[
           const SizedBox(height: 24),
           _buildLossCalculationCard(lang, double.parse(yieldText)),
@@ -464,6 +483,20 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
             validator: (value) => value == null ? t('required', lang) : null,
           ),
         ),
+        if (_selectedStorageMethod == 'other') ...[
+          const SizedBox(height: 12),
+          AppTextField(
+            controller: _otherStorageMethodController,
+            label: '',
+            hint: 'Describe your storage method',
+            validator: (value) {
+              if (_selectedStorageMethod == 'other' && (value == null || value.trim().isEmpty)) {
+                return t('required', lang);
+              }
+              return null;
+            },
+          ),
+        ],
         const SizedBox(height: 40),
         AppFormSection(
           title: t('notes', lang),
@@ -566,9 +599,28 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
     _plantingDate = crop.plantingDate;
     _expectedHarvestDate = crop.expectedHarvestDate;
     _estimatedYieldController.text = crop.estimatedYield.toString();
-    _selectedYieldUnit = crop.yieldUnit;
-    _selectedStorageMethod = crop.storageMethod;
     _notesController.text = crop.notes ?? '';
+
+    // Handle yield unit — fall back to 'other' if not a known key
+    final standardYieldUnits = ['kg', 'bags', 'tons', 'heads', 'cobs'];
+    if (standardYieldUnits.contains(crop.yieldUnit)) {
+      _selectedYieldUnit = crop.yieldUnit;
+    } else {
+      _selectedYieldUnit = 'other';
+      _otherYieldUnitController.text = crop.yieldUnit;
+    }
+
+    // Handle storage method — fall back to 'other' if not a known key
+    final standardMethods = [
+      'traditional_granary', 'improved_storage', 'bags_in_room',
+      'open_air', 'warehouse', 'sold_fresh',
+    ];
+    if (standardMethods.contains(crop.storageMethod)) {
+      _selectedStorageMethod = crop.storageMethod;
+    } else {
+      _selectedStorageMethod = 'other';
+      _otherStorageMethodController.text = crop.storageMethod;
+    }
   }
 
   void _nextStep() {
@@ -615,6 +667,13 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
                 ? _otherCropNameController.text
                 : t(cropType, lang));
 
+      final effectiveYieldUnit = _selectedYieldUnit == 'other'
+          ? _otherYieldUnitController.text.trim()
+          : _selectedYieldUnit;
+      final effectiveStorageMethod = _selectedStorageMethod == 'other'
+          ? _otherStorageMethodController.text.trim()
+          : _selectedStorageMethod!;
+
       final crop = CropModel(
         id: widget.existingCrop?.id,
         cropType: cropName,
@@ -626,8 +685,8 @@ class _AddEditCropScreenState extends ConsumerState<AddEditCropScreen> {
         plantingDate: _plantingDate,
         expectedHarvestDate: _expectedHarvestDate ?? _plantingDate,
         estimatedYield: double.parse(_estimatedYieldController.text),
-        yieldUnit: _selectedYieldUnit,
-        storageMethod: _selectedStorageMethod!,
+        yieldUnit: effectiveYieldUnit,
+        storageMethod: effectiveStorageMethod,
         notes: _notesController.text.isEmpty ? null : _notesController.text,
       );
       Navigator.pop(context, crop);

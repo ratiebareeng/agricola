@@ -77,6 +77,10 @@ class ProfileSetupNotifier extends StateNotifier<ProfileSetupState> {
       }
 
       if (state.userType == UserType.farmer) {
+        final effectiveFarmSize = state.farmSize == 'Other'
+            ? state.customFarmSize
+            : state.farmSize;
+
         // Create farmer profile model
         final farmerProfile = FarmerProfileModel(
           id: '', // Will be assigned by backend
@@ -86,7 +90,7 @@ class ProfileSetupNotifier extends StateNotifier<ProfileSetupState> {
               ? state.customVillage
               : null,
           primaryCrops: state.selectedCrops,
-          farmSize: state.farmSize,
+          farmSize: effectiveFarmSize,
           photoUrl: photoUrl,
           createdAt: DateTime.now(),
           updatedAt: DateTime.now(),
@@ -347,6 +351,11 @@ class ProfileSetupNotifier extends StateNotifier<ProfileSetupState> {
     saveProfile();
   }
 
+  void updateCustomFarmSize(String value) {
+    state = state.copyWith(customFarmSize: value);
+    saveProfile();
+  }
+
   void updateFarmSize(String value) {
     state = state.copyWith(farmSize: value);
     saveProfile();
@@ -374,6 +383,7 @@ class ProfileSetupState {
   final String customVillage;
   final List<String> selectedCrops;
   final String farmSize;
+  final String customFarmSize;
 
   // Merchant Fields
   final String businessName;
@@ -396,6 +406,7 @@ class ProfileSetupState {
     this.customVillage = '',
     this.selectedCrops = const [],
     this.farmSize = '',
+    this.customFarmSize = '',
     this.businessName = '',
     this.location = '',
     this.selectedProducts = const [],
@@ -413,6 +424,7 @@ class ProfileSetupState {
     String? customVillage,
     List<String>? selectedCrops,
     String? farmSize,
+    String? customFarmSize,
     String? businessName,
     String? location,
     List<String>? selectedProducts,
@@ -430,6 +442,7 @@ class ProfileSetupState {
       customVillage: customVillage ?? this.customVillage,
       selectedCrops: selectedCrops ?? this.selectedCrops,
       farmSize: farmSize ?? this.farmSize,
+      customFarmSize: customFarmSize ?? this.customFarmSize,
       businessName: businessName ?? this.businessName,
       location: location ?? this.location,
       selectedProducts: selectedProducts ?? this.selectedProducts,

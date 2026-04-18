@@ -9,6 +9,7 @@ class FarmerProfileModel extends Equatable {
   final List<String> primaryCrops;
   final String farmSize;
   final String? photoUrl;
+  final String? phoneNumber;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -20,6 +21,7 @@ class FarmerProfileModel extends Equatable {
     required this.primaryCrops,
     required this.farmSize,
     this.photoUrl,
+    this.phoneNumber,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -33,6 +35,7 @@ class FarmerProfileModel extends Equatable {
       primaryCrops: List<String>.from(json['primaryCrops'] ?? []),
       farmSize: (json['farmSize'] as String?) ?? '',
       photoUrl: json['photoUrl'] as String?,
+      phoneNumber: json['phoneNumber'] as String?,
       createdAt: json['createdAt'] != null
           ? DateTime.parse(json['createdAt'] as String)
           : DateTime.now(),
@@ -58,6 +61,7 @@ class FarmerProfileModel extends Equatable {
     primaryCrops,
     farmSize,
     photoUrl,
+    phoneNumber,
     createdAt,
     updatedAt,
   ];
@@ -70,6 +74,7 @@ class FarmerProfileModel extends Equatable {
     List<String>? primaryCrops,
     String? farmSize,
     String? photoUrl,
+    String? phoneNumber,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -81,6 +86,7 @@ class FarmerProfileModel extends Equatable {
       primaryCrops: primaryCrops ?? this.primaryCrops,
       farmSize: farmSize ?? this.farmSize,
       photoUrl: photoUrl ?? this.photoUrl,
+      phoneNumber: phoneNumber ?? this.phoneNumber,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -94,6 +100,7 @@ class FarmerProfileModel extends Equatable {
       'primaryCrops': primaryCrops,
       'farmSize': farmSize,
       'photoUrl': photoUrl,
+      'phoneNumber': phoneNumber,
     };
   }
 
@@ -106,6 +113,7 @@ class FarmerProfileModel extends Equatable {
       'primaryCrops': primaryCrops,
       'farmSize': farmSize,
       'photoUrl': photoUrl,
+      'phoneNumber': phoneNumber,
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
     };
@@ -118,6 +126,7 @@ class FarmerProfileModel extends Equatable {
       'primaryCrops': primaryCrops,
       'farmSize': farmSize,
       'photoUrl': photoUrl,
+      'phoneNumber': phoneNumber,
     };
   }
 }

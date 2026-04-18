@@ -6,7 +6,7 @@ import 'package:agricola/core/utils/url_utils.dart';
 import 'package:agricola/core/widgets/app_filter_chip_group.dart';
 import 'package:agricola/core/widgets/app_form_layout.dart';
 import 'package:agricola/core/widgets/app_form_section.dart';
-import 'package:agricola/core/widgets/app_radio_group.dart';
+import 'package:agricola/core/widgets/app_text_field.dart';
 import 'package:agricola/features/profile/providers/profile_controller_provider.dart';
 import 'package:agricola/features/profile_setup/models/farmer_profile_model.dart';
 import 'package:agricola/features/profile_setup/widgets/location_autocomplete_field.dart';
@@ -31,7 +31,17 @@ class _EditFarmerProfileScreenState
   late String _village;
   late List<String> _selectedCrops;
   late String _farmSize;
+  late TextEditingController _phoneController;
+  late TextEditingController _customFarmSizeController;
   File? _newPhoto;
+
+  static const _farmSizes = [
+    '< 1 Hectare',
+    '1-5 Hectares',
+    '5-10 Hectares',
+    '10+ Hectares',
+    'Other',
+  ];
 
   final List<String> _availableCrops = [
     'Sorghum',
@@ -45,11 +55,31 @@ class _EditFarmerProfileScreenState
     'Vegetables',
   ];
 
-  final List<String> _farmSizes = [
-    'Small (< 5 hectares)',
-    'Medium (5-20 hectares)',
-    'Large (> 20 hectares)',
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _village = widget.profile.displayLocation;
+    _selectedCrops = List.from(widget.profile.primaryCrops);
+    _phoneController = TextEditingController(text: widget.profile.phoneNumber ?? '');
+    _customFarmSizeController = TextEditingController();
+
+    final savedSize = widget.profile.farmSize;
+    if (_farmSizes.contains(savedSize)) {
+      _farmSize = savedSize;
+    } else if (savedSize.isNotEmpty) {
+      _farmSize = 'Other';
+      _customFarmSizeController.text = savedSize;
+    } else {
+      _farmSize = '';
+    }
+  }
+
+  @override
+  void dispose() {
+    _phoneController.dispose();
+    _customFarmSizeController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -69,6 +99,17 @@ class _EditFarmerProfileScreenState
             _buildPhotoSection(isLoading, uploadProgress),
             const SizedBox(height: 32),
             AppFormSection(
+              title: 'Phone Number',
+              child: AppTextField(
+                controller: _phoneController,
+                label: '',
+                hint: 'e.g. +267 71 234 567',
+                prefixIcon: Icons.phone_outlined,
+                keyboardType: TextInputType.phone,
+              ),
+            ),
+            const SizedBox(height: 24),
+            AppFormSection(
               title: 'Village/Location',
               isRequired: true,
               child: LocationAutocompleteField(
@@ -86,13 +127,59 @@ class _EditFarmerProfileScreenState
             const SizedBox(height: 24),
             AppFormSection(
               title: 'Farm Size',
-              child: AppRadioGroup<String>(
-                items: _farmSizes,
-                selectedItem: _farmSize,
-                itemLabelBuilder: (item) => item,
-                onSelected: (value) {
-                  if (!isLoading) setState(() => _farmSize = value);
-                },
+              child: Column(
+                children: [
+                  ..._farmSizes.map((size) {
+                    final isSelected = _farmSize == size;
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: InkWell(
+                        onTap: isLoading ? null : () => setState(() => _farmSize = size),
+                        borderRadius: BorderRadius.circular(12),
+                        child: Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: isSelected ? AppColors.green : Colors.grey[300]!,
+                              width: isSelected ? 2 : 1,
+                            ),
+                            borderRadius: BorderRadius.circular(12),
+                            color: isSelected ? AppColors.green.withAlpha(25) : Colors.white,
+                          ),
+                          child: Row(
+                            children: [
+                              Text(
+                                size,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                                  color: isSelected ? AppColors.green : Colors.black87,
+                                ),
+                              ),
+                              const Spacer(),
+                              if (isSelected)
+                                const Icon(Icons.check_circle, color: AppColors.green),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  }),
+                  if (_farmSize == 'Other') ...[
+                    const SizedBox(height: 4),
+                    AppTextField(
+                      controller: _customFarmSizeController,
+                      label: '',
+                      hint: 'Describe your farm size',
+                      validator: (value) {
+                        if (_farmSize == 'Other' && (value == null || value.trim().isEmpty)) {
+                          return 'Please describe your farm size';
+                        }
+                        return null;
+                      },
+                    ),
+                  ],
+                ],
               ),
             ),
             const SizedBox(height: 24),
@@ -120,14 +207,6 @@ class _EditFarmerProfileScreenState
         ),
       ),
     );
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _village = widget.profile.displayLocation;
-    _selectedCrops = List.from(widget.profile.primaryCrops);
-    _farmSize = widget.profile.farmSize;
   }
 
   Widget _buildPhotoSection(bool isLoading, double? uploadProgress) {
@@ -180,11 +259,7 @@ class _EditFarmerProfileScreenState
                   ),
                   child: const Padding(
                     padding: EdgeInsets.all(8.0),
-                    child: Icon(
-                      Icons.camera_alt,
-                      color: Colors.white,
-                      size: 20,
-                    ),
+                    child: Icon(Icons.camera_alt, color: Colors.white, size: 20),
                   ),
                 ),
               ),
@@ -229,10 +304,22 @@ class _EditFarmerProfileScreenState
       return;
     }
 
+    if (_farmSize.isEmpty) {
+      _showErrorSnackBar('Please select a farm size');
+      return;
+    }
+
+    final effectiveFarmSize = _farmSize == 'Other'
+        ? _customFarmSizeController.text.trim()
+        : _farmSize;
+
+    final phone = _phoneController.text.trim();
+
     final updatedProfile = widget.profile.copyWith(
       village: _village,
       primaryCrops: _selectedCrops,
-      farmSize: _farmSize,
+      farmSize: effectiveFarmSize,
+      phoneNumber: phone.isEmpty ? null : phone,
     );
 
     final error = await ref

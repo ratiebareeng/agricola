@@ -68,6 +68,7 @@ class _AddEditInventoryScreenState
     'dozen',
     'bales',
     'trays',
+    'Other',
   ];
 
   final List<String> _conditions = [
@@ -84,24 +85,50 @@ class _AddEditInventoryScreenState
     'Cold Storage',
     'Silo',
     'Sold Fresh',
+    'Other',
   ];
+
+  final TextEditingController _otherUnitController = TextEditingController();
+  final TextEditingController _otherStorageLocationController = TextEditingController();
 
   bool get _isEditing => widget.existingItem != null;
 
   @override
+  void dispose() {
+    _otherUnitController.dispose();
+    _otherStorageLocationController.dispose();
+    super.dispose();
+  }
+
+  @override
   void initState() {
     super.initState();
+    final standardUnits = _units.where((u) => u != 'Other').toList();
+    final standardLocations = _storageLocations.where((l) => l != 'Other').toList();
+
     if (_isEditing) {
       final item = widget.existingItem!;
       _cropType = item.cropType;
       _quantity = item.quantity;
-      _unit = item.unit;
       _unitPrice = item.unitPrice;
       _storageDate = item.storageDate;
-      _storageLocation = item.storageLocation;
       _condition = item.condition;
       _notes = item.notes;
       _existingImageUrls = List<String>.from(item.imageUrls);
+
+      if (standardUnits.contains(item.unit)) {
+        _unit = item.unit;
+      } else {
+        _unit = 'Other';
+        _otherUnitController.text = item.unit;
+      }
+
+      if (standardLocations.contains(item.storageLocation)) {
+        _storageLocation = item.storageLocation;
+      } else {
+        _storageLocation = 'Other';
+        _otherStorageLocationController.text = item.storageLocation;
+      }
     } else {
       _cropType = 'maize_corn';
       _quantity = 0;
@@ -205,6 +232,20 @@ class _AddEditInventoryScreenState
                 ],
               ),
             ),
+            if (_unit == 'Other') ...[
+              const SizedBox(height: 12),
+              AppTextField(
+                controller: _otherUnitController,
+                label: '',
+                hint: 'Specify unit (e.g. buckets)',
+                validator: (value) {
+                  if (_unit == 'Other' && (value == null || value.trim().isEmpty)) {
+                    return t('required', currentLang);
+                  }
+                  return null;
+                },
+              ),
+            ],
             const SizedBox(height: 24),
             AppFormSection(
               title: t('unit_price', currentLang),
@@ -252,6 +293,20 @@ class _AddEditInventoryScreenState
                 },
               ),
             ),
+            if (_storageLocation == 'Other') ...[
+              const SizedBox(height: 12),
+              AppTextField(
+                controller: _otherStorageLocationController,
+                label: '',
+                hint: 'Describe your storage location',
+                validator: (value) {
+                  if (_storageLocation == 'Other' && (value == null || value.trim().isEmpty)) {
+                    return t('required', currentLang);
+                  }
+                  return null;
+                },
+              ),
+            ],
             const SizedBox(height: 24),
             AppFormSection(
               title: t('condition', currentLang),
@@ -489,14 +544,21 @@ class _AddEditInventoryScreenState
         uploadedUrls.add(url);
       }
 
+      final effectiveUnit = _unit == 'Other'
+          ? _otherUnitController.text.trim()
+          : _unit;
+      final effectiveStorageLocation = _storageLocation == 'Other'
+          ? _otherStorageLocationController.text.trim()
+          : _storageLocation;
+
       final item = InventoryModel(
         id: widget.existingItem?.id,
         cropType: _cropType,
         quantity: _quantity,
-        unit: _unit,
+        unit: effectiveUnit,
         unitPrice: _unitPrice,
         storageDate: _storageDate,
-        storageLocation: _storageLocation,
+        storageLocation: effectiveStorageLocation,
         condition: _condition,
         notes: _notes,
         imageUrls: uploadedUrls,

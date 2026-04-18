@@ -28,6 +28,7 @@ class _EditMerchantProfileScreenState
     extends ConsumerState<EditMerchantProfileScreen> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _businessNameController;
+  late TextEditingController _phoneController;
   late String _location;
   late MerchantType _merchantType;
   late List<String> _selectedProducts;
@@ -81,6 +82,8 @@ class _EditMerchantProfileScreenState
             const SizedBox(height: 32),
             _buildBusinessNameField(),
             const SizedBox(height: 16),
+            _buildPhoneField(),
+            const SizedBox(height: 16),
             _buildLocationField(),
             const SizedBox(height: 24),
             _buildMerchantTypeSection(isLoading),
@@ -101,6 +104,7 @@ class _EditMerchantProfileScreenState
   @override
   void dispose() {
     _businessNameController.dispose();
+    _phoneController.dispose();
     super.dispose();
   }
 
@@ -109,6 +113,9 @@ class _EditMerchantProfileScreenState
     super.initState();
     _businessNameController = TextEditingController(
       text: widget.profile.businessName,
+    );
+    _phoneController = TextEditingController(
+      text: widget.profile.phoneNumber ?? '',
     );
     _location = widget.profile.displayLocation;
     _merchantType = widget.profile.merchantType;
@@ -132,6 +139,16 @@ class _EditMerchantProfileScreenState
         }
         return null;
       },
+    );
+  }
+
+  Widget _buildPhoneField() {
+    return AppTextField(
+      controller: _phoneController,
+      label: 'Phone Number',
+      hint: 'e.g. +267 71 234 567',
+      prefixIcon: Icons.phone_outlined,
+      keyboardType: TextInputType.phone,
     );
   }
 
@@ -327,11 +344,13 @@ class _EditMerchantProfileScreenState
       return;
     }
 
+    final phone = _phoneController.text.trim();
     final updatedProfile = widget.profile.copyWith(
       businessName: _businessNameController.text,
       location: _location,
       merchantType: _merchantType,
       productsOffered: _selectedProducts,
+      phoneNumber: phone.isEmpty ? null : phone,
     );
 
     final error = await ref

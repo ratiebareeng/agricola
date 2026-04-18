@@ -283,7 +283,9 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
         case 1:
           return state.selectedCrops.isNotEmpty;
         case 2:
-          return state.farmSize.isNotEmpty;
+          if (state.farmSize.isEmpty) return false;
+          if (state.farmSize == 'Other') return state.customFarmSize.isNotEmpty;
+          return true;
         case 3:
           return true;
         default:

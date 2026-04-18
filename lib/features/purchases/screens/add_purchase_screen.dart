@@ -31,7 +31,8 @@ class _AddPurchaseScreenState extends ConsumerState<AddPurchaseScreen> {
   DateTime _purchaseDate = DateTime.now();
   bool _isSaving = false;
 
-  final List<String> _units = ['kg', 'bags', 'tons', 'crates', 'bundles'];
+  final List<String> _units = ['kg', 'bags', 'tons', 'crates', 'bundles', 'Other'];
+  final TextEditingController _otherUnitController = TextEditingController();
 
   @override
   void dispose() {
@@ -39,6 +40,7 @@ class _AddPurchaseScreenState extends ConsumerState<AddPurchaseScreen> {
     _quantityController.dispose();
     _pricePerUnitController.dispose();
     _notesController.dispose();
+    _otherUnitController.dispose();
     super.dispose();
   }
 
@@ -125,6 +127,20 @@ class _AddPurchaseScreenState extends ConsumerState<AddPurchaseScreen> {
                 ),
               ],
             ),
+            if (_unit == 'Other') ...[
+              const SizedBox(height: 12),
+              AppTextField(
+                controller: _otherUnitController,
+                label: '',
+                hint: 'Specify unit (e.g. buckets)',
+                validator: (value) {
+                  if (_unit == 'Other' && (value == null || value.trim().isEmpty)) {
+                    return 'Required';
+                  }
+                  return null;
+                },
+              ),
+            ],
             const SizedBox(height: 24),
             AppTextField(
               controller: _pricePerUnitController,
@@ -249,12 +265,16 @@ class _AddPurchaseScreenState extends ConsumerState<AddPurchaseScreen> {
     setState(() => _isSaving = true);
 
     final lang = ref.read(languageProvider);
+    final effectiveUnit = _unit == 'Other'
+        ? _otherUnitController.text.trim()
+        : _unit;
+
     final purchase = PurchaseModel(
       userId: '', // Backend infers from auth token
       sellerName: _sellerNameController.text.trim(),
       cropType: _cropType!,
       quantity: double.parse(_quantityController.text),
-      unit: _unit,
+      unit: effectiveUnit,
       pricePerUnit: double.parse(_pricePerUnitController.text),
       totalAmount: _totalAmount,
       purchaseDate: _purchaseDate,
