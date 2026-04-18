@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:agricola/core/providers/language_provider.dart';
 import 'package:agricola/core/theme/app_theme.dart';
@@ -531,6 +532,9 @@ class _AddEditInventoryScreenState
 
     try {
       final user = ref.read(currentUserProvider);
+      if (user == null) {
+        throw StateError('inventory upload attempted with no authenticated user');
+      }
       final storageService = ref.read(firebaseStorageServiceProvider);
       final uploadedUrls = List<String>.from(_existingImageUrls);
 
@@ -538,7 +542,7 @@ class _AddEditInventoryScreenState
         final compressed = await ImageUtils.compressProductImage(_newImages[i]);
         final url = await storageService.uploadInventoryImage(
           compressed,
-          user?.uid ?? 'unknown',
+          user.uid,
           index: uploadedUrls.length + i,
         );
         uploadedUrls.add(url);
@@ -569,6 +573,13 @@ class _AddEditInventoryScreenState
       if (mounted) Navigator.pop(context, item);
     } catch (e, st) {
       debugPrint('Inventory upload error: $e\n$st');
+      await FirebaseCrashlytics.instance.recordError(
+        e,
+        st,
+        reason: widget.existingItem != null
+            ? 'inventory edit upload'
+            : 'inventory add upload',
+      );
       if (mounted) {
         setState(() => _isLoading = false);
         final lang = ref.read(languageProvider);

@@ -1,3 +1,10 @@
+## 1.4.7 - 2026-04-18
+
+### Fixed
+- **Silent "Upload failed" on inventory edit** — Save/upload errors in `AddEditInventoryScreen` were caught but only logged via `debugPrint`, so release builds showed the generic snackbar with no Crashlytics trail. Errors are now recorded to Crashlytics with a `reason` tag (`inventory edit upload` / `inventory add upload`) so the underlying exception is visible on the next repro.
+- **Null-user upload writing to `inventory/unknown/...`** — If `currentUserProvider` was null when save ran, uploads went to a path that Storage rules deny, producing the opaque "Upload failed" message. The save path now fails fast with a `StateError` (recorded to Crashlytics) instead of attempting the write.
+- **Sign-in flash of error state on NO_ACCOUNT_FOUND** — `authController` no longer enters an error state while redirecting a new Google user to `/register`, avoiding a brief error banner during the redirect.
+
 ## 1.4.6 - 2026-04-18
 
 ### Fixed
