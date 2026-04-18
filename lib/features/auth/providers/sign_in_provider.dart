@@ -1,9 +1,11 @@
 import 'package:agricola/core/providers/analytics_provider.dart';
 import 'package:agricola/core/services/analytics_service.dart';
+import 'package:agricola/domain/auth/failures/auth_failure.dart';
 import 'package:agricola/features/auth/providers/auth_controller.dart';
 import 'package:agricola/features/profile_setup/providers/profile_setup_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 final signInProvider = StateNotifierProvider<SignInNotifier, SignInState>((
   ref,
@@ -100,7 +102,8 @@ class SignInNotifier extends StateNotifier<SignInState> {
     }
   }
 
-  /// Sign in with Google
+  /// Sign in with Google — existing users only.
+  /// New Google users are redirected to /register to pick their account type.
   Future<bool> signInWithGoogle(BuildContext context) async {
     state = state.copyWith(isLoading: true, errorMessage: null);
 
@@ -108,14 +111,23 @@ class SignInNotifier extends StateNotifier<SignInState> {
       final result = await _authController.signInWithGoogle(
         userType: UserType.farmer,
         merchantType: null,
+        createIfNew: false,
       );
 
       return result.fold(
         (failure) {
-          state = state.copyWith(
-            isLoading: false,
-            errorMessage: failure.message,
-          );
+          state = state.copyWith(isLoading: false, errorMessage: null);
+
+          if (failure.type == AuthFailureType.userNotFound &&
+              failure.message == 'NO_ACCOUNT_FOUND') {
+            // New Google user — redirect to registration to pick their type
+            if (context.mounted) {
+              context.go('/register');
+            }
+            return false;
+          }
+
+          state = state.copyWith(errorMessage: failure.message);
           return false;
         },
         (user) {

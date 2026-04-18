@@ -136,6 +136,7 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<AuthFailure, UserModel>> signInWithGoogle({
     required UserType userType,
     MerchantType? merchantType,
+    bool createIfNew = true,
   }) async {
     try {
       final userCredential = await _datasource.signInWithGoogle();
@@ -145,12 +146,20 @@ class AuthRepositoryImpl implements AuthRepository {
       final userDoc = await _datasource.getUserDocument(firebaseUser.uid);
 
       if (userDoc.exists) {
-        // Existing user - load their data
+        // Existing user - load their data from Firestore
         final userData = userDoc.data() as Map<String, dynamic>;
         final userModel = userModelFromFirestore(userData, firebaseUser.uid);
         return Right(userModel);
+      } else if (!createIfNew) {
+        // Sign-in flow: no Firestore doc found — undo Firebase session and
+        // tell the caller to redirect to registration for type selection.
+        await _datasource.signOut();
+        return const Left(AuthFailure(
+          message: 'NO_ACCOUNT_FOUND',
+          type: AuthFailureType.userNotFound,
+        ));
       } else {
-        // New user - create with provided user type
+        // Sign-up flow: create Firestore document with chosen type
         final userModel = userModelFromFirebaseUser(
           firebaseUser,
           userType: userType,

@@ -1,3 +1,8 @@
+## 1.4.6 - 2026-04-18
+
+### Fixed
+- **Wrong user type for new Google sign-in users** — Tapping "Sign in with Google" on the sign-in screen while unregistered silently created a farmer account. Now the Firebase session is undone and the user is redirected to `/register` to choose their account type before continuing.
+
 ## 1.4.5 - 2026-04-18
 
 ### Fixed

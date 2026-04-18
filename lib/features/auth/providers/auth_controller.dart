@@ -116,12 +116,14 @@ class AuthController extends StateNotifier<AsyncValue<void>> {
   Future<Either<AuthFailure, UserModel>> signInWithGoogle({
     required UserType userType,
     MerchantType? merchantType,
+    bool createIfNew = true,
   }) async {
     state = const AsyncValue.loading();
 
     final result = await _repository.signInWithGoogle(
       userType: userType,
       merchantType: merchantType,
+      createIfNew: createIfNew,
     );
 
     result.fold(

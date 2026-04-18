@@ -8,7 +8,6 @@ import 'package:agricola/features/auth/providers/auth_provider.dart';
 import 'package:agricola/features/profile/domain/models/displayable_profile.dart';
 import 'package:agricola/features/profile/providers/profile_controller_provider.dart';
 import 'package:agricola/features/profile_setup/models/merchant_profile_model.dart';
-import 'package:agricola/features/profile_setup/providers/profile_setup_provider.dart';
 import 'package:agricola/features/reports/screens/reports_screen.dart';
 import 'package:agricola/features/settings/screens/settings_screen.dart';
 import 'package:flutter/material.dart';
