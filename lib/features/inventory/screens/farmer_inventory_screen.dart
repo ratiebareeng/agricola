@@ -57,11 +57,14 @@ class _FarmerInventoryScreenState extends ConsumerState<FarmerInventoryScreen> {
         .length;
   }
 
-  double _calculateTotalValue(List<InventoryModel> filteredInventory) {
-    return filteredInventory.fold(
-      0,
-      (sum, item) => sum + (item.unitPrice != null ? item.quantity * item.unitPrice! : 0),
-    );
+  double _calculateTotalValue(
+    List<InventoryModel> filteredInventory,
+    Map<String, double> listingPriceByInventoryId,
+  ) {
+    return filteredInventory.fold(0, (sum, item) {
+      final price = item.unitPrice ?? listingPriceByInventoryId[item.id];
+      return sum + (price != null ? item.quantity * price : 0);
+    });
   }
 
   @override
@@ -76,12 +79,16 @@ class _FarmerInventoryScreenState extends ConsumerState<FarmerInventoryScreen> {
         ? (ref.watch(unsyncedInventoryIdsProvider).valueOrNull ?? <String>{})
         : <String>{};
 
-    // Build set of listed inventory IDs
+    // Build set of listed inventory IDs and price map for total value fallback
     final listedIds = <String>{};
+    final listingPriceByInventoryId = <String, double>{};
     myListingsAsync.whenData((listings) {
       for (final listing in listings) {
         if (listing.inventoryId != null) {
           listedIds.add(listing.inventoryId!);
+          if (listing.price != null) {
+            listingPriceByInventoryId[listing.inventoryId!] = listing.price!;
+          }
         }
       }
     });
@@ -136,7 +143,7 @@ class _FarmerInventoryScreenState extends ConsumerState<FarmerInventoryScreen> {
             final filteredItems = _filterInventory(inventory);
             final availableLocations = _getAvailableLocations(inventory);
             final itemsNeedingAttention = _countItemsNeedingAttention(filteredItems);
-            final totalValue = _calculateTotalValue(filteredItems);
+            final totalValue = _calculateTotalValue(filteredItems, listingPriceByInventoryId);
 
             return Column(
               children: [

@@ -1,3 +1,9 @@
+## 1.4.4 - 2026-04-18
+
+### Fixed
+- **Inventory total value** — Items linked to a marketplace listing now contribute their listing price to the total when no `unitPrice` is set on the inventory item itself. Previously such items counted as P0, making the total always show P0 for users who set prices only when listing.
+- **List from inventory price pre-fill** — When creating a marketplace listing from an inventory item, the price field is now pre-filled with the inventory item's `unitPrice` if one exists.
+
 ## 1.4.3 - 2026-04-18
 
 ### Fixed
